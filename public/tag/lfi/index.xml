@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>LFI | Rafael Izbicki | PhD</title>
+    <link>http://www.rizbicki.ufscar.br/tag/lfi/</link>
+      <atom:link href="http://www.rizbicki.ufscar.br/tag/lfi/index.xml" rel="self" type="application/rss+xml" />
+    <description>LFI</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Wed, 01 May 2024 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>http://www.rizbicki.ufscar.br/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url>
+      <title>LFI</title>
+      <link>http://www.rizbicki.ufscar.br/tag/lfi/</link>
+    </image>
+    
+    <item>
+      <title>Classification under Nuisance Parameters and Generalized Label Shift in Likelihood-Free Inference</title>
+      <link>http://www.rizbicki.ufscar.br/publication/2024_naps/</link>
+      <pubDate>Wed, 01 May 2024 00:00:00 +0000</pubDate>
+      <guid>http://www.rizbicki.ufscar.br/publication/2024_naps/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Simulation-Based Inference with Waldo: Confidence Regions by Leveraging Prediction Algorithms or Posterior Estimators for Inverse Problems</title>
+      <link>http://www.rizbicki.ufscar.br/publication/2023_waldo/</link>
+      <pubDate>Thu, 02 Feb 2023 00:00:00 +0000</pubDate>
+      <guid>http://www.rizbicki.ufscar.br/publication/2023_waldo/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

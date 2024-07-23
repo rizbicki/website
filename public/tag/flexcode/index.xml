@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>FlexCode | Rafael Izbicki | PhD</title>
+    <link>http://www.rizbicki.ufscar.br/tag/flexcode/</link>
+      <atom:link href="http://www.rizbicki.ufscar.br/tag/flexcode/index.xml" rel="self" type="application/rss+xml" />
+    <description>FlexCode</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Mon, 01 Jan 2024 00:00:01 +0000</lastBuildDate>
+    <image>
+      <url>http://www.rizbicki.ufscar.br/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url>
+      <title>FlexCode</title>
+      <link>http://www.rizbicki.ufscar.br/tag/flexcode/</link>
+    </image>
+    
+    <item>
+      <title>Flexible conditional density estimation for time series</title>
+      <link>http://www.rizbicki.ufscar.br/publication/2024_bjps/</link>
+      <pubDate>Mon, 01 Jan 2024 00:00:01 +0000</pubDate>
+      <guid>http://www.rizbicki.ufscar.br/publication/2024_bjps/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>The Quasar Catalogue for S-PLUS DR4 (QuCatS) and the estimation of photometric redshifts</title>
+      <link>http://www.rizbicki.ufscar.br/publication/2024_mnras/</link>
+      <pubDate>Mon, 01 Jan 2024 00:00:00 +0000</pubDate>
+      <guid>http://www.rizbicki.ufscar.br/publication/2024_mnras/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
