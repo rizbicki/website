@@ -8,9 +8,6 @@ draft = false
 # caption = ""
 +++
 
-<a href="../AME.pdf"><img src="../img/ame.png" alt="Book cover"   width="350px" style="float: center" border="3"/></a>
-[**Aqui**](../AME.pdf) você pode baixar **gratuitamente** o livro
-[Aprendizado de máquina: uma abordagem estatística](../AME.pdf), escrito por mim e pelo [Tiago Mendonça](https://www.tiagoms.com/) (ISBN 978-65-00-02410-4). A capa do livro foi feita pelos incríveis [Leonardo M. Borges](http://aquitemcaqui.com/) e [Kaori Nagata](http://www.kaorinagata.net/).
 
 
 
