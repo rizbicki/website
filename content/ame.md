@@ -9,8 +9,6 @@ draft = false
 +++
 
 
-
-
 > **Versões impressas:** <br>
 > - Colorida: [https://loja.uiclap.com/titulo/ua24032/](https://loja.uiclap.com/titulo/ua24032/) <br>
 > - Preto e branco: [https://loja.uiclap.com/titulo/ua24034/](https://loja.uiclap.com/titulo/ua24034/)
