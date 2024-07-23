@@ -1,5 +1,5 @@
 +++
-#title = "Aprendizado de máquina: uma abordagem estatística"
+#title = "Aprendizado de"
 
 date = 2020-07-28T00:00:00
 draft = false
