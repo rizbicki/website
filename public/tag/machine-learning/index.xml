@@ -2,181 +2,181 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>machine learning | Rafael Izbicki | PhD</title>
-    <link>http://www.rizbicki.ufscar.br/tag/machine-learning/</link>
-      <atom:link href="http://www.rizbicki.ufscar.br/tag/machine-learning/index.xml" rel="self" type="application/rss+xml" />
+    <link>http://www.rafaelizbicki.com/tag/machine-learning/</link>
+      <atom:link href="http://www.rafaelizbicki.com/tag/machine-learning/index.xml" rel="self" type="application/rss+xml" />
     <description>machine learning</description>
     <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Wed, 01 May 2024 00:00:00 +0000</lastBuildDate>
     <image>
-      <url>http://www.rizbicki.ufscar.br/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url>
+      <url>http://www.rafaelizbicki.com/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url>
       <title>machine learning</title>
-      <link>http://www.rizbicki.ufscar.br/tag/machine-learning/</link>
+      <link>http://www.rafaelizbicki.com/tag/machine-learning/</link>
     </image>
     
     <item>
       <title>Classification under Nuisance Parameters and Generalized Label Shift in Likelihood-Free Inference</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2024_naps/</link>
+      <link>http://www.rafaelizbicki.com/publication/2024_naps/</link>
       <pubDate>Wed, 01 May 2024 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2024_naps/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2024_naps/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Distribution-Free Conformal Joint Prediction Regions for Neural Marked Temporal Point Processes</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2024_point/</link>
+      <link>http://www.rafaelizbicki.com/publication/2024_point/</link>
       <pubDate>Thu, 01 Feb 2024 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2024_point/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2024_point/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Monitoring Viral Infections in Severe Acute Respiratory Syndrome Patients in Brazil</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2024_srag/</link>
+      <link>http://www.rafaelizbicki.com/publication/2024_srag/</link>
       <pubDate>Tue, 02 Jan 2024 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2024_srag/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2024_srag/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Flexible conditional density estimation for time series</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2024_bjps/</link>
+      <link>http://www.rafaelizbicki.com/publication/2024_bjps/</link>
       <pubDate>Mon, 01 Jan 2024 00:00:01 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2024_bjps/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2024_bjps/</guid>
       <description></description>
     </item>
     
     <item>
       <title>The Quasar Catalogue for S-PLUS DR4 (QuCatS) and the estimation of photometric redshifts</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2024_mnras/</link>
+      <link>http://www.rafaelizbicki.com/publication/2024_mnras/</link>
       <pubDate>Mon, 01 Jan 2024 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2024_mnras/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2024_mnras/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Detecting Distributional Differences in Labeled Sequence Data with Application to Tropical Cyclone Satellite Imagery</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2023_aoas_tc/</link>
+      <link>http://www.rafaelizbicki.com/publication/2023_aoas_tc/</link>
       <pubDate>Tue, 01 Aug 2023 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2023_aoas_tc/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2023_aoas_tc/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Classification under Prior Probability Shift in Simulator-Based Inference: Application to Atmospheric Cosmic-Ray Showers</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2023priorshift/</link>
+      <link>http://www.rafaelizbicki.com/publication/2023priorshift/</link>
       <pubDate>Wed, 01 Mar 2023 00:00:01 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2023priorshift/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2023priorshift/</guid>
       <description></description>
     </item>
     
     <item>
       <title>A unified framework for dataset shift diagnostics</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2023_datasetshift/</link>
+      <link>http://www.rafaelizbicki.com/publication/2023_datasetshift/</link>
       <pubDate>Wed, 01 Mar 2023 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2023_datasetshift/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2023_datasetshift/</guid>
       <description></description>
     </item>
     
     <item>
       <title> NLS: Hierarchical clustering: visualization, feature importance and model selection</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2023_cluster/</link>
+      <link>http://www.rafaelizbicki.com/publication/2023_cluster/</link>
       <pubDate>Thu, 02 Feb 2023 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2023_cluster/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2023_cluster/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Simulation-Based Inference with Waldo: Confidence Regions by Leveraging Prediction Algorithms or Posterior Estimators for Inverse Problems</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2023_waldo/</link>
+      <link>http://www.rafaelizbicki.com/publication/2023_waldo/</link>
       <pubDate>Thu, 02 Feb 2023 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2023_waldo/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2023_waldo/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Quantifying uncertainty in land-use land-cover classification using conformal statistics</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2023_conformal_environment/</link>
+      <link>http://www.rafaelizbicki.com/publication/2023_conformal_environment/</link>
       <pubDate>Wed, 01 Feb 2023 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2023_conformal_environment/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2023_conformal_environment/</guid>
       <description></description>
     </item>
     
     <item>
       <title> NLS: An accurate and yet easy-to-interpret prediction method </title>
-      <link>http://www.rizbicki.ufscar.br/publication/2023_nls/</link>
+      <link>http://www.rafaelizbicki.com/publication/2023_nls/</link>
       <pubDate>Mon, 02 Jan 2023 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2023_nls/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2023_nls/</guid>
       <description></description>
     </item>
     
     <item>
       <title>A new LDA formulation with covariates</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2023_lda/</link>
+      <link>http://www.rafaelizbicki.com/publication/2023_lda/</link>
       <pubDate>Sun, 01 Jan 2023 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2023_lda/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2023_lda/</guid>
       <description></description>
     </item>
     
     <item>
       <title>CD-split and HPD-split: Efficient conformal regions in high dimensions</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2022_cdsplit/</link>
+      <link>http://www.rafaelizbicki.com/publication/2022_cdsplit/</link>
       <pubDate>Sun, 01 May 2022 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2022_cdsplit/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2022_cdsplit/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Likelihood-Free Frequentist Inference: Confidence Sets with Correct Conditional Coverage</title>
-      <link>http://www.rizbicki.ufscar.br/publication/bff/</link>
+      <link>http://www.rafaelizbicki.com/publication/bff/</link>
       <pubDate>Sat, 09 Apr 2022 00:03:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/bff/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/bff/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Causas de desaparecimento no estado de São Paulo entre 2013 e 2014: uma análise automatizada de boletins de ocorrência</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2021_desaparecimento/</link>
+      <link>http://www.rafaelizbicki.com/publication/2021_desaparecimento/</link>
       <pubDate>Fri, 19 Feb 2021 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2021_desaparecimento/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2021_desaparecimento/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Identifying Distributional Differences in Convective Evolution Prior to Rapid Intensification in Tropical Cyclones</title>
-      <link>http://www.rizbicki.ufscar.br/publication/cyclones/</link>
+      <link>http://www.rafaelizbicki.com/publication/cyclones/</link>
       <pubDate>Tue, 09 Feb 2021 00:03:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/cyclones/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/cyclones/</guid>
       <description></description>
     </item>
     
     <item>
       <title>The Latent Dirichlet Allocation model with covariates (LDAcov): a case study on the effect of fire on species composition in Amazonian forests</title>
-      <link>http://www.rizbicki.ufscar.br/publication/lda/</link>
+      <link>http://www.rafaelizbicki.com/publication/lda/</link>
       <pubDate>Mon, 01 Feb 2021 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/lda/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/lda/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Distance assessment and analysis of high-dimensional samples using variational autoencoders</title>
-      <link>http://www.rizbicki.ufscar.br/publication/vae_test/</link>
+      <link>http://www.rafaelizbicki.com/publication/vae_test/</link>
       <pubDate>Fri, 01 Jan 2021 00:20:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/vae_test/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/vae_test/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Flexible distribution-free conditional predictive bands using density estimators</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2020_cdsplit_aistats/</link>
+      <link>http://www.rafaelizbicki.com/publication/2020_cdsplit_aistats/</link>
       <pubDate>Wed, 01 Apr 2020 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2020_cdsplit_aistats/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2020_cdsplit_aistats/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Covid-19 Einstein Analysis</title>
-      <link>http://www.rizbicki.ufscar.br/post/einstein/analysis/</link>
+      <link>http://www.rafaelizbicki.com/post/einstein/analysis/</link>
       <pubDate>Sun, 29 Mar 2020 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/post/einstein/analysis/</guid>
+      <guid>http://www.rafaelizbicki.com/post/einstein/analysis/</guid>
       <description>
 
 
@@ -214,7 +214,7 @@ by removing those that have only been applied to less than
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;keep_cols &amp;lt;- apply(data,2,function(x)sum(!is.na(x)))&amp;gt;=250
 data &amp;lt;- data[,keep_cols]&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;vis_miss(data)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;http://www.rizbicki.ufscar.br/post/Einstein/analysis_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://www.rafaelizbicki.com/post/Einstein/analysis_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Given the missing patter (which consists of blocks of covariates), for
 simplicity we will keep only (i) age, (ii) the results from the complete blood count and (iii) the results for detecting other virus/bacteria.&lt;/p&gt;
 &lt;/div&gt;
@@ -252,7 +252,7 @@ Notice that we are treating this as a regression problem so that we can get a sc
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;fit_rf &amp;lt;- randomForest(x=covariates_train,
                        y=response_train)
 varImpPlot(fit_rf)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;http://www.rizbicki.ufscar.br/post/Einstein/analysis_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://www.rafaelizbicki.com/post/Einstein/analysis_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;pred_rf &amp;lt;- predict(fit_rf,newdata = covariates_test)&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;div id=&#34;logistic-regression-with-l1-penalization&#34; class=&#34;section level2&#34;&gt;
@@ -308,7 +308,7 @@ g1 &amp;lt;- ggplot(data=roc_data,aes(m=Predictor,d=Response,color=Model,fill=Mo
   ylab(&amp;quot;Sensitivity&amp;quot;)+
   geom_abline(slope = 1,intercept = 0)
 print(g1)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;http://www.rizbicki.ufscar.br/post/Einstein/analysis_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://www.rafaelizbicki.com/post/Einstein/analysis_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;We are interested in screening only, so we want a large sensitivity value.
 Random forest seems to have better specificity when the cutoffs are such that the sensitivity value is between
 0.75 and 0.95. However, if we take a closer look into that regime and plot confidence regions, it’s hard to say that
@@ -316,7 +316,7 @@ random forests in indeed better.
 Thus, we choose to use a logistic regression because it is easier for practitioners to apply.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;print(g1+coord_cartesian(ylim=c(0.6,1))+
         geom_rocci(ci.at=c(0.05,0.1,0.15)))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;http://www.rizbicki.ufscar.br/post/Einstein/analysis_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://www.rafaelizbicki.com/post/Einstein/analysis_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Now, the following plot shows that almost all patients have a small probability of having covid-19. This is because (i) the prevalance of covid-19 is small in this sample and (ii) the blood count exam is
 not informative enough. That’s OK; we are only going to use it for screening.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;ggplot(data.frame(Probability=c(pred_logistic_l1)),aes(x=Probability))+
@@ -324,7 +324,7 @@ not informative enough. That’s OK; we are only going to use it for screening.&
   theme_bw()+
   ylab(&amp;quot;Density&amp;quot;)+
   xlab(&amp;quot;Probability of covid-19 (according to logistic regression based on blood count only)&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;http://www.rizbicki.ufscar.br/post/Einstein/analysis_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://www.rafaelizbicki.com/post/Einstein/analysis_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;We will choose a cutoff that
 leads to 95% of sensitivity.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;roc_logistic &amp;lt;- roc(as.numeric(data_blood_count%&amp;gt;% 
@@ -414,89 +414,89 @@ how_many_positives_other[how_many_positives_other&amp;gt;0]&lt;/code&gt;&lt;/pre
     
     <item>
       <title>Confidence Sets and Hypothesis Testing in a Likelihood-Free Inference Setting</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2020_confidence_likelihood_free/</link>
+      <link>http://www.rafaelizbicki.com/publication/2020_confidence_likelihood_free/</link>
       <pubDate>Wed, 05 Feb 2020 00:03:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2020_confidence_likelihood_free/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2020_confidence_likelihood_free/</guid>
       <description></description>
     </item>
     
     <item>
       <title>The NN-Stacking: Feature weighted linear stacking through neural networks</title>
-      <link>http://www.rizbicki.ufscar.br/publication/meta_learning/</link>
+      <link>http://www.rafaelizbicki.com/publication/meta_learning/</link>
       <pubDate>Thu, 02 Jan 2020 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/meta_learning/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/meta_learning/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Combinando métodos de aprendizado supervisionado para a melhoria da previsão do redshift de galáxia</title>
-      <link>http://www.rizbicki.ufscar.br/publication/combinando/</link>
+      <link>http://www.rafaelizbicki.com/publication/combinando/</link>
       <pubDate>Wed, 01 Jan 2020 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/combinando/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/combinando/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Local Interpretation Methods to Machine Learning Using the Domain of the Feature Space</title>
-      <link>http://www.rizbicki.ufscar.br/publication/local_interpretation/</link>
+      <link>http://www.rafaelizbicki.com/publication/local_interpretation/</link>
       <pubDate>Wed, 01 Jan 2020 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/local_interpretation/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/local_interpretation/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Quantification under prior probability shift: the ratio estimator and its extensions</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2019_quantification/</link>
+      <link>http://www.rafaelizbicki.com/publication/2019_quantification/</link>
       <pubDate>Wed, 01 May 2019 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2019_quantification/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2019_quantification/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Conditional density estimation using Fourier series and neural networks</title>
-      <link>http://www.rizbicki.ufscar.br/publication/flexcode_nnets/</link>
+      <link>http://www.rafaelizbicki.com/publication/flexcode_nnets/</link>
       <pubDate>Mon, 28 May 2018 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/flexcode_nnets/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/flexcode_nnets/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Monitoramento online da dengue: usando o Google para predizer epidemias.</title>
-      <link>http://www.rizbicki.ufscar.br/publication/dengue/</link>
+      <link>http://www.rafaelizbicki.com/publication/dengue/</link>
       <pubDate>Mon, 01 Jan 2018 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/dengue/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/dengue/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Classificação morfológica de galáxias em conjuntos de dados desbalanceados.</title>
-      <link>http://www.rizbicki.ufscar.br/publication/desbalanceados/</link>
+      <link>http://www.rafaelizbicki.com/publication/desbalanceados/</link>
       <pubDate>Sun, 01 Jan 2017 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/desbalanceados/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/desbalanceados/</guid>
       <description></description>
     </item>
     
     <item>
       <title>High-Dimensional density ratio estimation with extensions to approximate likelihood computation</title>
-      <link>http://www.rizbicki.ufscar.br/publication/aistats_2014/</link>
+      <link>http://www.rafaelizbicki.com/publication/aistats_2014/</link>
       <pubDate>Mon, 01 Dec 2014 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/aistats_2014/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/aistats_2014/</guid>
       <description></description>
     </item>
     
     <item>
       <title>New image statistics for detecting disturbed galaxy morphologies at high redshift</title>
-      <link>http://www.rizbicki.ufscar.br/publication/mnras_mergers/</link>
+      <link>http://www.rafaelizbicki.com/publication/mnras_mergers/</link>
       <pubDate>Sun, 01 Dec 2013 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/mnras_mergers/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/mnras_mergers/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Learning with many experts: Model selection and sparsity</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2013_crowdsourcing/</link>
+      <link>http://www.rafaelizbicki.com/publication/2013_crowdsourcing/</link>
       <pubDate>Sat, 01 Jun 2013 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2013_crowdsourcing/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2013_crowdsourcing/</guid>
       <description></description>
     </item>
     

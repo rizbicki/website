@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Emulators | Rafael Izbicki | PhD</title>
-    <link>http://www.rizbicki.ufscar.br/tag/emulators/</link>
-      <atom:link href="http://www.rizbicki.ufscar.br/tag/emulators/index.xml" rel="self" type="application/rss+xml" />
+    <link>http://www.rafaelizbicki.com/tag/emulators/</link>
+      <atom:link href="http://www.rafaelizbicki.com/tag/emulators/index.xml" rel="self" type="application/rss+xml" />
     <description>Emulators</description>
     <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Sun, 05 Jan 2020 00:03:00 +0000</lastBuildDate>
     <image>
-      <url>http://www.rizbicki.ufscar.br/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url>
+      <url>http://www.rafaelizbicki.com/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url>
       <title>Emulators</title>
-      <link>http://www.rizbicki.ufscar.br/tag/emulators/</link>
+      <link>http://www.rafaelizbicki.com/tag/emulators/</link>
     </image>
     
     <item>
       <title>Validation of Approximate Likelihood and Emulator Models for Computationally Intensive Simulations</title>
-      <link>http://www.rizbicki.ufscar.br/publication/validation/</link>
+      <link>http://www.rafaelizbicki.com/publication/validation/</link>
       <pubDate>Sun, 05 Jan 2020 00:03:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/validation/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/validation/</guid>
       <description></description>
     </item>
     

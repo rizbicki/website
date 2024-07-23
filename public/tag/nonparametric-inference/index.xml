@@ -2,53 +2,53 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Nonparametric Inference | Rafael Izbicki | PhD</title>
-    <link>http://www.rizbicki.ufscar.br/tag/nonparametric-inference/</link>
-      <atom:link href="http://www.rizbicki.ufscar.br/tag/nonparametric-inference/index.xml" rel="self" type="application/rss+xml" />
+    <link>http://www.rafaelizbicki.com/tag/nonparametric-inference/</link>
+      <atom:link href="http://www.rafaelizbicki.com/tag/nonparametric-inference/index.xml" rel="self" type="application/rss+xml" />
     <description>Nonparametric Inference</description>
     <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Thu, 02 Feb 2023 00:00:00 +0000</lastBuildDate>
     <image>
-      <url>http://www.rizbicki.ufscar.br/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url>
+      <url>http://www.rafaelizbicki.com/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url>
       <title>Nonparametric Inference</title>
-      <link>http://www.rizbicki.ufscar.br/tag/nonparametric-inference/</link>
+      <link>http://www.rafaelizbicki.com/tag/nonparametric-inference/</link>
     </image>
     
     <item>
       <title> NLS: Hierarchical clustering: visualization, feature importance and model selection</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2023_cluster/</link>
+      <link>http://www.rafaelizbicki.com/publication/2023_cluster/</link>
       <pubDate>Thu, 02 Feb 2023 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2023_cluster/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2023_cluster/</guid>
       <description></description>
     </item>
     
     <item>
       <title> NLS: An accurate and yet easy-to-interpret prediction method </title>
-      <link>http://www.rizbicki.ufscar.br/publication/2023_nls/</link>
+      <link>http://www.rafaelizbicki.com/publication/2023_nls/</link>
       <pubDate>Mon, 02 Jan 2023 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2023_nls/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2023_nls/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Likelihood-Free Frequentist Inference: Confidence Sets with Correct Conditional Coverage</title>
-      <link>http://www.rizbicki.ufscar.br/publication/bff/</link>
+      <link>http://www.rafaelizbicki.com/publication/bff/</link>
       <pubDate>Sat, 09 Apr 2022 00:03:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/bff/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/bff/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Diagnostics for Conditional Density Models and Bayesian Inference Algorithms</title>
-      <link>http://www.rizbicki.ufscar.br/publication/alp/</link>
+      <link>http://www.rafaelizbicki.com/publication/alp/</link>
       <pubDate>Thu, 09 Sep 2021 00:03:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/alp/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/alp/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Identifying Distributional Differences in Convective Evolution Prior to Rapid Intensification in Tropical Cyclones</title>
-      <link>http://www.rizbicki.ufscar.br/publication/cyclones/</link>
+      <link>http://www.rafaelizbicki.com/publication/cyclones/</link>
       <pubDate>Tue, 09 Feb 2021 00:03:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/cyclones/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/cyclones/</guid>
       <description></description>
     </item>
     

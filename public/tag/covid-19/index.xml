@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>covid-19 | Rafael Izbicki | PhD</title>
-    <link>http://www.rizbicki.ufscar.br/tag/covid-19/</link>
-      <atom:link href="http://www.rizbicki.ufscar.br/tag/covid-19/index.xml" rel="self" type="application/rss+xml" />
+    <link>http://www.rafaelizbicki.com/tag/covid-19/</link>
+      <atom:link href="http://www.rafaelizbicki.com/tag/covid-19/index.xml" rel="self" type="application/rss+xml" />
     <description>covid-19</description>
     <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Sat, 02 May 2020 00:00:00 +0000</lastBuildDate>
     <image>
-      <url>http://www.rizbicki.ufscar.br/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url>
+      <url>http://www.rafaelizbicki.com/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url>
       <title>covid-19</title>
-      <link>http://www.rizbicki.ufscar.br/tag/covid-19/</link>
+      <link>http://www.rafaelizbicki.com/tag/covid-19/</link>
     </image>
     
     <item>
       <title>Evolução da Covid-19 no Brasil</title>
-      <link>http://www.rizbicki.ufscar.br/post/app_covid_localidade/</link>
+      <link>http://www.rafaelizbicki.com/post/app_covid_localidade/</link>
       <pubDate>Sat, 02 May 2020 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/post/app_covid_localidade/</guid>
+      <guid>http://www.rafaelizbicki.com/post/app_covid_localidade/</guid>
       <description>
 
 
@@ -30,9 +30,9 @@ Ele também mostra a evolução por semana, que acho ser mais robusta por remove
     
     <item>
       <title>Covid-19 Einstein Analysis</title>
-      <link>http://www.rizbicki.ufscar.br/post/einstein/analysis/</link>
+      <link>http://www.rafaelizbicki.com/post/einstein/analysis/</link>
       <pubDate>Sun, 29 Mar 2020 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/post/einstein/analysis/</guid>
+      <guid>http://www.rafaelizbicki.com/post/einstein/analysis/</guid>
       <description>
 
 
@@ -70,7 +70,7 @@ by removing those that have only been applied to less than
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;keep_cols &amp;lt;- apply(data,2,function(x)sum(!is.na(x)))&amp;gt;=250
 data &amp;lt;- data[,keep_cols]&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;vis_miss(data)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;http://www.rizbicki.ufscar.br/post/Einstein/analysis_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://www.rafaelizbicki.com/post/Einstein/analysis_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Given the missing patter (which consists of blocks of covariates), for
 simplicity we will keep only (i) age, (ii) the results from the complete blood count and (iii) the results for detecting other virus/bacteria.&lt;/p&gt;
 &lt;/div&gt;
@@ -108,7 +108,7 @@ Notice that we are treating this as a regression problem so that we can get a sc
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;fit_rf &amp;lt;- randomForest(x=covariates_train,
                        y=response_train)
 varImpPlot(fit_rf)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;http://www.rizbicki.ufscar.br/post/Einstein/analysis_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://www.rafaelizbicki.com/post/Einstein/analysis_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;pred_rf &amp;lt;- predict(fit_rf,newdata = covariates_test)&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;div id=&#34;logistic-regression-with-l1-penalization&#34; class=&#34;section level2&#34;&gt;
@@ -164,7 +164,7 @@ g1 &amp;lt;- ggplot(data=roc_data,aes(m=Predictor,d=Response,color=Model,fill=Mo
   ylab(&amp;quot;Sensitivity&amp;quot;)+
   geom_abline(slope = 1,intercept = 0)
 print(g1)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;http://www.rizbicki.ufscar.br/post/Einstein/analysis_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://www.rafaelizbicki.com/post/Einstein/analysis_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;We are interested in screening only, so we want a large sensitivity value.
 Random forest seems to have better specificity when the cutoffs are such that the sensitivity value is between
 0.75 and 0.95. However, if we take a closer look into that regime and plot confidence regions, it’s hard to say that
@@ -172,7 +172,7 @@ random forests in indeed better.
 Thus, we choose to use a logistic regression because it is easier for practitioners to apply.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;print(g1+coord_cartesian(ylim=c(0.6,1))+
         geom_rocci(ci.at=c(0.05,0.1,0.15)))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;http://www.rizbicki.ufscar.br/post/Einstein/analysis_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://www.rafaelizbicki.com/post/Einstein/analysis_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Now, the following plot shows that almost all patients have a small probability of having covid-19. This is because (i) the prevalance of covid-19 is small in this sample and (ii) the blood count exam is
 not informative enough. That’s OK; we are only going to use it for screening.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;ggplot(data.frame(Probability=c(pred_logistic_l1)),aes(x=Probability))+
@@ -180,7 +180,7 @@ not informative enough. That’s OK; we are only going to use it for screening.&
   theme_bw()+
   ylab(&amp;quot;Density&amp;quot;)+
   xlab(&amp;quot;Probability of covid-19 (according to logistic regression based on blood count only)&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;http://www.rizbicki.ufscar.br/post/Einstein/analysis_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://www.rafaelizbicki.com/post/Einstein/analysis_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;We will choose a cutoff that
 leads to 95% of sensitivity.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;roc_logistic &amp;lt;- roc(as.numeric(data_blood_count%&amp;gt;% 

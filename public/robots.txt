@@ -1,3 +1,3 @@
 User-agent: *
 
-Sitemap: http://www.rizbicki.ufscar.br/sitemap.xml
+Sitemap: http://www.rafaelizbicki.com/sitemap.xml

@@ -2,61 +2,61 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Bayesian Statistics | Rafael Izbicki | PhD</title>
-    <link>http://www.rizbicki.ufscar.br/tag/bayesian-statistics/</link>
-      <atom:link href="http://www.rizbicki.ufscar.br/tag/bayesian-statistics/index.xml" rel="self" type="application/rss+xml" />
+    <link>http://www.rafaelizbicki.com/tag/bayesian-statistics/</link>
+      <atom:link href="http://www.rafaelizbicki.com/tag/bayesian-statistics/index.xml" rel="self" type="application/rss+xml" />
     <description>Bayesian Statistics</description>
     <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Wed, 01 May 2024 00:00:00 +0000</lastBuildDate>
     <image>
-      <url>http://www.rizbicki.ufscar.br/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url>
+      <url>http://www.rafaelizbicki.com/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url>
       <title>Bayesian Statistics</title>
-      <link>http://www.rizbicki.ufscar.br/tag/bayesian-statistics/</link>
+      <link>http://www.rafaelizbicki.com/tag/bayesian-statistics/</link>
     </image>
     
     <item>
       <title>Classification under Nuisance Parameters and Generalized Label Shift in Likelihood-Free Inference</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2024_naps/</link>
+      <link>http://www.rafaelizbicki.com/publication/2024_naps/</link>
       <pubDate>Wed, 01 May 2024 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2024_naps/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2024_naps/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Simulation-Based Inference with Waldo: Confidence Regions by Leveraging Prediction Algorithms or Posterior Estimators for Inverse Problems</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2023_waldo/</link>
+      <link>http://www.rafaelizbicki.com/publication/2023_waldo/</link>
       <pubDate>Thu, 02 Feb 2023 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2023_waldo/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2023_waldo/</guid>
       <description></description>
     </item>
     
     <item>
       <title>What if the forecaster knew? Assessing forecast reliability via simulation</title>
-      <link>http://www.rizbicki.ufscar.br/publication/fifa/</link>
+      <link>http://www.rafaelizbicki.com/publication/fifa/</link>
       <pubDate>Sat, 01 Jan 2022 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/fifa/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/fifa/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Comparing probabilistic predictive models applied to football</title>
-      <link>http://www.rizbicki.ufscar.br/publication/football/</link>
+      <link>http://www.rafaelizbicki.com/publication/football/</link>
       <pubDate>Tue, 01 Jan 2019 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/football/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/football/</guid>
       <description></description>
     </item>
     
     <item>
       <title>A Bayesian Look at Nonidentifiability: a Simple Example</title>
-      <link>http://www.rizbicki.ufscar.br/publication/tas_identif/</link>
+      <link>http://www.rafaelizbicki.com/publication/tas_identif/</link>
       <pubDate>Fri, 01 Nov 2013 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/tas_identif/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/tas_identif/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Testing Allele Homogeneity: The Problem of Nested Hypotheses</title>
-      <link>http://www.rizbicki.ufscar.br/publication/nested/</link>
+      <link>http://www.rafaelizbicki.com/publication/nested/</link>
       <pubDate>Thu, 01 Nov 2012 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/nested/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/nested/</guid>
       <description></description>
     </item>
     

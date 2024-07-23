@@ -2,37 +2,37 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Prediction | Rafael Izbicki | PhD</title>
-    <link>http://www.rizbicki.ufscar.br/tag/prediction/</link>
-      <atom:link href="http://www.rizbicki.ufscar.br/tag/prediction/index.xml" rel="self" type="application/rss+xml" />
+    <link>http://www.rafaelizbicki.com/tag/prediction/</link>
+      <atom:link href="http://www.rafaelizbicki.com/tag/prediction/index.xml" rel="self" type="application/rss+xml" />
     <description>Prediction</description>
     <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Wed, 01 Mar 2023 00:00:01 +0000</lastBuildDate>
     <image>
-      <url>http://www.rizbicki.ufscar.br/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url>
+      <url>http://www.rafaelizbicki.com/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url>
       <title>Prediction</title>
-      <link>http://www.rizbicki.ufscar.br/tag/prediction/</link>
+      <link>http://www.rafaelizbicki.com/tag/prediction/</link>
     </image>
     
     <item>
       <title>Classification under Prior Probability Shift in Simulator-Based Inference: Application to Atmospheric Cosmic-Ray Showers</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2023priorshift/</link>
+      <link>http://www.rafaelizbicki.com/publication/2023priorshift/</link>
       <pubDate>Wed, 01 Mar 2023 00:00:01 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2023priorshift/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2023priorshift/</guid>
       <description></description>
     </item>
     
     <item>
       <title>A unified framework for dataset shift diagnostics</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2023_datasetshift/</link>
+      <link>http://www.rafaelizbicki.com/publication/2023_datasetshift/</link>
       <pubDate>Wed, 01 Mar 2023 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2023_datasetshift/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2023_datasetshift/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Quantifying uncertainty in land-use land-cover classification using conformal statistics</title>
-      <link>http://www.rizbicki.ufscar.br/publication/2023_conformal_environment/</link>
+      <link>http://www.rafaelizbicki.com/publication/2023_conformal_environment/</link>
       <pubDate>Wed, 01 Feb 2023 00:00:00 +0000</pubDate>
-      <guid>http://www.rizbicki.ufscar.br/publication/2023_conformal_environment/</guid>
+      <guid>http://www.rafaelizbicki.com/publication/2023_conformal_environment/</guid>
       <description></description>
     </item>
     
