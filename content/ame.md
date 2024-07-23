@@ -1,12 +1,19 @@
-+++
-#title = "Aprendizado de"
+---
+title: "Aprendizado de máquina: uma abordagem estatística"
+author: "Rafael Izbicki"
+date: '2023-01-13'
+output: html_document
+tags:
+- Portuguese
+categories:
+- Pages
+editor_options: 
+  chunk_output_type: console
+---
 
-date = 2020-07-28T00:00:00
-draft = false
-
-# [header]
-# caption = ""
-+++
+<a href="../AME.pdf"><img src="../img/ame.png" alt="Book cover"   width="350px" style="float: center" border="3"/></a>
+  [**Aqui**](../AME.pdf) você pode baixar **gratuitamente** o livro
+[Aprendizado de máquina: uma abordagem estatística](../AME.pdf), escrito por mim e pelo [Tiago Mendonça](https://www.tiagoms.com/) (ISBN 978-65-00-02410-4). A capa do livro foi feita pelos incríveis [Leonardo M. Borges](http://aquitemcaqui.com/) e [Kaori Nagata](http://www.kaorinagata.net/).
 
 
 > **Versões impressas:** <br>
