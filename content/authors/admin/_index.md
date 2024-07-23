@@ -56,7 +56,7 @@ I am a member of the following research groups/collaborations:
   }
 }
 </style>
-
+ 
 <table>
   <tr>
     <td valign="top"><a href = "http://www.small.ufscar.br/"><img src="https://www.small-lab.science/figures/logo.png" width="250"></a></td>
