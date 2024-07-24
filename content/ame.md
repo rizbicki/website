@@ -21,7 +21,7 @@ Você pode **contribuir com esse projeto** via: <br>
 **Código QR PIX**:
 <a href="../AME.pdf"><img src="../img/QR.png" alt="Cógigo QR"   width="150px" style="float: center" border="3"/></a>
 
-Além da versão digital, é possível adquirir a versão impressa em dois formatos: <br>
+Além da versão digital, é possível adquirir a **versão impressa** em dois formatos: <br>
 :book: Colorida: [https://loja.uiclap.com/titulo/ua24032/](https://loja.uiclap.com/titulo/ua24032/) <br>
 :book:   Preto e branco: [https://loja.uiclap.com/titulo/ua24034/](https://loja.uiclap.com/titulo/ua24034/)
 
