@@ -22,8 +22,8 @@ editor_options:
 <a href="../AME.pdf"><img src="../img/QR.png" alt="Cógigo QR"   width="150px" style="float: center" border="3"/></a>
 
 > **Versões impressas:** <br>
-{{< fa book >}} Colorida: [https://loja.uiclap.com/titulo/ua24032/](https://loja.uiclap.com/titulo/ua24032/) <br>
-{{< fa book >}}   Preto e branco: [https://loja.uiclap.com/titulo/ua24034/](https://loja.uiclap.com/titulo/ua24034/)
+:book: Colorida: [https://loja.uiclap.com/titulo/ua24032/](https://loja.uiclap.com/titulo/ua24032/) <br>
+:book:   Preto e branco: [https://loja.uiclap.com/titulo/ua24034/](https://loja.uiclap.com/titulo/ua24034/)
 
 A capa do livro foi feita pelos incríveis [Leonardo M. Borges](http://aquitemcaqui.com/) e [Kaori Nagata](http://www.kaorinagata.net/).
 
