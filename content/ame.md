@@ -13,7 +13,7 @@ editor_options:
 
 <a href="../AME.pdf"><img src="../img/ame.png" alt="Book cover"   width="300px" style="float: center" border="3"/></a>
   [**Aqui**](../AME.pdf) você pode baixar **gratuitamente** o livro
-[Aprendizado de máquina: uma abordagem estatística](../AME.pdf), escrito por mim e pelo [Tiago Mendonça](https://www.tiagoms.com/) (ISBN 978-65-00-02410-4). A capa do livro foi feita pelos incríveis [Leonardo M. Borges](http://aquitemcaqui.com/) e [Kaori Nagata](http://www.kaorinagata.net/).
+[Aprendizado de máquina: uma abordagem estatística](../AME.pdf), escrito por mim e pelo [Tiago Mendonça](https://www.tiagoms.com/). 
 
 
 **Contribua com esse projeto**!!<br>
@@ -22,9 +22,10 @@ editor_options:
 <a href="../AME.pdf"><img src="../img/QR.png" alt="Cógigo QR"   width="150px" style="float: center" border="3"/></a>
 
 > **Versões impressas:** <br>
-> - Colorida: [https://loja.uiclap.com/titulo/ua24032/](https://loja.uiclap.com/titulo/ua24032/) <br>
-> - Preto e branco: [https://loja.uiclap.com/titulo/ua24034/](https://loja.uiclap.com/titulo/ua24034/)
+{{< fa book >}} Colorida: [https://loja.uiclap.com/titulo/ua24032/](https://loja.uiclap.com/titulo/ua24032/) <br>
+{{< fa book >}}   Preto e branco: [https://loja.uiclap.com/titulo/ua24034/](https://loja.uiclap.com/titulo/ua24034/)
 
+A capa do livro foi feita pelos incríveis [Leonardo M. Borges](http://aquitemcaqui.com/) e [Kaori Nagata](http://www.kaorinagata.net/).
 
 **Citação**: Izbicki, R. e Santos, T. M. dos. *Aprendizado de máquina: uma abordagem estatística*. 1ᵃ edição. 2020. 272 páginas. ISBN: 978-65-00-02410-4.
 Para a entrada em **bibtex**, [clique aqui](../citacao.bib).
