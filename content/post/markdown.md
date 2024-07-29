@@ -100,17 +100,16 @@ Aqui você encontrará orientações essenciais para criar relatórios bem forma
    De acordo com @autor2020, ...
 ```
 
-#### Considerações Finais
+
+
+
+### Outros
 
 9. **Revisão**
    - Revise seu relatório antes de enviar. Verifique ortografia, gramática e se todas as seções estão bem organizadas e coerentes.
 
 10. **Versão PDF**
     - Se for necessário enviar o relatório em formato PDF, utilize a opção de renderização apropriada no R Markdown.
-
-
-
-### Tópicos Adicionais para Relatórios com R Markdown
 
 
 11. **Índice**
