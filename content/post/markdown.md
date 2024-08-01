@@ -103,7 +103,7 @@ Aqui você encontrará orientações essenciais para criar relatórios bem forma
 
 
 
-### Outros
+#### Outros
 
 9. **Revisão**
    - Revise seu relatório antes de enviar. Verifique ortografia, gramática e se todas as seções estão bem organizadas e coerentes.
