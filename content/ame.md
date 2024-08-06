@@ -2,7 +2,6 @@
 title: "Aprendizado de máquina: uma abordagem estatística (Rafael Izbicki e Tiago Mendonça)"
 author: "Rafael Izbicki"
 date: '2023-01-13'
-description: Livro Aprendizado de máquina: uma abordagem estatística, escrito por Rafael Izbicki e Tiago Mendonça
 output: html_document
 name: teste
 tags:
