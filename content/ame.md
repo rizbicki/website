@@ -3,6 +3,7 @@ title: "Aprendizado de máquina: uma abordagem estatística (Rafael Izbicki e Ti
 author: "Rafael Izbicki"
 date: '2023-01-13'
 output: html_document
+name: teste
 tags:
 - Portuguese
 categories:
