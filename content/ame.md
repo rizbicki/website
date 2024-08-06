@@ -12,6 +12,16 @@ editor_options:
   chunk_output_type: console
 ---
 
+{{ if .Description }}
+<meta name="description" content="{{ .Description }}">
+{{ else if .IsPage }}
+<meta name="description" content="{{ .Summary | plainify }}">
+{{ else if eq .URL “/blog/” }}
+<meta name="description" content="Lass dich inspirieren - mit einzigartigen Blog-Posts und Videos zu Yoga, Reisen, Mind & Meditation, Gesundheit und mehr. - Get inspired & share the spirit!">
+{{ else }}
+<meta name="description" content="Yoga-Unterricht auf Spendenbasis. Inspirierender Blog & Videos über Yoga, Reisen, Mind & Meditation, Gesundheit & mehr. - Get inspired & share the spirit!">
+{{ end }}
+
 <a href="../AME.pdf"><img src="../img/ame.png" alt="Book cover"   width="300px" style="float: center" border="3"/></a>
   [**Aqui**](../AME.pdf) você pode baixar **gratuitamente** o livro
 [Aprendizado de máquina: uma abordagem estatística](../AME.pdf), escrito por mim e pelo [Tiago Mendonça](https://www.tiagoms.com/). 
