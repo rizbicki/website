@@ -42,7 +42,7 @@ social:
     icon_pack: fab
     link: https://twitter.com/rizbicki
     superuser: true
-title: Rafael Izbicki
+title: Rafael Izbicki - Universidade Federal de São Carlos (UFSCar)
 ---
 
 I'm an Assistant Professor at the Department of Statistics of the Federal University of São Carlos (UFSCar), Brazil. From 2010 to 2014, I was a PhD student in the  Department of Statistics & Data Science at [Carnegie Mellon University](http://www.stat.cmu.edu/) (CMU) ([PhD thesis](../../IzbickiThesis.pdf)), USA. Prior to that, I graduated and received my Master's degree at the University of São Paulo (USP) ([Master's dissertation](../../DissertacaoIzbicki.pdf)). I am a Research Fellow at CNPq (2017-2024). 
