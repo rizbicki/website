@@ -16,9 +16,9 @@ appearance:
 marketing:
   seo:
     site_type: Person
-    local_business_type: ''
-    org_name: ''
-    description: 'Personal site for Rafael Izbicki.'
+    local_business_type: 'University'
+    org_name: 'Federal University of São Carlos (UFSCar)'
+    description: 'Personal website for Rafael Izbicki, Professor at the Federal University of São Carlos (UFSCar; Brazil). Author of the book "Aprendizado de máquina: uma abordagem estatística"'
   analytics:
     google_analytics: 'UA-114310932-1'
     google_tag_manager: 'G-9ZYJWCKLZE'
@@ -42,7 +42,7 @@ header:
 
 footer:
   copyright:
-    notice: '© {2022} Rafael Izbicki.'
+    notice: '© {2024} Rafael Izbicki.'
     license:
       enable: true
       allow_derivatives: false
