@@ -80,5 +80,15 @@ I am a member of the following research groups/collaborations:
 
 Book: [Aprendizado de máquina: uma abordagem estatística](ame)
 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8F80C9P3HV"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-8F80C9P3HV');
+</script>
+
 
 In case you are looking for Rafael Stern, his site is [here](http://www.rafaelstern.science).
