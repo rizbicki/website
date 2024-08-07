@@ -12,6 +12,15 @@ editor_options:
   chunk_output_type: console
 ---
 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8F80C9P3HV"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-8F80C9P3HV');
+</script>
 
 <a href="../AME.pdf"><img src="../img/ame.png" alt="Book cover"   width="300px" style="float: center" border="3"/></a>
   [**Aqui**](../AME.pdf) você pode baixar **gratuitamente** o livro
