@@ -43,7 +43,7 @@ selected : false
 tags : ["Nonparametric Statistics","Machine Learning","Conformal Predictions","Regression Trees"]
 
 # Links (optional).
-#url_pdf : "https://academic.oup.com/mnras/advance-article/doi/10.1093/mnras/stae971/7642871?searchresult=1"
+url_pdf : "https://www.sciencedirect.com/science/article/abs/pii/S0020025524012830"
 url_preprint : "https://arxiv.org/abs/2402.07357"
 #url_code : ""
 #url_dataset : "#"

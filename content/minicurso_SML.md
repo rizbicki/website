@@ -8,7 +8,7 @@ draft = false
 
 Material usado no minicurso *Statistical Machine Learning*.
 
-* [Machine Learning sob a ótica estatística](../sml.pdf): Uma abordagem preditivista para estatística com exemplos em R, com Tiago Mendonça
+* [Machine Learning sob a ótica estatística](../ame.pdf): Uma abordagem preditivista para estatística com exemplos em R, com Tiago Mendonça
 dos Santos.
 
 * [Slides](../img/sml//minicurso_SML.pdf)
