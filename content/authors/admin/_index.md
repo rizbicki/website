@@ -77,9 +77,13 @@ I am a member of the following research groups/collaborations:
 </table>
 <br>
 
+In case you are looking for Rafael Stern, his site is [here](http://www.rafaelstern.science).
+
 
 <a href="/ame"><img src="img/ame.png" alt="Book: Aprendizado de máquina: uma abordagem estatística" width="200px" style="float: center" border="3"/></a>
-
+<div style="text-align: center;">
+Book: [Aprendizado de máquina: uma abordagem estatística](ame)
+</div>
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-8F80C9P3HV"></script>
@@ -90,6 +94,3 @@ I am a member of the following research groups/collaborations:
 
   gtag('config', 'G-8F80C9P3HV');
 </script>
-
-
-In case you are looking for Rafael Stern, his site is [here](http://www.rafaelstern.science).
