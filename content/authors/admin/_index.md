@@ -79,6 +79,7 @@ I am a member of the following research groups/collaborations:
 
 
 Book: [Aprendizado de máquina: uma abordagem estatística](ame)
+<a href="/ame"><img src="img/ame.png" alt="Book cover"   width="100px" style="float: center" border="3"/></a>
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-8F80C9P3HV"></script>
