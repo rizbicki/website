@@ -42,7 +42,7 @@ social:
     icon_pack: fab
     link: https://twitter.com/rizbicki
     superuser: true
-title: Rafael Izbicki - Universidade Federal de São Carlos (UFSCar)
+title: Rafael Izbicki
 ---
 
 I'm an Assistant Professor at the Department of Statistics of the Federal University of São Carlos (UFSCar), Brazil. From 2010 to 2014, I was a PhD student in the  Department of Statistics & Data Science at [Carnegie Mellon University](http://www.stat.cmu.edu/) (CMU) ([PhD thesis](../../IzbickiThesis.pdf)), USA. Prior to that, I graduated and received my Master's degree at the University of São Paulo (USP) ([Master's dissertation](../../DissertacaoIzbicki.pdf)). I am a Research Fellow at CNPq (2017-2024). 
@@ -80,9 +80,9 @@ I am a member of the following research groups/collaborations:
 In case you are looking for Rafael Stern, his site is [here](http://www.rafaelstern.science).
 
 
-<a href="/ame"><img src="img/ame.png" alt="Book: Aprendizado de máquina: uma abordagem estatística" width="200px" style="float: center" border="3"/></a>
+<a href="/ame"><img src="img/ame.png" alt="" width="200px" style="float: center" border="3"/></a>
 <div style="text-align: center;">
-Book: [Aprendizado de máquina: uma abordagem estatística](ame)
+Book: <a href="/ame">Aprendizado de máquina: uma abordagem estatística</a>
 </div>
 
 <!-- Google tag (gtag.js) -->
