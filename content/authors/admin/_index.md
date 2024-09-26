@@ -60,7 +60,7 @@ I am a member of the following research groups/collaborations:
 <table>
   <tr>
     <td valign="top"><a href = "http://www.small.ufscar.br/"><img src="https://www.small-lab.science/figures/logo.png" width="250"></a></td>
-    <td valign="top"><a href = "http://www.gis.des.ufscar.br/index.php"><img src="../img/gis" width="200"></a></td>
+    <td valign="top"><a href = "http://www.gis.des.ufscar.br/index.php"><img src="img/gis.png" width="200"></a></td>
     <td valign="top"><a href = "https://www.splus.iag.usp.br/"><img src="https://www.splus.iag.usp.br/wp-content/themes/splus-theme/img/splus-cropped@2x.png" width="200"></a></td>
   </tr>
   
@@ -73,7 +73,10 @@ I am a member of the following research groups/collaborations:
   
   <tr>
   <td valign="top"><a href = "https://www.cin.ufpe.br/~iaia/"><img src="https://www.cin.ufpe.br/~iaia/index_files/image001.png" style="width: 150px; height: 75px;"></a></td>
+  <td valign="top"><a href = "https://hiaac.unicamp.br/"><img src="https://hiaac.unicamp.br/wp-content/themes/hiaac_portal/assets/images/logo.svg" style="width: 150px; height: 75px;"></a></td>
   </tr>
+  
+  
 </table>
 <br>
 
