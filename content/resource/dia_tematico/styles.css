@@ -1,0 +1,90 @@
+/* Estilos Globais */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #ffffff; /* Fundo branco */
+    color: #2c3e50; /* Texto em azul escuro */
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+/* Cabeçalhos */
+h1, h2 {
+    color: #2c3e50; /* Azul escuro (do logo) */
+}
+
+h1 {
+    font-size: 2.5rem;
+    text-align: left; /* Alinhado à esquerda */
+    margin-top: 20px;
+}
+
+h2 {
+    font-size: 2rem;
+    text-align: left; /* Alinhado à esquerda */
+    margin-top: 10px;
+}
+
+/* Links */
+a {
+    color: #3498db; /* Azul claro (harmoniza com o logo) */
+    text-decoration: none;
+}
+
+a:hover {
+    color: #2980b9; /* Azul mais escuro para hover */
+}
+
+/* Tabelas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 1rem;
+    background-color: #ffffff; /* Fundo branco para a tabela */
+    color: #2c3e50; /* Texto em azul escuro */
+}
+
+table th, table td {
+    padding: 12px;
+    border-bottom: 1px solid #bdc3c7; /* Linha divisória cinza clara */
+}
+
+table th {
+    background-color: #2980b9; /* Fundo azul (baseado no logo) */
+    color: #ffffff; /* Texto branco nos cabeçalhos */
+}
+
+table td {
+    background-color: #ecf0f1; /* Fundo cinza claro para as células */
+}
+
+/* Destaque para os nomes dos palestrantes */
+table td:first-child {
+    color: #e67e22; /* Laranja vibrante (do logo) */
+    font-weight: bold; /* Negrito para destacar */
+}
+
+/* Imagem do logo */
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%; /* Garante que a imagem não ultrapasse a largura do container */
+    height: auto; /* Mantém a proporção da imagem */
+}
+
+/* Rodapé */
+footer {
+    text-align: center;
+    padding: 20px 0;
+    background-color: #2980b9;
+    color: #fff;
+}
+
+/* Layout */
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+}
