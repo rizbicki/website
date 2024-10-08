@@ -1,0 +1,85 @@
+---
+title: "Tarde Temática: Inferência, Redes e IA"
+format:
+  html:
+    theme: cosmo
+    css: styles.css  # Mantemos o tema simples, mas vamos configurar o modo escuro via CSS
+---
+
+![](logo2.png){width=600px}
+
+
+A **Tarde Temática: Inferência, Redes e IA** reunirá pesquisadores para discutir os avanços mais recentes em sistemas complexos, inferência baseada em simulação, inteligência artificial e suas aplicações.
+
+#### **Data**: 25 de Outubro de 2024  
+#### **Local**: CINA-UFSCar; São Carlos, SP, Brasil
+
+
+
+---
+
+### **Palestrantes Confirmados**
+
+| **Horário**  | **Palestrante**                 | **Tópico**                                      |
+|--------------|----------------------------------|-------------------------------------------------|
+| 14h00 - 15h00| [Francisco A. Rodrigues](https://sites.icmc.usp.br/francisco/) (ICMC-USP)| A era da complexidade                           |
+| 15h00 - 16h00| [Pedro L. C. Rodrigues](https://plcrodrigues.github.io/) (Inria, França) | An introduction to simulation-based inference and techniques for validation of posterior approximators |
+| 16h00 - 16h30| **Coffee Break**                 |                                                 |
+| 16h30 - 17h30| [Heloísa Camargo](http://lattes.cnpq.br/0487231065057783) (DC-UFSCar)      | (Título a definir)                              |
+
+
+---
+
+### **Resumos das Palestras**
+
+
+#### **Francisco A. Rodrigues (ICMC-USP)**  
+
+![](https://sites.icmc.usp.br/francisco/Figures/fig-2018.jpg){width=200px}
+
+
+**Título**: A era da complexidade  
+**Resumo**: O que a internet, o cérebro, as cadeias alimentares e a Wikipédia têm em comum? Em princípio, nada que possamos imaginar. No entanto, esses são exemplos de sistemas complexos cuja estrutura pode ser representada por redes. Nessa palestra, vamos dar uma breve introdução sobre o estudo de sistemas complexos e mostrar diversas aplicações, desde o diagnóstico de transtornos mentais até a análise de redes sociais. No final, apresentaremos diversos desafios que podem ser resolvidos com estudos em estatística e ciência de dados.
+
+#### **Pedro L. C. Rodrigues (Inria, França)**  
+
+![](https://plcrodrigues.github.io/images/profile.png){width=200px}
+
+
+**Title**: An introduction to simulation-based inference and techniques for validation of posterior approximators  
+**Resumo**: Simulation-based inference (SBI) has the potential to revolutionize experimental science as it opens the door to the inversion of arbitrary complex non-linear computer models, such as those found in physics, biology, or neuroscience. The only requirement is to have access to a mathematical model implemented as a simulator. Grounded in Bayesian statistics, recent SBI techniques profit from advances in deep generative modeling to approximate the posterior distributions over the full simulator parameters. However, evaluating whether these approximations can be trusted remains a challenge. In this talk, I will give a brief overview of SBI and present our method for the statistical validation of posterior approximators based on deep generative models. An illustration will be provided using the Jansen-Rit neural mass model.  
+**Reference**: [https://arxiv.org/abs/2306.03580](https://arxiv.org/abs/2306.03580)
+
+#### **Heloísa Camargo (DC-UFSCar)**  
+
+![](https://cienciadedados.ufscar.br/imagens/heloisacamargo.png/@@images/21ab44fb-4bc0-42ad-9275-506c91ee5feb.png){width=200px}
+
+(Título e resumo a definir)
+
+---
+
+### **Organização**
+
+Profa. [Daiane A. Zuanetti](http://lattes.cnpq.br/8352484284929824) (coordenação)
+
+Prof. [Rafael Izbicki](https://rafaelizbicki.com/)
+
+Prof. [Danilo L. Lopes](http://lattes.cnpq.br/8061034473607951)
+
+Prof. [Luis E. B. Salasar](http://lattes.cnpq.br/5464564215528609)
+
+
+---
+
+![](poster.png){width=500px}
+
+---
+
+### **Contato**
+
+📧 **Email**: pipges@ufscar.br
+
+**Esperamos por você em São Carlos!**
+
+<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3699.827699340302!2d-47.88445362384814!3d-21.979574979918468!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94b871e524ac1425%3A0x16f41ab90871c1b5!2sCINA%20-%20CENTRO%20DE%20INFER%C3%8ANCIA%20APLICADA!5e0!3m2!1spt-BR!2sbr!4v1728300612408!5m2!1spt-BR!2sbr" width="400" height="250" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+
