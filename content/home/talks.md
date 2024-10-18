@@ -29,3 +29,6 @@ weight = 62
     * [Quantificação sobre prior probability shift](https://www.youtube.com/watch?v=fHFAaF0vIp4)
     * [Inferência conformal - uma abordagem flexível](https://youtu.be/UIr8H2A2x0I)
     * [Aprendizado supervisionado para além de predições pontuais](https://www.youtube.com/watch?v=bc0QfAEa9Hg)
+    * [Curso-R Entrevista](https://www.youtube.com/watch?v=KvMqRIfSaXQ)
+    * [Ômega Talks · Repensando testes de hipóteses](https://www.youtube.com/watch?v=E2kunab3xME)
+    * [Ômega Talks · Aprendizado de máquina: uma abordagem estatística](https://www.youtube.com/watch?v=bZG_yAz6He4)
