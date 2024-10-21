@@ -15,11 +15,10 @@ email: ""
 highlight_name: true
 interests:
 - Statistical Machine Learning
-- High-dimensional Inference
-- Nonparametric Statistics
-- Bayesian Inference
+- Uncertainty Quantification in ML
 - Foundations of Statistics
 - Astrostatistics
+- Epidemiology
 organizations:
 - name: Federal University of São Carlos (UFSCar)
   url: https://www.ufscar.br/

@@ -25,14 +25,17 @@ PhD
 - Luben Miguel Cruz Cabezas – (current student)
 - Milene Regina dos Santos – (current student)
 - Gabriel Oliveira - (co-advisor, current student)
-- Tiago Mendonça dos Santos - (co-advisor, current student)
+- Tiago Mendonça dos Santos - Computationally efficient predictive methods based on random forests (co-advisor, 2019-2024)
 - Gilson Shimizu – Bandas de predição usando densidade condicional estimada e um modelo lda com covariáveis (2017-2021)
 - Marco Henrique de Almeida Inacio – Conditional independence testing, two sample comparison and density estimation using neural networks (2017-2020)
 
 Master
 
-- Maria Luiza Matos Silva  – (current student)
-- Mateus Borges Comito -  (current student)
+- Bruna Nogueira Souza (MBA in Data Science 2024-)
+- Marcio Alves Oliveira (MBA in Data Science 2024-)
+- Henrique Hiray (MBA in Data Science 2024-)
+- Maria Luiza Matos Silva  – Methods for evaluating the integration of discrete phylogenetic characters (2021-2024)
+- Mateus Borges Comito -  Improving decision-making in construction: Nonparametric modeling of weather-induced delays (2021-2024)
 - Cristina Precioso do Amaral Melo - Análise de Sentimento na Cobertura sobre China pelo New York Times: Uma Comparação entre Multinomial Naive Bayes e DistilBERT - (MBA in Data Science 2023-2024)
 - Gedalias Hugo de Oliveira Valentim - Perfil profissiográfico dos auditores da Controladoria Geral da União - (MBA in Data Science 2023-2024)
 - Rodrigo Vidi (MBA in Data Science 2023-2024)
