@@ -1,10 +1,10 @@
 ---
-title : "Simulation-Based Inference with Waldo: Confidence Regions by Leveraging Prediction Algorithms or Posterior Estimators for Inverse Problems"
-date : 2023-02-02T00:00:00
+title : "Nonparametric quantification of uncertainty in multistep upscaling approaches: a case study on estimating forest biomass in the Brazilian Amazon"
+date : 2024-01-01T00:42:01
 draft : false
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
-authors : [L. Masserano, T. Dorigo, admin, M. Kuusela, A. B. Lee]
+authors : [D. Valle, L. Haneda, admin, R. Kamimura, B. Azevedo, S. Gomes, A. Sanchez, D. Almeida]
 
 # Publication type.
 # Legend:
@@ -18,7 +18,7 @@ authors : [L. Masserano, T. Dorigo, admin, M. Kuusela, A. B. Lee]
 publication_types : ["2"]
 
 # Publication name and optional abbreviated version.
-publication : "Proceedings of Machine Learning Research (AISTATS track; Finalist at the ASA SPES and Q&P Student Paper Competition)"
+publication : "Science Of Remote Sensing"
 #publication_short : "In *ICMEW*"
 
 # Abstract and optional shortened version.
@@ -40,12 +40,12 @@ selected : false
 
 # Tags (optional).
 #   Set `tags : []` for no tags, or use the form `tags : ["A Tag", "Another Tag"]` for one or more tags.
-tags : ["LFI","Machine Learning","Likelihood Free Inference","Bayesian Statistics","Inference"]
+tags : ["Conformal Inference","Machine Learning","Remote Sensing"]
 
 # Links (optional).
-url_pdf : "https://proceedings.mlr.press/v206/masserano23a.html"
-url_preprint : "https://arxiv.org/abs/2205.15680"
-#url_code : "http://www.stat.cmu.edu/~pfreeman/midlib.tar.gz"
+#url_pdf : "https://academic.oup.com/mnras/advance-article/doi/10.1093/mnras/stae971/7642871?searchresult=1"
+#url_preprint : "https://arxiv.org/abs/2301.09671"
+#url_code : ""
 #url_dataset : "#"
 #url_project : "#"
 #url_slides : "#"
@@ -62,6 +62,5 @@ math : true
 
 # Does this page require source code highlighting? (true/false)
 highlight : true
- 
 
 ---

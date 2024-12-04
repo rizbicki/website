@@ -18,7 +18,7 @@ authors : [T. McNeely, G. Vincente, K. M. Wood, admin,A. B. Lee]
 publication_types : ["2"]
 
 # Publication name and optional abbreviated version.
-publication : "Annals of Applied Statistics"
+publication : "Annals of Applied Statistics (Selected for The Best of AOAS invited paper session at JSM 2023)"
 #publication_short : "In *ICMEW*"
 
 # Abstract and optional shortened version.
