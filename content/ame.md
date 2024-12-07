@@ -1,5 +1,5 @@
 ---
-title: "Aprendizado de máquina: uma abordagem estatística"
+title: "Livro - Aprendizado de máquina: uma abordagem estatística"
 author: "Rafael Izbicki"
 date: '2023-01-13'
 output: html_document
@@ -83,7 +83,7 @@ editor_options:
 
 <!-- Contribute Section -->
 <div style="text-align: center; margin-top: 20px;">
-  <h3>Contribute to this Project!</h3>
+  <h3>Contribua com esse projeto!</h3>
   <iframe id='kofiframe' src='https://ko-fi.com/rizbicki/?hidefeed=true&widget=true&embed=true&preview=true' 
           style='border:none;width:80%;padding:1px;background:#000000;' height='412' 
           title='rizbicki'></iframe>
@@ -165,9 +165,7 @@ editor_options:
   
 <div style="margin-top: 40px; padding: 2px; border-top: 2px solid #ccc;"></div>
 
-## Bancos de dados
-
-Estes são os bancos de dados usados no livro:
+## Bancos de dados usados no livro
 
 - [Amazon Fine Food reviews](https://www.kaggle.com/snap/amazon-fine-food-reviews)
 - [Hour](../dados/hour.csv)
