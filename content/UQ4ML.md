@@ -1,7 +1,7 @@
 ---
-title: "Aprendizado de máquina: uma abordagem estatística"
+title: "Machine Learning Learning Beyond Point Predictions: Uncertainty Quantification"
 author: "Rafael Izbicki"
-date: '2023-01-13'
+date: '2025-01-13'
 output: html_document
 name: teste
 tags:
@@ -10,6 +10,7 @@ categories:
 - Pages
 editor_options: 
   chunk_output_type: console
+draft: true
 ---
 
 <!-- Google tag (gtag.js) -->
