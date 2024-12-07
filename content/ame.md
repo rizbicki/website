@@ -6,6 +6,9 @@ output: html_document
 name: teste
 tags:
 - Portuguese
+- Livro
+- Aprendizado de Máquina
+- Machine Learning
 categories:
 - Pages
 editor_options: 
@@ -22,32 +25,90 @@ editor_options:
   gtag('config', 'G-8F80C9P3HV');
 </script>
 
-<a href="../AME.pdf"><img src="../img/ame.png" alt="Book cover"   width="300px" style="float: center" border="3"/></a>
-  [**Aqui**](../AME.pdf) você pode baixar **gratuitamente** o livro
-[Aprendizado de máquina: uma abordagem estatística](../AME.pdf), escrito por mim e pelo [Tiago Mendonça](https://www.tiagoms.com/). 
 
 
 
-Você pode **contribuir com esse projeto** via: <br>
-**Chave PIX**: 2f439cb9-9172-4104-81a0-a2649695a2d7<br>
-**Código QR PIX**:
-<a href="../AME.pdf"><img src="../img/QR.png" alt="Cógigo QR"   width="150px" style="float: center" border="3"/></a>
+<!-- Book Cover Section -->
+<div style="text-align: center; margin-top: 20px;">
+  <img src="../img/ame.png" alt="Book cover" width="300px" style="border: 3px solid;"/>
+</div>
+
+<!-- Download Section -->
+<div style="text-align: left; margin-top: 20px;">
+  📥 Baixe gratuitamente o livro 
+  <strong>Aprendizado de máquina: uma abordagem estatística</strong>, 
+  escrito por mim e pelo <a href="https://www.tiagoms.com/" target="_blank">Tiago Mendonça</a>, 
+  <a href="../AME.pdf" target="_blank">clicando aqui</a>.
+</div>
 
 
-Além da versão digital, é possível adquirir a **versão impressa** em dois formatos: <br>
-:book: Colorida: [https://loja.uiclap.com/titulo/ua24032/](https://loja.uiclap.com/titulo/ua24032/) <br>
-:book:   Preto e branco: [https://loja.uiclap.com/titulo/ua24034/](https://loja.uiclap.com/titulo/ua24034/)
-
-A capa do livro foi feita pelos incríveis [Leonardo M. Borges](http://aquitemcaqui.com/) e [Kaori Nagata](http://www.kaorinagata.net/).
-
-**Citação**: Izbicki, R. e Santos, T. M. dos. *Aprendizado de máquina: uma abordagem estatística*. 1ᵃ edição. 2020. 272 páginas. ISBN: 978-65-00-02410-4.
-Para a entrada em **bibtex**, [clique aqui](../citacao.bib).
-
-
-[Minha palestra na Ômega Talks sobre o livro](https://www.youtube.com/watch?v=bZG_yAz6He4)
+<!-- Purchase Links -->
+<div style="text-align: left; margin-top: 20px;">
+  📘 Adquira a <strong>versão impressa</strong>, disponível em dois formatos:
+  <ul>
+    <li>📙 <strong>Colorida</strong>: <a href="https://loja.uiclap.com/titulo/ua24032/" target="_blank">clique aqui</a>.</li>
+    <li>📗 <strong>Preto e branco</strong>: <a href="https://loja.uiclap.com/titulo/ua24034/" target="_blank">clique aqui</a>.</li>
+  </ul>
+</div>
 
 
-## Vídeos (em desenvolvimento)
+<!-- Contribution Section -->
+<div style="text-align: left; margin-top: 20px;">
+  ❤️ <strong>Contribua com este projeto ❤️</strong>:
+  <ul>
+    <li><strong>Chave PIX</strong>: 2f439cb9-9172-4104-81a0-a2649695a2d7</li>
+    <li><strong>Código QR PIX</strong>:</li>
+  </ul>
+  <div style="text-align: center; margin-top: 10px;">
+    <img src="../img/QR.png" alt="Código QR" width="150px" style="border: 3px solid;"/>
+  </div>
+</div>
+
+<!-- Book Credits -->
+<div style="text-align: left; margin-top: 20px;">
+  ✏️ A capa foi criada por <a href="http://aquitemcaqui.com/" target="_blank">Leonardo M. Borges</a> e 
+  <a href="http://www.kaorinagata.net/" target="_blank">Kaori Nagata</a>.
+</div>
+
+<!-- Citation Section -->
+<div style="margin-top: 40px; padding: 2px; border-top: 2px solid #ccc;"></div>
+<div style="text-align: left; margin-top: 20px;">
+  📚 <strong>Citação</strong>: Izbicki, R. e Santos, T. M. dos. 
+  <em>Aprendizado de máquina: uma abordagem estatística</em>. 1ᵃ edição. 2020. 272 páginas. ISBN: 978-65-00-02410-4.
+  <br>
+  📜 <strong>Entrada BibTeX</strong>: <a href="../citacao.bib" target="_blank">clique aqui</a>.
+</div>
+<br>
+
+
+<!-- Contribute Section -->
+<div style="text-align: center; margin-top: 20px;">
+  <h3>Contribute to this Project!</h3>
+  <iframe id='kofiframe' src='https://ko-fi.com/rizbicki/?hidefeed=true&widget=true&embed=true&preview=true' 
+          style='border:none;width:80%;padding:1px;background:#000000;' height='412' 
+          title='rizbicki'></iframe>
+</div>
+
+<!-- Ko-Fi Floating Chat Script -->
+<script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+<script>
+  kofiWidgetOverlay.draw('rizbicki', {
+    'type': 'floating-chat',
+    'floating-chat.donateButton.text': 'Support Me',
+    'floating-chat.donateButton.background-color': '#00b9fe',
+    'floating-chat.donateButton.text-color': '#fff'
+  });
+</script>
+
+<!-- YouTube Section -->
+<div style="text-align: left; margin-top: 20px;">
+  📺 <strong>Minha palestra na Ômega Talks sobre o livro:</strong> 
+  <a href="https://www.youtube.com/watch?v=bZG_yAz6He4" target="_blank">clique aqui</a>.
+</div>
+<br>
+<div style="margin-top: 1px; padding: 2px; border-top: 2px solid #ccc;"></div>
+
+
 
 **Playlist:**
 
@@ -102,7 +163,8 @@ Para a entrada em **bibtex**, [clique aqui](../citacao.bib).
 - Apêndice
   * [Manipulando textos e imagens](https://youtu.be/hS8yMYS36ko)
   
-  
+<div style="margin-top: 40px; padding: 2px; border-top: 2px solid #ccc;"></div>
+
 ## Bancos de dados
 
 Estes são os bancos de dados usados no livro:
@@ -113,4 +175,3 @@ Estes são os bancos de dados usados no livro:
 - [Prostate](../dados/prostate.data)
 - [World Development Indicators](../dados/worldDevelopmentIndicators.csv)
 - [Spam](../dados/spam.txt)
-
