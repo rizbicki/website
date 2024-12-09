@@ -98,6 +98,16 @@ editor_options:
   });
 </script>
 
+
+<div style="text-align: left; margin-top: 20px;">
+  📖 <strong>Sobre o Livro</strong>: Este livro é um guia abrangente que conecta as áreas de aprendizado de máquina e estatística, oferecendo uma perspectiva interdisciplinar. Dividido em três partes principais — regressão, classificação e aprendizado não supervisionado — ele cobre desde fundamentos teóricos até aplicações práticas. Os autores utilizam uma abordagem que busca unir as "duas culturas" do aprendizado de máquina: a modelagem de dados e a modelagem algorítmica.<br>
+
+Destinado a estudantes, pesquisadores e profissionais, o texto combina teoria matemática acessível com implementações práticas em R, facilitando o entendimento de métodos como regressão linear, florestas aleatórias, redes neurais, redução de dimensionalidade, entre outros. O material também oferece insights sobre como selecionar modelos e equilibrar viés e variância para obter predições mais robustas.<br>
+
+Além de exemplos didáticos, o livro discute temas modernos como interpretabilidade de modelos, inferência conformal e sistemas de recomendação, sendo ideal para quem busca compreender e aplicar técnicas avançadas de aprendizado de máquina sob uma ótica estatística.
+</div>
+
+
 <!-- YouTube Section -->
 <div style="text-align: left; margin-top: 20px;">
   📺 <strong>Minha palestra na Ômega Talks sobre o livro:</strong> 
