@@ -1,7 +1,5 @@
 ---
 title: "Livro - Aprendizado de máquina: uma abordagem estatística"
-author: "Rafael Izbicki"
-date: '2023-01-13'
 output: html_document
 name: teste
 tags:
