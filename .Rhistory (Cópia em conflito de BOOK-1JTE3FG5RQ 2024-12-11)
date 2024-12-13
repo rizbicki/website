@@ -1,0 +1,512 @@
+risco_lm_aug <- matrix(nrow = M, ncol = length(B))
+pb <- txtProgressBar(min = 0, max = M*length(B), style = 3)
+k <- 0
+for(i in 1:M) {
+beta <- c(0, 10, 0, 0, 0)
+df <- generate_data(n, beta)
+df_split <- initial_split(df, prop = 0.5)
+df_train <- training(df_split)
+df_test <- testing(df_split)
+X <- as.data.frame(df_train %>% select(-c(y)))
+for(j in 1:length(B)) {
+#  Sys.sleep(0.1)
+idx <- sample(1:nrow(df_train), size = B[j], replace = FALSE)
+y_aug <- c(df_train$y,
+df_train$y[idx],
+df_train$y[idx] + beta[2])
+X_new <- cbind(X[idx, 1],
+X[idx, 2] + 1,
+X[idx, 3],
+X[idx, 4],
+X[idx, 5])
+colnames(X_new) <- colnames(X)
+X_aug <- rbind(X, X[idx, ], X_new)
+rownames(X_aug) <- NULL
+df_train_aug <- data.frame(X = X_aug, y = y_aug)
+colnames(df_train_aug) <- colnames(df_train)
+rf_aug <- rf_fit(df_train_aug)
+lm_aug <- lm_fit(df_train_aug)
+risco_rf_aug[i, j] <- mse_rf(rf_aug, df_test)
+risco_lm_aug[i, j] <- mse_lm(lm_aug, df_test)
+k <- k+1
+setTxtProgressBar(pb, k)
+}
+rf <- rf_fit(df_train)
+risco_rf[i] <- mse_rf(rf, df_test)
+lm <- lm_fit(df_train)
+risco_lm[i] <- mse_lm(lm, df_test)
+}
+close(pb)
+prop_gains <- length(B)
+for(i in 2:length(B)) {
+prop_gains[i-1] <- mean(risco_rf_aug[, i] <= risco_rf_aug[, 1])
+}
+prop_gains %>%
+as_tibble %>%
+ggplot(aes(y = value, x = 2:length(B))) +
+geom_point() +
+xlab('B') +
+ylab('% of samples R(B) > R(0)')
+g1 <- risco_lm_aug %>%
+colMeans() %>%
+as_tibble %>%
+ggplot(aes(y = value, x = 0:(length(B)-1))) +
+geom_point() +
+xlab('b') +
+ylab('R(b)') +
+ggtitle('Linear model')
+g2 <- risco_rf_aug %>%
+colMeans() %>%
+as_tibble %>%
+ggplot(aes(y = value, x = 0:(length(B)-1))) +
+geom_point() +
+xlab('b') +
+ylab('R(b)') +
+ggtitle('Random forest')
+grid.arrange(g1, g2)
+M <- 2000 # number of simulated datasets
+n <- 50 # sample size
+B <- seq(0, round(n/4)) # number of augmented observations
+risco_rf <- numeric(M)
+risco_lm <- numeric(M)
+risco_rf_aug <- matrix(nrow = M, ncol = length(B))
+risco_lm_aug <- matrix(nrow = M, ncol = length(B))
+pb <- txtProgressBar(min = 0, max = M*length(B), style = 3)
+k <- 0
+for(i in 1:M) {
+beta <- c(0, 10, 0, 0, 0)
+df <- generate_data(n, beta)
+df_split <- initial_split(df, prop = 0.5)
+df_train <- training(df_split)
+df_test <- testing(df_split)
+X <- as.data.frame(df_train %>% select(-c(y)))
+for(j in 1:length(B)) {
+#  Sys.sleep(0.1)
+idx <- sample(1:nrow(df_train), size = B[j], replace = FALSE)
+y_aug <- c(df_train$y,
+df_train$y[idx],
+df_train$y[idx] + beta[2])
+X_new <- cbind(X[idx, 1],
+X[idx, 2] + 1,
+X[idx, 3],
+X[idx, 4],
+X[idx, 5])
+colnames(X_new) <- colnames(X)
+X_aug <- rbind(X, X[idx, ], X_new)
+rownames(X_aug) <- NULL
+df_train_aug <- data.frame(X = X_aug, y = y_aug)
+colnames(df_train_aug) <- colnames(df_train)
+rf_aug <- rf_fit(df_train_aug)
+lm_aug <- lm_fit(df_train_aug)
+risco_rf_aug[i, j] <- mse_rf(rf_aug, df_test)
+risco_lm_aug[i, j] <- mse_lm(lm_aug, df_test)
+k <- k+1
+setTxtProgressBar(pb, k)
+}
+rf <- rf_fit(df_train)
+risco_rf[i] <- mse_rf(rf, df_test)
+lm <- lm_fit(df_train)
+risco_lm[i] <- mse_lm(lm, df_test)
+}
+close(pb)
+prop_gains <- length(B)
+for(i in 2:length(B)) {
+prop_gains[i-1] <- mean(risco_rf_aug[, i] <= risco_rf_aug[, 1])
+}
+prop_gains %>%
+as_tibble %>%
+ggplot(aes(y = value, x = 2:length(B))) +
+geom_point() +
+xlab('B') +
+ylab('% of samples R(B) > R(0)')
+g1 <- risco_lm_aug %>%
+colMeans() %>%
+as_tibble %>%
+ggplot(aes(y = value, x = 0:(length(B)-1))) +
+geom_point() +
+xlab('b') +
+ylab('R(b)') +
+ggtitle('Linear model')
+g2 <- risco_rf_aug %>%
+colMeans() %>%
+as_tibble %>%
+ggplot(aes(y = value, x = 0:(length(B)-1))) +
+geom_point() +
+xlab('b') +
+ylab('R(b)') +
+ggtitle('Random forest')
+grid.arrange(g1, g2)
+install.packages("factoextra")
+library(factoextra)
+rm(list=ls())
+gc()
+setwd("~/flexForcast/code")
+install.packages(c("qpcR", "rugarch"))
+#setwd("~/flexForcast/code")
+source("./set_environment.R")
+install.packages("qpcR")
+install.packages("qpcR")
+install.packages("webshot")
+install.packages("qpcR")
+#setwd("~/flexForcast/code")
+source("./set_environment.R")
+devtools::install_github("tpospisi/NNKCDE/r")
+#setwd("~/flexForcast/code")
+source("./set_environment.R")
+source("./simulators/AR.R")
+setwd("~/flexForcast/code")
+#setwd("~/flexForcast/code")
+source("./set_environment.R")
+?fit_flexcode_timeseries
+fit_flexcode_timeseries
+fitFlexCoDE
+setwd("~/flexForcast/code")
+library(glmnet)
+R.version
+library(glmnet)
+R.version
+library(FlexCode)
+library(devtools)
+install.packages("devtools")
+install.packages("devtools")
+library("devtools")
+install.packages('devtools', dependecies=TRUE)
+update.packages(ask = FALSE)
+update.packages(ask = FALSE)
+install.packages('devtools', dependecies=TRUE)
+install.packages('testthat')
+install.packages("pkgload")
+install.packages("testhat")
+devtools::install_github("r-lib/devtools")
+remotes::install_github("r-lib/testthat")
+remotes::install_github("r-lib/devtools")
+remotes::install_github("r-lib/pkgload")
+sessionInfo()
+library(testhat)
+remotes::install_github("r-lib/testthat")
+remotes::install_github("r-lib/pkgload")
+remotes::install_github("r-lib/pkgload")
+remove.packages("testhat")
+remotes::install_github("r-lib/testhat")
+install.packages("testhat")
+install.packages("testhat")
+library('testhat')
+install.packages("testhat")
+remotes::install_github("r-lib/devtools")
+library(testthat, lib.loc = "/usr/local/lib/R/site-library")
+remove.packages("testthat", lib.loc = "/usr/local/lib/R/site-library")
+remove.packages("testthat", lib = "/usr/local/lib/R/site-library")
+install.packages("testhat")
+library(testthat, lib.loc = "/usr/local/lib/R/site-library")
+install.packages("testhat")
+library("testhat")
+remove.packages("testthat", lib="/usr/local/lib/R/site-library")
+setwd("~/")
+setwd("/usr/local/lib")
+setwd("~/")
+setwd("/usr/local/lib")
+library("testhat")
+install.packages("testhat")
+install.packages("testthat")
+remotes::install_github("r-lib/devtools")
+devtools::install_github("rizbicki/FlexCOde")
+library("FlexCOde")
+library(ggplot2)
+install.packages("ggplot2")
+install.packages("scales")
+install.packages("munsell")
+install.packages("scales")
+install.packages("ggplot2")
+library("FlexCOde")
+devtools::install_github("rizbicki/FlexCOde")
+library("FlexCOde")
+library("FlexCOde")
+library("FlexCOde")
+library(FlexCoDE)
+install.packages("ggplot2",lib = "/usr/lib/R/site-library/")
+install.packages("Factoextra")
+install.packages("factoextra")
+install.packages("nloptr")
+install.packages("nloptr")
+install.packages("nloptr")
+knitr::opts_chunk$set(echo = TRUE)
+summary(cars)
+reticulate::repl_python()
+import sklearn as scikit_learn
+reticulate::repl_python()
+import sklearn as scikit_learn
+setwd("~/")
+reticulate::repl_python()
+library(quantregForest)
+install.packages("quantregForest")
+library(quantregForest)
+install.packages("RColorBrewer")
+install.packages("quantregForest")
+library(quantregForest)
+?quantregForest
+data(airquality)
+set.seed(1)
+## remove observations with mising values
+airquality <- airquality[ !apply(is.na(airquality), 1,any), ]
+## number of remining samples
+n <- nrow(airquality)
+## divide into training and test data
+indextrain <- sample(1:n,round(0.6*n),replace=FALSE)
+Xtrain     <- airquality[ indextrain,2:6]
+Xtest      <- airquality[-indextrain,2:6]
+Ytrain     <- airquality[ indextrain,1]
+Ytest      <- airquality[-indextrain,1]
+################################################
+##     compute Quantile Regression Forests    ##
+################################################
+qrf <- quantregForest(x=Xtrain, y=Ytrain)
+################################################
+##     compute Quantile Regression Forests    ##
+################################################
+qrf <- quantregForest(x=Xtrain, y=Ytrain, nthread=8)
+## predict 0.1, 0.5 and 0.9 quantiles for test data
+conditionalQuantiles  <- predict(qrf,  Xtest)
+print(conditionalQuantiles[1:4,])
+## predict 0.1, 0.2,..., 0.9 quantiles for test data
+conditionalQuantiles  <- predict(qrf, Xtest, what=c(0.05,0.95))
+print(conditionalQuantiles[1:4,])
+install.packages(c("FNN", "ggthemes", "tidymodels"))
+library(tidyverse)
+library(tidymodels)
+library(FNN)
+library(scales)
+library(ggthemes)
+theme_set(theme_bw(base_size = 27))
+theme_update(panel.grid.minor = element_blank(),
+axis.line = element_line(colour = "grey54"),
+panel.border = element_blank(),
+panel.grid.major.x = element_line(color = "gray61",
+size = 0.25,
+linetype = 4),
+panel.grid.major.y = element_line(color = "gray61",
+size = 0.25,
+linetype = 4))
+set.seed(0)
+n <- 1000
+x <- runif(n)
+y <- rnorm(n,x^2,0.025+abs(x)/10)
+data <- data.frame(x=x,y=y)
+g <- ggplot(data)+
+geom_point(aes(x=x,y=y),alpha=0.5,color="darkolivegreen")
+g
+split <- initial_split(data)
+install.packages("ggplot2")
+install.packages("gtable")
+install.packages("ggplot2")
+install.packages("scales")
+install.packages("munsell")
+install.packages("colorspace")
+install.packages("munsell")
+install.packages("munsell")
+install.packages("gtable")
+install.packages("gtable")
+install.packages("ggplot2")
+library(tidyverse)
+library(tidymodels)
+install.packages("tidyverse")
+install.packages("googlesheets4")
+install.packages("cellranger")
+install.packages("googlesheets4")
+install.packages("googlesheets4")
+install.packages("tidyverse")
+?sd
+sigma <- 1
+n <- 100
+B <- 1000
+for(ii in 1:B)
+{
+dados <- rnorm(n,0,sigma)
+loss_var1[ii] <- (var(dados)-sigma^2)^2
+loss_var2[ii] <- (var(dados)*((n-1)/n)-sigma^2)^2
+}
+sigma <- 1
+n <- 100
+B <- 1000
+loss_var1 <- rep(NA,B)
+loss_var2 <- loss_var1
+for(ii in 1:B)
+{
+dados <- rnorm(n,0,sigma)
+loss_var1[ii] <- (var(dados)-sigma^2)^2
+loss_var2[ii] <- (var(dados)*((n-1)/n)-sigma^2)^2
+}
+plot(density(loss_var1))
+lines(density(loss_var2),col=2)
+sigma <- 1
+n <- 10
+B <- 1000
+loss_var1 <- rep(NA,B)
+loss_var2 <- loss_var1
+for(ii in 1:B)
+{
+dados <- rnorm(n,0,sigma)
+loss_var1[ii] <- (var(dados)-sigma^2)^2
+loss_var2[ii] <- (var(dados)*((n-1)/n)-sigma^2)^2
+}
+plot(density(loss_var1))
+lines(density(loss_var2),col=2)
+sigma <- 1
+n <- 10
+B <- 100000
+loss_var1 <- rep(NA,B)
+loss_var2 <- loss_var1
+for(ii in 1:B)
+{
+dados <- rnorm(n,0,sigma)
+loss_var1[ii] <- (var(dados)-sigma^2)^2
+loss_var2[ii] <- (var(dados)*((n-1)/n)-sigma^2)^2
+}
+plot(density(loss_var1))
+lines(density(loss_var2),col=2)
+mean(loss_var1>loss_var2)
+sigma <- 1
+n <- 5
+B <- 100000
+loss_var1 <- rep(NA,B)
+loss_var2 <- loss_var1
+for(ii in 1:B)
+{
+dados <- rnorm(n,0,sigma)
+loss_var1[ii] <- (var(dados)-sigma^2)^2
+loss_var2[ii] <- (var(dados)*((n-1)/n)-sigma^2)^2
+}
+plot(density(loss_var1))
+lines(density(loss_var2),col=2)
+mean(loss_var1>loss_var2)
+mean(loss_var1)
+mean(loss_var2)
+sigma <- 1
+n <- 5
+B <- 500000
+loss_var1 <- rep(NA,B)
+loss_var2 <- loss_var1
+for(ii in 1:B)
+{
+dados <- rnorm(n,0,sigma)
+loss_var1[ii] <- (var(dados)-sigma^2)^2
+loss_var2[ii] <- (var(dados)*((n-1)/n)-sigma^2)^2
+}
+plot(density(loss_var1))
+lines(density(loss_var2),col=2)
+mean(loss_var1>loss_var2)
+mean(loss_var1)
+mean(loss_var2)
+var(dados)
+var(dados)*((n-1)/n)
+dados <- rnorm(n,0,sigma)
+var(dados)
+var(dados)*((n-1)/n)
+n <- 50
+dados <- rnorm(n,0,sigma)
+var(dados)
+var(dados)*((n-1)/n)
+sigma <- 10
+n <- 5
+B <- 100000
+loss_var1 <- rep(NA,B)
+loss_var2 <- loss_var1
+for(ii in 1:B)
+{
+dados <- rnorm(n,0,sigma)
+loss_var1[ii] <- (var(dados)-sigma^2)^2
+loss_var2[ii] <- (var(dados)*((n-1)/n)-sigma^2)^2
+}
+plot(density(loss_var1))
+lines(density(loss_var2),col=2)
+mean(loss_var1>loss_var2)
+mean(loss_var1)
+mean(loss_var2)
+?glmnet
+?glm
+library(tidyverse)
+generate <- function(n,theta)
+{
+which <- runif(n)<0.5
+x = rnorm(n,theta)
+x[which] = rnorm(n,theta,0.01^2)
+return(x)
+}
+data <- generate(10000,0.5)
+n=10000
+theta=0.5
+which <- runif(n)<0.5
+x = rnorm(n,theta)
+x[which] = rnorm(n,theta,0.01^2)
+x[which] = rnorm(n,theta,0.01^2)[which]
+generate <- function(n,theta)
+{
+which <- runif(n)<0.5
+x = rnorm(n,theta)
+x[which] = rnorm(n,theta,0.01^2)[which]
+return(x)
+}
+data <- generate(10000,0.5)
+hist(data)
+data <- generate(10000,0)
+hist(data)
+generate <- function(n,theta)
+{
+which <- runif(n)<0.5
+x = rnorm(n,theta)
+x[which] = rnorm(n,theta,0.01^2)[which]
+return(x)
+}
+theta=0
+data <- generate(10000,theta)
+posterior=1/2*dnorm(data,theta,1)+1/2*dnorm(data,theta,0.01^2)
+hist(posterior)
+generate <- function(n,theta)
+{
+which <- runif(n)<0.5
+x = rnorm(n,theta)
+x[which] = rnorm(n,theta,0.01^2)[which]
+return(x)
+}
+theta=0.5
+data <- generate(10000,theta)
+posterior=1/2*dnorm(data,theta,1)+1/2*dnorm(data,theta,0.01^2)
+hist(posterior)
+generate <- function(n,theta)
+{
+which <- runif(n)<0.5
+x = rnorm(n,theta)
+x[which] = rnorm(n,theta,0.01^2)[which]
+return(x)
+}
+theta=3
+data <- generate(10000,theta)
+posterior=1/2*dnorm(data,theta,1)+1/2*dnorm(data,theta,0.01^2)
+hist(posterior)
+generate <- function(n,theta)
+{
+which <- runif(n)<0.5
+x = rnorm(n,theta)
+x[which] = rnorm(n,theta,0.01^2)[which]
+return(x)
+}
+theta=3
+data <- generate(10000,theta)
+posterior=1/2*dnorm(data,theta,1)+1/2*dnorm(data,theta,0.01^2)
+hist(log(posterior))
+generate <- function(n,theta)
+{
+which <- runif(n)<0.5
+x = rnorm(n,theta)
+x[which] = rnorm(n,theta,0.01^2)[which]
+return(x)
+}
+theta=1
+data <- generate(10000,theta)
+posterior=1/2*dnorm(data,theta,1)+1/2*dnorm(data,theta,0.01^2)
+hist(log(posterior))
+setwd("/mnt/36D0BB68D0BB2CCD/d2/Dropbox/website2/website/")
+blogdown:::preview_site()
+blogdown:::serve_site()
+blogdown:::preview_site()
+library(devtools)
+install.packages("devtools")

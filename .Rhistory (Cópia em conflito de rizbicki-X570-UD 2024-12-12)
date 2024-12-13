@@ -1,0 +1,512 @@
+mse_data <- data.frame(
+Iteration = 1:length(model$val_errors),
+ValidationMSE = model$val_errors
+)
+d=150
+# Fit model
+model <- fit_polynomial_gd(train_data, val_data, degree = d, lr = 0.001)
+X_test <- as.matrix(sapply(0:d, function(degree) test_data$x^degree))
+y_test_pred <- X_test %*% model$weights
+d=10
+degree = d
+lr = 0.001
+n <- nrow(train_data)
+X_train <- as.matrix(sapply(0:degree, function(d) train_data$x^d))
+X_val <- as.matrix(sapply(0:degree, function(d) val_data$x^d))
+weights <- runif(degree + 1, -0.00001, 0.00001)
+train_errors <- numeric(max_iter)
+val_errors <- numeric(max_iter)
+max_iter = 5000
+train_errors <- numeric(max_iter)
+val_errors <- numeric(max_iter)
+# Predictions and errors
+y_train_pred <- X_train %*% weights
+y_val_pred <- X_val %*% weights
+train_error <- mse(train_data$y, y_train_pred)
+val_error <- mse(val_data$y, y_val_pred)
+val_errors
+train_errors
+train_error
+val_error
+# Gradient descent step
+gradient <- t(X_train) %*% (y_train_pred - train_data$y) / n
+weights <- weights - lr * gradient
+weights
+n <- nrow(train_data)
+X_train <- as.matrix(sapply(0:degree, function(d) train_data$x^d))
+X_val <- as.matrix(sapply(0:degree, function(d) val_data$x^d))
+weights <- runif(degree + 1, -0.00001, 0.00001)
+train_errors <- numeric(max_iter)
+val_errors <- numeric(max_iter)
+for (i in 1:max_iter) {
+# Predictions and errors
+y_train_pred <- X_train %*% weights
+y_val_pred <- X_val %*% weights
+train_error <- mse(train_data$y, y_train_pred)
+val_error <- mse(val_data$y, y_val_pred)
+train_errors[i] <- train_error
+val_errors[i] <- val_error
+# Gradient descent step
+gradient <- t(X_train) %*% (y_train_pred - train_data$y) / n
+weights <- weights - lr * gradient
+# Plot training error as a function of iteration
+if (i %% 100 == 0 || i == max_iter) {
+error_data <- data.frame(
+Iteration = 1:i,
+TrainingError = train_errors[1:i]
+)
+error_plot <- ggplot(error_data, aes(x = Iteration, y = TrainingError)) +
+geom_line(color = "blue") +
+labs(title = "Training Error vs Iteration",
+x = "Iteration",
+y = "Training Error") +
+theme_minimal()
+print(error_plot)
+}
+min(val_errors)
+min(TrainingError)
+min(error_data$TrainingError)
+min(error_data$TrainingError,na.rm = T)
+rm(list=ls())
+library(ggplot2)
+library(tidyverse)
+library(reshape2)
+# Function to generate data
+generate_data <- function(n) {
+x <- runif(n)
+y <- rnorm(n, mean = (2*x)^2, sd = 0.1)
+data.frame(x = x, y = y)
+}
+plot(generate_data(100))
+# Normalize features
+normalize <- function(x) {
+(x - mean(x)) / sd(x)
+}
+# Mean squared error function
+mse <- function(y_true, y_pred) {
+mean((y_true - y_pred)^2)
+}
+# Polynomial regression with gradient descent
+fit_polynomial_gd <- function(train_data, val_data, degree, lr = 0.01, max_iter = 5000) {
+n <- nrow(train_data)
+X_train <- as.matrix(sapply(0:degree, function(d) train_data$x^d))
+X_val <- as.matrix(sapply(0:degree, function(d) val_data$x^d))
+weights <- runif(degree + 1, -0.00001, 0.00001)
+train_errors <- numeric(max_iter)
+val_errors <- numeric(max_iter)
+best_weights <- weights
+best_train_error <- Inf
+for (i in 1:max_iter) {
+# Predictions and errors
+y_train_pred <- X_train %*% weights
+y_val_pred <- X_val %*% weights
+train_error <- mse(train_data$y, y_train_pred)
+val_error <- mse(val_data$y, y_val_pred)
+train_errors[i] <- train_error
+val_errors[i] <- val_error
+# Update best model weights based on training error
+if (train_error < best_train_error) {
+best_train_error <- train_error
+best_weights <- weights
+}
+# Gradient descent step
+gradient <- t(X_train) %*% (y_train_pred - train_data$y) / n
+weights <- weights - lr * gradient
+# Plot training error as a function of iteration
+if (i %% 100 == 0 || i == max_iter) {
+error_data <- data.frame(
+Iteration = 1:i,
+TrainingError = train_errors[1:i]
+)
+error_plot <- ggplot(error_data, aes(x = Iteration, y = TrainingError)) +
+geom_line(color = "blue") +
+labs(title = "Training Error vs Iteration",
+x = "Iteration",
+y = "Training Error") +
+theme_minimal()
+print(error_plot)
+}
+list(weights = weights, best_weights = best_weights, train_errors = train_errors, val_errors = val_errors)
+}
+# Configuration
+set.seed(123)
+n <- 100
+train_data <- generate_data(n)
+val_data <- generate_data(n)
+test_data <- generate_data(n)
+# Normalize data
+train_data$x <- normalize(train_data$x)
+val_data$x <- normalize(val_data$x)
+test_data$x <- normalize(test_data$x)
+# Experiment with polynomial degrees using grid intervals
+m <- 10  # Interval of degrees
+max_degree <- 2*n  # Maximum degree for practical purposes
+degrees <- seq(1, max_degree, by = m)
+errors <- numeric(length(degrees))
+d=5
+# Fit model
+model <- fit_polynomial_gd(train_data, val_data, degree = d, lr = 0.001)
+X_test <- as.matrix(sapply(0:d, function(degree) test_data$x^degree))
+y_test_pred <- X_test %*% model$best_weights
+# Plot validation MSE vs iteration
+mse_data <- data.frame(
+Iteration = 1:length(model$val_errors),
+ValidationMSE = model$val_errors
+)
+mse_plot <- ggplot(mse_data, aes(x = Iteration, y = ValidationMSE)) +
+geom_line(color = "red") +
+labs(title = paste("Validation MSE vs Iteration for Degree", d),
+x = "Iteration",
+y = "Validation MSE") +
+theme_minimal()
+print(mse_plot)
+# Plot the fitted curve vs test data
+x_grid <- seq(min(test_data$x), max(test_data$x), length.out = 1000)
+X_grid <- as.matrix(sapply(0:d, function(degree) x_grid^degree))
+y_grid_pred <- X_grid %*% model$best_weights
+fitted_data <- data.frame(x = x_grid, y = y_grid_pred)
+fit_plot <- ggplot(test_data, aes(x = x, y = y)) +
+geom_point(color = "blue", alpha = 0.5) +
+geom_line(data = fitted_data, aes(x = x, y = y), color = "red") +
+labs(title = paste("Degree:", d),
+x = "x",
+y = "y") +
+theme_minimal() +
+ylim(c(min(test_data$y), max(test_data$y)))
+print(fit_plot)
+d=10
+# Fit model
+model <- fit_polynomial_gd(train_data, val_data, degree = d, lr = 0.001)
+print(mse_plot)
+# Plot the fitted curve vs test data
+x_grid <- seq(min(test_data$x), max(test_data$x), length.out = 1000)
+X_grid <- as.matrix(sapply(0:d, function(degree) x_grid^degree))
+y_grid_pred <- X_grid %*% model$best_weights
+d
+fitted_data <- data.frame(x = x_grid, y = y_grid_pred)
+fit_plot <- ggplot(test_data, aes(x = x, y = y)) +
+geom_point(color = "blue", alpha = 0.5) +
+geom_line(data = fitted_data, aes(x = x, y = y), color = "red") +
+labs(title = paste("Degree:", d),
+x = "x",
+y = "y") +
+theme_minimal() +
+ylim(c(min(test_data$y), max(test_data$y)))
+print(fit_plot)
+d=50
+# Fit model
+model <- fit_polynomial_gd(train_data, val_data, degree = d, lr = 0.001)
+X_test <- as.matrix(sapply(0:d, function(degree) test_data$x^degree))
+y_test_pred <- X_test %*% model$best_weights
+# Fit model
+model <- fit_polynomial_gd(train_data, val_data, degree = d, lr = 0.001)
+degree = d
+lr = 0.001
+n <- nrow(train_data)
+X_train <- as.matrix(sapply(0:degree, function(d) train_data$x^d))
+X_val <- as.matrix(sapply(0:degree, function(d) val_data$x^d))
+weights <- runif(degree + 1, -0.00001, 0.00001)
+train_errors <- numeric(max_iter)
+max_iter=5000
+train_errors <- numeric(max_iter)
+val_errors <- numeric(max_iter)
+best_weights <- weights
+best_train_error <- Inf
+for (i in 1:max_iter) {
+# Predictions and errors
+y_train_pred <- X_train %*% weights
+y_val_pred <- X_val %*% weights
+train_error <- mse(train_data$y, y_train_pred)
+val_error <- mse(val_data$y, y_val_pred)
+train_errors[i] <- train_error
+val_errors[i] <- val_error
+# Update best model weights based on training error
+if (train_error < best_train_error) {
+best_train_error <- train_error
+best_weights <- weights
+}
+# Gradient descent step
+gradient <- t(X_train) %*% (y_train_pred - train_data$y) / n
+weights <- weights - lr * gradient
+# Plot training error as a function of iteration
+if (i %% 100 == 0 || i == max_iter) {
+error_data <- data.frame(
+Iteration = 1:i,
+TrainingError = train_errors[1:i]
+)
+error_plot <- ggplot(error_data, aes(x = Iteration, y = TrainingError)) +
+geom_line(color = "blue") +
+labs(title = "Training Error vs Iteration",
+x = "Iteration",
+y = "Training Error") +
+theme_minimal()
+print(error_plot)
+}
+i
+best_train_error
+train_error
+fit_polynomial_gd <- function(train_data, val_data, degree, lr = 0.01, max_iter = 5000) {
+n <- nrow(train_data)
+X_train <- as.matrix(sapply(0:degree, function(d) train_data$x^d))
+X_val <- as.matrix(sapply(0:degree, function(d) val_data$x^d))
+weights <- runif(degree + 1, -0.00001, 0.00001)
+train_errors <- numeric(max_iter)
+val_errors <- numeric(max_iter)
+best_weights <- weights
+best_train_error <- Inf
+for (i in 1:max_iter) {
+# Predictions and errors
+y_train_pred <- X_train %*% weights
+y_val_pred <- X_val %*% weights
+train_error <- mse(train_data$y, y_train_pred)
+val_error <- mse(val_data$y, y_val_pred)
+train_errors[i] <- train_error
+val_errors[i] <- val_error
+# Update best model weights based on training error
+if(is.na(train_error))
+break;
+if (train_error < best_train_error) {
+best_train_error <- train_error
+best_weights <- weights
+}
+# Gradient descent step
+gradient <- t(X_train) %*% (y_train_pred - train_data$y) / n
+weights <- weights - lr * gradient
+# Plot training error as a function of iteration
+if (i %% 100 == 0 || i == max_iter) {
+error_data <- data.frame(
+Iteration = 1:i,
+TrainingError = train_errors[1:i]
+)
+error_plot <- ggplot(error_data, aes(x = Iteration, y = TrainingError)) +
+geom_line(color = "blue") +
+labs(title = "Training Error vs Iteration",
+x = "Iteration",
+y = "Training Error") +
+theme_minimal()
+print(error_plot)
+}
+list(weights = weights, best_weights = best_weights, train_errors = train_errors, val_errors = val_errors)
+}
+# Fit model
+model <- fit_polynomial_gd(train_data, val_data, degree = d, lr = 0.001)
+X_test <- as.matrix(sapply(0:d, function(degree) test_data$x^degree))
+y_test_pred <- X_test %*% model$best_weights
+# Plot validation MSE vs iteration
+mse_data <- data.frame(
+Iteration = 1:length(model$val_errors),
+ValidationMSE = model$val_errors
+)
+mse_plot <- ggplot(mse_data, aes(x = Iteration, y = ValidationMSE)) +
+geom_line(color = "red") +
+labs(title = paste("Validation MSE vs Iteration for Degree", d),
+x = "Iteration",
+y = "Validation MSE") +
+theme_minimal()
+print(mse_plot)
+# Plot the fitted curve vs test data
+x_grid <- seq(min(test_data$x), max(test_data$x), length.out = 1000)
+X_grid <- as.matrix(sapply(0:d, function(degree) x_grid^degree))
+y_grid_pred <- X_grid %*% model$best_weights
+fitted_data <- data.frame(x = x_grid, y = y_grid_pred)
+fit_plot <- ggplot(test_data, aes(x = x, y = y)) +
+geom_point(color = "blue", alpha = 0.5) +
+geom_line(data = fitted_data, aes(x = x, y = y), color = "red") +
+labs(title = paste("Degree:", d),
+x = "x",
+y = "y") +
+theme_minimal() +
+ylim(c(min(test_data$y), max(test_data$y)))
+print(fit_plot)
+fit_polynomial_gd <- function(train_data, val_data, degree, lr = 0.01, max_iter = 5000) {
+n <- nrow(train_data)
+X_train <- as.matrix(sapply(0:degree, function(d) train_data$x^d))
+X_val <- as.matrix(sapply(0:degree, function(d) val_data$x^d))
+weights <- runif(degree + 1, -0.00001, 0.00001)
+train_errors <- numeric(max_iter)
+val_errors <- numeric(max_iter)
+best_weights <- weights
+best_train_error <- Inf
+for (i in 1:max_iter) {
+# Predictions and errors
+y_train_pred <- X_train %*% weights
+y_val_pred <- X_val %*% weights
+train_error <- mse(train_data$y, y_train_pred)
+val_error <- mse(val_data$y, y_val_pred)
+train_errors[i] <- train_error
+val_errors[i] <- val_error
+# Update best model weights based on training error
+if(is.na(train_error))
+break;
+if (train_error < best_train_error) {
+best_train_error <- train_error
+best_weights <- weights
+}
+# Gradient descent step
+gradient <- t(X_train) %*% (y_train_pred - train_data$y) / n
+weights <- weights - lr * gradient
+# Plot training error as a function of iteration
+if (i %% 100 == 0 || i == max_iter) {
+error_data <- data.frame(
+Iteration = 1:i,
+TrainingError = train_errors[1:i]
+)
+error_plot <- ggplot(error_data, aes(x = Iteration, y = TrainingError)) +
+geom_line(color = "blue") +
+labs(title = "Training Error vs Iteration",
+x = "Iteration",
+y = "Training Error") +
+theme_minimal()
+print(error_plot)
+}
+list(weights = weights, best_weights = best_weights, train_errors = train_errors, val_errors = val_errors,it=i)
+}
+rm(list=ls())
+library(ggplot2)
+library(tidyverse)
+library(reshape2)
+# Function to generate data
+generate_data <- function(n) {
+x <- runif(n)
+y <- rnorm(n, mean = (2*x)^2, sd = 0.1)
+data.frame(x = x, y = y)
+}
+plot(generate_data(100))
+# Normalize features
+normalize <- function(x) {
+(x - mean(x)) / sd(x)
+}
+# Mean squared error function
+mse <- function(y_true, y_pred) {
+mean((y_true - y_pred)^2)
+}
+# Polynomial regression with gradient descent
+fit_polynomial_gd <- function(train_data, val_data, degree, lr = 0.01, max_iter = 5000) {
+n <- nrow(train_data)
+X_train <- as.matrix(sapply(0:degree, function(d) train_data$x^d))
+X_val <- as.matrix(sapply(0:degree, function(d) val_data$x^d))
+weights <- runif(degree + 1, -0.00001, 0.00001)
+train_errors <- numeric(max_iter)
+val_errors <- numeric(max_iter)
+best_weights <- weights
+best_train_error <- Inf
+for (i in 1:max_iter) {
+# Predictions and errors
+y_train_pred <- X_train %*% weights
+y_val_pred <- X_val %*% weights
+train_error <- mse(train_data$y, y_train_pred)
+val_error <- mse(val_data$y, y_val_pred)
+train_errors[i] <- train_error
+val_errors[i] <- val_error
+# Update best model weights based on training error
+if(is.na(train_error))
+break;
+if (train_error < best_train_error) {
+best_train_error <- train_error
+best_weights <- weights
+}
+# Gradient descent step
+gradient <- t(X_train) %*% (y_train_pred - train_data$y) / n
+weights <- weights - lr * gradient
+# Plot training error as a function of iteration
+if (i %% 100 == 0 || i == max_iter) {
+error_data <- data.frame(
+Iteration = 1:i,
+TrainingError = train_errors[1:i]
+)
+error_plot <- ggplot(error_data, aes(x = Iteration, y = TrainingError)) +
+geom_line(color = "blue") +
+labs(title = "Training Error vs Iteration",
+x = "Iteration",
+y = "Training Error") +
+theme_minimal()
+print(error_plot)
+}
+list(weights = weights, best_weights = best_weights, train_errors = train_errors, val_errors = val_errors,it=i)
+}
+# Configuration
+set.seed(123)
+n <- 100
+train_data <- generate_data(n)
+val_data <- generate_data(n)
+test_data <- generate_data(n)
+# Normalize data
+train_data$x <- normalize(train_data$x)
+val_data$x <- normalize(val_data$x)
+test_data$x <- normalize(test_data$x)
+# Experiment with polynomial degrees using grid intervals
+m <- 10  # Interval of degrees
+max_degree <- 2*n  # Maximum degree for practical purposes
+degrees <- seq(1, max_degree, by = m)
+errors <- numeric(length(degrees))
+d=5
+# Fit model
+model <- fit_polynomial_gd(train_data, val_data, degree = d, lr = 0.001)
+model$i
+d=10
+# Fit model
+model <- fit_polynomial_gd(train_data, val_data, degree = d, lr = 0.001)
+model$i
+X_test <- as.matrix(sapply(0:d, function(degree) test_data$x^degree))
+y_test_pred <- X_test %*% model$best_weights
+# Plot validation MSE vs iteration
+mse_data <- data.frame(
+Iteration = 1:length(model$val_errors),
+ValidationMSE = model$val_errors
+)
+mse_plot <- ggplot(mse_data, aes(x = Iteration, y = ValidationMSE)) +
+geom_line(color = "red") +
+labs(title = paste("Validation MSE vs Iteration for Degree", d),
+x = "Iteration",
+y = "Validation MSE") +
+theme_minimal()
+print(mse_plot)
+# Plot the fitted curve vs test data
+x_grid <- seq(min(test_data$x), max(test_data$x), length.out = 1000)
+X_grid <- as.matrix(sapply(0:d, function(degree) x_grid^degree))
+y_grid_pred <- X_grid %*% model$best_weights
+fitted_data <- data.frame(x = x_grid, y = y_grid_pred)
+fit_plot <- ggplot(test_data, aes(x = x, y = y)) +
+geom_point(color = "blue", alpha = 0.5) +
+geom_line(data = fitted_data, aes(x = x, y = y), color = "red") +
+labs(title = paste("Degree:", d),
+x = "x",
+y = "y") +
+theme_minimal() +
+ylim(c(min(test_data$y), max(test_data$y)))
+print(fit_plot)
+d=200
+d <- degrees[i]
+print(i/length(degrees))
+# Fit model
+model <- fit_polynomial_gd(train_data, val_data, degree = d, lr = 0.001)
+model$i
+X_test <- as.matrix(sapply(0:d, function(degree) test_data$x^degree))
+y_test_pred <- X_test %*% model$best_weights
+mse(test_data$y, y_test_pred)
+# Plot validation MSE vs iteration
+mse_data <- data.frame(
+Iteration = 1:length(model$val_errors),
+ValidationMSE = model$val_errors
+)
+mse_plot <- ggplot(mse_data, aes(x = Iteration, y = ValidationMSE)) +
+geom_line(color = "red") +
+labs(title = paste("Validation MSE vs Iteration for Degree", d),
+x = "Iteration",
+y = "Validation MSE") +
+theme_minimal()
+print(mse_plot)
+# Plot the fitted curve vs test data
+x_grid <- seq(min(test_data$x), max(test_data$x), length.out = 1000)
+X_grid <- as.matrix(sapply(0:d, function(degree) x_grid^degree))
+y_grid_pred <- X_grid %*% model$best_weights
+fitted_data <- data.frame(x = x_grid, y = y_grid_pred)
+fit_plot <- ggplot(test_data, aes(x = x, y = y)) +
+geom_point(color = "blue", alpha = 0.5) +
+geom_line(data = fitted_data, aes(x = x, y = y), color = "red") +
+labs(title = paste("Degree:", d),
+x = "x",
+y = "y") +
+theme_minimal() +
+ylim(c(min(test_data$y), max(test_data$y)))
+print(fit_plot)

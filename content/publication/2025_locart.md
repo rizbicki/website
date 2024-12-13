@@ -1,10 +1,10 @@
 ---
-title : "Nonparametric quantification of uncertainty in multistep upscaling approaches: a case study on estimating forest biomass in the Brazilian Amazon"
-date : 2024-01-01T00:42:01
+title : "Regression Trees for Fast and Adaptive Prediction Intervals "
+date : 2025-02-01T00:00:01
 draft : false
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
-authors : [D. Valle, L. Haneda, admin, R. Kamimura, B. Azevedo, S. Gomes, A. Sanchez, D. Almeida]
+authors : [L. M. C. Cabezas, M. P. Otto, admin, R. B. Stern]
 
 # Publication type.
 # Legend:
@@ -18,7 +18,7 @@ authors : [D. Valle, L. Haneda, admin, R. Kamimura, B. Azevedo, S. Gomes, A. San
 publication_types : ["2"]
 
 # Publication name and optional abbreviated version.
-publication : "Science Of Remote Sensing"
+publication : "Information Sciences"
 #publication_short : "In *ICMEW*"
 
 # Abstract and optional shortened version.
@@ -40,11 +40,11 @@ selected : false
 
 # Tags (optional).
 #   Set `tags : []` for no tags, or use the form `tags : ["A Tag", "Another Tag"]` for one or more tags.
-tags : ["Conformal Inference","Machine Learning","Remote Sensing"]
+tags : ["Nonparametric Statistics","Machine Learning","Conformal Predictions","Regression Trees"]
 
 # Links (optional).
-#url_pdf : "https://academic.oup.com/mnras/advance-article/doi/10.1093/mnras/stae971/7642871?searchresult=1"
-#url_preprint : "https://arxiv.org/abs/2301.09671"
+url_pdf : "https://www.sciencedirect.com/science/article/abs/pii/S0020025524012830"
+url_preprint : "https://arxiv.org/abs/2402.07357"
 #url_code : ""
 #url_dataset : "#"
 #url_project : "#"
