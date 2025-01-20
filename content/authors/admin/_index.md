@@ -96,13 +96,14 @@ In case you are looking for Rafael Stern, his site is [here](http://www.rafaelst
   <!-- Second image and caption -->
   <div style="text-align: center;">
     <a href="/uq4ml">
-      <img src="../img/uq4ml_cover.png" alt="Book cover" width="300px" style="border: 3px solid"/>
+      <img src="../img/uq4ml_cover.png" alt="Book cover" width="200px" style="border: 3px solid"/>
     </a>
     <div>
-      Book: <a href="/uq4ml">Machine Learning Learning Beyond Point Predictions: Uncertainty Quantification</a>
+      Book: <a href="/uq4ml">Machine Learning Beyond Point Predictions: Uncertainty Quantification</a>
     </div>
   </div>
 </div>
+
 
 
 
