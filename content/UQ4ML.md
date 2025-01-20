@@ -39,7 +39,7 @@ draft: false
 
 <!-- Purchase Links -->
 <div style="text-align: left; margin-top: 20px;">
-  📘 You can buy a <strong>printed version</strong> at <a href="https://www.amazon.com/Machine-Learning-Beyond-Point-Predictions/dp/6501202728/ref=sr_1_1?crid=13JP0RUNG8BLO&dib=eyJ2IjoiMSJ9.ZZH3VTT3-9t2_wXm5oAPiQ.ekxGkT7oPQNUfMrMTlYdw1oed8g06C_eYIkLnPCeKO0&dib_tag=se&keywords=izbicki+machine&qid=1737332462&sprefix=izbicki+machine%2Caps%2C234&sr=8-1" target="_blank">Amazon by clicking here</a>.
+  📘 You can buy a <strong>printed version</strong> at <a href="https://www.amazon.com/Machine-Learning-Beyond-Point-Predictions/dp/6501202728/ref=sr_1_1?crid=13JP0RUNG8BLO&dib=eyJ2IjoiMSJ9.ZZH3VTT3-9t2_wXm5oAPiQ.ekxGkT7oPQNUfMrMTlYdw1oed8g06C_eYIkLnPCeKO0&dib_tag=se&keywords=izbicki+machine&qid=1737332462&sprefix=izbicki+machine%2Caps%2C234&sr=8-1" target="_blank">Amazon by clicking here (or look for it in your local Amazon store)</a>.
 </div>
 
 <!-- Download Online Version -->
