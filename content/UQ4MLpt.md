@@ -55,7 +55,7 @@ draft: false
 
 <!-- Contribute Section -->
 <div style="text-align: left; margin-top: 20px;">
-  ❤️ <strong>Contribua com este projeto ❤️</strong>:
+  ❤️ <strong>Contribua com este projeto️</strong>:
   <ul>
     <li><strong>Chave PIX</strong>: 2f439cb9-9172-4104-81a0-a2649695a2d7</li>
     <li><strong>Código QR PIX</strong>:</li>
