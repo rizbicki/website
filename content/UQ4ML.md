@@ -69,8 +69,8 @@ draft: false
 </script>
 
 <!-- Citation Section -->
-<div style="margin-top: 40px; padding: 2px; border-top: 2px solid #ccc;">
-</div>
+#<div style="margin-top: 40px; padding: 2px; border-top: 2px solid #ccc;">
+#</div>
 
 
 

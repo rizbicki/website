@@ -77,8 +77,8 @@ draft: false
 </script>
 
 <!-- Citation Section -->
-<div style="margin-top: 40px; padding: 2px; border-top: 2px solid #ccc;">
-</div>
+#<div style="margin-top: 40px; padding: 2px; border-top: 2px solid #ccc;">
+#</div>
 
 <div style="text-align: left; margin-top: 20px;">
   📖 <strong>About the Book</strong>: Written for practitioners and researchers with a good mathematical background, this book offers a solid guide to uncertainty quantification in supervised machine learning. It explores both aleatoric and epistemic uncertainties, providing practical tools to improve the reliability of predictions in applications ranging from cosmology to infectious disease forecasting. The topics covered include conditional density estimation with mixtures and neural networks, Gaussian processes, Bayesian Additive Regression Trees, conformal prediction, calibration techniques for regression and classification, likelihood-free inference, and more. By combining theory with real-world examples, the book helps readers move beyond point predictions in Artificial Intelligence to create models that effectively communicate uncertainty. Hands-on examples and code are available in an accompanying <a href="https://github.com/rizbicki/UQ4ML/" target="_blank">GitHub repository</a>.
