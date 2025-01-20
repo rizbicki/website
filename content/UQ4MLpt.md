@@ -8,8 +8,6 @@ tags:
 - Machine Learning
 - Uncertainty Quantification
 - Artificial Intelligence
-categories:
-- Pages
 editor_options: 
   chunk_output_type: console
 draft: false

@@ -7,8 +7,7 @@ tags:
 - Livro
 - Aprendizado de Máquina
 - Machine Learning
-categories:
-- Pages
+- Inteligência Artificial
 editor_options: 
   chunk_output_type: console
 ---
