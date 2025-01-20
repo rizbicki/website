@@ -11,7 +11,7 @@ categories:
 - Pages
 editor_options: 
   chunk_output_type: console
-draft: true
+draft: false
 ---
 
 <!-- Google tag (gtag.js) -->
@@ -38,12 +38,12 @@ draft: true
 
 <!-- Purchase Links -->
 <div style="text-align: left; margin-top: 20px;">
-  📘 You can buy a <strong>printed version</strong> at <a href="https://loja.uiclap.com/titulo/ua24032/" target="_blank">Amazon by clicking here</a>.
+  📘 You can buy a <strong>printed version</strong> at <a href="https://www.amazon.com/Machine-Learning-Beyond-Point-Predictions/dp/6501202728/ref=sr_1_1?crid=13JP0RUNG8BLO&dib=eyJ2IjoiMSJ9.ZZH3VTT3-9t2_wXm5oAPiQ.ekxGkT7oPQNUfMrMTlYdw1oed8g06C_eYIkLnPCeKO0&dib_tag=se&keywords=izbicki+machine&qid=1737332462&sprefix=izbicki+machine%2Caps%2C234&sr=8-1" target="_blank">Amazon by clicking here</a>.
 </div>
 
 <!-- Download Online Version -->
 <div style="text-align: left; margin-top: 10px;">
-  📥 Download the <strong>online version</strong> for free <a href="../AME.pdf" target="_blank"> by clicking here</a>.
+  📥 Download the <strong>online version</strong> for free <a href="../UQ4ML.pdf" target="_blank"> by clicking here</a>.
 </div>
 
 

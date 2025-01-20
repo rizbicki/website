@@ -60,6 +60,7 @@ Master
 
 Undergraduate
 
+- Vagner Silva Santos - (current student)
 - Fernanda Waltrs Freitas - (current student)
 - Lucas Sala Bastinni - (current student)
 - Guilherme Pedrilho Soares - (current student)

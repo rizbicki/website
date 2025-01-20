@@ -82,10 +82,29 @@ I am a member of the following research groups/collaborations:
 In case you are looking for Rafael Stern, his site is [here](http://www.rafaelstern.science).
 
 
-<a href="/ame"><img src="img/ame.png" alt="" width="200px" style="float: center" border="3"/></a>
-<div style="text-align: center;">
-Book: <a href="/ame">Aprendizado de máquina: uma abordagem estatística</a>
+<div style="display: flex; justify-content: center; align-items: flex-start; gap: 40px;">
+  <!-- First image and text -->
+  <div style="text-align: center;">
+    <a href="/ame">
+      <img src="img/ame.png" alt="" width="200px" style="border: 3px solid"/>
+    </a>
+    <div>
+      Book: <a href="/ame">Aprendizado de máquina: uma abordagem estatística</a>
+    </div>
+  </div>
+
+  <!-- Second image and caption -->
+  <div style="text-align: center;">
+    <a href="/uq4ml">
+      <img src="../img/uq4ml_cover.png" alt="Book cover" width="300px" style="border: 3px solid"/>
+    </a>
+    <div>
+      Book: <a href="/uq4ml">Machine Learning Learning Beyond Point Predictions: Uncertainty Quantification</a>
+    </div>
+  </div>
 </div>
+
+
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-8F80C9P3HV"></script>

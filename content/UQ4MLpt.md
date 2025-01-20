@@ -11,7 +11,7 @@ categories:
 - Pages
 editor_options: 
   chunk_output_type: console
-draft: true
+draft: false
 ---
 
 <!-- Google tag (gtag.js) -->
@@ -39,15 +39,15 @@ draft: true
 <div style="text-align: left; margin-top: 20px;">
   📘 Adquira a <strong>versão impressa</strong>, disponível em dois formatos:
   <ul>
-    <li>📙 <strong>Colorida</strong>: <a href="https://loja.uiclap.com/titulo/ua24032/" target="_blank">clique aqui</a>.</li>
-    <li>📗 <strong>Preto e branco</strong>: <a href="https://loja.uiclap.com/titulo/ua24034/" target="_blank">clique aqui</a>.</li>
+    <li>📙 <strong>Colorida</strong>: <a href="https://loja.uiclap.com/titulo/ua75388" target="_blank">clique aqui</a>.</li>
+    <li>📗 <strong>Preto e branco</strong>: <a href="https://loja.uiclap.com/titulo/ua75426" target="_blank">clique aqui</a>.</li>
   </ul>
 </div>
 
 
 <!-- Download Online Version -->
 <div style="text-align: left; margin-top: 10px;">
-  📥 Baixe a <strong>versão online</strong> gratuitamente <a href="../AME.pdf" target="_blank"> clicando aqui</a>.
+  📥 Baixe a <strong>versão online</strong> gratuitamente <a href="../UQ4ML.pdf" target="_blank"> clicando aqui</a>.
 </div>
 
 
