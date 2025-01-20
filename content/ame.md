@@ -72,7 +72,7 @@ editor_options:
 <div style="text-align: left; margin-top: 20px;">
   📚 <strong>Citação</strong>: Izbicki, R. e Santos, T. M. dos. 
   <em>Aprendizado de máquina: uma abordagem estatística</em>. 1ᵃ edição. 2020. 272 páginas. ISBN: 978-65-00-02410-4.
-  <br>
+  <br><br>
   📜 <strong>Entrada BibTeX</strong>: <a href="../citacao.bib" target="_blank">clique aqui</a>.
 </div>
 <br>

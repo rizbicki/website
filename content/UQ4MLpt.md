@@ -89,7 +89,7 @@ draft: false
 <div style="text-align: left; margin-top: 20px;">
   📚 <strong>Citação</strong>: Izbicki, R. <em>Machine Learning Beyond Point Predictions: Uncertainty Quantification</em>. 
   1st edition, 2025, 260 pages. ISBN: 978-65-01-20272-3.
-  <br>
+  <br><br>
   📜     Entrada <strong>Bibtex</strong>: <a href="../uq4ml.bib" target="_blank">click here</a>.
 </div>
 <br>
