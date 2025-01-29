@@ -61,10 +61,11 @@ Master
 Undergraduate
 
 - Vagner Silva Santos - (current student)
+- Pietro Grazzioli Golfeto - (current student)
 - Fernanda Waltrs Freitas - (current student)
 - Lucas Sala Bastinni - (current student)
-- Guilherme Pedrilho Soares - (current student)
 - Bruno Marcondes Resende - (current student)
+- Guilherme Pedrilho Soares - Aplicação de Previsão Conforme em Inferência Baseada em Simuladores  - (2023-2024)
 - Guilherme Pedrilho Soares -  Exploring the Present: Predicting Dengue Epidemics in Brazilian States with Google Trends - (2023-2024)
 - Gabriela Soares - Uma abordagem estatística sobre a estimação de redshifts de quasares usando dados do S-PLUS - (2022)
 - Luben Miguel Cruz Cabezas  - Métodos de Aprendizado Ativo (2021-2022)
