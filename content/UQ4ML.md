@@ -26,7 +26,7 @@ draft: false
 
 <!-- Purchase Links -->
 <div style="text-align: left; margin-top: 20px;">
-❗ If you <strong>live in Brazil</strong>, access the book webpage <a href="../UQ4MLpt" target="_blank"> by clicking here</a>.
+❗ If you <strong>live in Brazil</strong>, access the  <a href="../UQ4MLpt" target="_blank">Brazilian version of the webpage  by clicking here</a>.
 </div>
 
 
