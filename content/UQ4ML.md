@@ -30,8 +30,6 @@ draft: false
   gtag('config', 'G-8F80C9P3HV');
 </script>
 
-<h1>Machine Learning Beyond Point Predictions: Uncertainty Quantification</h1>
-
 <p><strong>Author:</strong> Rafael Izbicki  
 <br><strong>1st Edition, 2025</strong>  
 <br><strong>ISBN:</strong> 978-65-01-20272-3  
