@@ -19,7 +19,7 @@ subtitle: ''
 - Data Mining (14/2, 15/1, 16/1, 17/1, 18/1, 19/1, 20/1, 21/1, 22/1, 23/1, 24/1)
 - Introduction to Statistics (15/1, 17/2, 18/1, 19/1, 20/2, 21/1)
 - Perspectives in Data Science (21/2, 24/1)
-- Statistical Inference (22/2, 23/2)
+- Statistical Inference (22/2, 23/2, 25/1)
 
 *Graduate courses*
 - Advanced Statistical Machine Learning (24/2)
