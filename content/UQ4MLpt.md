@@ -50,6 +50,17 @@ draft: false
 <h2>Versão gratuita</h2>
 <p>📥 Baixe a versão completa em PDF gratuitamente: <a href="../UQ4ML.pdf" target="_blank">clicando aqui</a>.</p>
 
+<!-- Apoio -->
+<h2>Contribua com este projeto</h2>
+<ul>
+  <li><strong>Chave PIX:</strong> 2f439cb9-9172-4104-81a0-a2649695a2d7</li>
+  <li><strong>Código QR:</strong></li>
+</ul>
+<div style="text-align: center; margin-top: 10px;">
+  <img src="../img/QR.png" alt="Código QR para apoio via PIX" width="150px" style="border: 3px solid;"/>
+</div>
+
+
 <!-- Sobre o livro -->
 <h2>Sobre o livro</h2>
 <p>
@@ -80,15 +91,6 @@ draft: false
   📜 Entrada BibTeX: <a href="../uq4ml.bib" target="_blank">clique aqui</a>.
 </p>
 
-<!-- Apoio -->
-<h2>Contribua com este projeto</h2>
-<ul>
-  <li><strong>Chave PIX:</strong> 2f439cb9-9172-4104-81a0-a2649695a2d7</li>
-  <li><strong>Código QR:</strong></li>
-</ul>
-<div style="text-align: center; margin-top: 10px;">
-  <img src="../img/QR.png" alt="Código QR para apoio via PIX" width="150px" style="border: 3px solid;"/>
-</div>
 
 <!-- Ko-Fi -->
 <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
