@@ -18,7 +18,7 @@ draft: false
 <meta name="citation_author" content="Rafael Izbicki">
 <meta name="citation_publication_date" content="2025">
 <meta name="citation_isbn" content="978-65-01-20272-3">
-<meta name="citation_pdf_url" content="https://yourdomain.com/UQ4ML.pdf">
+<meta name="citation_pdf_url" content="https://www.rafaelizbicki.com/UQ4ML.pdf">
 <meta name="citation_language" content="en">
 
 <!-- Google tag (gtag.js) -->
