@@ -58,7 +58,7 @@ I am a member of the following research groups/collaborations:
  
 <table>
   <tr>
-    <td valign="top"><a href = "http://www.small.ufscar.br/"><img src="https://www.small-lab.science/figures/logo.png" width="250"></a></td>
+    <td valign="top"><a href = "https://small-research.github.io/website/"><img src="https://small-research.github.io/website/small.png" width="250"></a></td>
     <td valign="top"><a href = "http://www.gis.des.ufscar.br/index.php"><img src="img/gis.png" width="200"></a></td>
     <td valign="top"><a href = "https://www.splus.iag.usp.br/"><img src="https://www.splus.iag.usp.br/wp-content/themes/splus-theme/img/splus-cropped@2x.png" width="200"></a></td>
   </tr>
