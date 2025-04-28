@@ -67,7 +67,7 @@ I am a member of the following research groups/collaborations:
   <td valign="top"><a href = "https://www.stat.cmu.edu/stamps/"><img src="../img/stamps.png" style="width: 200px; height: 50px;"></a></td>
     <td valign="top"><a href = "https://www.taxep.ufscar.br/"><img src="https://www.taxep.ufscar.br/@@site-logo/taxep-logo-square-100px.png" 
      style="width: 150px; height: 90px;"></a></td>
-    <td valign="top"><a href = "https://bpg-lsst-dev.linea.org.br/"><img src="https://bpg-lsst.linea.org.br/wp-content/themes/lsst-brazil/imagens/Brazil_LSSTLogo_b_small.png" width="200"></a></td>
+    <td valign="top"><a href = "https://bpg-lsst-dev.linea.org.br/"><img src="https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/noticias/2022/02/aberta-chamada-publica-para-o-brazilian-participation-group-do-lsst-bpg-lsst/linea.jpg/@@images/18cb9970-5197-47de-83d1-1563a9fadda5.jpeg" width="200"></a></td>
   </tr>
   
   <tr>
