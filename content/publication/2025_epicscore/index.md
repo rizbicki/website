@@ -15,7 +15,7 @@ image:
   caption: ''
   focal_point: ""
   preview_only: false
-publication: "Proceedings of Machine Learning (UAI Track; Oral Presentation)"
+publication: "Proceedings of Machine Learning Research (UAI Track; Oral Presentation)"
 #publication_short: In *Journal of Machine Learning Research*
 publication_types:
 - "2"
