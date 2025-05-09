@@ -31,7 +31,7 @@ image:
   preview_only: false
 
 # Is this a selected publication? (true/false)
-featured: true
+featured: false
 
 # Projects (optional).
 #   Associate this publication with one or more of your projects.
