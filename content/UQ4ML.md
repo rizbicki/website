@@ -59,7 +59,7 @@ draft: false
 <!-- Book Description -->
 <h2>About the Book</h2>
 <p>
-  This book offers a comprehensive and practical introduction to uncertainty quantification in supervised machine learning. It is written for researchers and practitioners with a good mathematical background and includes applications in fields such as cosmology, finance, and infectious disease forecasting.
+  This book offers a comprehensive and practical introduction to uncertainty quantification in supervised machine learning. It is written for researchers and practitioners with a good mathematical background and includes applications in fields such as cosmology and infectious disease forecasting.
 </p>
 <p>
   Topics include:

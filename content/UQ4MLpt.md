@@ -8,6 +8,7 @@ tags:
 - Machine Learning
 - Uncertainty Quantification
 - Artificial Intelligence
+- Inteligência Artificial
 editor_options: 
   chunk_output_type: console
 draft: false
@@ -64,7 +65,7 @@ draft: false
 <!-- Sobre o livro -->
 <h2>Sobre o livro</h2>
 <p>
-  Escrito para pesquisadores e profissionais com boa formação matemática, este livro oferece um guia prático e teórico para quantificação de incerteza em aprendizado supervisionado. Ele explora tanto as incertezas epistêmicas quanto as aleatórias, com ferramentas aplicáveis a áreas como cosmologia, previsão de epidemias e inteligência artificial.
+  Escrito para pesquisadores e profissionais com boa formação matemática, este livro oferece um guia prático e teórico para quantificação de incerteza em aprendizado supervisionado. Ele explora tanto as incertezas epistêmicas quanto as aleatórias, com ferramentas aplicáveis a áreas como cosmologia e monitoramento de epidemias.
 </p>
 <p>Os tópicos incluem:
   <ul>
