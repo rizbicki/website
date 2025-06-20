@@ -30,6 +30,6 @@ subtitle: ''
 
 - A very small passover Hagaddah I created for my daughters. In [English](hagaddah_english.pdf) and in [Portuguese](hagaddah_portugues.pdf)
 
-** Medium **
+**Medium**
 
 - My medium page can be found [here](https://rizbicki.medium.com/)

@@ -37,7 +37,7 @@ social:
     icon_pack: fab
     link: https://github.com/rizbicki
     superuser: true
-  - icon: x-twitter
+  - icon: twitter
     icon_pack: fab
     link: https://twitter.com/rizbicki
     superuser: true
