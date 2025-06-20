@@ -37,10 +37,13 @@ social:
     icon_pack: fab
     link: https://github.com/rizbicki
     superuser: true
-  - icon: twitter
+  - icon: x-twitter
     icon_pack: fab
     link: https://twitter.com/rizbicki
     superuser: true
+  - icon: medium
+    icon_pack: fab
+    link: https://rizbicki.medium.com/
 title: Rafael Izbicki
 ---
 
