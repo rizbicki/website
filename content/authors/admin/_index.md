@@ -47,7 +47,7 @@ social:
 title: Rafael Izbicki
 ---
 
-I'm an Assistant Professor at the Department of Statistics of the Federal University of São Carlos (UFSCar), Brazil. From 2010 to 2014, I was a PhD student in the  Department of Statistics & Data Science at [Carnegie Mellon University](http://www.stat.cmu.edu/) (CMU) ([PhD thesis](../../IzbickiThesis.pdf)), USA. Prior to that, I graduated and received my Master's degree at the University of São Paulo (USP) ([Master's dissertation](../../DissertacaoIzbicki.pdf)). I am a Research Fellow at CNPq (2017-2024). 
+I'm an Associate Professor at the Department of Statistics of the Federal University of São Carlos (UFSCar), Brazil. From 2010 to 2014, I was a PhD student in the  Department of Statistics & Data Science at [Carnegie Mellon University](http://www.stat.cmu.edu/) (CMU) ([PhD thesis](../../IzbickiThesis.pdf)), USA. Prior to that, I graduated and received my Master's degree at the University of São Paulo (USP) ([Master's dissertation](../../DissertacaoIzbicki.pdf)). I am a Research Fellow at CNPq (2017-2027). 
 
 I am interested in theory, methodology, applications, and foundations of statistics, machine learning and data science.
 I am a member of the following research groups/collaborations:
