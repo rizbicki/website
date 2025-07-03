@@ -16,11 +16,15 @@ weight = 40
 
 +++
 
+*English:*
+
 - [Machine Learning Learning Beyond Point Predictions: Uncertainty Quantification](https://rafaelizbicki.com/uq4ml/)
 
 - [Introduction to Probability Theory and Random Processes](https://www.overleaf.com/read/fjdsbxwydcnf), with Márcio A. Diniz, Luís E. B. Salasar and Rafael B. Stern
 
 - [Statistical Inference](https://www.overleaf.com/read/ndcxvbjgvkbx), with Rafael B. Stern (incomplete)
+
+*Portuguese:*
 
 - [Inferência Bayesiana](https://github.com/rbstern/bayesian_inference_book/raw/master/book.pdf), com Luís Gustavo Esteves e Rafael B. Stern
 
