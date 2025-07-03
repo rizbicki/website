@@ -28,7 +28,7 @@ weight = 40
 
 - [Inferência Bayesiana](https://github.com/rbstern/bayesian_inference_book/raw/master/book.pdf), com Luís Gustavo Esteves e Rafael B. Stern
 
-- [Curso de Programação Estatística](https://thiagorr162.github.io/prog-estat/), com Andressa Cerqueira e Thiago Rodrigo Ramos (incomplete)
+- [Curso de Programação Estatística](https://thiagorr162.github.io/prog-estat/), com Andressa Cerqueira, Danilo Lourenço Lopes e Thiago Rodrigo Ramos (incomplete)
 
 - [Aprendizado de máquina: uma abordagem estatística](ame), com Tiago Mendonça
 dos Santos.
