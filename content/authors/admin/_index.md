@@ -22,7 +22,7 @@ interests:
 organizations:
 - name: Federal University of São Carlos (UFSCar)
   url: https://www.ufscar.br/
-role: Assistant Professor of Statistics
+role: Associate Professor of Statistics
 social:
   - icon: envelope
     icon_pack: fa
