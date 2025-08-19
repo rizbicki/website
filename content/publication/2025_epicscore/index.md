@@ -27,7 +27,7 @@ tags: [Conformal prediction,Machine Learning,Regression Trees,Epistemic Uncertai
 title: 'Epistemic Uncertainty in Conformal Scores: A Unified Approach'
 url_code: "https://github.com/Monoxido45/EPICSCORE"
 url_dataset: ""
-url_pdf: "https://arxiv.org/abs/2502.06995"
+url_pdf: "https://proceedings.mlr.press/v286/cruz-cabezas25a.html"
 url_poster: ""
 url_project: ""
 url_slides: ""

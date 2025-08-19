@@ -4,7 +4,7 @@ theme: "starter-hugo-academic"
 # Hugo Documentation: https://gohugo.io/getting-started/configuration/#all-configuration-settings
 # This file is formatted using YAML syntax - learn more at https://learnxinyminutes.com/docs/yaml/
 
-title: Rafael Izbicki | Associate Professor UFSCar | PhD CMU 2014 # Website name
+title: Rafael Izbicki # Website name
 baseURL: 'https://www.rafaelizbicki.com/' # Website URL
 
 ############################
