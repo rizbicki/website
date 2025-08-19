@@ -1,5 +1,5 @@
 ---
-bio: I'm an **Associate Professor** at the Department of Statistics of the *Federal University of São Carlos (UFSCar)*, Brazil. From 2010 to 2014, I was a *PhD student in the  Department of Statistics & Data Science at [Carnegie Mellon University](http://www.stat.cmu.edu/), USA*. Prior to that, I graduated and received by Master's degree at the *University of São Paulo (USP)*. I am a Research Fellow at CNPq (2017-2027). 
+bio: "I'm an <b>Associate Professor</b> at the Department of Statistics of the <b>Federal University of São Carlos (UFSCar)</b>, Brazil. From 2010 to 2014, I was a PhD student in the  <b>Department of Statistics & Data Science at <a href='http://www.stat.cmu.edu/'>Carnegie Mellon University</a>, USA</b>. Prior to that, I graduated and received my Master's degree at the <b>University of São Paulo (USP)</b>. I am a Research Fellow at CNPq (2017-2027)."
 education:
   courses:
     - course: PhD in Statistics 
