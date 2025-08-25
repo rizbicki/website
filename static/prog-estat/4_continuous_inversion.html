@@ -313,8 +313,7 @@ window.Quarto = {
 </header>
 
 
-<p>Os valores que uma variável aleatória <span class="math inline">\(X\)</span> pode assumir são chamados de <strong>suporte</strong> da distribuição de <span class="math inline">\(X\)</span>.</p>
-<p><strong>Variáveis Aleatórias Contínuas</strong> são variáveis aleatórias que têm suporte em um conjunto não enumerável de valores, como intervalos na reta real, <span class="math inline">\(\mathbb{R}\)</span>, ou <span class="math inline">\((0,\infty)\)</span>, por exemplo.</p>
+<p>A técnica da inversão também pode ser usada para variáveis aleatórias continuas, que são varáveis com suporte em um conjunto não enumerável de valores, como intervalos na reta real, <span class="math inline">\(\mathbb{R}\)</span>, ou <span class="math inline">\((0,\infty)\)</span>, por exemplo.</p>
 <p>Uma variável aleatória <span class="math inline">\(X\)</span> contínua tem função de distribuição acumulada (f.d.a.) puder ser expressa como <span class="math display">\[
 P(X \leq a) = F(a) = \int_{-\infty}^{a} f(x) dx, \quad \forall a \in \mathbb{R},
 \]</span> em que <span class="math inline">\(f: \mathbb{R} \to [0, \infty)\)</span> é uma função integrável, chamada de função densidade de probabilidade.</p>
@@ -441,18 +440,18 @@ P(X \leq a) = F(a) = \int_{-\infty}^{a} f(x) dx, \quad \forall a \in \mathbb{R},
 </section>
 <section id="método-da-inversão" class="level2" data-number="6.2">
 <h2 data-number="6.2" class="anchored" data-anchor-id="método-da-inversão"><span class="header-section-number">6.2</span> Método da Inversão</h2>
-<p>Uma maneira de gerar valores de uma variável aleatória contínua <span class="math inline">\(X\)</span>, é o <strong>método da inversão</strong>, que é originado da seguinte proposição:</p>
+<p>Para variáveis contínuas, o <strong>método da inversão</strong> consiste em:</p>
+<ol type="1">
+<li><p>Gerar <span class="math inline">\(U \sim \text{Unif}(0,1)\)</span>.</p></li>
+<li><p>Calcular <span class="math inline">\(X = F^{-1}(U)\)</span>.</p></li>
+</ol>
+<p>A seguir, provamos que este método de fato gera uma variável aleatória com a distribuição desejada.</p>
 <p><strong>Proposição:</strong> Seja <span class="math inline">\(U \sim \text{Unif}(0,1)\)</span>. Para qualquer variável aleatória contínua com função de distribuição acumulada <span class="math inline">\(F\)</span>, a variável: <span class="math display">\[
 X = F^{-1}(U)
 \]</span> tem distribuição <span class="math inline">\(F\)</span>.</p>
 <p><strong>Prova</strong>: <span class="math display">\[
 \mathbb{P}(X \leq x) = \mathbb{P}(F^{-1}(U) \leq x) = \mathbb{P}(F(F^{-1}(U)) \leq F(x)) = \mathbb{P}(U \leq F(x)) = F(x).
 \]</span></p>
-<p>Assim, o método da inversão consiste em:</p>
-<ol type="1">
-<li><p>Gerar <span class="math inline">\(U \sim \text{Unif}(0,1)\)</span>.</p></li>
-<li><p>Calcular <span class="math inline">\(X = F^{-1}(U)\)</span>.</p></li>
-</ol>
 </section>
 <section id="exemplo-1" class="level2" data-number="6.3">
 <h2 data-number="6.3" class="anchored" data-anchor-id="exemplo-1"><span class="header-section-number">6.3</span> Exemplo 1</h2>

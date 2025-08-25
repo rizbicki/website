@@ -311,20 +311,27 @@ window.Quarto = {
 </header>
 
 
-<p>A amostragem por rejeição é uma técnica útil para gerar variáveis aleatórias a partir de uma distribuição de probabilidade complexa, utilizando uma distribuição proposta mais simples. A ideia básica é simular de uma distribuição discreta fácil de amostrar e, em seguida, rejeitar ou aceitar essas amostras com base na distribuição alvo.</p>
+<p>A amostragem por rejeição é uma técnica útil para gerar variáveis aleatórias de uma distribuição de probabilidade complexa a partir de uma distribuição proposta mais simples. A ideia básica é simular de uma distribuição discreta fácil de amostrar e, em seguida, rejeitar ou aceitar essas amostras com base na distribuição alvo.</p>
 <section id="algoritmo" class="level2" data-number="7.1">
 <h2 data-number="7.1" class="anchored" data-anchor-id="algoritmo"><span class="header-section-number">7.1</span> Algoritmo</h2>
-<p>O método assume que conhecemos uma distribuição <span class="math inline">\(q_j\)</span>, fácil de simular, que cubra o suporte da distribuição alvo <span class="math inline">\(p_j\)</span>. Essa distribuição é chamada de <strong>distribuição proposta</strong>. Além disso, ele assume que existe uma constante <span class="math inline">\(c\)</span> tal que <span class="math inline">\(\frac{p_j}{q_j} \leq c\)</span> para todo <span class="math inline">\(j\)</span> tal que <span class="math inline">\(p_j &gt; 0\)</span>, e que conseguimos calcular <span class="math inline">\(c\)</span>.</p>
-<p>O método de aceitação e rejeição segue os seguintes passos:</p>
+<p>Seja <span class="math inline">\(X\)</span> uma variável aleatória tal que <span class="math inline">\(P(X = x_j) = p_j\)</span>. O <strong>método da rejeição</strong> assume que sabemos simular valores de uma segunda variável aleatória <span class="math inline">\(Y\)</span>, cuja distribuição cubra todo o suporte de <span class="math inline">\(X\)</span>. Seja <span class="math inline">\(q_j = P(Y = x_j)\)</span>; essa distribuição é chamada de <strong>distribuição proposta</strong>.</p>
+<p>Além disso, assume-se que existe uma constante <span class="math inline">\(c\)</span> tal que:</p>
+<p><span class="math display">\[
+\frac{p_j}{q_j} \leq c \quad \text{para todo } j \text{ com } p_j &gt; 0,
+\]</span></p>
+<p>e que essa constante pode ser calculada.</p>
+<p>O algoritmo do método da rejeição segue os seguintes passos:</p>
 <ol type="1">
-<li><p>Gere um valor <span class="math inline">\(Y\)</span> da distribuição proposta <span class="math inline">\(q_j\)</span>.</p></li>
-<li><p>Gere um valor <span class="math inline">\(U \sim \text{Uniform}(0, 1)\)</span>.</p></li>
-<li><p>Aceite <span class="math inline">\(Y\)</span> como uma amostra de <span class="math inline">\(p_j\)</span> se <span class="math inline">\(U \leq \frac{p(Y)}{c \cdot q(Y)}\)</span>, caso contrário, rejeite <span class="math inline">\(Y\)</span> e repita o processo.</p></li>
+<li><strong>Gere</strong> um valor <span class="math inline">\(Y\)</span> a partir da distribuição proposta <span class="math inline">\(q_j\)</span>.</li>
+<li><strong>Gere</strong> <span class="math inline">\(U \sim \text{Uniform}(0,1)\)</span>, independente de <span class="math inline">\(Y\)</span> gerado.</li>
+<li><strong>Aceite</strong> <span class="math inline">\(Y\)</span> se <span class="math display">\[
+U \leq \frac{P(X=y)}{c \cdot P(Y=y)};
+\]</span> caso contrário, <strong>rejeite</strong> <span class="math inline">\(y\)</span> e repita o processo.</li>
 </ol>
 </section>
 <section id="exemplo" class="level2" data-number="7.2">
 <h2 data-number="7.2" class="anchored" data-anchor-id="exemplo"><span class="header-section-number">7.2</span> Exemplo</h2>
-<p>Vamos demonstrar a amostragem por rejeição gerando amostras de uma distribuição alvo discreta <span class="math inline">\(p_j\)</span>, utilizando uma distribuição uniforme discreta como distribuição proposta.</p>
+<p>Vamos exemplificar a amostragem por rejeição gerando amostras de uma distribuição alvo discreta <span class="math inline">\(p_j\)</span>, utilizando uma distribuição uniforme discreta como distribuição proposta.</p>
 <p>Suponha que <span class="math inline">\(Y\)</span> siga uma distribuição uniforme discreta em <span class="math inline">\(\{1, 2, \dots, 10\}\)</span>, ou seja, <span class="math inline">\(q_j = 1/10\)</span> para todos os valores <span class="math inline">\(j\)</span>. A distribuição alvo <span class="math inline">\(p_j\)</span> tem os seguintes valores:</p>
 <table class="caption-top table">
 <colgroup>
@@ -372,6 +379,7 @@ window.Quarto = {
 </tbody>
 </table>
 <p>Para aplicar o método de aceitação e rejeição, precisamos de uma constante <span class="math inline">\(c\)</span> tal que <span class="math inline">\(\frac{p_j}{q_j} \leq c\)</span> para todo <span class="math inline">\(j\)</span>. Neste caso, temos <span class="math inline">\(c = 1.2\)</span>.</p>
+<p>A seguir, ilustramos o método da rejeição para esse problema. Amostramos um dos números do suporte, 1, …, 10, com probabilidade uniforme. A seguir, aceitamos esse número com probabilidade proporcional à área abaixo do ponto vermelho (em relação à área abaixo do ponto verde).</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -459,79 +467,286 @@ window.Quarto = {
 </div>
 </div>
 </div>
+<p>O seguinte código mostrar como amostrar 1000 valores desta distribuição na prática, bem como a tabela de frequência dos valores gerados.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Parâmetros definidos no problema ---</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Valores de j (suporte da distribuição)</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>j_values <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Distribuição alvo p_j</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>p_j <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.11</span>, <span class="fl">0.12</span>, <span class="fl">0.09</span>, <span class="fl">0.08</span>, <span class="fl">0.12</span>, <span class="fl">0.10</span>, <span class="fl">0.09</span>, <span class="fl">0.09</span>, <span class="fl">0.10</span>, <span class="fl">0.10</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Distribuição proposta q_j (Uniforme Discreta)</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>q_j <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">10</span>, <span class="dv">10</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Constante c tal que p_j &lt;= c * q_j</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>c <span class="ot">&lt;-</span> <span class="fu">max</span>(p_j <span class="sc">/</span> q_j)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Número de amostras desejadas</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>n_samples <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Vetor para armazenar as amostras aceitas</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>accepted_samples <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Implementação do Método da Rejeição ---</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Para facilitar a busca, nomeamos o vetor p_j com os valores correspondentes de j</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(p_j) <span class="ot">&lt;-</span> j_values</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Para a distribuição uniforme q_j, o valor é sempre 1/10</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>q_val <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">10</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Loop até que o número desejado de amostras seja gerado</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (<span class="fu">length</span>(accepted_samples) <span class="sc">&lt;</span> n_samples) {</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1. Gere um valor Y a partir da distribuição proposta q_j</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Como q_j é uniforme, usamos a função sample() para escolher um valor de j_values</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="fu">sample</span>(j_values, <span class="dv">1</span>)</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2. Gere U ~ Uniform(0,1)</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  u <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>)</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 3. Teste de aceitação</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Acessamos p(y) usando o nome do vetor (convertendo y para caractere para busca)</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>  acceptance_ratio <span class="ot">&lt;-</span> p_j[<span class="fu">as.character</span>(y)] <span class="sc">/</span> (c <span class="sc">*</span> q_val)</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (u <span class="sc">&lt;=</span> acceptance_ratio) {</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Se aceito, adicione o valor ao vetor de amostras</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>    accepted_samples <span class="ot">&lt;-</span> <span class="fu">c</span>(accepted_samples, y)</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Exibição dos Resultados ---</span></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">As primeiras 20 amostras geradas são:</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+As primeiras 20 amostras geradas são:</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">head</span>(accepted_samples, <span class="dv">20</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1]  5  4  8  1  7  5  6  2  2  9  6  5  6  3  2  8  2  5 10  5</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Criação da tabela de frequência</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>freq_table <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="fu">factor</span>(accepted_samples, <span class="at">levels =</span> j_values))</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>relative_freq <span class="ot">&lt;-</span> <span class="fu">prop.table</span>(freq_table)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Montamos um data.frame final para exibir os resultados</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>results_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Valor (j)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">as.integer</span>(<span class="fu">names</span>(freq_table)),</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Frequência Absoluta</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">as.integer</span>(freq_table),</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Frequência Relativa (Observada)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">as.numeric</span>(relative_freq),</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Probabilidade Teórica (p_j)</span><span class="st">`</span> <span class="ot">=</span> p_j,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Tabela de Frequência dos 1000 valores gerados:</span><span class="sc">\n\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tabela de Frequência dos 1000 valores gerados:</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results_df, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code> Valor (j) Frequência Absoluta Frequência Relativa (Observada)
+         1                 123                           0.123
+         2                 108                           0.108
+         3                  87                           0.087
+         4                  77                           0.077
+         5                 117                           0.117
+         6                 105                           0.105
+         7                  88                           0.088
+         8                  95                           0.095
+         9                  88                           0.088
+        10                 112                           0.112
+ Probabilidade Teórica (p_j)
+                        0.11
+                        0.12
+                        0.09
+                        0.08
+                        0.12
+                        0.10
+                        0.09
+                        0.09
+                        0.10
+                        0.10</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Parâmetros definidos no problema ---</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Valores de j (suporte da distribuição)</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>j_values <span class="op">=</span> np.arange(<span class="dv">1</span>, <span class="dv">11</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Distribuição alvo p_j</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>p_j <span class="op">=</span> np.array([<span class="fl">0.11</span>, <span class="fl">0.12</span>, <span class="fl">0.09</span>, <span class="fl">0.08</span>, <span class="fl">0.12</span>, <span class="fl">0.10</span>, <span class="fl">0.09</span>, <span class="fl">0.09</span>, <span class="fl">0.10</span>, <span class="fl">0.10</span>])</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Distribuição proposta q_j (Uniforme Discreta)</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>q_j <span class="op">=</span> np.full_like(p_j, <span class="dv">1</span> <span class="op">/</span> <span class="dv">10</span>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Constante c tal que p_j &lt;= c * q_j</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> <span class="bu">max</span>(p_j <span class="op">/</span> q_j)</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Número de amostras desejadas</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>n_samples <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Lista para armazenar as amostras aceitas</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>accepted_samples <span class="op">=</span> []</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Implementação do Método da Rejeição ---</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Para facilitar, criamos um dicionário que mapeia cada valor j à sua probabilidade p_j</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>p_map <span class="op">=</span> {j: p <span class="cf">for</span> j, p <span class="kw">in</span> <span class="bu">zip</span>(j_values, p_j)}</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Para a distribuição uniforme q_j, a probabilidade é sempre 1/10</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>q_val <span class="op">=</span> <span class="dv">1</span><span class="op">/</span><span class="dv">10</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Loop até que o número desejado de amostras seja gerado</span></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="bu">len</span>(accepted_samples) <span class="op">&lt;</span> n_samples:</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1. Gere um valor Y a partir da distribuição proposta q_j</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Como q_j é uniforme em {1, ..., 10}, podemos simplesmente escolher um inteiro nesse intervalo.</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> np.random.choice(j_values)</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2. Gere U ~ Uniform(0,1)</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>    u <span class="op">=</span> np.random.rand()</span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 3. Teste de aceitação</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculamos a razão p(y) / (c * q(y))</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>    acceptance_ratio <span class="op">=</span> p_map[y] <span class="op">/</span> (c <span class="op">*</span> q_val)</span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> u <span class="op">&lt;=</span> acceptance_ratio:</span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Se o teste passar, aceitamos o valor e o adicionamos à nossa lista</span></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>        accepted_samples.append(y)</span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Exibição dos Resultados ---</span></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">As primeiras 20 amostras geradas são:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+As primeiras 20 amostras geradas são:</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(accepted_samples[:<span class="dv">20</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[np.int64(5), np.int64(1), np.int64(5), np.int64(1), np.int64(9), np.int64(6), np.int64(4), np.int64(1), np.int64(1), np.int64(1), np.int64(7), np.int64(7), np.int64(10), np.int64(2), np.int64(10), np.int64(5), np.int64(2), np.int64(9), np.int64(5), np.int64(5)]</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Criação da tabela de frequência usando a biblioteca pandas</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>samples_series <span class="op">=</span> pd.Series(accepted_samples)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># value_counts() conta a ocorrência de cada valor. sort_index() ordena pelos valores de j.</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>freq_table <span class="op">=</span> samples_series.value_counts().sort_index()</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculamos a frequência relativa (proporção) para comparar com p_j</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>relative_freq <span class="op">=</span> freq_table <span class="op">/</span> n_samples</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Montamos um DataFrame final para exibir os resultados</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>results_df <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Valor (j)'</span>: freq_table.index,</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Frequência Absoluta'</span>: freq_table.values,</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Frequência Relativa (Observada)'</span>: relative_freq.values,</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Probabilidade Teórica (p_j)'</span>: p_j</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Tabela de Frequência dos 1000 valores gerados:</span><span class="ch">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tabela de Frequência dos 1000 valores gerados:</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Usamos to_string() para garantir que a tabela seja bem formatada</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(results_df.to_string(index<span class="op">=</span><span class="va">False</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code> Valor (j)  Frequência Absoluta  Frequência Relativa (Observada)  Probabilidade Teórica (p_j)
+         1                  118                            0.118                         0.11
+         2                  116                            0.116                         0.12
+         3                   78                            0.078                         0.09
+         4                   92                            0.092                         0.08
+         5                  123                            0.123                         0.12
+         6                  101                            0.101                         0.10
+         7                   89                            0.089                         0.09
+         8                   83                            0.083                         0.09
+         9                   99                            0.099                         0.10
+        10                  101                            0.101                         0.10</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
 <section id="teoria-do-método-de-rejeição" class="level3" data-number="7.2.1">
 <h3 data-number="7.2.1" class="anchored" data-anchor-id="teoria-do-método-de-rejeição"><span class="header-section-number">7.2.1</span> Teoria do método de rejeição</h3>
 <p><strong>Teorema:</strong> O método da aceitação e rejeição gera uma v.a. X tal que</p>
 <p><span class="math display">\[
-P(X = j) = p_j ,\  j = 0, 1, \dots
+P(X = x_j) = p_j ,\  j = 0, 1, \dots
 \]</span></p>
-<p>O número de passos que o algoritmo necessita para gerar X tem distribuição geométrica com média c.</p>
+<p>Além disso, o número de passos que o algoritmo necessita para gerar X tem distribuição geométrica com média c.</p>
 <p><strong>Prova:</strong></p>
+<p>Seja <span class="math inline">\(Y\)</span> um valor proposto pelo método no passo 1. Temos que</p>
 <p><span class="math display">\[
-P(Y = j \text{ e aceitar}) = P(Y = j)P(\text{aceitar } | Y = j) = q_j
+P(Y = x_j \text{ e aceitar o valor proposto}) = P(Y = x_j)P(\text{aceitar o valor proposto} | Y = x_j) = q_j
 \frac{p_j}{c q_j} = \frac{p_j}{c}
 \]</span></p>
 <p>Então,</p>
 <p><span class="math display">\[
-P(\text{aceitar}) = \sum_{j=0}^{\infty} \frac{p_j}{c} = \frac{1}{c}
+P(\text{aceitar o valor proposto}) = \sum_{j=0}^{\infty} \frac{p_j}{c} = \frac{1}{c}
 \]</span></p>
-<p>A cada passo a probabilidade de aceitar um valor é <span class="math inline">\(\frac{1}{c}\)</span>, então o número de passos necessários para aceitar um valor tem dist. geométrica com média c.</p>
+<p>A cada passo a probabilidade de aceitar um valor é <span class="math inline">\(\frac{1}{c}\)</span>, então o número de passos necessários para aceitar um valor tem distribuição geométrica com média c.</p>
 <p>Além disso, temos</p>
 <p><span class="math display">\[
-P(X = j) = \sum_{n=1}^{\infty} P(Y = j \text{ e aceitar pela 1a vez no passo n}) = \sum_{n=1}^{\infty} \left(1 - \frac{1}{c}\right)^{n-1} \frac{p_j}{c} = p_j
+P(X = x_j) = \sum_{n=1}^{\infty} P(text{aceitar pela 1a vez no passo n e }Y = x_j) = \sum_{n=1}^{\infty} \left(1 - \frac{1}{c}\right)^{n-1} \frac{p_j}{c} = p_j
 \]</span></p>
 </section>
 </section>
 <section id="exercício" class="level2" data-number="7.3">
 <h2 data-number="7.3" class="anchored" data-anchor-id="exercício"><span class="header-section-number">7.3</span> Exercício</h2>
-<p><span style="color:#2C92B2;"><strong>Exercício 1.</strong></span>.</p>
-<p>Implemente o método de aceitação e rejeição para gerar uma amostra da variável aleatória <span class="math inline">\(X\)</span> com a distribuição de probabilidades alvo <span class="math inline">\(p_j\)</span> dada anteriormente:</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 10%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-</colgroup>
-<thead>
-<tr class="header">
-<th><span class="math inline">\(j\)</span></th>
-<th>1</th>
-<th>2</th>
-<th>3</th>
-<th>4</th>
-<th>5</th>
-<th>6</th>
-<th>7</th>
-<th>8</th>
-<th>9</th>
-<th>10</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><span class="math inline">\(p_j\)</span></td>
-<td>0.11</td>
-<td>0.12</td>
-<td>0.09</td>
-<td>0.08</td>
-<td>0.12</td>
-<td>0.10</td>
-<td>0.09</td>
-<td>0.09</td>
-<td>0.10</td>
-<td>0.10</td>
-</tr>
-</tbody>
-</table>
-<p>Use a distribuição uniforme discreta em <span class="math inline">\(\{1, 2, \dots, 10\}\)</span> como a distribuição proposta <span class="math inline">\(q_j\)</span>, em que <span class="math inline">\(q_j = 1/10\)</span> para todos os valores de <span class="math inline">\(j\)</span>.</p>
+<p><span style="color:#2C92B2;"><strong>Exercício 1.</strong></span></p>
+<p>Suponha uma distribuição alvo <span class="math inline">\(X\)</span> com suporte em <span class="math inline">\(\{1, 2, \dots, 15\}\)</span> e função de probabilidade definida por: <span class="math display">\[p_j = \frac{\ln(j+1)}{\sum_{k=1}^{15} \ln(k+1)}, \quad j = 1, 2, \dots, 15.\]</span> Use como distribuição proposta uma uniforme discreta em <span class="math inline">\(\{1, 2, \dots, 15\}\)</span>. Determine a constante <span class="math inline">\(c\)</span>, implemente o método da rejeição e gere 1000 amostras. Analise a eficiência do método calculando a taxa de aceitação esperada e comparando com o valor teórico <span class="math inline">\(1/c\)</span>.</p>
+<p><span style="color:#2C92B2;"><strong>Exercício 2.</strong></span></p>
+<p>Neste exercício, o desafio é amostrar de uma distribuição com suporte infinito, a distribuição de Poisson, mas com uma restrição: não queremos incluir o valor zero. Isso é útil em cenários onde contamos eventos, mas apenas os casos em que <em>pelo menos um</em> evento ocorreu são registrados.</p>
+<p>A distribuição alvo <span class="math inline">\(X\)</span> é uma Poisson com parâmetro <span class="math inline">\(\lambda = 4\)</span>, truncada em zero. Sua função de massa de probabilidade (PMF) para <span class="math inline">\(k \in {1, 2, 3, \dots}\)</span> é:</p>
+<p><span class="math display">\[p_k = P(X=k) = \frac{e^{-\lambda}\lambda^k}{k! \cdot (1 - e^{-\lambda})}\]</span></p>
+<p>Como distribuição proposta <span class="math inline">\(Y\)</span>, vamos usar uma distribuição Geométrica com parâmetro <span class="math inline">\(p=0.25\)</span>, que também tem suporte em <span class="math inline">\(k \in {1, 2, 3, \dots}\)</span>. Sua PMF é:</p>
+<p><span class="math display">\[q_k = P(Y=k) = (1-p)^{k-1}p\]</span></p>
+<p><strong>Sua tarefa:</strong></p>
+<ol type="1">
+<li><p><strong>Implementar as PMFs:</strong> Crie funções em R ou Python que calculem <span class="math inline">\(p_k\)</span> (Poisson Truncada com <span class="math inline">\(\lambda=4\)</span>) e <span class="math inline">\(q_k\)</span> (Geométrica com <span class="math inline">\(p=0.25\)</span>) para um dado valor de <span class="math inline">\(k\)</span>.</p></li>
+<li><p><strong>Encontrar a constante <code>c</code>:</strong> Ao contrário do exemplo com suporte finito, não podemos simplesmente dividir <span class="math inline">\(p_j/q_j\)</span> para todos os valores. Para aproximar o máximo (que não tem solução analítico), podemos fazer o seguinte:</p>
+<ul>
+<li>Calcule a razão <span class="math inline">\(r_k = p_k / q_k\)</span> para um intervalo razoável de valores (ex: de <span class="math inline">\(k=1\)</span> a <span class="math inline">\(k=\lceil 10*\lambda \rceil\)</span>).</li>
+<li>Faça um gráfico de <span class="math inline">\(r_k\)</span> em função de <span class="math inline">\(k\)</span>. O valor máximo observado no gráfico será uma excelente aproximação para a constante <span class="math inline">\(c\)</span>.</li>
+</ul></li>
+<li><p><strong>Implementar o Amostrador:</strong></p>
+<ul>
+<li>Escreva o código para o método da rejeição. O passo 1 (gerar <span class="math inline">\(Y\)</span>) agora envolve amostrar de uma distribuição Geométrica. A maioria das linguagens de programação possui uma função para isso (por exemplo, <code>rgeom</code> em R com um ajuste, ou <code>numpy.random.geometric</code> em Python).</li>
+<li>Gere um total de 5000 amostras da distribuição de Poisson Truncada.</li>
+</ul></li>
+<li><p><strong>Validar os Resultados:</strong></p>
+<ul>
+<li>Calcule a frequência relativa de cada valor gerado em sua amostra.</li>
+<li>Crie um gráfico de barras comparando as frequências relativas observadas com as probabilidades teóricas <span class="math inline">\(p_k\)</span> da distribuição alvo. Os resultados devem ser bastante próximos, validando sua implementação.</li>
+</ul></li>
+</ol>
 
 
 </section>
