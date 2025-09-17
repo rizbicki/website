@@ -682,6 +682,21 @@ P(X \leq x) = \frac{\frac{1}{c} \int_{-\infty}^x f(y) \, dy}{\frac{1}{c}} = \int
 <li><p>Qual foi o número médio de passos necessários para gerar a amostra de tamanho <span class="math inline">\(n\)</span>?</p></li>
 <li><p>Compare a distribuição empírica dos valores simulados com a distribuição real de <span class="math inline">\(X\)</span>.</p></li>
 </ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 2</strong></span>. O objetivo deste exercício é gerar amostras de uma distribuição com função de densidade de probabilidade (FDP) dada por: <span class="math display">\[f(x) = \frac{1}{2}\sin(x), \quad \text{para } x \in [0, \pi]\]</span> Utilize como distribuição proposta uma distribuição Uniforme no mesmo intervalo, ou seja, <span class="math inline">\(g(x) = \frac{1}{\pi}\)</span> para <span class="math inline">\(x \in [0, \pi]\)</span>.</p>
+<ol type="a">
+<li><p>Encontre a constante <span class="math inline">\(c\)</span> tal que <span class="math inline">\(f(x) \leq c \cdot g(x)\)</span> para todo <span class="math inline">\(x \in [0, \pi]\)</span>. Dica: encontre o valor máximo da razão <span class="math inline">\(\frac{f(x)}{g(x)}\)</span>.</p></li>
+<li><p>Implemente o algoritmo de amostragem por rejeição para gerar <span class="math inline">\(n=5000\)</span> amostras da distribuição <span class="math inline">\(f(x)\)</span>.</p></li>
+<li><p>Crie um histograma das amostras geradas e sobreponha a curva da FDP teórica <span class="math inline">\(f(x)\)</span> para verificar se o ajuste é adequado.</p></li>
+<li><p>Repita o exercício com uma proposta beta reescalada para o domínio do problema. Ela é mais ou menos eficiente que a uniforme?</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 3</strong></span>. O método da rejeição também é muito útil quando conhecemos a função de densidade alvo apenas a menos de uma constante de normalização. Suponha que desejamos amostrar de uma distribuição com FDP <span class="math inline">\(f(x) = k \cdot f^*(x)\)</span>, onde <span class="math inline">\(k\)</span> é uma constante desconhecida e a parte não normalizada é: <span class="math display">\[f^*(x) = e^{-x}\sin^2(x), \quad \text{para } x &gt; 0\]</span> Podemos usar como proposta a distribuição Exponencial com <span class="math inline">\(\lambda=1\)</span>, ou seja, <span class="math inline">\(g(x) = e^{-x}\)</span> para <span class="math inline">\(x &gt; 0\)</span>.</p>
+<p>O critério de aceitação <span class="math inline">\(U \leq \frac{f(Y)}{c \cdot g(Y)}\)</span> pode ser reescrito como <span class="math inline">\(U \leq \frac{k \cdot f^*(Y)}{c \cdot g(Y)}\)</span>. Se definirmos uma nova constante <span class="math inline">\(c' = c/k\)</span>, o critério se torna <span class="math inline">\(U \leq \frac{f^*(Y)}{c' \cdot g(Y)}\)</span>, eliminando a necessidade de conhecer <span class="math inline">\(k\)</span>.</p>
+<ol type="a">
+<li><p>Encontre um valor para a constante <span class="math inline">\(c'\)</span> tal que <span class="math inline">\(f^*(x) \leq c' \cdot g(x)\)</span> para todo <span class="math inline">\(x &gt; 0\)</span>.</p></li>
+<li><p>Escreva o pseudo-algoritmo para gerar amostras de <span class="math inline">\(f(x)\)</span> usando <span class="math inline">\(f^*(x)\)</span>, <span class="math inline">\(g(x)\)</span> e <span class="math inline">\(c'\)</span>.</p></li>
+<li><p>Implemente o algoritmo e gere <span class="math inline">\(n=2000\)</span> amostras.</p></li>
+<li><p>Construa um histograma de densidade com as amostras geradas para visualizar a forma da distribuição <span class="math inline">\(f(x)\)</span>.</p></li>
+</ol>
 
 
 </section>
