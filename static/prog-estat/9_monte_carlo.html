@@ -364,7 +364,7 @@ window.Quarto = {
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Estimativa de theta_hat:"</span>, theta_hat, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa de theta_hat: 0.6447607 </code></pre>
+<pre><code>Estimativa de theta_hat: 0.6230991 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
@@ -394,7 +394,7 @@ window.Quarto = {
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Estimativa de theta_hat:"</span>, theta_hat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa de theta_hat: 0.6194505206604327</code></pre>
+<pre><code>Estimativa de theta_hat: 0.6485601202387062</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
@@ -1059,7 +1059,7 @@ window.Quarto = {
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>mean_numeroPacotes</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>np.float64(897.61)</code></pre>
+<pre><code>np.float64(895.054)</code></pre>
 </div>
 </div>
 </div>
@@ -1097,7 +1097,7 @@ window.Quarto = {
 <span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Probabilidade de precisar de mais de 800 pacotes: </span><span class="sc">{</span>prob_mais_800<span class="sc">}</span><span class="ss">%"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Probabilidade de precisar de mais de 800 pacotes: 70.1%</code></pre>
+<pre><code>Probabilidade de precisar de mais de 800 pacotes: 71.5%</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
@@ -1119,10 +1119,15 @@ I = \int_0^{10} \sin(x^2) \, dx
 \]</span></p>
 <p>Forneça um intervalo de confiança para avaliar a precisão da estimativa.</p>
 <p><span style="color:#2C92B2;"><strong>Exercício 2</strong></span>.</p>
-<p>Utilize o método de Monte Carlo para aproximar a integral <span class="math display">\[
+<p>Considere a integral <span class="math display">\[
 I = \int_1^{\infty} \frac{1}{x^3} \, dx
 \]</span></p>
-<p>Forneça um intervalo de confiança para avaliar a precisão da estimativa.</p>
+<ul>
+<li><p>Utilize o método de Monte Carlo para aproximá-la</p></li>
+<li><p>Forneça um intervalo de confiança para avaliar a precisão da estimativa. Compare com o valor real da integral.</p></li>
+<li><p>Crie 10000 estimativas de Monte Carlo para <span class="math inline">\(I\)</span>, cada uma com base em 100 observações, junto com seus intervalos de confiança. Qual a proporção delas que caem dentro do IC?</p></li>
+<li><p>Repita o item anterior com 1000 ao inveś de 100.</p></li>
+</ul>
 <p><span style="color:#2C92B2;"><strong>Exercício 3</strong></span>.</p>
 <p>Seja <span class="math inline">\(X \sim \text{Exp}(\lambda)\)</span> com <span class="math inline">\(\lambda = 2\)</span>. Estime a esperança <span class="math inline">\(\mathbb{E}[X^2]\)</span> utilizando o método de Monte Carlo. Forneça um intervalo de confiança para avaliar a precisão da estimativa. Compare com o valor real dessa quantidade.</p>
 <p><span style="color:#2C92B2;"><strong>Exercício 4</strong></span>.</p>

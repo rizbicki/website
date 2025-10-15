@@ -334,7 +334,7 @@ F(x_i) = \sum_{j=1}^{i} p(x_j)
 \]</span></p>
 <p>O algoritmo da inversão para gerar uma variável aleatória discreta genérica é:</p>
 <ol type="1">
-<li><p>Gerar um número aleatório <span class="math inline">\(u \in [0, 1)\)</span>.</p></li>
+<li><p>Gerar um número aleatório com distribuição uniforme <span class="math inline">\(u \in [0, 1)\)</span>.</p></li>
 <li><p>Encontrar o menor valor <span class="math inline">\(x_i\)</span> tal que <span class="math inline">\(F(x_i) \geq u\)</span>.</p></li>
 <li><p>Retornar <span class="math inline">\(x_i\)</span>.</p></li>
 </ol>
@@ -557,8 +557,8 @@ X=F^{-1}(U)=
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>v<span class="sc">:5d}</span><span class="ss"> | </span><span class="sc">{</span>real[v]<span class="sc">:.4f}</span><span class="ss"> | </span><span class="sc">{</span>emp[v]<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>    0 | 0.7000 | 0.6945
-    1 | 0.3000 | 0.3055</code></pre>
+<pre><code>    0 | 0.7000 | 0.6982
+    1 | 0.3000 | 0.3018</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
@@ -573,7 +573,7 @@ X=F^{-1}(U)=
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>plt.xticks(vals, [<span class="st">'0'</span>, <span class="st">'1'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>([&lt;matplotlib.axis.XTick object at 0x79f741450200&gt;, &lt;matplotlib.axis.XTick object at 0x79f7414dfbc0&gt;], [Text(0.0, 0, '0'), Text(1.0, 0, '1')])</code></pre>
+<pre><code>([&lt;matplotlib.axis.XTick object at 0x76d5edcd8bf0&gt;, &lt;matplotlib.axis.XTick object at 0x76d5f0b92a80&gt;], [Text(0.0, 0, '0'), Text(1.0, 0, '1')])</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
