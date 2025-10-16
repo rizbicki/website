@@ -1,0 +1,9 @@
+# Curso de Programação Estatística  {.unnumbered}
+
+## Objetivo Geral
+Este curso visa explorar o impacto das representações numéricas nos resultados de algoritmos de análise estatística. O foco será na programação, visualização e preparação de dados, além de discutir tópicos importantes como aleatoriedade, pseudoaleatoriedade, erros de truncamento e arredondamento, entre outros. O curso inclui ainda uma introdução à inferência por simulação estocástica, utilizando métodos como Monte Carlo e integrações numéricas. O material do curso foi amplamente baseado nas discussões apresentadas em @simulation_ross.
+
+Este livro apresenta códigos tanto em [R](https://www.r-project.org/) quanto em [Python](https://www.python.org/)
+
+Autores: [Andressa Cerqueira](https://www.servidores.ufscar.br/acerqueira/), [Danilo Lourenço Lopes](http://lattes.cnpq.br/8061034473607951), [Rafael Izbicki](http://rafaelizbicki.com/), [Thiago Rodrigo Ramos](https://thiagorr162.github.io/)
+

@@ -1,0 +1,1115 @@
+# Breve Introdução ao R
+
+Aqui faremos uma breve introdução ao R.
+Para uma introdução mais delhada, veja [https://curso-r.com/material/](https://curso-r.com/material/)
+e [https://r4ds.had.co.nz/](https://r4ds.had.co.nz/).
+
+## Variáveis Numéricas
+
+Aqui vão alguns exemplos para começarmos a entender como o R funciona. Inicialmente, veremos como podemos usar o R como calculadora.
+
+```{r}
+#| code-fold: false
+ 
+2 * 7
+
+0 / 0
+
+10^1000
+
+log(1)
+
+exp(1)
+```
+
+Para entender o que uma função faz, você pode digitar o símbolo de interrogação seguido do nome da função, por exemplo:
+
+```{r}
+#| code-fold: false
+
+?exp
+```
+
+O help contém as seguintes informações:
+
+- **Description**: Resumo geral sobre o uso da função.
+- **Usage**: Mostra como a função deve ser utilizada e quais argumentos podem ser especificados.
+- **Arguments**: Explica o que é cada um dos argumentos.
+- **Details**: Explica alguns detalhes sobre o uso e aplicação da função.
+- **Value**: Mostra o que sai no output após usar a função (os resultados).
+- **Note**: Notas sobre a função.
+- **Authors**: Lista os autores da função.
+- **References**: Referências para os métodos usados.
+- **See also**: Outras funções relacionadas que podem ser consultadas.
+- **Examples**: Exemplos do uso da função.
+
+### Armazenando resultados em variáveis
+
+Podemos também armazenar resultados de contas em variáveis. Por exemplo:
+
+```{r}
+#| code-fold: false
+x = 2 + 3
+x
+
+y = 2 * x
+y
+
+print(y)
+```
+
+Números grandes são impressos usando notação científica:
+
+```{r}
+#| code-fold: false
+y = 2 * 10^10
+print(y)
+```
+
+Para listar quais variáveis estão declaradas no ambiente, podemos usar:
+
+```{r}
+#| code-fold: false
+ls()
+```
+
+Para remover uma variável:
+
+```{r}
+#| code-fold: false
+rm(x)
+ls()
+```
+
+Para remover todas as variáveis existentes:
+
+```{r}
+#| code-fold: false
+rm(list = ls())  # Essa função apaga todas as variáveis existentes
+gc()  # Essa função libera a memória utilizada
+```
+
+## Variáveis Lógicas
+
+Alguns operadores lógicos definidos no R são mostrados na tabela abaixo:
+
+| #  | Operador   | Descrição                   |
+|----|------------|-----------------------------|
+| 1  | x < y      | x menor que y?              |
+| 2  | x <= y     | x menor ou igual a y?       |
+| 3  | x > y      | x maior que y?              |
+| 4  | x >= y     | x maior ou igual a y?       |
+| 5  | x == y     | x igual a y?                |
+| 6  | x != y     | x diferente de y?           |
+| 7  | !x         | Negativa de x               |
+| 8  | x \| y     | x ou y são verdadeiros?     |
+| 9  | x & y      | x e y são verdadeiros?      |
+| 10 | xor(x, y)  | Apenas um dos dois é verdadeiro? |
+
+### Exemplos de uso de operadores lógicos
+
+```{r}
+#| code-fold: false
+1 == 3
+
+1 == 1
+
+1 <= 3
+
+x = 1 > 3
+print(x)
+
+x = 1; y = 3
+x < y
+
+(x == 1) & (y == 3)
+
+(x == 1) & (y != 3)
+
+!TRUE
+x = TRUE; y = FALSE
+x | y
+```
+
+O número um tem o valor verdadeiro, e o número zero tem o valor falso:
+
+```{r}
+#| code-fold: false
+x = 1; y = 0
+x | y
+```
+
+Note que ao fazermos contas com variáveis lógicas, elas são transformadas em zero e um:
+
+```{r}
+#| code-fold: false
+(TRUE | FALSE) + 2
+```
+
+
+## Caracteres/Strings
+
+Para declarar cadeias de caracteres, usamos aspas no R:
+
+```{r}
+#| code-fold: false
+x = "Rafael"
+y = "Izbicki"
+```
+
+Várias operações podem ser feitas com esses objetos. Um exemplo é a função `paste`:
+
+```{r}
+#| code-fold: false
+paste(x, y)
+
+paste(x, y, sep = "+")
+```
+
+## Vetores e Sequências
+
+Usualmente declaramos vetores usando o operador `c` (concatenação):
+
+```{r}
+#| code-fold: false
+x = c(2, 5, 7, 1)
+x
+```
+
+Para acessar seus componentes, fazemos:
+
+```{r}
+#| code-fold: false
+x[2]
+# [1] 5
+
+x = x[c(2, 3)]
+x[2:3]
+
+x[-c(2, 3)]
+```
+
+As operações `x[c(2, 3)]` e `x[-c(2, 3)]` são chamadas de *subsetting*; subsetting é a seleção de um subconjunto de um objeto. Veremos mais à frente outras maneiras de fazermos isso.
+
+Podemos mudar alguns dos valores deste vetor usando:
+
+```{r}
+#| code-fold: false
+x[2:3] = 0
+x
+```
+
+Operações aritméticas podem ser facilmente feitas para cada elemento de um vetor. Alguns exemplos:
+
+```{r}
+#| code-fold: false
+x = x - 1
+x
+
+x = 2 * x
+x
+```
+
+Uma função útil para criar vetores é a `seq`:
+
+```{r}
+#| code-fold: false
+x = seq(from = 1, to = 100, by = 2)
+x
+
+y = seq(from = 1, to = 100, length = 5)
+y
+```
+
+Podemos também usar operadores lógicos em vetores:
+
+```{r}
+#| code-fold: false
+x > 5
+```
+
+Note que `x > 5` é um vetor lógico.
+
+Podemos usar as operações lógicas em vetores lógicos:
+
+```{r}
+#| code-fold: false
+x = c(TRUE, TRUE, FALSE, FALSE)
+y = c(TRUE, FALSE, TRUE, FALSE)
+
+x | y
+
+x & y
+```
+
+Operadores lógicos também podem ser usados para fazer *subsetting*:
+
+```{r}
+#| code-fold: false
+x[x > 5] = 0
+x
+
+x[!(x <= 0)] = -1
+x
+```
+
+Podemos ter vetores de caracteres:
+
+```{r}
+#| code-fold: false
+x = c("a", "c", "fgh")
+x[-c(2, 3)]
+
+paste(x, "add")
+
+paste(x, "add", collapse = "+")
+```
+
+Algumas funções adicionais úteis:
+
+```{r}
+#| code-fold: false
+rep(2, 5)
+
+rep(c(1, 2), 5)
+
+rep(c(1, 2), each = 5)
+
+sort(c(5, 10, 0, 20))
+
+order(c(5, 10, 0, 20))
+```
+
+
+
+## Funções
+
+Para declarar funções em R, fazemos:
+
+```r
+minhaFuncao <- function(argumento1, argumento2) {
+  # corpo da função
+}
+```
+
+Por exemplo:
+
+```{r}
+#| code-fold: false
+potencia <- function(x, y) {
+  return(x^y)
+}
+potencia(2, 3)
+# [1] 8
+```
+
+Note que `x` e `y` podem ser vetores:
+
+```{r}
+#| code-fold: false
+potencia(x = c(1, 2, 3), y = c(0, 1, 2))
+```
+
+Você pode inverter a ordem dos argumentos, desde que eles sejam nomeados:
+
+```{r}
+#| code-fold: false
+potencia(y = c(0, 1, 2), x = c(1, 2, 3))
+```
+
+### Argumentos com valores default
+
+Os argumentos podem ter valores *default*. Por exemplo:
+
+```{r}
+#| code-fold: false
+potencia <- function(x, y = rep(1, length(x))) {
+  return(x^y)
+}
+```
+
+Neste caso, se o argumento `y` não for fornecido, ele será um vetor de uns do tamanho de `x`:
+
+```{r}
+#| code-fold: false
+potencia(2)
+
+potencia(2, 3)
+```
+
+## Laços
+
+Para calcular o fatorial de um número `n`, podemos usar um laço `while`:
+
+```{r}
+#| code-fold: false
+n <- 4
+i <- 1
+nFatorial <- 1
+while(i <= n) {
+  nFatorial <- nFatorial * i
+  i <- i + 1
+}
+nFatorial
+```
+
+Ou podemos usar um laço `for`:
+
+```{r}
+#| code-fold: false
+n <- 4
+nFatorial <- 1
+for(i in 1:n) {
+  nFatorial <- nFatorial * i
+}
+nFatorial
+```
+
+Lembre-se de que laços podem ser lentos no R, especialmente se o tamanho do objeto não for previamente declarado. Vamos comparar o tempo de execução de diferentes abordagens usando a função `system.time`. Para isso, vamos calcular a soma acumulada de um vetor.
+
+```{r}
+#| code-fold: false
+x <- 1:100000
+```
+
+1. **Laço sem declaração de tamanho**:
+
+```{r}
+#| code-fold: false
+aux <- function(x) {
+  somaAcumulada <- NULL
+  somaAcumulada[1] <- x[1]
+  for(i in 2:length(x)) {
+    somaAcumulada[i] <- somaAcumulada[i - 1] + x[i]
+  }
+}
+system.time(aux(x))[1]
+```
+
+2. **Laço com declaração de tamanho**:
+
+```{r}
+#| code-fold: false
+aux <- function(x) {
+  somaAcumulada <- rep(NA, length(x))
+  somaAcumulada[1] <- x[1]
+  for(i in 2:length(x)) {
+    somaAcumulada[i] <- somaAcumulada[i - 1] + x[i]
+  }
+}
+system.time(aux(x))[1]
+```
+
+3. **Função nativa do R**:
+
+```{r}
+#| code-fold: false
+aux <- function(x) {
+  cumsum(x)
+}
+system.time(aux(x))[1]
+```
+
+Note que, em geral, funções nativas do R são muito mais rápidas.
+
+## If/Else
+
+O R permite o uso de condicionais `if` e `else` para controlar o fluxo de execução. A sintaxe básica é:
+
+```r
+if (condição1) {
+  # código se a condição1 for verdadeira
+} else if (condição2) {
+  # código se a condição1 for falsa e condição2 verdadeira
+} else {
+  # código se todas as condições forem falsas
+}
+```
+
+Exemplo:
+
+```{r}
+#| code-fold: false
+testaX <- function(x) {
+  if (!is.numeric(x)) {
+    print("x não é um número")
+  } else if (x > 0) {
+    print("x é positivo")
+  } else if (x < 0) {
+    print("x é negativo")
+  } else {
+    print("x é nulo")
+  }
+}
+testaX(5)
+
+testaX(-5)
+
+testaX("5")
+```
+
+## Listas
+
+Listas são como vetores, mas podem conter componentes de diferentes tipos (inclusive outras listas).
+
+```{r}
+#| code-fold: false
+minhaLista <- list("um", TRUE, 3, c("q", "u", "a", "t", "r", "o"), "cinco")
+minhaLista[[3]]
+```
+
+Você também pode atribuir nomes aos elementos de uma lista:
+
+```{r}
+#| code-fold: false
+minhaLista <- list(primeiro = "um", segundo = TRUE, terceiro = 3, 
+                   quarto = c("q", "u", "a", "t", "r", "o"), quinto = "cinco")
+minhaLista$quinto
+```
+
+Listas são frequentemente usadas para retornar várias saídas de uma função. Por exemplo, ao ajustar um modelo de regressão linear, os resultados são armazenados em uma lista:
+
+```{r}
+#| code-fold: false
+x <- rnorm(100)
+y <- 1 + 2*x + rnorm(length(x), 0.1)
+ajuste <- lm(y ~ x)
+typeof(ajuste)
+```
+
+Os componentes da lista podem ser acessados com:
+
+```{r}
+#| code-fold: false
+names(ajuste)
+```
+
+Para ver os coeficientes ajustados:
+
+```{r}
+#| code-fold: false
+ajuste$coefficients
+```
+
+Para adicionar a reta estimada ao gráfico:
+
+```{r}
+#| code-fold: false
+plot(x, y, pch = 18, bty = "l")
+abline(ajuste, col = 2, lwd = 3)
+```
+
+Você também pode inicializar uma lista vazia:
+
+```{r}
+#| code-fold: false
+minhaLista <- list()
+```
+
+
+
+## Estatística Descritiva
+
+O R é uma ferramenta poderosa para realizar análises descritivas. Vamos explorar alguns recursos para calcular estatísticas de variáveis quantitativas e qualitativas.
+
+### Variáveis quantitativas
+
+```{r}
+#| code-fold: false
+x <- c(30, 1, 20, 5, 20, 60)
+y <- c(12, 0, 2, 15, 22, 20)
+
+mean(x)
+
+var(x)
+
+min(x)
+
+which.min(x)
+
+max(x)
+
+which.max(x)
+
+sort(x)
+
+order(x)
+
+median(x)
+
+cor(x, y)
+
+which(x > 10)
+
+mean(y[x > 10])
+```
+
+### Variáveis qualitativas
+
+```{r}
+#| code-fold: false
+x <- c("S", "R", "P", "P", "Q", "P")
+y <- c("a", "a", "b", "a", "c", "d")
+
+x[y %in% c("a", "c")]
+
+table(x)
+
+table(x, y)
+```
+
+### Subconjuntos
+
+Podemos utilizar subsetting para trabalhar com subconjuntos de interesse. Por exemplo, suponha que `dados` é um banco de dados com informações de alunos e queremos selecionar os alunos com idade menor que 20, altura maior que 1,70 e que estejam no primeiro ou segundo ano.
+
+```{r,eval = FALSE}
+#| code-fold: false
+dados[dados$idade < 20 & dados$altura > 1.70 & dados$ano %in% c("Primeiro", "Segundo"), ]
+```
+
+### Funções Apply
+
+As funções da família `apply` (como `apply`, `lapply`, `sapply`) são úteis para aplicar uma função a um conjunto de dados. Vamos criar um banco de dados artificial para exemplificar:
+
+```{r}
+#| code-fold: false
+dados <- data.frame(altura = rnorm(100, 1.7, 0.2), salario = rnorm(100, 3000, 500))
+dados$peso <- dados$altura * 35 + rnorm(100, 0, 10)
+```
+
+#### `apply`
+
+Para calcular a média de cada coluna de `dados`, usamos:
+
+```{r}
+#| code-fold: false
+apply(dados, 2, mean)
+```
+
+Aqui, o argumento `2` indica que a operação deve ser aplicada a cada coluna. Para calcular a soma de cada linha:
+
+```{r}
+#| code-fold: false
+apply(dados, 1, sum)
+```
+
+#### Funções anônimas
+
+Usando funções anônimas, podemos calcular várias estatísticas descritivas ao mesmo tempo:
+
+```{r}
+#| code-fold: false
+estatisticas <- apply(dados, 2, function(x) {
+  listaResultados <- list()
+  listaResultados$media <- mean(x)
+  listaResultados$mediaAparada <- mean(x, trim = 0.1)
+  listaResultados$mediana <- median(x)
+  listaResultados$maximo <- max(x)
+  return(listaResultados)
+})
+
+estatisticas$altura
+```
+
+
+## O operador `%>%` (pipe)
+\label{sec::pipe}
+
+O operador pipe foi uma das grandes revoluções recentes do R, tornando o código mais legível. Esse operador está definido no pacote `magrittr`, e vários outros pacotes, como o `dplyr`, fazem uso dele (veja a próxima seção).
+
+A ideia é simples: o operador `%>%` usa o resultado do lado esquerdo como o primeiro argumento da função do lado direito. Um exemplo:
+
+```{r}
+#| code-fold: false
+library(magrittr)
+x <- c(1, 2, 3, 4)
+x %>% sum() %>% sqrt()
+```
+
+Isso é equivalente a:
+
+```{r}
+#| code-fold: false
+sqrt(sum(x))
+```
+
+Mas a leitura com pipe é mais clara. No RStudio, você pode inserir o pipe com o atalho `ctrl + shift + m`.
+
+O pipe envia o valor à esquerda apenas para o primeiro argumento da função à direita. Para utilizar o valor da esquerda em outro argumento, utilize o `"."`:
+
+```{r}
+#| code-fold: false
+y <- rnorm(10)
+y %>% plot(x = 1:length(y), y = ., pch = 18)
+```
+
+## O pacote `dplyr`
+
+O pacote `dplyr` é muito útil para manipulação eficiente de data frames. Vamos demonstrar alguns exemplos usando o conjunto de dados `hflights`.
+
+```{r}
+#| code-fold: false
+library(dplyr)
+library(hflights)
+data(hflights)
+```
+
+Primeiro, converta os dados para o formato `tbl_df`, uma variação mais amigável do `data.frame`:
+
+```{r}
+#| code-fold: false
+flights <- tbl_df(hflights)
+```
+
+### Filter
+
+A função `filter` retorna todas as linhas que satisfazem uma condição. Por exemplo, para mostrar todos os voos do dia 1º de janeiro:
+
+```{r}
+#| code-fold: false
+flights %>% filter(Month == 1, DayofMonth == 1)
+```
+
+Para condições alternativas, podemos usar o operador `|` (ou) ou `%in%`:
+
+```{r}
+#| code-fold: false
+flights %>% filter(UniqueCarrier %in% c("AA", "UA"))
+```
+
+### Select
+
+A função `select` seleciona colunas específicas de um data frame. Para selecionar as colunas `DepTime`, `ArrTime`, e `FlightNum`:
+
+```{r}
+#| code-fold: false
+flights %>% select(DepTime, ArrTime, FlightNum)
+```
+
+Para selecionar todas as colunas que contêm "Taxi" ou "Delay":
+
+```{r}
+#| code-fold: false
+flights %>% select(contains("Taxi"), contains("Delay"))
+```
+
+### Arrange
+
+A função `arrange` ordena o data frame de acordo com algum critério. Para ordenar pelo atraso de partida (`DepDelay`):
+
+```{r}
+#| code-fold: false
+flights %>% arrange(DepDelay)
+```
+
+Para ordem decrescente:
+
+```{r}
+#| code-fold: false
+flights %>% arrange(desc(DepDelay))
+```
+
+### Mutate
+
+A função `mutate` cria novas variáveis. Para criar a variável `Speed` (velocidade) e adicioná-la ao banco:
+
+```{r}
+#| code-fold: false
+flights <- flights %>% mutate(Speed = Distance / AirTime * 60)
+```
+
+### Summarise e Group_by
+
+A função `summarise` calcula estatísticas resumo. Para calcular o atraso médio de chegada por destino:
+
+```{r}
+#| code-fold: false
+flights %>% group_by(Dest) %>% summarise(avg_delay = mean(ArrDelay, na.rm = TRUE))
+```
+
+A função `summarise_each` aplica uma função a várias colunas ao mesmo tempo. Para calcular a média de `Cancelled` e `Diverted` por companhia aérea:
+
+```{r}
+#| code-fold: false
+flights %>% group_by(UniqueCarrier) %>% summarise_each(funs(mean), Cancelled, Diverted)
+```
+
+Também podemos aplicar várias funções a uma mesma coluna:
+
+```{r}
+#| code-fold: false
+flights %>% group_by(UniqueCarrier) %>% summarise_each(funs(mean, var), Cancelled, Diverted)
+```
+
+Além disso, podemos usar o operador `"."` para aplicar funções com múltiplos argumentos:
+
+```{r}
+#| code-fold: false
+flights %>% group_by(UniqueCarrier) %>% summarise_each(funs(min(., na.rm = TRUE), max(., na.rm = TRUE)), matches("Delay"))
+```
+
+Por fim, podemos realizar agrupamentos múltiplos:
+
+```{r}
+#| code-fold: false
+flights %>% group_by(UniqueCarrier, DayOfWeek) %>% summarise_each(funs(min(., na.rm = TRUE), max(., na.rm = TRUE)), matches("Delay"))
+```
+
+
+
+Aqui está a seção sobre o **pacote `ggplot2`** e **`tidyr`** atualizada, mantendo a clareza e estrutura para fins didáticos:
+
+## O pacote `ggplot2`
+
+**Nota:** Esta seção foi adaptada de [curso-r.com](https://curso-r.com/material/).
+
+O `ggplot2` é um pacote do R voltado para a criação de gráficos estatísticos. Ele é baseado na Gramática dos Gráficos (Grammar of Graphics) de Leland Wilkinson. Segundo essa gramática, um gráfico estatístico é um mapeamento dos dados por meio de atributos estéticos (cores, formas, tamanho) de formas geométricas (pontos, linhas, barras).
+
+```{r}
+#| code-fold: false
+library(ggplot2)
+```
+
+### Construindo gráficos
+
+Vamos discutir os aspectos básicos para a construção de gráficos com o `ggplot2`, utilizando o conjunto de dados `mtcars`. Para visualizar as primeiras linhas:
+
+```{r}
+#| code-fold: false
+head(mtcars)
+```
+
+### As camadas de um gráfico
+
+Os gráficos no `ggplot2` são construídos camada por camada. A primeira camada é criada com a função `ggplot`. Um exemplo de gráfico simples:
+
+```{r}
+#| code-fold: false
+ggplot(data = mtcars) +
+  geom_point(aes(x = disp, y = mpg))
+```
+
+A função `aes` define o mapeamento entre as variáveis e os aspectos visuais. Neste caso, estamos criando um gráfico de dispersão (com `geom_point`) entre `disp` (cilindradas) e `mpg` (milhas por galão).
+
+### Aesthetics
+
+Podemos mapear variáveis a diferentes aspectos estéticos, como cor e tamanho. Por exemplo, para mapear a variável `am` (transmissão) para a cor dos pontos:
+
+```{r}
+#| code-fold: false
+ggplot(data = mtcars) +
+  geom_point(aes(x = disp, y = mpg, colour = as.factor(am)))
+```
+
+### Geoms
+
+Os `geoms` definem as formas geométricas usadas para a visualização dos dados. Além de `geom_point`, podemos usar:
+
+- `geom_line` para linhas
+- `geom_boxplot` para boxplots
+- `geom_histogram` para histogramas
+
+Exemplo de um boxplot:
+
+```{r}
+#| code-fold: false
+ggplot(mtcars) +
+  geom_boxplot(aes(x = as.factor(cyl), y = mpg))
+```
+
+### Personalizando os gráficos
+
+#### Cores
+
+Para mudar as cores do gráfico, podemos usar o argumento `colour` ou `fill`:
+
+```{r}
+#| code-fold: false
+ggplot(mtcars) +
+  geom_boxplot(aes(x = as.factor(cyl), y = mpg, fill = as.factor(cyl)))
+```
+
+#### Eixos
+
+Para alterar os rótulos dos eixos:
+
+```{r}
+#| code-fold: false
+ggplot(mtcars) +
+  geom_histogram(aes(x = mpg)) +
+  xlab("Milhas por galão") +
+  ylab("Frequência")
+```
+
+#### Legendas
+
+Podemos personalizar ou remover legendas facilmente:
+
+```{r}
+#| code-fold: false
+ggplot(mtcars) +
+  geom_bar(aes(x = as.factor(cyl), fill = as.factor(cyl))) +
+  labs(fill = "Cilindros") +
+  theme(legend.position = "top")
+```
+
+### Facets
+
+O `facet_grid` permite dividir o gráfico em subgráficos com base em uma variável:
+
+```{r}
+#| code-fold: false
+ggplot(mtcars) +
+  geom_point(aes(x = mpg, y = disp, colour = as.factor(cyl))) +
+  facet_grid(am ~ .)
+```
+
+### Temas
+
+Podemos mudar o tema de um gráfico com a função `theme_set`:
+
+```{r}
+#| code-fold: false
+theme_set(theme_light(base_size = 10))
+ggplot(mtcars) +
+  geom_point(aes(x = mpg, y = disp, colour = as.factor(cyl))) +
+  facet_grid(. ~ am)
+```
+
+
+## O pacote `tidyr`
+
+O pacote `tidyr` facilita a transformação e organização de dados no R. Para converter os dados de formato "wide" (largo) para "long" (longo), podemos utilizar a função `pivot_longer`, que substitui a antiga função `gather`. Considere os dados a seguir:
+
+```{r}
+#| code-fold: false
+dados.originais <- data.frame(
+  paciente = c("João", "Marcos", "Antonio"),
+  pressao.antes = c(67, 80, 64),
+  pressao.durante = c(54, 70, 60),
+  pressao.depois = c(56, 90, 50)
+)
+dados.originais
+```
+
+Para reorganizar esses dados em um formato "long", usando `pivot_longer`:
+
+```{r}
+#| code-fold: false
+library(tidyr)
+dados.novo.formato <- dados.originais %>%
+  pivot_longer(cols = pressao.antes:pressao.depois,
+               names_to = "instante",
+               values_to = "pressao.arterial")
+dados.novo.formato
+```
+
+
+A função `pivot_wider` é usada para converter dados de formato "long" (longo) para "wide" (largo), espalhando uma variável por várias colunas. Vamos começar com um conjunto de dados em formato "long" e então reorganizá-los para o formato "wide".
+
+Considere o conjunto de dados `dados.novo.formato` que organizamos anteriormente:
+
+```{r}
+#| code-fold: false
+dados.novo.formato <- data.frame(
+  paciente = c("João", "Marcos", "Antonio", "João", "Marcos", "Antonio", "João", "Marcos", "Antonio"),
+  instante = c("pressao.antes", "pressao.antes", "pressao.antes", "pressao.durante", "pressao.durante", "pressao.durante", "pressao.depois", "pressao.depois", "pressao.depois"),
+  pressao.arterial = c(67, 80, 64, 54, 70, 60, 56, 90, 50)
+)
+dados.novo.formato
+```
+
+Agora, vamos usar `pivot_wider` para transformar esses dados de volta ao formato "wide":
+
+```{r}
+#| code-fold: false
+dados.wide <- dados.novo.formato %>%
+  pivot_wider(names_from = instante, values_from = pressao.arterial)
+dados.wide
+```
+
+Temos os seguintes argumentos: 
+- `names_from` especifica a coluna cujos valores serão usados para criar novos nomes de colunas (neste caso, a variável `instante`).
+- `values_from` especifica a coluna cujos valores serão preenchidos nas novas colunas criadas (neste caso, a variável `pressao.arterial`).
+
+
+
+
+Aqui está um exemplo de como o pacote `tidyr` pode ser usado para manipular os dados antes de visualizá-los com gráficos no `ggplot2`.
+
+### Exemplo: Manipulação e Visualização com `pivot_longer` e `ggplot2`
+
+O pacote tidyr é particularmente últil dentro do ggplot2.
+Vamos continuar com o exemplo dos dados de pressão arterial. Suponha que você queira visualizar as variações da pressão arterial dos pacientes em diferentes instantes.
+
+Primeiro, vamos reorganizar os dados usando `pivot_longer` para colocar os dados no formato "long", que é mais adequado para gráficos com o `ggplot2`:
+
+```{r}
+#| code-fold: false
+library(tidyr)
+library(ggplot2)
+
+# Dados originais no formato "wide"
+dados.originais <- data.frame(
+  paciente = c("João", "Marcos", "Antonio"),
+  pressao.antes = c(67, 80, 64),
+  pressao.durante = c(54, 70, 60),
+  pressao.depois = c(56, 90, 50)
+)
+dados.originais
+```
+
+Para usá-los no ggplot, vamos os reorganizar no formato "long":
+
+```{r}
+#| code-fold: false
+dados.long <- dados.originais %>%
+  pivot_longer(cols = pressao.antes:pressao.depois,
+               names_to = "instante",
+               values_to = "pressao.arterial")
+dados.long
+```
+
+Agora, vamos criar um gráfico de linhas que mostra as mudanças na pressão arterial ao longo do tempo para cada paciente. Note que estamos reordenando o eixo x para levar em conta o carater
+temporal do problema.
+
+```{r}
+#| code-fold: false
+ggplot(dados.long, aes(x = factor(instante, levels = c("pressao.antes", "pressao.durante", "pressao.depois")),
+                       y = pressao.arterial, group = paciente, color = paciente)) +
+  geom_line(size = 1) +
+  geom_point(size = 3) +
+  labs(title = "Variação da Pressão Arterial dos Pacientes",
+       x = "Instante",
+       y = "Pressão Arterial") +
+  theme_minimal()
+```
+
+## Leitura de Arquivos com `readr`
+
+O `readr` é um pacote eficiente para leitura de arquivos de dados no R. Vamos explorar como utilizar o `readr` para ler e manipular arquivos CSV. Um arquivo CSV (Comma-Separated Values) é um formato comum para armazenar dados tabulares. 
+
+Para começar, carregue o pacote `readr`:
+
+```{r}
+#| code-fold: false
+library(readr)
+```
+
+### Exemplo: Leitura de um CSV com Dados Públicos
+
+Vamos usar um banco de dados público disponível na internet. Um exemplo muito comum é o conjunto de dados de passageiros do Titanic, disponível em formato CSV. Para carregar diretamente da internet:
+
+```{r}
+#| code-fold: false
+url <- "https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv"
+dados_titanic <- read_csv(url)
+```
+
+Aqui, estamos carregando os dados diretamente de um link. Após a leitura, podemos visualizar os primeiros registros:
+
+```{r}
+#| code-fold: false
+head(dados_titanic)
+```
+
+### Manipulando os Dados Lidos
+
+O `read_csv` detecta automaticamente os tipos de dados de cada coluna. No exemplo dos dados do Titanic, podemos realizar algumas análises rápidas, como visualizar a distribuição de sobreviventes:
+
+```{r}
+#| code-fold: false
+table(dados_titanic$Survived)
+```
+
+### Salvando o Conjunto de Dados
+
+Se você quiser salvar o conjunto de dados em seu computador após manipulações, basta usar o `write_csv`:
+
+```{r}
+#| code-fold: false
+write_csv(dados_titanic, "titanic_local.csv")
+```
+
+Aqui está o conjunto de exercícios no formato solicitado:
+
+---
+
+## Exercícios
+
+<span style="color:#2C92B2;">**Exercício 1**</span>.  
+Execute as seguintes operações no R e interprete os resultados:
+- $5 + 9$
+- $\frac{0}{0}$
+- $10^{5}$
+
+Utilize a função `log` para calcular o logaritmo natural de 10 e depois o logaritmo na base 10 de 1000.
+
+Descubra a função que calcula a raiz quadrada de um número utilizando o símbolo de interrogação (`?`), e aplique-a ao número 144.
+
+ 
+
+<span style="color:#2C92B2;">**Exercício 2**</span>.  
+Armazene o resultado de $15 \times 7$ em uma variável chamada `resultado`. Use `resultado` para calcular o valor de $2 \times resultado$.
+
+Liste todas as variáveis no ambiente do R usando a função `ls()`. Exclua a variável `resultado` e verifique novamente as variáveis presentes.
+
+ 
+
+<span style="color:#2C92B2;">**Exercício 3**</span>.  
+Crie um vetor `v` contendo os números 4, 8, 15, 16, 23, 42. Use subsetting para selecionar:
+- O segundo e o quarto elemento.
+- Todos os elementos exceto o terceiro.
+- Os elementos que são maiores que 10.
+
+Multiplique cada elemento do vetor `v` por 2 e armazene o resultado em um novo vetor `v2`.
+
+ 
+<span style="color:#2C92B2;">**Exercício 4**</span>.  
+Verifique se 8 é maior que 5 e se 8 é igual a 10.
+
+Crie dois vetores lógicos `a = c(TRUE, FALSE, TRUE)` e `b = c(FALSE, TRUE, FALSE)`. Aplique os operadores `&`, `|` e `xor()` nesses vetores.
+
+ 
+<span style="color:#2C92B2;">**Exercício 5**</span>.  
+Escreva uma função `soma_quadrados` que receba dois números como argumentos e retorne a soma de seus quadrados. Teste sua função com os números 3 e 4.
+
+Modifique a função `soma_quadrados` para que o segundo argumento tenha um valor padrão de 2. Teste a função chamando-a com apenas um argumento.
+ 
+
+<span style="color:#2C92B2;">**Exercício 6**</span>.  
+Escreva um laço `for` que calcule a soma dos números de 1 a 100.
+
+Crie um laço `while` que multiplique os números de 1 a 6 e retorne o resultado.
+ 
+
+<span style="color:#2C92B2;">**Exercício 7**</span>.  
+Crie duas variáveis com o seu primeiro e último nome. Use a função `paste()` para juntar as duas variáveis em uma frase que diga "Meu nome completo é [nome completo]".
+
+Altere o separador na função `paste()` para um traço `-` e junte novamente as variáveis.
+ 
+
+<span style="color:#2C92B2;">**Exercício 8**</span>.  
+Carregue o pacote `dplyr` e use o dataset `mtcars`. Selecione apenas as colunas `mpg`, `cyl`, e `hp`.
+
+Filtre as observações onde `mpg` é maior que 20 e `hp` é menor que 150.
+
+Ordene o dataset filtrado pela coluna `mpg` em ordem decrescente.
+ 
+
+<span style="color:#2C92B2;">**Exercício 9**</span>.  
+Usando o dataset `mtcars`, crie um gráfico de dispersão (`geom_point`) que mostre a relação entre `hp` (horsepower) e `mpg` (milhas por galão).
+
+No gráfico anterior, mapeie a variável `cyl` para a cor dos pontos.
+
+<span style="color:#2C92B2;">**Exercício 10**</span>. 
+Utilize a base pública de dados de voos da [nycflights13](https://cran.r-project.org/web/packages/nycflights13/index.html) para responder às perguntas abaixo.
+
+1. Carregue o pacote `nycflights13` e explore o dataset `flights`. Visualize as primeiras 6 linhas da base.
+
+2. Filtre todos os voos que decolaram no mês de junho e aterrissaram com atraso maior que 1 hora.
+
+3. Agrupe os dados por companhia aérea (`carrier`) e calcule o atraso médio de chegada (`arr_delay`) para cada companhia.
+
+4. Crie um gráfico de barras que mostre o atraso médio de chegada por companhia aérea.
+

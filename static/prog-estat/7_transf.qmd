@@ -1,0 +1,144 @@
+# Transformação e Misturas
+
+O objetivo dessa aula é utilizar variáveis aleatórias que já sabemos simular para gerar valores de outra variável aleatória com uma distribuição de probabilidade específica.
+
+---
+
+## Transformação de V.A.
+
+- Queremos simular valores da variável aleatória $X$
+- Sabemos simular valores da variável aleatória $Y$
+- **Ideia**: Se existe uma função $g : \mathbb{R} \to \mathbb{R}$ tal que $X = g(Y)$, então para simular um valor de $X$ basta fazer:
+  1. Simular $Y$
+  2. Fazer $X = g(Y)$
+
+---
+
+### Exemplo 1: Transformação para Distribuição de Weibull
+
+Seja $X$ uma variável aleatória com distribuição de Weibull com parâmetro de forma $k > 0$ e parâmetro de escala $\lambda > 0$ dada por
+
+$$
+f_X(x) = \frac{k}{\lambda^k} x^{k-1} e^{-(x/\lambda)^k}, \quad x > 0.
+$$
+
+Queremos simular valores dessa distribuição. Para isso, utilizaremos o seguinte resultado: se $Y \sim \text{Exp}(1/\lambda^k)$, então $X = Y^{1/k} \sim \text{Weibull}(\lambda, k)$.
+
+De fato, temos que
+$$
+f_Y(y) = \frac{1}{\lambda^k} e^{-y/\lambda^k}, \quad y > 0.
+$$
+Para $x > 0$,
+$$
+P(X \leq x) = P(Y^{1/k} \leq x) = P(Y \leq x^k) = F_Y(x^k)
+$$
+e
+$$
+f_X(x) = \frac{dF_Y(x^k)}{dx} = kx^{k-1} f_Y(x^k)
+$$
+
+$$
+= kx^{k-1} \frac{1}{\lambda^k} e^{-x^k/\lambda^k}
+$$
+
+$$
+= \frac{k}{\lambda^k} x^{k-1} e^{-(x/\lambda)^k}.
+$$
+
+
+**Pseudo-Algoritmo para Transformação de Weibull**
+
+1. Gere $U_1 \sim \text{Unif}(0, 1)$
+2. Faça $Y = -\lambda^k \log U_1$
+3. Faça $X = Y^{1/k}$
+
+---
+
+## Misturas
+
+- Queremos simular valores da variável aleatória $X$
+- Suponha que sabemos simular valores da variável aleatória $Y$ e de $X | Y$ e suponha que:
+
+$$
+f_X(x) = \int_{-\infty}^{\infty} f_{X|Y}(x|y) f_Y(y) dy \quad \text{(caso contínuo)}
+$$
+$$
+f_X(x) = \sum_y p_{X|Y}(x|y) p_Y(y) \quad \text{(caso discreto)}
+$$
+
+Dizemos que $f_X$ é uma **distribuição de mistura**.
+Para simular um valor de $X$, fazemos:
+
+1. Simular $y$ de $f_Y$
+2. Simular $X$ de $f_{X|Y=y}$
+
+---
+
+### Exemplo 2: de Misturas para t-student
+
+Seja $X \sim t_k$. Queremos simular um valor de $X$.
+
+Podemos escrever a densidade de $X$ fazendo $X | Y = y \sim N(0, k/y)$ e $Y \sim \chi^2_k$. Vamos verificar essa afirmação. Temos que
+
+$$
+f_{X|Y=y}(x|y) = \frac{1}{\sqrt{k/y} \sqrt{2\pi}} e^{-\frac{y}{2k} x^2}
+$$
+
+e
+
+$$
+f_Y(y) = \frac{1}{2^{k/2} \Gamma(k/2)} y^{k/2 - 1} e^{-y/2}.
+$$
+
+Logo,
+
+$$
+f_X(x) = \int_{-\infty}^{\infty} f_{X|Y}(x|y) f_Y(y) dy
+$$
+
+$$
+= \int_{-\infty}^{\infty} \frac{1}{\sqrt{k/y} \sqrt{2\pi}} e^{-\frac{y}{2k} x^2} \frac{1}{2^{k/2} \Gamma(k/2)} y^{k/2 - 1} e^{-y/2} dy
+$$
+
+$$
+= \frac{1}{\sqrt{k} \sqrt{2\pi}} \frac{1}{2^{k/2} \Gamma(k/2)} \int_{-\infty}^{\infty} y^{k/2 + 1/2 - 1} e^{-y(x^2/2k + 1/2)} dy
+$$
+
+$$
+= \frac{1}{\sqrt{k} \sqrt{2\pi}} \frac{1}{2^{k/2} \Gamma(k/2)} \frac{\Gamma(k/2 + 1/2)}{(x^2/2k + 1/2)^{(k+1)/2}}
+$$
+
+$$
+= \frac{\Gamma(k/2 + 1/2)}{\Gamma(k/2)} \frac{1}{\sqrt{k \pi}} \frac{1}{(x^2/k + 1)^{(k+1)/2}}.
+$$
+
+Então, $X \sim t_k$.
+
+
+
+**Pseudo-Algoritmo para Gerar Dados de uma t-student:**
+
+1. Gere $y$ de $\chi^2_k$
+2. Gere $X$ da $N(0, k/y)$
+
+
+## Exercícios
+
+1. 
+  - Simular uma amostra de tamanho 1000 de uma Weibull usando o pseudo-algoritmo  do Exemplo 1. 
+  - Compare os valores simulados com a densidade da Weibull usando uma amostra gerada pelo Python ou R.
+
+2. 
+  - Simular uma amostra de tamanho 1000 de uma t-student usando o pseudo-algoritmo do Exemplo 2.
+  - Compare os valores simulados com a densidade da t-Student usando uma amostra gerada pelo Python ou R.
+   
+3. Considere a seguinte relação entre as distribuições de Poisson e Exponencial:
+
+Se $N \sim \text{Poisson}(\lambda)$, e $X_i \sim \text{Exp}(\lambda)$, então a soma dos $X_i$ satisfaz:
+$$
+P(N = k) = P\left(X_1 + \cdots + X_k \leq 1 < X_1 + \cdots + X_{k+1}\right).
+$$
+
+- Implemente um algoritmo para gerar amostras de tamanho 1000 de uma variável $N \sim \text{Poisson}(\lambda)$ utilizando o resultado anterior.
+- Escolha um valor de $\lambda = 5$ e simule 1000 valores de $N$.
+- Compare os valores simulados com a densidade da Poisson usando uma amostra gerada pelo Python ou R.

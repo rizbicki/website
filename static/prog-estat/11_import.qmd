@@ -1,0 +1,453 @@
+# Amostragem por Importância
+
+
+O Método de Monte Carlo, embora funcione, nem sempre é eficiente.
+Veremos a seguir um exemplo disso.
+
+## Exemplo 1: Estimativa de $\mathbb{P}(Z > 4.5)$
+
+Neste exemplo, vamos estimar a probabilidade $\mathbb{P}(Z > 4.5)$ onde $Z \sim N(0,1)$. Este é um evento raro, com probabilidade pequena. O valor exato dessa probabilidade é:
+$$
+\log(\mathbb{P}(Z > 4.5)) = -12.59242
+$$
+Aplicaremos o método de  Monte Carlo simulando $n = 100.000$ valores de $Z \sim N(0,1)$ e calculando a proporção dos valores que são maiores que 4.5.
+
+
+::: {.panel-tabset group="language"}
+# R
+
+```{r}
+set.seed(0)
+# Valor exato de P(Z > 4.5)
+valor_exato <- log(pnorm(4.5, 0, 1, lower.tail = FALSE))
+cat("Valor exato (log(P(Z > 4.5))):", valor_exato, "\n")
+
+# Simulação Monte Carlo
+n <- 100000
+z <- rnorm(n, 0, 1)
+
+# Estimativa Monte Carlo de P(Z > 4.5)
+p_estimada <- mean(1 * (z > 4.5))
+cat("Estimativa Monte Carlo de P(Z > 4.5):", p_estimada, "\n")
+
+# Logaritmo da estimativa Monte Carlo
+log_p_estimada <- log(p_estimada)
+cat("Logaritmo da estimativa Monte Carlo:", log_p_estimada, "\n")
+```
+
+# Python
+
+```{python}
+import numpy as np
+from scipy.stats import norm
+
+# Valor exato de P(Z > 4.5)
+valor_exato = np.log(norm.sf(4.5))  # sf is the survival function, equivalent to (1 - cdf)
+print(f"Valor exato (log(P(Z > 4.5))): {valor_exato}")
+
+# Simulação Monte Carlo
+n = 100000
+z = np.random.normal(0, 1, n)
+
+# Estimativa Monte Carlo de P(Z > 4.5)
+p_estimada = np.mean(z > 4.5)
+print(f"Estimativa Monte Carlo de P(Z > 4.5): {p_estimada}")
+
+# Logaritmo da estimativa Monte Carlo
+log_p_estimada = np.log(p_estimada)
+print(f"Logaritmo da estimativa Monte Carlo: {log_p_estimada}")
+```
+::: 
+
+O método de Monte Carlo exige uma grande quantidade de amostras para fornecer uma estimativa precisa devido à raridade do evento $Z > 4.5$. A abordagem pode se tornar ineficiente para eventos raros.
+
+## Amostragem por Importância
+
+
+
+A Amostragem por Importância é uma técnica que nos permite simular valores $Y_1, \dots, Y_n$ a partir de uma densidade auxiliar $g(y)$.
+
+A ideia chave é que, se $X$ tem densidade $f(x)$, a esperança $\mathbb{E}[h(X)]$ pode ser reescrita como:
+
+$$
+\mathbb{E}[h(X)] = \int h(x) f(x) dx = \int h(x) \frac{f(x)}{g(x)} g(x) dx = \mathbb{E}\left[ h(Y) \frac{f(Y)}{g(Y)} \right],
+$$
+em que $Y$ tem densidade $g$. Isso vale desde que $g$ possua suporte tão ou mais amplo que a região de integração.
+Assim, podemos estimar $\mathbb{E}[h(X)]$ usando $n$ valores simulados de $Y$ independentemente pela fórmula:
+
+$$
+\hat\theta_n = \frac{1}{n}\sum_{i=1}^n \frac{f(y_i)}{g(y_i)} h(y_i)
+$$
+
+Note que os pesos $w_i = \frac{f(y_i)}{g(y_i)}$ ajustam a importância de cada amostra, tornando a simulação mais eficiente.
+
+
+### Revistando o Exemplo 1 via  Amostragem por Importância
+
+Para melhorar a eficiência no Exemplo 1, vamos agora usar **Amostragem por Importância**. Em vez de simular diretamente de $Z \sim N(0,1)$, simulamos de uma distribuição exponencial truncada $Exp(1)$ a partir de 4.5. A densidade de importância é:
+$$
+g(y) = e^{-(y - 4.5)}, \quad y > 4.5
+$$
+
+O estimador de Monte Carlo ponderado é, portanto,
+$$
+\hat{\theta}_n = \frac{1}{n} \sum_{i=1}^n \frac{f(y_i)}{g(y_i)}I(y_i>4.5)=\frac{1}{n} \sum_{i=1}^n \frac{f(y_i)}{g(y_i)},
+$$
+onde $f(y_i)$ é a densidade da normal $N(0,1)$.
+Aqui está o código equivalente em Python no formato solicitado:
+
+ 
+::: {.panel-tabset group="language"}
+# R
+
+```{r}
+n <- 100
+# Gerar n valores da distribuição exponencial truncada
+y <- rexp(n) + 4.5
+
+# Estimativa por importância
+estimativa_importancia <- mean(dnorm(y) / exp(-(y - 4.5)))
+cat("Estimativa por amostragem por importância:", estimativa_importancia, "\n")
+
+# Logaritmo da estimativa por importância
+log_estimativa_importancia <- log(estimativa_importancia)
+cat("Logaritmo da estimativa por amostragem por importância:", log_estimativa_importancia, "\n")
+```
+
+# Python
+
+```{python}
+import numpy as np
+from scipy.stats import expon, norm
+
+n = 100
+# Gerar n valores da distribuição exponencial truncada
+y = expon.rvs(scale=1, size=n) + 4.5
+
+# Estimativa por importância
+estimativa_importancia = np.mean(norm.pdf(y) / np.exp(-(y - 4.5)))
+print(f"Estimativa por amostragem por importância: {estimativa_importancia}")
+
+# Logaritmo da estimativa por importância
+log_estimativa_importancia = np.log(estimativa_importancia)
+print(f"Logaritmo da estimativa por amostragem por importância: {log_estimativa_importancia}")
+```
+:::
+
+Com essa técnica, concentramos as simulações na região relevante, melhorando a eficiência da estimativa para eventos raros.
+
+## Exemplo 2: Estimativa de $\mathbb{E}[\sqrt{X}]$ com Amostragem por Importância
+
+Agora, vamos estimar $\theta = \mathbb{E}[\sqrt{X}]$ onde $X \sim Exp(1)$. Sabemos que o valor exato desta integral é $\sqrt{\pi}/2$.
+
+### Aproximação via Monte Carlo
+
+Vamos simular $X \sim Exp(1)$ e calcular a média de $\sqrt{X}$ diretamente:
+ 
+::: {.panel-tabset group="language"}
+# R
+
+```{r}
+# Valor exato da integral
+real <- sqrt(pi) / 2
+cat("Valor exato:", real, "\n")
+
+# Número de amostras
+n <- 10000
+
+# Geração de amostras da distribuição exponencial
+x <- rexp(n, 1)
+
+# Estimativa Monte Carlo para E[sqrt(X)]
+estimativa_mc <- mean(sqrt(x))
+cat("Estimativa Monte Carlo de E[sqrt(X)]:", estimativa_mc, "\n")
+
+# Variância da estimativa
+variancia_mc <- var(sqrt(x))
+cat("Variância da estimativa:", variancia_mc, "\n")
+```
+
+# Python
+
+```{python}
+import numpy as np
+from scipy.stats import expon
+
+# Valor exato da integral
+real = np.sqrt(np.pi) / 2
+print(f"Valor exato: {real}")
+
+# Número de amostras
+n = 10000
+
+# Geração de amostras da distribuição exponencial
+x = expon.rvs(scale=1, size=n)
+
+# Estimativa Monte Carlo para E[sqrt(X)]
+estimativa_mc = np.mean(np.sqrt(x))
+print(f"Estimativa Monte Carlo de E[sqrt(X)]: {estimativa_mc}")
+
+# Variância da estimativa
+variancia_mc = np.var(np.sqrt(x), ddof=1)
+print(f"Variância da estimativa: {variancia_mc}")
+```
+::: 
+
+### Aproximação via Amostragem por Importância
+
+Agora, vamos usar a **Amostragem por Importância** com duas distribuições diferentes para melhorar a eficiência.
+
+1. **Usando $Y = |Z|$, onde $Z \sim N(0,1)$**:
+
+A densidade de importância combinada é:
+$$
+g(y) = dnorm(y) + dnorm(-y)
+$$
+
+::: {.panel-tabset group="language"}
+# R
+
+```{r}
+# Gerando amostras de uma distribuição normal absoluta
+z <- abs(rnorm(n))
+
+# Função de densidade combinada g(x)
+g <- function(x) {
+  return(dnorm(x) + dnorm(-x))
+}
+
+# Estimativa por amostragem por importância
+estimativa_importancia <- mean((sqrt(z)) * dexp(z, 1) / g(z))
+cat("Estimativa por amostragem por importância:", estimativa_importancia, "\n")
+
+# Variância da estimativa por amostragem por importância
+variancia_importancia <- var((sqrt(z)) * dexp(z, 1) / g(z))
+cat("Variância da estimativa por amostragem por importância:", variancia_importancia, "\n")
+```
+
+# Python
+
+```{python}
+import numpy as np
+from scipy.stats import norm, expon
+
+# Definir o tamanho da amostra
+n = 10000  # Altere conforme necessário
+
+# Gerando amostras de uma distribuição normal absoluta
+z = np.abs(np.random.normal(size=n))
+
+# Função de densidade combinada g(x)
+def g(x):
+    return norm.pdf(x) + norm.pdf(-x)
+
+# Estimativa por amostragem por importância
+estimativa_importancia = np.mean((np.sqrt(z)) * expon.pdf(z, scale=1) / g(z))
+print("Estimativa por amostragem por importância:", estimativa_importancia)
+
+# Variância da estimativa por amostragem por importância
+variancia_importancia = np.var((np.sqrt(z)) * expon.pdf(z, scale=1) / g(z))
+print("Variância da estimativa por amostragem por importância:", variancia_importancia)
+```
+::: 
+
+
+2. **Usando $Y = |Z|$, onde $Z \sim Cauchy(0,1)$**:
+
+A densidade de importância combinada agora é:
+$$
+g2(y) = dcauchy(y) + dcauchy(-y)
+$$
+
+ 
+
+ 
+::: {.panel-tabset group="language"}
+# R
+
+```{r}
+# Gerando amostras de uma distribuição Cauchy absoluta
+z <- abs(rcauchy(n))
+
+# Função de densidade combinada g2(x) para a Cauchy
+g2 <- function(x) {
+  return(dcauchy(x) + dcauchy(-x))
+}
+
+# Estimativa por amostragem por importância usando Cauchy
+estimativa_importancia_cauchy <- mean((sqrt(z)) * dexp(z, 1) / g2(z))
+cat("Estimativa por amostragem por importância (Cauchy):", estimativa_importancia_cauchy, "\n")
+
+# Variância da estimativa por amostragem por importância usando Cauchy
+variancia_importancia_cauchy <- var((sqrt(z)) * dexp(z, 1) / g2(z))
+cat("Variância da estimativa por amostragem por importância (Cauchy):", variancia_importancia_cauchy, "\n")
+```
+
+# Python
+
+```{python}
+import numpy as np
+from scipy.stats import cauchy, expon
+
+# Gerando amostras de uma distribuição Cauchy absoluta
+z = np.abs(cauchy.rvs(size=n))
+
+# Função de densidade combinada g2(x) para a Cauchy
+def g2(x):
+    return cauchy.pdf(x) + cauchy.pdf(-x)
+
+# Estimativa por amostragem por importância usando Cauchy
+estimativa_importancia_cauchy = np.mean(np.sqrt(z) * expon.pdf(z, scale=1) / g2(z))
+print(f"Estimativa por amostragem por importância (Cauchy): {estimativa_importancia_cauchy}")
+
+# Variância da estimativa por amostragem por importância usando Cauchy
+variancia_importancia_cauchy = np.var(np.sqrt(z) * expon.pdf(z, scale=1) / g2(z), ddof=1)
+print(f"Variância da estimativa por amostragem por importância (Cauchy): {variancia_importancia_cauchy}")
+```
+::: 
+
+Podemos visualizar as funções de densidade $h(x) f(x)$ e as funções de importância $g(x)$ e $g2(x)$ para entender melhor a escolha das distribuições de importância.
+
+
+ 
+::: {.panel-tabset group="language"}
+# R
+
+```{r}
+library(ggplot2)
+
+# Funções
+h_f <- function(x) sqrt(x) * dexp(x, 1)
+g <- function(x) 0.5 * exp(-0.5 * x)  # Exemplo para g(x)
+g2 <- function(x) 0.8 * exp(-0.3 * x) # Exemplo para g2(x)
+
+# Dados
+x_vals <- seq(0, 3, length.out = 100)
+data <- data.frame(
+  x = x_vals,
+  h_f = h_f(x_vals),
+  g = g(x_vals),
+  g2 = g2(x_vals)
+)
+
+# Gráfico
+ggplot(data, aes(x)) +
+  geom_line(aes(y = h_f, color = "h(x)f(x)"), size = 1.2) +
+  geom_line(aes(y = g, color = "g(x)"), size = 1.2) +
+  geom_line(aes(y = g2, color = "g2(x)"), size = 1.2) +
+  scale_color_manual(values = c("h(x)f(x)" = "black", "g(x)" = "red", "g2(x)" = "blue")) +
+  labs(y = "Valor", color = "Funções") +
+  theme_minimal(base_size = 15)
+```
+
+# Python
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Funções
+def h_f(x):
+    return np.sqrt(x) * np.exp(-x)
+
+def g(x):
+    return 0.5 * np.exp(-0.5 * x)
+
+def g2(x):
+    return 0.8 * np.exp(-0.3 * x)
+
+# Dados
+x_vals = np.linspace(0, 3, 100)
+h_f_vals = h_f(x_vals)
+g_vals = g(x_vals)
+g2_vals = g2(x_vals)
+
+# Gráfico
+plt.plot(x_vals, h_f_vals, label="h(x)f(x)", color="black", linewidth=1.2)
+plt.plot(x_vals, g_vals, label="g(x)", color="red", linewidth=1.2)
+plt.plot(x_vals, g2_vals, label="g2(x)", color="blue", linewidth=1.2)
+
+plt.xlabel("x")
+plt.ylabel("Valor")
+plt.legend(title="Funções")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+```
+::: 
+
+Gráfico de $h(x) f(x) / g(x)$ e $h(x) f(x) / g2(x)$:
+ 
+::: {.panel-tabset group="language"}
+# R
+
+```{r}
+library(ggplot2)
+
+# Funções
+h_f <- function(x) sqrt(x) * dexp(x, 1)
+g <- function(x) 0.5 * exp(-0.5 * x)  # Exemplo para g(x)
+g2 <- function(x) 0.8 * exp(-0.3 * x) # Exemplo para g2(x)
+
+# Dados
+x_vals <- seq(0, 3, length.out = 100)
+data <- data.frame(
+  x = x_vals,
+  h_f_over_g = h_f(x_vals) / g(x_vals),
+  h_f_over_g2 = h_f(x_vals) / g2(x_vals)
+)
+
+# Gráfico
+ggplot(data, aes(x)) +
+  geom_line(aes(y = h_f_over_g, color = "h(x)f(x) / g(x)"), size = 1.2) +
+  geom_line(aes(y = h_f_over_g2, color = "h(x)f(x) / g2(x)"), size = 1.2) +
+  scale_color_manual(values = c("h(x)f(x) / g(x)" = "black", "h(x)f(x) / g2(x)" = "red")) +
+  labs(y = "Valor", color = "Funções") +
+  theme_minimal(base_size = 15)
+```
+
+# Python
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Funções
+def h_f(x):
+    return np.sqrt(x) * np.exp(-x)
+
+def g(x):
+    return 0.5 * np.exp(-0.5 * x)
+
+def g2(x):
+    return 0.8 * np.exp(-0.3 * x)
+
+# Dados
+x_vals = np.linspace(0, 3, 100)
+h_f_over_g = h_f(x_vals) / g(x_vals)
+h_f_over_g2 = h_f(x_vals) / g2(x_vals)
+
+# Gráfico
+plt.plot(x_vals, h_f_over_g, label="h(x)f(x) / g(x)", color="black", linewidth=1.2)
+plt.plot(x_vals, h_f_over_g2, label="h(x)f(x) / g2(x)", color="red", linewidth=1.2)
+
+plt.xlabel("x")
+plt.ylabel("Valor")
+plt.legend(title="Funções")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+```
+::: 
+
+Esses gráficos mostram como as diferentes escolhas de distribuições de importância afetam a função ponderada, ajudando a reduzir a variância do estimador.
+
+ 
+
+## Exercícios
+
+<span style="color:#2C92B2;">**Exercício 1**</span>. Usando a **Amostragem por Importância**, estime a probabilidade de que uma variável aleatória $Z \sim N(0,1)$ seja maior que 5.0. Compare os resultados obtidos com a amostragem direta usando Monte Carlo simples e discuta a eficiência da Amostragem por Importância em relação ao método direto.
+
+<span style="color:#2C92B2;">**Exercício 2**</span>. Estime o valor da integral $\int_0^2 \sqrt{x} e^{-x} dx$ utilizando a **Amostragem por Importância** com duas distribuições de importância diferentes. Justifique a escolha das distribuições e compare a eficiência de cada uma.
+
+<span style="color:#2C92B2;">**Exercício 3**</span>. Utilize a **Amostragem por Importância** para estimar $\mathbb{E}[\log(1 + X)]$, onde $X \sim Exp(1)$. Escolha uma densidade auxiliar apropriada para melhorar a eficiência da estimativa e justifique sua escolha. Compare os resultados com a aproximação via Monte Carlo simples.
