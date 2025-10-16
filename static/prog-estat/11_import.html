@@ -463,7 +463,7 @@ g(y) = e^{-(y - 4.5)}, \quad y &gt; 4.5
 <span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Estimativa por amostragem por importância: </span><span class="sc">{</span>estimativa_importancia<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa por amostragem por importância: 5.035434807048953e-06</code></pre>
+<pre><code>Estimativa por amostragem por importância: 3.6810132064718256e-06</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
@@ -472,7 +472,7 @@ g(y) = e^{-(y - 4.5)}, \quad y &gt; 4.5
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Logaritmo da estimativa por amostragem por importância: </span><span class="sc">{</span>log_estimativa_importancia<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Logaritmo da estimativa por amostragem por importância: -12.19901067861088</code></pre>
+<pre><code>Logaritmo da estimativa por amostragem por importância: -12.512322515833585</code></pre>
 </div>
 </div>
 </div>
@@ -554,7 +554,7 @@ g(y) = e^{-(y - 4.5)}, \quad y &gt; 4.5
 <span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Estimativa Monte Carlo de E[sqrt(X)]: </span><span class="sc">{</span>estimativa_mc<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa Monte Carlo de E[sqrt(X)]: 0.890047436878505</code></pre>
+<pre><code>Estimativa Monte Carlo de E[sqrt(X)]: 0.8966439524229932</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
@@ -563,7 +563,7 @@ g(y) = e^{-(y - 4.5)}, \quad y &gt; 4.5
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Variância da estimativa: </span><span class="sc">{</span>variancia_mc<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Variância da estimativa: 0.21320326493840466</code></pre>
+<pre><code>Variância da estimativa: 0.22016316118999554</code></pre>
 </div>
 </div>
 </div>
@@ -634,7 +634,7 @@ g(y) = dnorm(y) + dnorm(-y)
 <span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Estimativa por amostragem por importância:"</span>, estimativa_importancia)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa por amostragem por importância: 0.8866386583228044</code></pre>
+<pre><code>Estimativa por amostragem por importância: 0.9532794041894005</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
@@ -643,7 +643,7 @@ g(y) = dnorm(y) + dnorm(-y)
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Variância da estimativa por amostragem por importância:"</span>, variancia_importancia)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Variância da estimativa por amostragem por importância: 7.460410053240879</code></pre>
+<pre><code>Variância da estimativa por amostragem por importância: 79.11857927326784</code></pre>
 </div>
 </div>
 </div>
@@ -707,7 +707,7 @@ g2(y) = dcauchy(y) + dcauchy(-y)
 <span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Estimativa por amostragem por importância (Cauchy): </span><span class="sc">{</span>estimativa_importancia_cauchy<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa por amostragem por importância (Cauchy): 0.8881517283293361</code></pre>
+<pre><code>Estimativa por amostragem por importância (Cauchy): 0.8792140142466826</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
@@ -716,7 +716,7 @@ g2(y) = dcauchy(y) + dcauchy(-y)
 <span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Variância da estimativa por amostragem por importância (Cauchy): </span><span class="sc">{</span>variancia_importancia_cauchy<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Variância da estimativa por amostragem por importância (Cauchy): 0.1954848754427126</code></pre>
+<pre><code>Variância da estimativa por amostragem por importância (Cauchy): 0.19494331115371924</code></pre>
 </div>
 </div>
 </div>
