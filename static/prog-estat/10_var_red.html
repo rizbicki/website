@@ -312,36 +312,28 @@ window.Quarto = {
 </header>
 
 
-<p>A simulação de Monte Carlo é utilizada para estimar esperanças matemáticas e calcular integrais numéricas. No entanto, a precisão do método pode ser limitada pela variância das amostras geradas. As técnicas de redução de variância visam minimizar essa variabilidade sem aumentar significativamente o número de amostras.</p>
+<p>A simulação de Monte Carlo é utilizada para estimar esperanças e calcular integrais numéricas. No entanto, a precisão do método pode ser limitada pela variância das amostras geradas. As técnicas de redução de variância visam minimizar essa variabilidade sem aumentar significativamente o número de amostras.</p>
 <section id="técnica-1-variáveis-antitéticas" class="level2" data-number="12.1">
 <h2 data-number="12.1" class="anchored" data-anchor-id="técnica-1-variáveis-antitéticas"><span class="header-section-number">12.1</span> Técnica 1: Variáveis Antitéticas</h2>
 <section id="motivação" class="level3" data-number="12.1.1">
 <h3 data-number="12.1.1" class="anchored" data-anchor-id="motivação"><span class="header-section-number">12.1.1</span> Motivação</h3>
-<p>Queremos estimar uma integral <span class="math inline">\(\theta = E[X]\)</span>. O estimador de Monte Carlo usual é: <span class="math display">\[
+<p>Assuma que queremos estimar uma integral que pode ser expressa como a esperança de uma variável aleatória, <span class="math inline">\(\theta = E[X]\)</span>. O estimador de Monte Carlo usual é: <span class="math display">\[
 \hat{\theta} = \frac{1}{n} \sum_{i=1}^{n} X_i
 \]</span> onde <span class="math inline">\(X_1, ..., X_n\)</span> são variáveis aleatórias iid com média <span class="math inline">\(\theta\)</span>. A variância desse estimador é dada por <span class="math display">\[
 \text{Var}(\hat{\theta}) = \frac{\text{Var}(X)}{n}
 \]</span></p>
-<p>Se conseguirmos construir um conjunto de amostras correlacionadas negativamente com a amostra de <span class="math inline">\(X\)</span>’s, podemos reduzir essa variância.</p>
-</section>
-<section id="descrição" class="level3" data-number="12.1.2">
-<h3 data-number="12.1.2" class="anchored" data-anchor-id="descrição"><span class="header-section-number">12.1.2</span> Descrição</h3>
-<p>A ideia principal das <strong>variáveis antitéticas</strong> é gerar pares de amostras <span class="math inline">\(X_i\)</span> e <span class="math inline">\(Y_i\)</span> que sejam correlacionadas negativamente. Se tivermos uma segunda amostra <span class="math inline">\(Y_1, ..., Y_n\)</span>, não necessariamente independente de <span class="math inline">\(X\)</span>, com <span class="math display">\[
-E[Y] = E[X] = \theta
-\]</span> e <span class="math display">\[
-V[Y] = V[X] = \sigma^2,
-\]</span> então podemos definir um novo estimador: <span class="math display">\[
+<p><strong>Variáveis antitéticas</strong> visam reduzir essa variância. Para tanto, a ideia principal é gerar pares de amostras <span class="math inline">\(X_i\)</span> e <span class="math inline">\(Y_i\)</span> que sejam correlacionadas negativamente. Concretamente, se tivermos uma segunda amostra <span class="math inline">\(Y_1, ..., Y_n\)</span> i.i.d entre sim e com <span class="math inline">\(E[Y] = E[X] = \theta\)</span> e <span class="math inline">\(V[Y] = V[X] = \sigma^2\)</span>, mas não necessariamente independente da sequência <span class="math inline">\(X_i\)</span>, então podemos definir um novo estimador: <span class="math display">\[
 \hat{\theta}_A = \frac{1}{2n} \sum_{i=1}^{n} (X_i + Y_i)
-\]</span> cuja esperança é <span class="math display">\[
-\text{E}(\hat{\theta}_A)=\theta \]</span> e variância é <span class="math display">\[
+\]</span> cuja esperança é justamente <span class="math display">\[
+\text{E}(\hat{\theta}_A)=\theta.\]</span> Além disso, sua variância é <span class="math display">\[
 \text{Var}(\hat{\theta}_A) = \frac{1}{4n^2} \sum_{i=1}^{n} \left( \text{Var}(X) + \text{Var}(Y) + 2\text{Cov}(X,Y) \right)
 \]</span> ou, simplificando, <span class="math display">\[
 \text{Var}(\hat{\theta}_A) = \frac{\text{Var}(X)}{n} \left( \frac{1 + \rho}{2} \right)
-\]</span> onde <span class="math inline">\(\rho = \text{Corr}(X, Y)\)</span>. Se <span class="math inline">\(\rho &lt; 0\)</span>, então <span class="math inline">\(\text{Var}(\hat{\theta}_A) &lt; \text{Var}(\hat{\theta})\)</span>, tornando o estimador <strong>mais eficiente</strong>.</p>
+\]</span> onde <span class="math inline">\(\rho = \text{Corr}(X, Y)\)</span>. Assim, se <span class="math inline">\(\rho &lt; 0\)</span>, então <span class="math inline">\(\text{Var}(\hat{\theta}_A) &lt; \text{Var}(\hat{\theta})\)</span>, tornando este estimador <strong>mais eficiente</strong> que o estimador de Monte Carlo usual com uma amostra de tamanho <span class="math inline">\(2n\)</span>.</p>
 </section>
-<section id="algoritmo" class="level3" data-number="12.1.3">
-<h3 data-number="12.1.3" class="anchored" data-anchor-id="algoritmo"><span class="header-section-number">12.1.3</span> Algoritmo</h3>
-<p>Uma maneira de gerar variáveis negativamente correlacionadas é a partir de distribuições uniformes. Para isso, vamos assumir que <span class="math inline">\(X \sim h(U)\)</span>, para algum <span class="math inline">\(h\)</span> conhecido, em que <span class="math inline">\(U \sim U(0,1)\)</span>. Sabemos, pelo método da transformação inversa, que sempre é possível encontrar <span class="math inline">\(h\)</span> com essa propriedade.</p>
+<section id="algoritmo" class="level3" data-number="12.1.2">
+<h3 data-number="12.1.2" class="anchored" data-anchor-id="algoritmo"><span class="header-section-number">12.1.2</span> Algoritmo</h3>
+<p>Uma maneira (mas não a única!) de gerar variáveis negativamente correlacionadas é a partir de distribuições uniformes. Para isso, vamos assumir que <span class="math inline">\(X \sim h(U)\)</span>, para algum <span class="math inline">\(h\)</span> conhecido, em que <span class="math inline">\(U \sim U(0,1)\)</span>. Sabemos, pelo método da transformação inversa, que sempre é possível encontrar <span class="math inline">\(h\)</span> com essa propriedade.</p>
 <p>A ideia chave é então usar que <span class="math inline">\(1-U\)</span> também tem distribuição <span class="math inline">\(U(0,1)\)</span>. Assim <span class="math inline">\(h(1-U)\)</span> tem a mesma distribuição de <span class="math inline">\(X\)</span> e, em particular, a mesma média <span class="math inline">\(\theta\)</span>. Além disso, pode-se mostrar que se <span class="math inline">\(h\)</span> é monótono, <span class="math inline">\(h(U)\)</span> tem correlação negativa com <span class="math inline">\(h(1-U)\)</span>.</p>
 <p>O método das variáveis antitéticas pode ser implementado da seguinte forma:</p>
 <ol type="1">
@@ -358,16 +350,12 @@ V[Y] = V[X] = \sigma^2,
 \hat{\theta}_A = \frac{1}{2n} \sum_{i=1}^{n} (g(X_i) + g(Y_i))
 \]</span></li>
 </ol>
-<hr>
 </section>
-<section id="exemplo-aproximação-de-uma-integral" class="level3" data-number="12.1.4">
-<h3 data-number="12.1.4" class="anchored" data-anchor-id="exemplo-aproximação-de-uma-integral"><span class="header-section-number">12.1.4</span> Exemplo: Aproximação de uma Integral</h3>
-<p>Queremos estimar a seguinte integral:</p>
-<p><span class="math display">\[
+<section id="exemplo-aproximação-de-uma-integral" class="level3" data-number="12.1.3">
+<h3 data-number="12.1.3" class="anchored" data-anchor-id="exemplo-aproximação-de-uma-integral"><span class="header-section-number">12.1.3</span> Exemplo: Aproximação de uma Integral</h3>
+<p>Queremos estimar a seguinte integral: <span class="math display">\[
 I = \int_0^\infty \log(1 + x^2) e^{-x}\, dx
-\]</span></p>
-<p>Sabemos que podemos reescrever essa integral como uma esperança matemática:</p>
-<p><span class="math display">\[
+\]</span> Sabemos que podemos reescrever essa integral como uma esperança matemática: <span class="math display">\[
 I = E[\log(1 + X^2)], \quad X \sim \textrm{Exp}(1)
 \]</span></p>
 <p>O algoritmo é:</p>
@@ -380,7 +368,6 @@ I = E[\log(1 + X^2)], \quad X \sim \textrm{Exp}(1)
 <p><span class="math display">\[
 Z_i = \frac{1}{2} \left( \log(1 + X_i^2) + \log(1 + Y_i^2) \right)
 \]</span></p>
-<hr>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -624,30 +611,22 @@ Z = X + \widehat{c}^* (Y - \bar{Y}).
 <h2 data-number="12.3" class="anchored" data-anchor-id="técnica-3-uso-de-condicionamento"><span class="header-section-number">12.3</span> Técnica 3: Uso de Condicionamento</h2>
 <section id="motivação-2" class="level3" data-number="12.3.1">
 <h3 data-number="12.3.1" class="anchored" data-anchor-id="motivação-2"><span class="header-section-number">12.3.1</span> Motivação</h3>
-<p>Queremos estimar <span class="math inline">\(\theta = \mathbb{E}[X]\)</span>. Considere uma variável <span class="math inline">\(Y\)</span> para a qual sabemos simular <span class="math inline">\(\mathbb{E}[X \mid Y]\)</span>. Podemos usar a seguinte propriedade da expectativa condicional:</p>
-<p><span class="math display">\[
+<p>Queremos estimar <span class="math inline">\(\theta = \mathbb{E}[X]\)</span>. Considere que conhecemos uma variável <span class="math inline">\(Y\)</span> da qual sabemos simular, e que sabemos calcular <span class="math inline">\(\mathbb{E}[X \mid Y]\)</span>.</p>
+<p>Dada uma amostra <span class="math inline">\(Y_1,\ldots,Y_n\)</span>, a técnica do condicionamento estima <span class="math inline">\(\theta\)</span> via <span class="math display">\[\frac{1}{n} \sum_{i=1}^n g(Y_i),\]</span> em que <span class="math inline">\(g(Y_i)=E[X_i|Y_i]\)</span>.</p>
+<p>Este estimador funciona pois, da Teoria das Probabilidades,<br>
+<span class="math display">\[
 \mathbb{E}[\mathbb{E}[X \mid Y]] = \mathbb{E}[X] = \theta.
-\]</span></p>
-<p>Além disso, usando a fórmula da variância condicional, temos:</p>
-<p><span class="math display">\[
+\]</span> Assim, <span class="math display">\[\mathbb{E}\left[\frac{1}{n} \sum_{i=1}^n g(Y_i)\right] =\mathbb{E}\left[g(Y_1)\right]=\mathbb{E}[\mathbb{E}[X \mid Y_1]] =  \theta.\]</span></p>
+<p>Além disso, usando a fórmula da variância condicional, temos: <span class="math display">\[
 \text{Var}(X) = \mathbb{E}[\text{Var}(X \mid Y)] + \text{Var}(\mathbb{E}[X \mid Y]).
-\]</span></p>
-<p>Como consequência:</p>
-<p><span class="math display">\[
+\]</span> Como consequência: <span class="math display">\[
 \text{Var}(X) \geq \text{Var}(\mathbb{E}[X \mid Y]).
 \]</span></p>
-<p>Isso implica que <span class="math inline">\(\mathbb{E}[X \mid Y]\)</span> pode ser usado como estimador para <span class="math inline">\(\theta\)</span>, e ele tem uma variância menor ou igual à de <span class="math inline">\(X\)</span>.</p>
-<p>Na prática, o algoritmo funciona da seguinte forma:</p>
-<ol type="1">
-<li>Gere <span class="math inline">\(Y_1,\ldots,Y_n\)</span></li>
-<li>Calcule <span class="math inline">\(g(Y_i)=E[X_i|Y_i]\)</span></li>
-<li>Retorne <span class="math inline">\(\frac{1}{n} \sum_{i=1}^n g(Y_i)\)</span></li>
-</ol>
-<hr>
+<p>Isso implica que <span class="math display">\[\mathbb{V}\left[\frac{1}{n} \sum_{i=1}^n g(Y_i)\right]\leq \mathbb{V}\left[\frac{1}{n} \sum_{i=1}^n X_i \right],\]</span> ou sejam este estimador tem uma variância menor ou igual à do método de Monte Carlo sem condicionamento.</p>
 </section>
 <section id="exemplo-1-estimando-pi" class="level3" data-number="12.3.2">
 <h3 data-number="12.3.2" class="anchored" data-anchor-id="exemplo-1-estimando-pi"><span class="header-section-number">12.3.2</span> Exemplo 1: Estimando <span class="math inline">\(\pi\)</span></h3>
-<p>Voltando à estimativa de <span class="math inline">\(\pi\)</span>, considere o seguinte pseudo-algoritmo:</p>
+<p>Considere o seguinte pseudo-algoritmo para estimar <span class="math inline">\(\pi\)</span>, visto no capítulo de Monte Carlo:</p>
 <ol type="1">
 <li><p>No passo <span class="math inline">\(i\)</span>, para <span class="math inline">\(1 \leq i \leq n\)</span>:</p>
 <ul>
@@ -668,19 +647,13 @@ Z_i =
 \hat{\pi}_n = 4\hat{\theta}_n.
 \]</span></p></li>
 </ol>
-<p>Sabemos que <span class="math inline">\(\mathbb{E}[Z_i] = \pi / 4\)</span>. Vamos agora usar <span class="math inline">\(\mathbb{E}[Z_i \mid X]\)</span> para reduzir a variância.</p>
-<p>A probabilidade condicional é dada por:</p>
-<p><span class="math display">\[
+<p>Vamos agora usar <span class="math inline">\(\mathbb{E}[Z_i \mid X]\)</span> para reduzir a variância. Esta esperança condicional é dada por <span class="math display">\[
 \mathbb{E}[Z_i \mid X = x] = \mathbb{P}(X^2 + Y^2 \leq 1 \mid X = x).
-\]</span></p>
-<p>Como <span class="math inline">\(Y^2 \leq 1 - x^2\)</span>, obtemos:</p>
-<p><span class="math display">\[
+\]</span> Como <span class="math inline">\(Y^2 \leq 1 - x^2\)</span>, obtemos <span class="math display">\[
 \mathbb{E}[Z_i \mid X = x] = \int_{-\sqrt{1-x^2}}^{\sqrt{1-x^2}} \frac{1}{2} \, dy = \sqrt{1 - x^2}.
-\]</span></p>
-<p>Logo:</p>
-<p><span class="math display">\[
-\mathbb{E}[\mathbb{E}[Z_i \mid X]] = \mathbb{E}[\sqrt{1 - X^2}] = \pi / 4.
-\]</span></p>
+\]</span> Assim, o estimador de Monte Carlo com condicionamento em <span class="math inline">\(x\)</span> é dado por <span class="math display">\[
+   4 \cdot\frac{1}{n} \sum_{i=1}^n  \sqrt{1 - X_i^2}.
+   \]</span></p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Python</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -772,32 +745,24 @@ Z_i =
 </div>
 </div>
 </div>
-<hr>
 </section>
 <section id="exemplo-2-estimando-mathbbpx-1-com-condicionamento" class="level3" data-number="12.3.3">
 <h3 data-number="12.3.3" class="anchored" data-anchor-id="exemplo-2-estimando-mathbbpx-1-com-condicionamento"><span class="header-section-number">12.3.3</span> Exemplo 2: Estimando <span class="math inline">\(\mathbb{P}(X &gt; 1)\)</span> com Condicionamento</h3>
 <p>Seja <span class="math inline">\(Y \sim \text{Exp}(1)\)</span> e suponha que <span class="math inline">\(X \mid Y = y \sim \mathcal{N}(y, 4)\)</span>. Desejamos estimar <span class="math inline">\(\mathbb{P}(X &gt; 1)\)</span>.</p>
-<p>Definimos a variável:</p>
-<p><span class="math display">\[
+<p>Para isso, definimos a variável: <span class="math display">\[
 Z_i =
 \begin{cases}
   1, &amp; \text{se } X_i &gt; 1, \\
   0, &amp; \text{caso contrário}.
 \end{cases}
 \]</span></p>
-<p>Assim, temos <span class="math inline">\(\mathbb{E}[\bar{Z}] = \mathbb{P}(X &gt; 1)\)</span> e <span class="math inline">\(\mathbb{E}[\mathbb{E}[Z_i \mid Y]] = \mathbb{P}(X &gt; 1)\)</span>.</p>
-<p>A probabilidade condicional é:</p>
-<p><span class="math display">\[
+<p>Por construção, <span class="math inline">\(\mathbb{E}[\mathbb{E}[Z_i \mid Y]] = \mathbb{P}(X &gt; 1)\)</span>. Assim, é natural fazer um estimador Monte Carlo com condicionamento em <span class="math inline">\(X\)</span>. Para isso, vamos calcular a probabilidade condicional <span class="math display">\[
 \mathbb{E}[Z_i \mid Y = y] = \mathbb{P}(X_i &gt; 1 \mid Y = y).
-\]</span></p>
-<p>Sabendo que <span class="math inline">\(X \mid Y = y \sim \mathcal{N}(y, 4)\)</span>, temos:</p>
-<p><span class="math display">\[
+\]</span> Como <span class="math inline">\(X \mid Y = y \sim \mathcal{N}(y, 4)\)</span>, <span class="math display">\[
 \mathbb{P}(X_i &gt; 1 \mid Y = y) = \mathbb{P}\left(\frac{X_i - y}{2} &gt; \frac{1 - y}{2} \mid Y = y\right).
-\]</span></p>
-<p>Usando a função de distribuição normal padrão <span class="math inline">\(\Phi\)</span>, obtemos:</p>
-<p><span class="math display">\[
+\]</span> Usando a função de distribuição normal padrão <span class="math inline">\(\Phi\)</span>, obtemos <span class="math display">\[
 \mathbb{E}[Z_i \mid Y = y] = 1 - \Phi\left(\frac{1 - y}{2}\right).
-\]</span></p>
+\]</span> Assim, o estimador é dado por <span class="math display">\[\frac{1}{n}1 - \Phi\left(\frac{1 - Y_i}{2}\right),\]</span> em que <span class="math inline">\(Y_i \sim Exp(1).\)</span></p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">Python</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -895,7 +860,7 @@ Z_i =
 </section>
 <section id="exercícios" class="level2" data-number="12.4">
 <h2 data-number="12.4" class="anchored" data-anchor-id="exercícios"><span class="header-section-number">12.4</span> Exercícios</h2>
-<p><strong>Exercício 1</strong>. Implemente a técnica das variáveis antitéticas para estimar <span class="math inline">\(E[\sin(X)]\)</span> onde <span class="math inline">\(X \sim U(0, \pi)\)</span>. Compare a variância do estimador com o estimador usual.</p>
+<p><strong>Exercício 1</strong>. Implemente a técnica das variáveis antitéticas para estimar <span class="math inline">\(E[X^2]\)</span> onde <span class="math inline">\(X \sim U(0, \pi)\)</span>. Compare a variância do estimador com o estimador usual.</p>
 <p><strong>Exercício 2</strong>. Considere a integral:</p>
 <p><span class="math display">\[
 \theta = \int_{0}^{\pi/4} \int_{0}^{\pi/4} x^2 y^2 \sin(x + y) \log(x + y) \, dx \, dy.
@@ -912,6 +877,37 @@ Z_i =
 <li>Aproxime o valor de <span class="math inline">\(\mathbb{P}(X &gt; 1)\)</span> usando o método do condicionamento.<br>
 </li>
 <li>Proponha uma melhoria no método do condicionamento utilizando variáveis antitéticas. Compare as variâncias dos estimadores obtidos nos dois métodos.</li>
+</ol>
+<p><strong>Exercício 4</strong>. Seja <span class="math inline">\(X\mid B\sim N(\mu_B,1)\)</span> com <span class="math inline">\(B\sim\text{Bern}(p)\)</span> e <span class="math inline">\(\mu_1=2\)</span>, <span class="math inline">\(\mu_0=-1\)</span>. Estime <span class="math inline">\(\theta=\mathbb P(X&gt;1)\)</span>.</p>
+<ol type="a">
+<li>MC direto.</li>
+<li>Condicionamento em <span class="math inline">\(B\)</span>.</li>
+<li>Explore o ganho variando <span class="math inline">\(p\in{0.1,0.5,0.9}\)</span>.</li>
+<li>Compare também com antitética usando pares <span class="math inline">\((B,1-B)\)</span> de probabilidade pareada (quando possível).</li>
+</ol>
+<p><strong>Exercício 5</strong> Seja <span class="math inline">\(U\sim \mathrm{Unif}(0,1)\)</span> e <span class="math inline">\(\theta=\mathbb E[U^p]\)</span> com <span class="math inline">\(p\in\{1,2,3,4\}\)</span>.</p>
+<ol type="a">
+<li>Calcule <span class="math inline">\(\theta\)</span> analiticamente.</li>
+<li>Mostre que <span class="math inline">\(\hat\theta_A=\tfrac1{2n}\sum_{i=1}^n\big(U_i^p+(1-U_i)^p\big)\)</span> é não viesado.</li>
+<li>Derive <span class="math inline">\(\mathrm{Var}(\hat\theta)\)</span> e <span class="math inline">\(\mathrm{Var}(\hat\theta_A)\)</span> usando <span class="math inline">\(\mathbb E[U^{2p}]\)</span> e <span class="math inline">\(\mathbb E[U^p(1-U)^p]\)</span> (dica: Beta).</li>
+<li>Compare variâncias teóricas e empíricas.</li>
+</ol>
+<p><strong>Exercício 6</strong> Seja <span class="math inline">\(U\sim\mathrm{Unif}(0,1)\)</span>.</p>
+<ol type="a">
+<li>Estime <span class="math inline">\(\mathbb E[\sin(\pi U)]\)</span> por Monte Carlo simples e por antitética <span class="math inline">\((U,1-U)\)</span>.</li>
+<li>Compare fatores de eficiência. Usar variáveis antitéticas ajudou?</li>
+</ol>
+<p><strong>Exercício 7</strong> Seja <span class="math inline">\(X=-\log U\)</span> e <span class="math inline">\(Y=-\log(1-U)\)</span> com <span class="math inline">\(U\sim\mathrm{Unif}(0,1)\)</span>.</p>
+<ol type="a">
+<li>Mostre que <span class="math inline">\(X,Y\stackrel{d}{=}\mathrm{Exp}(1)\)</span>.</li>
+<li>Argumente que <span class="math inline">\(h(u)=-\log u\)</span> é monótona e conclua o sinal de <span class="math inline">\(\mathrm{Corr}(X,Y)\)</span>.</li>
+<li>Estime <span class="math inline">\(\mathbb E[\min(X,Y)]\)</span> por Monte Carlo e antitética; compare variâncias.</li>
+</ol>
+<p><strong>Exercício 8</strong> Seja <span class="math inline">\(X=Y+\varepsilon\)</span> com <span class="math inline">\(Y\sim\mathrm{Unif}(0,1)\)</span> e <span class="math inline">\(\varepsilon\sim N(0,\sigma^2)\)</span> independentes.</p>
+<ol type="a">
+<li>Calcule <span class="math inline">\(\mathrm{Var}(X)\)</span>, <span class="math inline">\(\mathbb E[X\mid Y]=Y\)</span> e <span class="math inline">\(\mathrm{Var}(\mathbb E[X\mid Y])=\mathrm{Var}(Y)\)</span>.</li>
+<li>Verifique empiricamente que <span class="math inline">\(\mathrm{Var}(X)=\mathbb E[\mathrm{Var}(X\mid Y)]+\mathrm{Var}(\mathbb E[X\mid Y])=\sigma^2+\tfrac{1}{12}\)</span>.</li>
+<li>Explique como isso justifica a redução de variância por condicionamento.</li>
 </ol>
 
 
