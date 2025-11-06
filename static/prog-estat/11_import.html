@@ -285,8 +285,9 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#exemplo-1-estimativa-de-mathbbpz-4.5" id="toc-exemplo-1-estimativa-de-mathbbpz-4.5" class="nav-link active" data-scroll-target="#exemplo-1-estimativa-de-mathbbpz-4.5"><span class="header-section-number">13.1</span> Exemplo 1: Estimativa de <span class="math inline">\(\mathbb{P}(Z &gt; 4.5)\)</span></a></li>
   <li><a href="#amostragem-por-importância" id="toc-amostragem-por-importância" class="nav-link" data-scroll-target="#amostragem-por-importância"><span class="header-section-number">13.2</span> Amostragem por Importância</a></li>
-  <li><a href="#exemplo-2-estimativa-de-mathbbesqrtx-com-amostragem-por-importância" id="toc-exemplo-2-estimativa-de-mathbbesqrtx-com-amostragem-por-importância" class="nav-link" data-scroll-target="#exemplo-2-estimativa-de-mathbbesqrtx-com-amostragem-por-importância"><span class="header-section-number">13.3</span> Exemplo 2: Estimativa de <span class="math inline">\(\mathbb{E}[\sqrt{X}]\)</span> com Amostragem por Importância</a></li>
-  <li><a href="#exercícios" id="toc-exercícios" class="nav-link" data-scroll-target="#exercícios"><span class="header-section-number">13.4</span> Exercícios</a></li>
+  <li><a href="#revistando-o-exemplo-1-via-amostragem-por-importância" id="toc-revistando-o-exemplo-1-via-amostragem-por-importância" class="nav-link" data-scroll-target="#revistando-o-exemplo-1-via-amostragem-por-importância"><span class="header-section-number">13.3</span> Revistando o Exemplo 1 via Amostragem por Importância</a></li>
+  <li><a href="#exemplo-2-estimativa-de-mathbbesqrtx-com-amostragem-por-importância" id="toc-exemplo-2-estimativa-de-mathbbesqrtx-com-amostragem-por-importância" class="nav-link" data-scroll-target="#exemplo-2-estimativa-de-mathbbesqrtx-com-amostragem-por-importância"><span class="header-section-number">13.4</span> Exemplo 2: Estimativa de <span class="math inline">\(\mathbb{E}[\sqrt{X}]\)</span> com Amostragem por Importância</a></li>
+  <li><a href="#exercícios" id="toc-exercícios" class="nav-link" data-scroll-target="#exercícios"><span class="header-section-number">13.5</span> Exercícios</a></li>
   </ul>
 </nav>
     </div>
@@ -405,19 +406,28 @@ window.Quarto = {
 <p>A ideia chave é que, se <span class="math inline">\(X\)</span> tem densidade <span class="math inline">\(f(x)\)</span>, a esperança <span class="math inline">\(\mathbb{E}[h(X)]\)</span> pode ser reescrita como:</p>
 <p><span class="math display">\[
 \mathbb{E}[h(X)] = \int h(x) f(x) dx = \int h(x) \frac{f(x)}{g(x)} g(x) dx = \mathbb{E}\left[ h(Y) \frac{f(Y)}{g(Y)} \right],
-\]</span> em que <span class="math inline">\(Y\)</span> tem densidade <span class="math inline">\(g\)</span>. Isso vale desde que <span class="math inline">\(g\)</span> possua suporte tão ou mais amplo que a região de integração. Assim, podemos estimar <span class="math inline">\(\mathbb{E}[h(X)]\)</span> usando <span class="math inline">\(n\)</span> valores simulados de <span class="math inline">\(Y\)</span> independentemente pela fórmula:</p>
-<p><span class="math display">\[
-\hat\theta_n = \frac{1}{n}\sum_{i=1}^n \frac{f(y_i)}{g(y_i)} h(y_i)
-\]</span></p>
-<p>Note que os pesos <span class="math inline">\(w_i = \frac{f(y_i)}{g(y_i)}\)</span> ajustam a importância de cada amostra, tornando a simulação mais eficiente.</p>
-<section id="revistando-o-exemplo-1-via-amostragem-por-importância" class="level3" data-number="13.2.1">
-<h3 data-number="13.2.1" class="anchored" data-anchor-id="revistando-o-exemplo-1-via-amostragem-por-importância"><span class="header-section-number">13.2.1</span> Revistando o Exemplo 1 via Amostragem por Importância</h3>
+\]</span> em que <span class="math inline">\(Y\)</span> tem densidade <span class="math inline">\(g\)</span>. Isso vale desde que <span class="math inline">\(g\)</span> possua suporte tão ou mais amplo que a região de integração. Assim, podemos estimar <span class="math inline">\(\mathbb{E}[h(X)]\)</span> usando <span class="math inline">\(n\)</span> valores simulados de <span class="math inline">\(Y\)</span> independentemente pela fórmula: <span class="math display">\[
+\hat\theta_n = \frac{1}{n}\sum_{i=1}^n \frac{f(y_i)}{g(y_i)} h(y_i)=
+\frac{1}{n}\sum_{i=1}^n w(y_i) h(y_i),
+\]</span> onde os pesos <span class="math inline">\(w(y_i):=\frac{f(y_i)}{g(y_i)}\)</span> ajustam a importância de cada amostra, podendo tornar a simulação mais eficiente. De fato, a variância de <span class="math inline">\(\hat\theta_n\)</span> é <span class="math display">\[
+\mathrm{Var}(\hat\theta_n)
+=\frac{1}{n}\mathrm{Var}_g\left[h(Y)\frac{f(Y)}{g(Y)}\right]
+=\frac{1}{n}\left\{\int h(x)^2\frac{f(x)^2}{g(x)}dx-\theta^2\right\}=
+\frac{1}{n}\left\{\int h(x)^2\frac{f(x)^2}{g(x)}dx-\theta^2\right\},
+\]</span> que pode ser menor que a variância do estimador Monte Carlo usual: <span class="math display">\[
+\widetilde\theta_n=\frac1n\sum_{i=1}^n h(X_i)\quad (X_i\stackrel{iid}{\sim} f),
+\qquad
+\mathrm{Var}(\widetilde\theta_n)=\frac{1}{n}\mathrm{Var}_f[h(X)]=\frac{1}{n}\left\{\int h(x)^2f(x)dx-\theta^2\right\},
+\]</span> especialmente quando <span class="math inline">\(g\)</span> concentra probabilidade nas regiões onde <span class="math inline">\(|h(x)|f(x)\)</span> é grande. Assim, quando possível, devemos escolher <span class="math inline">\(g\)</span> com maior massa nas regiões que mais contribuem para a integral—isto é, onde <span class="math inline">\(|h(x)|f(x)\)</span> é grande. Assim, reduzimos <span class="math inline">\(\int h(x)^2\frac{f(x)^2}{g(x)}dx\)</span>.</p>
+</section>
+<section id="revistando-o-exemplo-1-via-amostragem-por-importância" class="level2" data-number="13.3">
+<h2 data-number="13.3" class="anchored" data-anchor-id="revistando-o-exemplo-1-via-amostragem-por-importância"><span class="header-section-number">13.3</span> Revistando o Exemplo 1 via Amostragem por Importância</h2>
 <p>Para melhorar a eficiência no Exemplo 1, vamos agora usar <strong>Amostragem por Importância</strong>. Em vez de simular diretamente de <span class="math inline">\(Z \sim N(0,1)\)</span>, simulamos de uma distribuição exponencial truncada <span class="math inline">\(Exp(1)\)</span> a partir de 4.5. A densidade de importância é: <span class="math display">\[
 g(y) = e^{-(y - 4.5)}, \quad y &gt; 4.5
 \]</span></p>
 <p>O estimador de Monte Carlo ponderado é, portanto, <span class="math display">\[
 \hat{\theta}_n = \frac{1}{n} \sum_{i=1}^n \frac{f(y_i)}{g(y_i)}I(y_i&gt;4.5)=\frac{1}{n} \sum_{i=1}^n \frac{f(y_i)}{g(y_i)},
-\]</span> onde <span class="math inline">\(f(y_i)\)</span> é a densidade da normal <span class="math inline">\(N(0,1)\)</span>. Aqui está o código equivalente em Python no formato solicitado:</p>
+\]</span> onde <span class="math inline">\(f(y_i)\)</span> é a densidade da normal <span class="math inline">\(N(0,1)\)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">Python</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -463,7 +473,7 @@ g(y) = e^{-(y - 4.5)}, \quad y &gt; 4.5
 <span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Estimativa por amostragem por importância: </span><span class="sc">{</span>estimativa_importancia<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa por amostragem por importância: 3.6810132064718256e-06</code></pre>
+<pre><code>Estimativa por amostragem por importância: 3.4849152097977753e-06</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
@@ -472,7 +482,7 @@ g(y) = e^{-(y - 4.5)}, \quad y &gt; 4.5
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Logaritmo da estimativa por amostragem por importância: </span><span class="sc">{</span>log_estimativa_importancia<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Logaritmo da estimativa por amostragem por importância: -12.512322515833585</code></pre>
+<pre><code>Logaritmo da estimativa por amostragem por importância: -12.567066844091448</code></pre>
 </div>
 </div>
 </div>
@@ -480,13 +490,47 @@ g(y) = e^{-(y - 4.5)}, \quad y &gt; 4.5
 </div>
 <p>Com essa técnica, concentramos as simulações na região relevante, melhorando a eficiência da estimativa para eventos raros.</p>
 </section>
-</section>
-<section id="exemplo-2-estimativa-de-mathbbesqrtx-com-amostragem-por-importância" class="level2" data-number="13.3">
-<h2 data-number="13.3" class="anchored" data-anchor-id="exemplo-2-estimativa-de-mathbbesqrtx-com-amostragem-por-importância"><span class="header-section-number">13.3</span> Exemplo 2: Estimativa de <span class="math inline">\(\mathbb{E}[\sqrt{X}]\)</span> com Amostragem por Importância</h2>
-<p>Agora, vamos estimar <span class="math inline">\(\theta = \mathbb{E}[\sqrt{X}]\)</span> onde <span class="math inline">\(X \sim Exp(1)\)</span>. Sabemos que o valor exato desta integral é <span class="math inline">\(\sqrt{\pi}/2\)</span>.</p>
-<section id="aproximação-via-monte-carlo" class="level3" data-number="13.3.1">
-<h3 data-number="13.3.1" class="anchored" data-anchor-id="aproximação-via-monte-carlo"><span class="header-section-number">13.3.1</span> Aproximação via Monte Carlo</h3>
-<p>Vamos simular <span class="math inline">\(X \sim Exp(1)\)</span> e calcular a média de <span class="math inline">\(\sqrt{X}\)</span> diretamente:</p>
+<section id="exemplo-2-estimativa-de-mathbbesqrtx-com-amostragem-por-importância" class="level2" data-number="13.4">
+<h2 data-number="13.4" class="anchored" data-anchor-id="exemplo-2-estimativa-de-mathbbesqrtx-com-amostragem-por-importância"><span class="header-section-number">13.4</span> Exemplo 2: Estimativa de <span class="math inline">\(\mathbb{E}[\sqrt{X}]\)</span> com Amostragem por Importância</h2>
+<p>Queremos estimar <span class="math display">\[
+\theta=\mathbb{E}[\sqrt{X}],\quad X\sim \mathrm{Exp}(1).
+\]</span> Está equivale à seguinte integral: <span class="math display">\[
+\theta=\int_0^\infty \sqrt{x}e^{-x}dx
+=\Gamma \Big(\tfrac32\Big)=\frac{\sqrt{\pi}}{2}.
+\]</span> Para comparação, a variância do <strong>MC direto</strong> (amostrar <span class="math inline">\(X\sim\mathrm{Exp}(1)\)</span> e tirar a média de <span class="math inline">\(\sqrt{X}\)</span>) é <span class="math display">\[
+\mathrm{Var}(\sqrt{X})=\mathbb{E}[X]-\theta^2=1-\frac{\pi}{4},
+\qquad
+\Rightarrow\quad
+\mathrm{Var}(\hat\theta_{\text{MC}})=\frac{1}{n}\left( 1-\frac{\pi}{4} \right).
+\]</span></p>
+<p>Para implementar a amostragel por importância, escolhemos a proposta <span class="math inline">\(g_\lambda(x)=\lambda e^{-\lambda x}\mathbf{1}{x\ge 0}\)</span> para algum <span class="math inline">\(0&lt;\lambda&lt;2\)</span> fixo. Com essa proposta, a amostragem por importância fara a média de termos do tipo <span class="math display">\[
+A_\lambda(x)=\frac{h(x)f(x)}{g_\lambda(x)}
+=\frac{\sqrt{x}e^{-x}}{\lambda e^{-\lambda x}}
+=\frac{1}{\lambda}\sqrt{x}e^{-(1-\lambda)x}.
+\]</span> O estimador por importância é, portanto, <span class="math display">\[
+\hat\theta_{\text{IS}}=\frac1n\sum_{i=1}^n A_\lambda(X_i),\qquad X_i\stackrel{iid}{\sim}\mathrm{Exp}(\lambda).
+\]</span></p>
+<p>Iremos agora otimizar <span class="math inline">\(\lambda\)</span>, isto é, escolher <span class="math inline">\(\lambda\)</span> que retorna a menor variância. Para isso, vamos calcular o segundo momento sob <span class="math inline">\(g_\lambda\)</span> de <span class="math inline">\(A_\lambda(X)\)</span>: <span class="math display">\[
+\mathbb{E}_{g_\lambda}[A_\lambda(X)^2]
+=\frac{1}{\lambda}\int_0^\infty x e^{-(2-\lambda)x}dx
+=\frac{1}{\lambda(2-\lambda)^2}.
+\]</span> Logo, <span class="math display">\[
+\mathrm{Var}(\hat\theta_{\text{IS}})
+=\frac{1}{n}\Big(\frac{1}{\lambda(2-\lambda)^2}-\theta^2\Big).
+\]</span> Minimizando <span class="math inline">\(1/[\lambda(2-\lambda)^2]\)</span> em <span class="math inline">\(0&lt;\lambda&lt;2\)</span>, obtemos a <strong>melhor</strong> taxa na família: <span class="math display">\[
+\lambda^\star=\tfrac{2}{3}.
+\]</span> Para esta escolha, <span class="math display">\[
+\mathrm{Var}(\hat\theta_{\text{IS},,\lambda^\star})
+=\frac{1}{n}\Big(0{,}84375-\frac{\pi}{4}\Big).
+\]</span> um ganho de aproximadamente <span class="math inline">\(0{,}2146/0{,}05835\approx 3{,}68\)</span> vezes em relação ao MC direto.</p>
+<p>Finalmente, o estimador por amostragem por importância consiste em:</p>
+<ol type="1">
+<li>Escolha <span class="math inline">\(\lambda\)</span> (use <span class="math inline">\(\lambda=2/3\)</span> para ficar próximo do ótimo).</li>
+<li>Gere <span class="math inline">\(X_1,\dots,X_n\stackrel{iid}{\sim}\mathrm{Exp}(\lambda)\)</span>.</li>
+<li>Calcule <span class="math inline">\(A_i=\dfrac{\sqrt{X_i}e^{-X_i}}{\lambda e^{-\lambda X_i}}\)</span>.</li>
+<li>Estime <span class="math inline">\(\hat\theta=\dfrac1n\sum_{i=1}^n A_i\)</span>.</li>
+<li><strong>Erro-padrão</strong>: <span class="math inline">\(\widehat{\mathrm{SE}}=\sqrt{\widehat{\mathrm{Var}}(A)/n}\)</span>, onde <span class="math inline">\(\widehat{\mathrm{Var}}(A)\)</span> é a variância amostral dos <span class="math inline">\(A_i\)</span>.</li>
+</ol>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Python</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -494,36 +538,41 @@ g(y) = e^{-(y - 4.5)}, \quad y &gt; 4.5
 <div class="cell">
 <details class="code-fold">
 <summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Valor exato da integral</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>real <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(pi) <span class="sc">/</span> <span class="dv">2</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Valor exato:"</span>, real, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>theta_true <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(pi)<span class="sc">/</span><span class="dv">2</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>is_exp <span class="ot">&lt;-</span> <span class="cf">function</span>(n, lambda) {</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  x  <span class="ot">&lt;-</span> <span class="fu">rexp</span>(n, <span class="at">rate =</span> lambda)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  A  <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(x) <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>x) <span class="sc">/</span> (lambda <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda <span class="sc">*</span> x))</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  th <span class="ot">&lt;-</span> <span class="fu">mean</span>(A)</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  se <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">var</span>(A) <span class="sc">/</span> n)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">theta =</span> th, <span class="at">se =</span> se)</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparando lambdas: 1 (referência) vs 2/3 (ótimo)</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>out_1   <span class="ot">&lt;-</span> <span class="fu">is_exp</span>(n, <span class="at">lambda =</span> <span class="dv">1</span>)</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>out_opt <span class="ot">&lt;-</span> <span class="fu">is_exp</span>(n, <span class="at">lambda =</span> <span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>)</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Valor exato           : %.6f</span><span class="sc">\n</span><span class="st">"</span>, theta_true))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Valor exato: 0.8862269 </code></pre>
+<pre><code>Valor exato           : 0.886227</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Número de amostras</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Geração de amostras da distribuição exponencial</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rexp</span>(n, <span class="dv">1</span>)</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimativa Monte Carlo para E[sqrt(X)]</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>estimativa_mc <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">sqrt</span>(x))</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Estimativa Monte Carlo de E[sqrt(X)]:"</span>, estimativa_mc, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"IS Exp(1):    theta=%.6f  SE≈%.5f</span><span class="sc">\n</span><span class="st">"</span>, out_1<span class="sc">$</span>theta,   out_1<span class="sc">$</span>se))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa Monte Carlo de E[sqrt(X)]: 0.8842487 </code></pre>
+<pre><code>IS Exp(1):    theta=0.906481  SE≈0.01448</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Variância da estimativa</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>variancia_mc <span class="ot">&lt;-</span> <span class="fu">var</span>(<span class="fu">sqrt</span>(x))</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Variância da estimativa:"</span>, variancia_mc, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"IS Exp(2/3):  theta=%.6f  SE≈%.5f</span><span class="sc">\n</span><span class="st">"</span>, out_opt<span class="sc">$</span>theta, out_opt<span class="sc">$</span>se))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Variância da estimativa: 0.2075346 </code></pre>
+<pre><code>IS Exp(2/3):  theta=0.882012  SE≈0.00763</code></pre>
 </div>
 </div>
 </div>
@@ -532,376 +581,56 @@ g(y) = e^{-(y - 4.5)}, \quad y &gt; 4.5
 <details class="code-fold">
 <summary>Mostrar código</summary>
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> expon</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Valor exato da integral</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>real <span class="op">=</span> np.sqrt(np.pi) <span class="op">/</span> <span class="dv">2</span></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Valor exato: </span><span class="sc">{</span>real<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">1</span>)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>theta_true <span class="op">=</span> np.sqrt(np.pi)<span class="op">/</span><span class="dv">2</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> is_exp(n, lam, rng):</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> rng.exponential(scale<span class="op">=</span><span class="dv">1</span><span class="op">/</span>lam, size<span class="op">=</span>n)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> (np.sqrt(x) <span class="op">*</span> np.exp(<span class="op">-</span>x)) <span class="op">/</span> (lam <span class="op">*</span> np.exp(<span class="op">-</span>lam<span class="op">*</span>x))</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    theta <span class="op">=</span> np.mean(A)</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    se <span class="op">=</span> np.sqrt(np.var(A, ddof<span class="op">=</span><span class="dv">1</span>)<span class="op">/</span>n)</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"theta"</span>: theta, <span class="st">"se"</span>: se}</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>out_1   <span class="op">=</span> is_exp(n, <span class="fl">1.0</span>, rng)</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>out_opt <span class="op">=</span> is_exp(n, <span class="dv">2</span><span class="op">/</span><span class="dv">3</span>, rng)</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Valor exato          : </span><span class="sc">{</span>theta_true<span class="sc">:.6f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Valor exato: 0.8862269254527579</code></pre>
+<pre><code>Valor exato          : 0.886227</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Número de amostras</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">10000</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Geração de amostras da distribuição exponencial</span></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> expon.rvs(scale<span class="op">=</span><span class="dv">1</span>, size<span class="op">=</span>n)</span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimativa Monte Carlo para E[sqrt(X)]</span></span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>estimativa_mc <span class="op">=</span> np.mean(np.sqrt(x))</span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Estimativa Monte Carlo de E[sqrt(X)]: </span><span class="sc">{</span>estimativa_mc<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"IS Exp(1):   theta=</span><span class="sc">{</span>out_1[<span class="st">'theta'</span>]<span class="sc">:.6f}</span><span class="ss">  SE≈</span><span class="sc">{</span>out_1[<span class="st">'se'</span>]<span class="sc">:.5f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa Monte Carlo de E[sqrt(X)]: 0.8966439524229932</code></pre>
+<pre><code>IS Exp(1):   theta=0.888850  SE≈0.01478</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Variância da estimativa</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>variancia_mc <span class="op">=</span> np.var(np.sqrt(x), ddof<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Variância da estimativa: </span><span class="sc">{</span>variancia_mc<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"IS Exp(2/3): theta=</span><span class="sc">{</span>out_opt[<span class="st">'theta'</span>]<span class="sc">:.6f}</span><span class="ss">  SE≈</span><span class="sc">{</span>out_opt[<span class="st">'se'</span>]<span class="sc">:.5f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Variância da estimativa: 0.22016316118999554</code></pre>
+<pre><code>IS Exp(2/3): theta=0.891175  SE≈0.00773</code></pre>
 </div>
 </div>
 </div>
 </div>
 </div>
 </section>
-<section id="aproximação-via-amostragem-por-importância" class="level3" data-number="13.3.2">
-<h3 data-number="13.3.2" class="anchored" data-anchor-id="aproximação-via-amostragem-por-importância"><span class="header-section-number">13.3.2</span> Aproximação via Amostragem por Importância</h3>
-<p>Agora, vamos usar a <strong>Amostragem por Importância</strong> com duas distribuições diferentes para melhorar a eficiência.</p>
-<ol type="1">
-<li><strong>Usando <span class="math inline">\(Y = |Z|\)</span>, onde <span class="math inline">\(Z \sim N(0,1)\)</span></strong>:</li>
+<section id="exercícios" class="level2" data-number="13.5">
+<h2 data-number="13.5" class="anchored" data-anchor-id="exercícios"><span class="header-section-number">13.5</span> Exercícios</h2>
+<p><span style="color:#2C92B2;"><strong>Exercício 1</strong></span>. Usando a Amostragem por Importância (AI), estime a probabilidade de que uma variável aleatória <span class="math inline">\(Z \sim N(0,1)\)</span> seja maior que 5.0. Compare os resultados obtidos com a amostragem direta usando Monte Carlo simples e discuta a eficiência da Amostragem por Importância em relação ao método direto.</p>
+<p><span style="color:#2C92B2;"><strong>Exercício 2</strong></span>. Estime o valor da integral <span class="math inline">\(\int_0^2 \sqrt{x} e^{-x} dx\)</span> utilizando a AIcom duas distribuições de importância diferentes. Justifique a escolha das distribuições e compare a eficiência de cada uma.</p>
+<p><span style="color:#2C92B2;"><strong>Exercício 3</strong></span>. Utilize a AI para estimar <span class="math inline">\(\mathbb{E}[\log(1 + X)]\)</span>, onde <span class="math inline">\(X \sim Exp(1)\)</span>. Escolha uma densidade auxiliar apropriada para melhorar a eficiência da estimativa e justifique sua escolha. Compare os resultados com a aproximação via Monte Carlo simples.</p>
+<p><span style="color:#2C92B2;"><strong>Exercício 4</strong></span> Estime <span class="math inline">\(\mathbb{P}(Z&gt;6)\)</span> com <span class="math inline">\(Z\sim\mathcal N(0,1)\)</span> usando AI com proposta <span class="math inline">\(g_\mu=\mathcal N(\mu,1)\)</span>.</p>
+<ol type="a">
+<li><p>Mostre que o estimador é <span class="math inline">\(\hat p=\frac1n\sum I(Y_i&gt;6)\frac{\phi(Y_i)}{\phi(Y_i-\mu)}\)</span>, <span class="math inline">\(Y_i\sim\mathcal N(\mu,1)\)</span>.</p></li>
+<li><p>Encontre o melhor <span class="math inline">\(\mu\)</span>.</p></li>
+<li><p>Compare MC ingênuo, AI com alguns valores diferentes de <span class="math inline">\(\mu\)</span> (do seu exemplo) e AI com <span class="math inline">\(\mu^\star\)</span> em termos de erro-padrão</p></li>
 </ol>
-<p>A densidade de importância combinada é: <span class="math display">\[
-g(y) = dnorm(y) + dnorm(-y)
-\]</span></p>
-<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">Python</a></li></ul>
-<div class="tab-content" data-group="language">
-<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
-<div class="cell">
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Gerando amostras de uma distribuição normal absoluta</span></span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">rnorm</span>(n))</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Função de densidade combinada g(x)</span></span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">dnorm</span>(x) <span class="sc">+</span> <span class="fu">dnorm</span>(<span class="sc">-</span>x))</span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimativa por amostragem por importância</span></span>
-<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>estimativa_importancia <span class="ot">&lt;-</span> <span class="fu">mean</span>((<span class="fu">sqrt</span>(z)) <span class="sc">*</span> <span class="fu">dexp</span>(z, <span class="dv">1</span>) <span class="sc">/</span> <span class="fu">g</span>(z))</span>
-<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Estimativa por amostragem por importância:"</span>, estimativa_importancia, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Estimativa por amostragem por importância: 1.038467 </code></pre>
-</div>
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Variância da estimativa por amostragem por importância</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>variancia_importancia <span class="ot">&lt;-</span> <span class="fu">var</span>((<span class="fu">sqrt</span>(z)) <span class="sc">*</span> <span class="fu">dexp</span>(z, <span class="dv">1</span>) <span class="sc">/</span> <span class="fu">g</span>(z))</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Variância da estimativa por amostragem por importância:"</span>, variancia_importancia, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Variância da estimativa por amostragem por importância: 367.4869 </code></pre>
-</div>
-</div>
-</div>
-<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
-<div class="cell">
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> norm, expon</span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Definir o tamanho da amostra</span></span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">10000</span>  <span class="co"># Altere conforme necessário</span></span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Gerando amostras de uma distribuição normal absoluta</span></span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> np.<span class="bu">abs</span>(np.random.normal(size<span class="op">=</span>n))</span>
-<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Função de densidade combinada g(x)</span></span>
-<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> g(x):</span>
-<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> norm.pdf(x) <span class="op">+</span> norm.pdf(<span class="op">-</span>x)</span>
-<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimativa por amostragem por importância</span></span>
-<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>estimativa_importancia <span class="op">=</span> np.mean((np.sqrt(z)) <span class="op">*</span> expon.pdf(z, scale<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> g(z))</span>
-<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Estimativa por amostragem por importância:"</span>, estimativa_importancia)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Estimativa por amostragem por importância: 0.9532794041894005</code></pre>
-</div>
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Variância da estimativa por amostragem por importância</span></span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>variancia_importancia <span class="op">=</span> np.var((np.sqrt(z)) <span class="op">*</span> expon.pdf(z, scale<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> g(z))</span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Variância da estimativa por amostragem por importância:"</span>, variancia_importancia)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Variância da estimativa por amostragem por importância: 79.11857927326784</code></pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<ol start="2" type="1">
-<li><strong>Usando <span class="math inline">\(Y = |Z|\)</span>, onde <span class="math inline">\(Z \sim Cauchy(0,1)\)</span></strong>:</li>
-</ol>
-<p>A densidade de importância combinada agora é: <span class="math display">\[
-g2(y) = dcauchy(y) + dcauchy(-y)
-\]</span></p>
-<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false">Python</a></li></ul>
-<div class="tab-content" data-group="language">
-<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
-<div class="cell">
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Gerando amostras de uma distribuição Cauchy absoluta</span></span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">rcauchy</span>(n))</span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Função de densidade combinada g2(x) para a Cauchy</span></span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>g2 <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">dcauchy</span>(x) <span class="sc">+</span> <span class="fu">dcauchy</span>(<span class="sc">-</span>x))</span>
-<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimativa por amostragem por importância usando Cauchy</span></span>
-<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>estimativa_importancia_cauchy <span class="ot">&lt;-</span> <span class="fu">mean</span>((<span class="fu">sqrt</span>(z)) <span class="sc">*</span> <span class="fu">dexp</span>(z, <span class="dv">1</span>) <span class="sc">/</span> <span class="fu">g2</span>(z))</span>
-<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Estimativa por amostragem por importância (Cauchy):"</span>, estimativa_importancia_cauchy, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Estimativa por amostragem por importância (Cauchy): 0.885894 </code></pre>
-</div>
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Variância da estimativa por amostragem por importância usando Cauchy</span></span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>variancia_importancia_cauchy <span class="ot">&lt;-</span> <span class="fu">var</span>((<span class="fu">sqrt</span>(z)) <span class="sc">*</span> <span class="fu">dexp</span>(z, <span class="dv">1</span>) <span class="sc">/</span> <span class="fu">g2</span>(z))</span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Variância da estimativa por amostragem por importância (Cauchy):"</span>, variancia_importancia_cauchy, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Variância da estimativa por amostragem por importância (Cauchy): 0.1985572 </code></pre>
-</div>
-</div>
-</div>
-<div id="tabset-5-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-2-tab">
-<div class="cell">
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> cauchy, expon</span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Gerando amostras de uma distribuição Cauchy absoluta</span></span>
-<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> np.<span class="bu">abs</span>(cauchy.rvs(size<span class="op">=</span>n))</span>
-<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Função de densidade combinada g2(x) para a Cauchy</span></span>
-<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> g2(x):</span>
-<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cauchy.pdf(x) <span class="op">+</span> cauchy.pdf(<span class="op">-</span>x)</span>
-<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimativa por amostragem por importância usando Cauchy</span></span>
-<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a>estimativa_importancia_cauchy <span class="op">=</span> np.mean(np.sqrt(z) <span class="op">*</span> expon.pdf(z, scale<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> g2(z))</span>
-<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Estimativa por amostragem por importância (Cauchy): </span><span class="sc">{</span>estimativa_importancia_cauchy<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Estimativa por amostragem por importância (Cauchy): 0.8792140142466826</code></pre>
-</div>
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Variância da estimativa por amostragem por importância usando Cauchy</span></span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>variancia_importancia_cauchy <span class="op">=</span> np.var(np.sqrt(z) <span class="op">*</span> expon.pdf(z, scale<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> g2(z), ddof<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Variância da estimativa por amostragem por importância (Cauchy): </span><span class="sc">{</span>variancia_importancia_cauchy<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Variância da estimativa por amostragem por importância (Cauchy): 0.19494331115371924</code></pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<p>Podemos visualizar as funções de densidade <span class="math inline">\(h(x) f(x)\)</span> e as funções de importância <span class="math inline">\(g(x)\)</span> e <span class="math inline">\(g2(x)\)</span> para entender melhor a escolha das distribuições de importância.</p>
-<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-6-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-1" role="tab" aria-controls="tabset-6-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-2" role="tab" aria-controls="tabset-6-2" aria-selected="false">Python</a></li></ul>
-<div class="tab-content" data-group="language">
-<div id="tabset-6-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-6-1-tab">
-<div class="cell">
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Funções</span></span>
-<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>h_f <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">sqrt</span>(x) <span class="sc">*</span> <span class="fu">dexp</span>(x, <span class="dv">1</span>)</span>
-<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="fl">0.5</span> <span class="sc">*</span> x)  <span class="co"># Exemplo para g(x)</span></span>
-<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>g2 <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fl">0.8</span> <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="fl">0.3</span> <span class="sc">*</span> x) <span class="co"># Exemplo para g2(x)</span></span>
-<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Dados</span></span>
-<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>x_vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">3</span>, <span class="at">length.out =</span> <span class="dv">100</span>)</span>
-<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> x_vals,</span>
-<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">h_f =</span> <span class="fu">h_f</span>(x_vals),</span>
-<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">g =</span> <span class="fu">g</span>(x_vals),</span>
-<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">g2 =</span> <span class="fu">g2</span>(x_vals)</span>
-<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Gráfico</span></span>
-<span id="cb49-18"><a href="#cb49-18" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data, <span class="fu">aes</span>(x)) <span class="sc">+</span></span>
-<span id="cb49-19"><a href="#cb49-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> h_f, <span class="at">color =</span> <span class="st">"h(x)f(x)"</span>), <span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb49-20"><a href="#cb49-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> g, <span class="at">color =</span> <span class="st">"g(x)"</span>), <span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb49-21"><a href="#cb49-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> g2, <span class="at">color =</span> <span class="st">"g2(x)"</span>), <span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb49-22"><a href="#cb49-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"h(x)f(x)"</span> <span class="ot">=</span> <span class="st">"black"</span>, <span class="st">"g(x)"</span> <span class="ot">=</span> <span class="st">"red"</span>, <span class="st">"g2(x)"</span> <span class="ot">=</span> <span class="st">"blue"</span>)) <span class="sc">+</span></span>
-<span id="cb49-23"><a href="#cb49-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Valor"</span>, <span class="at">color =</span> <span class="st">"Funções"</span>) <span class="sc">+</span></span>
-<span id="cb49-24"><a href="#cb49-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="11_import_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</div>
-<div id="tabset-6-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-2-tab">
-<div class="cell">
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Funções</span></span>
-<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> h_f(x):</span>
-<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.sqrt(x) <span class="op">*</span> np.exp(<span class="op">-</span>x)</span>
-<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> g(x):</span>
-<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.5</span> <span class="op">*</span> np.exp(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span> x)</span>
-<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> g2(x):</span>
-<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.8</span> <span class="op">*</span> np.exp(<span class="op">-</span><span class="fl">0.3</span> <span class="op">*</span> x)</span>
-<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-14"><a href="#cb50-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Dados</span></span>
-<span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a>x_vals <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">3</span>, <span class="dv">100</span>)</span>
-<span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a>h_f_vals <span class="op">=</span> h_f(x_vals)</span>
-<span id="cb50-17"><a href="#cb50-17" aria-hidden="true" tabindex="-1"></a>g_vals <span class="op">=</span> g(x_vals)</span>
-<span id="cb50-18"><a href="#cb50-18" aria-hidden="true" tabindex="-1"></a>g2_vals <span class="op">=</span> g2(x_vals)</span>
-<span id="cb50-19"><a href="#cb50-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-20"><a href="#cb50-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Gráfico</span></span>
-<span id="cb50-21"><a href="#cb50-21" aria-hidden="true" tabindex="-1"></a>plt.plot(x_vals, h_f_vals, label<span class="op">=</span><span class="st">"h(x)f(x)"</span>, color<span class="op">=</span><span class="st">"black"</span>, linewidth<span class="op">=</span><span class="fl">1.2</span>)</span>
-<span id="cb50-22"><a href="#cb50-22" aria-hidden="true" tabindex="-1"></a>plt.plot(x_vals, g_vals, label<span class="op">=</span><span class="st">"g(x)"</span>, color<span class="op">=</span><span class="st">"red"</span>, linewidth<span class="op">=</span><span class="fl">1.2</span>)</span>
-<span id="cb50-23"><a href="#cb50-23" aria-hidden="true" tabindex="-1"></a>plt.plot(x_vals, g2_vals, label<span class="op">=</span><span class="st">"g2(x)"</span>, color<span class="op">=</span><span class="st">"blue"</span>, linewidth<span class="op">=</span><span class="fl">1.2</span>)</span>
-<span id="cb50-24"><a href="#cb50-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-25"><a href="#cb50-25" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"x"</span>)</span>
-<span id="cb50-26"><a href="#cb50-26" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Valor"</span>)</span>
-<span id="cb50-27"><a href="#cb50-27" aria-hidden="true" tabindex="-1"></a>plt.legend(title<span class="op">=</span><span class="st">"Funções"</span>)</span>
-<span id="cb50-28"><a href="#cb50-28" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
-<span id="cb50-29"><a href="#cb50-29" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb50-30"><a href="#cb50-30" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="11_import_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<p>Gráfico de <span class="math inline">\(h(x) f(x) / g(x)\)</span> e <span class="math inline">\(h(x) f(x) / g2(x)\)</span>:</p>
-<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-7-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-1" role="tab" aria-controls="tabset-7-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-2" role="tab" aria-controls="tabset-7-2" aria-selected="false">Python</a></li></ul>
-<div class="tab-content" data-group="language">
-<div id="tabset-7-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-7-1-tab">
-<div class="cell">
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Funções</span></span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>h_f <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">sqrt</span>(x) <span class="sc">*</span> <span class="fu">dexp</span>(x, <span class="dv">1</span>)</span>
-<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="fl">0.5</span> <span class="sc">*</span> x)  <span class="co"># Exemplo para g(x)</span></span>
-<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>g2 <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fl">0.8</span> <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="fl">0.3</span> <span class="sc">*</span> x) <span class="co"># Exemplo para g2(x)</span></span>
-<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Dados</span></span>
-<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>x_vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">3</span>, <span class="at">length.out =</span> <span class="dv">100</span>)</span>
-<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> x_vals,</span>
-<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">h_f_over_g =</span> <span class="fu">h_f</span>(x_vals) <span class="sc">/</span> <span class="fu">g</span>(x_vals),</span>
-<span id="cb51-13"><a href="#cb51-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">h_f_over_g2 =</span> <span class="fu">h_f</span>(x_vals) <span class="sc">/</span> <span class="fu">g2</span>(x_vals)</span>
-<span id="cb51-14"><a href="#cb51-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb51-15"><a href="#cb51-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-16"><a href="#cb51-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Gráfico</span></span>
-<span id="cb51-17"><a href="#cb51-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data, <span class="fu">aes</span>(x)) <span class="sc">+</span></span>
-<span id="cb51-18"><a href="#cb51-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> h_f_over_g, <span class="at">color =</span> <span class="st">"h(x)f(x) / g(x)"</span>), <span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb51-19"><a href="#cb51-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> h_f_over_g2, <span class="at">color =</span> <span class="st">"h(x)f(x) / g2(x)"</span>), <span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb51-20"><a href="#cb51-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"h(x)f(x) / g(x)"</span> <span class="ot">=</span> <span class="st">"black"</span>, <span class="st">"h(x)f(x) / g2(x)"</span> <span class="ot">=</span> <span class="st">"red"</span>)) <span class="sc">+</span></span>
-<span id="cb51-21"><a href="#cb51-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Valor"</span>, <span class="at">color =</span> <span class="st">"Funções"</span>) <span class="sc">+</span></span>
-<span id="cb51-22"><a href="#cb51-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="11_import_files/figure-html/unnamed-chunk-13-3.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</div>
-<div id="tabset-7-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-2-tab">
-<div class="cell">
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Funções</span></span>
-<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> h_f(x):</span>
-<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.sqrt(x) <span class="op">*</span> np.exp(<span class="op">-</span>x)</span>
-<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> g(x):</span>
-<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.5</span> <span class="op">*</span> np.exp(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span> x)</span>
-<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> g2(x):</span>
-<span id="cb52-12"><a href="#cb52-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.8</span> <span class="op">*</span> np.exp(<span class="op">-</span><span class="fl">0.3</span> <span class="op">*</span> x)</span>
-<span id="cb52-13"><a href="#cb52-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb52-14"><a href="#cb52-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Dados</span></span>
-<span id="cb52-15"><a href="#cb52-15" aria-hidden="true" tabindex="-1"></a>x_vals <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">3</span>, <span class="dv">100</span>)</span>
-<span id="cb52-16"><a href="#cb52-16" aria-hidden="true" tabindex="-1"></a>h_f_over_g <span class="op">=</span> h_f(x_vals) <span class="op">/</span> g(x_vals)</span>
-<span id="cb52-17"><a href="#cb52-17" aria-hidden="true" tabindex="-1"></a>h_f_over_g2 <span class="op">=</span> h_f(x_vals) <span class="op">/</span> g2(x_vals)</span>
-<span id="cb52-18"><a href="#cb52-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb52-19"><a href="#cb52-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Gráfico</span></span>
-<span id="cb52-20"><a href="#cb52-20" aria-hidden="true" tabindex="-1"></a>plt.plot(x_vals, h_f_over_g, label<span class="op">=</span><span class="st">"h(x)f(x) / g(x)"</span>, color<span class="op">=</span><span class="st">"black"</span>, linewidth<span class="op">=</span><span class="fl">1.2</span>)</span>
-<span id="cb52-21"><a href="#cb52-21" aria-hidden="true" tabindex="-1"></a>plt.plot(x_vals, h_f_over_g2, label<span class="op">=</span><span class="st">"h(x)f(x) / g2(x)"</span>, color<span class="op">=</span><span class="st">"red"</span>, linewidth<span class="op">=</span><span class="fl">1.2</span>)</span>
-<span id="cb52-22"><a href="#cb52-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb52-23"><a href="#cb52-23" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"x"</span>)</span>
-<span id="cb52-24"><a href="#cb52-24" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Valor"</span>)</span>
-<span id="cb52-25"><a href="#cb52-25" aria-hidden="true" tabindex="-1"></a>plt.legend(title<span class="op">=</span><span class="st">"Funções"</span>)</span>
-<span id="cb52-26"><a href="#cb52-26" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
-<span id="cb52-27"><a href="#cb52-27" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb52-28"><a href="#cb52-28" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="11_import_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<p>Esses gráficos mostram como as diferentes escolhas de distribuições de importância afetam a função ponderada, ajudando a reduzir a variância do estimador.</p>
-</section>
-</section>
-<section id="exercícios" class="level2" data-number="13.4">
-<h2 data-number="13.4" class="anchored" data-anchor-id="exercícios"><span class="header-section-number">13.4</span> Exercícios</h2>
-<p><span style="color:#2C92B2;"><strong>Exercício 1</strong></span>. Usando a <strong>Amostragem por Importância</strong>, estime a probabilidade de que uma variável aleatória <span class="math inline">\(Z \sim N(0,1)\)</span> seja maior que 5.0. Compare os resultados obtidos com a amostragem direta usando Monte Carlo simples e discuta a eficiência da Amostragem por Importância em relação ao método direto.</p>
-<p><span style="color:#2C92B2;"><strong>Exercício 2</strong></span>. Estime o valor da integral <span class="math inline">\(\int_0^2 \sqrt{x} e^{-x} dx\)</span> utilizando a <strong>Amostragem por Importância</strong> com duas distribuições de importância diferentes. Justifique a escolha das distribuições e compare a eficiência de cada uma.</p>
-<p><span style="color:#2C92B2;"><strong>Exercício 3</strong></span>. Utilize a <strong>Amostragem por Importância</strong> para estimar <span class="math inline">\(\mathbb{E}[\log(1 + X)]\)</span>, onde <span class="math inline">\(X \sim Exp(1)\)</span>. Escolha uma densidade auxiliar apropriada para melhorar a eficiência da estimativa e justifique sua escolha. Compare os resultados com a aproximação via Monte Carlo simples.</p>
 
 
 </section>

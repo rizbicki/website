@@ -322,18 +322,18 @@ window.Quarto = {
 \]</span> onde <span class="math inline">\(X_1, ..., X_n\)</span> são variáveis aleatórias iid com média <span class="math inline">\(\theta\)</span>. A variância desse estimador é dada por <span class="math display">\[
 \text{Var}(\hat{\theta}) = \frac{\text{Var}(X)}{n}
 \]</span></p>
-<p><strong>Variáveis antitéticas</strong> visam reduzir essa variância. Para tanto, a ideia principal é gerar pares de amostras <span class="math inline">\(X_i\)</span> e <span class="math inline">\(Y_i\)</span> que sejam correlacionadas negativamente. Concretamente, se tivermos uma segunda amostra <span class="math inline">\(Y_1, ..., Y_n\)</span> i.i.d entre sim e com <span class="math inline">\(E[Y] = E[X] = \theta\)</span> e <span class="math inline">\(V[Y] = V[X] = \sigma^2\)</span>, mas não necessariamente independente da sequência <span class="math inline">\(X_i\)</span>, então podemos definir um novo estimador: <span class="math display">\[
+<p><strong>Variáveis antitéticas</strong> visam reduzir essa variância. Para tanto, a ideia principal é gerar pares de amostras <span class="math inline">\(X_i\)</span> e <span class="math inline">\(Y_i\)</span> que sejam correlacionadas negativamente. Concretamente, se tivermos uma segunda amostra <span class="math inline">\(Y_1, ..., Y_n\)</span> i.i.d entre si, com <span class="math inline">\(E[Y] = E[X] = \theta\)</span> e <span class="math inline">\(V[Y] = V[X] = \sigma^2\)</span>, com <span class="math inline">\(Corr(X_i,Y_j)=\rho I(i=j)\)</span> (portanto não necessariamente independente da sequência <span class="math inline">\(X_i\)</span>), então podemos definir um novo estimador: <span class="math display">\[
 \hat{\theta}_A = \frac{1}{2n} \sum_{i=1}^{n} (X_i + Y_i)
 \]</span> cuja esperança é justamente <span class="math display">\[
 \text{E}(\hat{\theta}_A)=\theta.\]</span> Além disso, sua variância é <span class="math display">\[
 \text{Var}(\hat{\theta}_A) = \frac{1}{4n^2} \sum_{i=1}^{n} \left( \text{Var}(X) + \text{Var}(Y) + 2\text{Cov}(X,Y) \right)
 \]</span> ou, simplificando, <span class="math display">\[
-\text{Var}(\hat{\theta}_A) = \frac{\text{Var}(X)}{n} \left( \frac{1 + \rho}{2} \right)
-\]</span> onde <span class="math inline">\(\rho = \text{Corr}(X, Y)\)</span>. Assim, se <span class="math inline">\(\rho &lt; 0\)</span>, então <span class="math inline">\(\text{Var}(\hat{\theta}_A) &lt; \text{Var}(\hat{\theta})\)</span>, tornando este estimador <strong>mais eficiente</strong> que o estimador de Monte Carlo usual com uma amostra de tamanho <span class="math inline">\(2n\)</span>.</p>
+\text{Var}(\hat{\theta}_A) = \frac{\text{Var}(X)}{n} \left( \frac{1 + \rho}{2} \right).
+\]</span> Assim, se <span class="math inline">\(\rho &lt; 0\)</span>, então <span class="math inline">\(\text{Var}(\hat{\theta}_A) &lt; \text{Var}(\hat{\theta})\)</span>, tornando este estimador <strong>mais eficiente</strong> que o estimador de Monte Carlo usual com uma amostra de tamanho <span class="math inline">\(2n\)</span>.</p>
 </section>
 <section id="algoritmo" class="level3" data-number="12.1.2">
 <h3 data-number="12.1.2" class="anchored" data-anchor-id="algoritmo"><span class="header-section-number">12.1.2</span> Algoritmo</h3>
-<p>Uma maneira (mas não a única!) de gerar variáveis negativamente correlacionadas é a partir de distribuições uniformes. Para isso, vamos assumir que <span class="math inline">\(X \sim h(U)\)</span>, para algum <span class="math inline">\(h\)</span> conhecido, em que <span class="math inline">\(U \sim U(0,1)\)</span>. Sabemos, pelo método da transformação inversa, que sempre é possível encontrar <span class="math inline">\(h\)</span> com essa propriedade.</p>
+<p>Uma maneira (mas não a única!) de gerar variáveis negativamente correlacionadas é a partir de distribuições uniformes. Para isso, vamos assumir que <span class="math inline">\(X \sim h(U)\)</span>, para algum <span class="math inline">\(h\)</span> conhecido, em que <span class="math inline">\(U \sim U(0,1)\)</span>. Sabemos, pelo método da transformação inversa, que sempre é possível encontrar <span class="math inline">\(h\)</span> com essa propriedade (embora nem sempre seja simples!).</p>
 <p>A ideia chave é então usar que <span class="math inline">\(1-U\)</span> também tem distribuição <span class="math inline">\(U(0,1)\)</span>. Assim <span class="math inline">\(h(1-U)\)</span> tem a mesma distribuição de <span class="math inline">\(X\)</span> e, em particular, a mesma média <span class="math inline">\(\theta\)</span>. Além disso, pode-se mostrar que se <span class="math inline">\(h\)</span> é monótono, <span class="math inline">\(h(U)\)</span> tem correlação negativa com <span class="math inline">\(h(1-U)\)</span>.</p>
 <p>O método das variáveis antitéticas pode ser implementado da seguinte forma:</p>
 <ol type="1">
@@ -386,7 +386,7 @@ Z_i = \frac{1}{2} \left( \log(1 + X_i^2) + \log(1 + Y_i^2) \right)
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Cálculo das estimativas</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>theta.hatx <span class="ot">&lt;-</span> <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> x<span class="sc">^</span><span class="dv">2</span>)</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>theta.haty <span class="ot">&lt;-</span> <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> y<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>theta.hatz <span class="ot">&lt;-</span> (theta.hatx <span class="sc">+</span> theta.haty) <span class="sc">/</span> <span class="dv">2</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>theta.hatz <span class="ot">&lt;-</span> <span class="fu">c</span>(theta.hatx, theta.haty)</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Média das estimativas</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>mean_values <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(theta.hatx), <span class="fu">mean</span>(theta.haty), <span class="fu">mean</span>(theta.hatz))</span>
@@ -421,7 +421,7 @@ Z_i = \frac{1}{2} \left( \log(1 + X_i^2) + \log(1 + Y_i^2) \right)
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Cálculo das estimativas</span></span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>theta_hatx <span class="op">=</span> np.log(<span class="dv">1</span> <span class="op">+</span> x<span class="op">**</span><span class="dv">2</span>)</span>
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>theta_haty <span class="op">=</span> np.log(<span class="dv">1</span> <span class="op">+</span> y<span class="op">**</span><span class="dv">2</span>)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>theta_hatz <span class="op">=</span> (theta_hatx <span class="op">+</span> theta_haty) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>theta_hatz <span class="op">=</span> np.concatenate((theta_hatx, theta_haty))</span>
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Média das estimativas</span></span>
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>mean_values <span class="op">=</span> [np.mean(theta_hatx), np.mean(theta_haty), np.mean(theta_hatz)]</span>
@@ -435,7 +435,7 @@ Z_i = \frac{1}{2} \left( \log(1 + X_i^2) + \log(1 + Y_i^2) \right)
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(mean_values)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>[np.float64(0.6885117805461132), np.float64(0.683592556950855), np.float64(0.686052168748484)]</code></pre>
+<pre><code>[np.float64(0.6885117805461132), np.float64(0.683592556950855), np.float64(0.6860521687484841)]</code></pre>
 </div>
 </div>
 </div>
@@ -648,9 +648,7 @@ Z_i =
 \]</span></p></li>
 </ol>
 <p>Vamos agora usar <span class="math inline">\(\mathbb{E}[Z_i \mid X]\)</span> para reduzir a variância. Esta esperança condicional é dada por <span class="math display">\[
-\mathbb{E}[Z_i \mid X = x] = \mathbb{P}(X^2 + Y^2 \leq 1 \mid X = x).
-\]</span> Como <span class="math inline">\(Y^2 \leq 1 - x^2\)</span>, obtemos <span class="math display">\[
-\mathbb{E}[Z_i \mid X = x] = \int_{-\sqrt{1-x^2}}^{\sqrt{1-x^2}} \frac{1}{2} \, dy = \sqrt{1 - x^2}.
+\mathbb{E}[Z_i \mid X = x] = \mathbb{P}(X^2 + Y^2 \leq 1 \mid X = x)= \int_{-\sqrt{1-x^2}}^{\sqrt{1-x^2}} \frac{1}{2} \, dy = \sqrt{1 - x^2}.
 \]</span> Assim, o estimador de Monte Carlo com condicionamento em <span class="math inline">\(x\)</span> é dado por <span class="math display">\[
    4 \cdot\frac{1}{n} \sum_{i=1}^n  \sqrt{1 - X_i^2}.
    \]</span></p>
@@ -663,40 +661,45 @@ Z_i =
 <summary>Mostrar código</summary>
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)  <span class="co"># Para reprodutibilidade</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para estimar pi sem condicionamento</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Estima pi e o erro padrão - sem condicionamento</span></span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>estimate_pi_simple <span class="ot">&lt;-</span> <span class="cf">function</span>(n) {</span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  U1 <span class="ot">&lt;-</span> <span class="fu">runif</span>(n, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
 <span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  U2 <span class="ot">&lt;-</span> <span class="fu">runif</span>(n, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  Z <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(U1<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> U2<span class="sc">^</span><span class="dv">2</span> <span class="sc">&lt;=</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="dv">4</span> <span class="sc">*</span> <span class="fu">mean</span>(Z))</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para estimar pi com condicionamento</span></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>estimate_pi_conditioning <span class="ot">&lt;-</span> <span class="cf">function</span>(n) {</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">runif</span>(n, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)  <span class="co"># Gera X uniformemente em [-1,1]</span></span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  g_Y <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> X<span class="sc">^</span><span class="dv">2</span>)  <span class="co"># Esperança condicional E[Z | X]</span></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="dv">4</span> <span class="sc">*</span> <span class="fu">mean</span>(g_Y))</span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Número de simulações</span></span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100000</span></span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimativas</span></span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>pi_simple <span class="ot">&lt;-</span> <span class="fu">estimate_pi_simple</span>(n)</span>
-<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>pi_conditioning <span class="ot">&lt;-</span> <span class="fu">estimate_pi_conditioning</span>(n)</span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Resultados</span></span>
-<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Estimativa de pi sem condicionamento:"</span>, pi_simple, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  Z  <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(U1<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> U2<span class="sc">^</span><span class="dv">2</span> <span class="sc">&lt;=</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  p_hat <span class="ot">&lt;-</span> <span class="fu">mean</span>(Z)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  pi_hat <span class="ot">&lt;-</span> <span class="dv">4</span> <span class="sc">*</span> p_hat</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  se <span class="ot">&lt;-</span> <span class="dv">4</span> <span class="sc">*</span> <span class="fu">sqrt</span>(p_hat <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_hat) <span class="sc">/</span> n)  <span class="co"># EP por binomial</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">estimate =</span> pi_hat, <span class="at">se =</span> se)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Estima pi e o erro padrão - com condicionamento em X</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>estimate_pi_conditioning <span class="ot">&lt;-</span> <span class="cf">function</span>(n) {</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">runif</span>(n, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  g  <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> X<span class="sc">^</span><span class="dv">2</span>)              <span class="co"># E[Z | X]</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  pi_hat <span class="ot">&lt;-</span> <span class="dv">4</span> <span class="sc">*</span> <span class="fu">mean</span>(g)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  se <span class="ot">&lt;-</span> <span class="dv">4</span> <span class="sc">*</span> <span class="fu">sd</span>(g) <span class="sc">/</span> <span class="fu">sqrt</span>(n)        <span class="co"># EP via amostra de g</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">estimate =</span> pi_hat, <span class="at">se =</span> se)</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Número de simulações</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimativas</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>res_simple <span class="ot">&lt;-</span> <span class="fu">estimate_pi_simple</span>(n)</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>res_cond   <span class="ot">&lt;-</span> <span class="fu">estimate_pi_conditioning</span>(n)</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Resultados</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Sem condicionamento:  est ="</span>, res_simple<span class="sc">$</span>estimate, <span class="st">" | EP ="</span>, res_simple<span class="sc">$</span>se, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa de pi sem condicionamento: 3.1378 </code></pre>
+<pre><code>Sem condicionamento:  est = 3.1272  | EP = 0.01652096 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Estimativa de pi com condicionamento:"</span>, pi_conditioning, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Com condicionamento:  est ="</span>, res_cond<span class="sc">$</span>estimate,   <span class="st">" | EP ="</span>, res_cond<span class="sc">$</span>se,   <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa de pi com condicionamento: 3.142653 </code></pre>
+<pre><code>Com condicionamento:  est = 3.130729  | EP = 0.009053532 </code></pre>
 </div>
 </div>
 </div>
@@ -708,38 +711,43 @@ Z_i =
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)  <span class="co"># Para reprodutibilidade</span></span>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para estimar pi sem condicionamento</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Estima pi e o erro padrão - sem condicionamento</span></span>
 <span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> estimate_pi_simple(n):</span>
 <span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    U1 <span class="op">=</span> np.random.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, n)</span>
 <span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    U2 <span class="op">=</span> np.random.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, n)</span>
 <span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    Z <span class="op">=</span> (U1<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> U2<span class="op">**</span><span class="dv">2</span> <span class="op">&lt;=</span> <span class="dv">1</span>).astype(<span class="bu">int</span>)</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">4</span> <span class="op">*</span> np.mean(Z)</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para estimar pi com condicionamento</span></span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> estimate_pi_conditioning(n):</span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> np.random.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, n)  <span class="co"># Gera X uniformemente em [-1,1]</span></span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    g_Y <span class="op">=</span> np.sqrt(<span class="dv">1</span> <span class="op">-</span> X<span class="op">**</span><span class="dv">2</span>)  <span class="co"># Esperança condicional E[Z | X]</span></span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">4</span> <span class="op">*</span> np.mean(g_Y)</span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Número de simulações</span></span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">100000</span></span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimativas</span></span>
-<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>pi_simple <span class="op">=</span> estimate_pi_simple(n)</span>
-<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>pi_conditioning <span class="op">=</span> estimate_pi_conditioning(n)</span>
-<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Resultados</span></span>
-<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Estimativa de pi sem condicionamento:"</span>, pi_simple)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    p_hat <span class="op">=</span> Z.mean()</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    pi_hat <span class="op">=</span> <span class="dv">4</span> <span class="op">*</span> p_hat</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    se <span class="op">=</span> <span class="dv">4</span> <span class="op">*</span> np.sqrt(p_hat <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> p_hat) <span class="op">/</span> n)  <span class="co"># EP por binomial</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pi_hat, se</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Estima pi e o erro padrão - com condicionamento em X</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> estimate_pi_conditioning(n):</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> np.random.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, n)</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> np.sqrt(<span class="dv">1</span> <span class="op">-</span> X<span class="op">**</span><span class="dv">2</span>)           <span class="co"># E[Z | X]</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>    pi_hat <span class="op">=</span> <span class="dv">4</span> <span class="op">*</span> g.mean()</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    se <span class="op">=</span> <span class="dv">4</span> <span class="op">*</span> g.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(n)  <span class="co"># EP via amostra de g</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pi_hat, se</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Número de simulações</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">10000</span></span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimativas</span></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>pi_simple, se_simple <span class="op">=</span> estimate_pi_simple(n)</span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>pi_conditioning, se_conditioning <span class="op">=</span> estimate_pi_conditioning(n)</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Resultados</span></span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Sem condicionamento:  est = </span><span class="sc">{</span>pi_simple<span class="sc">}</span><span class="ss">  | EP = </span><span class="sc">{</span>se_simple<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa de pi sem condicionamento: 3.14412</code></pre>
+<pre><code>Sem condicionamento:  est = 3.1348  | EP = 0.016468846225525333</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Estimativa de pi com condicionamento:"</span>, pi_conditioning)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Com condicionamento:  est = </span><span class="sc">{</span>pi_conditioning<span class="sc">}</span><span class="ss">  | EP = </span><span class="sc">{</span>se_conditioning<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa de pi com condicionamento: 3.140167073389632</code></pre>
+<pre><code>Com condicionamento:  est = 3.1540094743355818  | EP = 0.008885501290884038</code></pre>
 </div>
 </div>
 </div>
@@ -772,40 +780,44 @@ Z_i =
 <summary>Mostrar código</summary>
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)  <span class="co"># Para reprodutibilidade</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para estimar P(X &gt; 1) sem condicionamento</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Estima P(X &gt; 1) e o EP - sem condicionamento (Bernoulli)</span></span>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>estimate_prob_simple <span class="ot">&lt;-</span> <span class="cf">function</span>(n) {</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  Y <span class="ot">&lt;-</span> <span class="fu">rexp</span>(n, <span class="at">rate =</span> <span class="dv">1</span>)  <span class="co"># Y ~ Exp(1)</span></span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> Y, <span class="at">sd =</span> <span class="dv">2</span>)  <span class="co"># X | Y ~ N(Y, 4)</span></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  Z <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(X <span class="sc">&gt;</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">mean</span>(Z))</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para estimar P(X &gt; 1) com condicionamento</span></span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>estimate_prob_conditioning <span class="ot">&lt;-</span> <span class="cf">function</span>(n) {</span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>  Y <span class="ot">&lt;-</span> <span class="fu">rexp</span>(n, <span class="at">rate =</span> <span class="dv">1</span>)  <span class="co"># Y ~ Exp(1)</span></span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  g_Y <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pnorm</span>((<span class="dv">1</span> <span class="sc">-</span> Y) <span class="sc">/</span> <span class="dv">2</span>)  <span class="co"># E[Z | Y] usando a CDF da normal</span></span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">mean</span>(g_Y))</span>
-<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Número de simulações</span></span>
-<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100000</span></span>
-<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimativas</span></span>
-<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>prob_simple <span class="ot">&lt;-</span> <span class="fu">estimate_prob_simple</span>(n)</span>
-<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>prob_conditioning <span class="ot">&lt;-</span> <span class="fu">estimate_prob_conditioning</span>(n)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  Y <span class="ot">&lt;-</span> <span class="fu">rexp</span>(n, <span class="at">rate =</span> <span class="dv">1</span>)                   <span class="co"># Y ~ Exp(1)</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> Y, <span class="at">sd =</span> <span class="dv">2</span>)          <span class="co"># X | Y ~ N(Y, 4)</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  Z <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(X <span class="sc">&gt;</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)                  <span class="co"># Indicador</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  p_hat <span class="ot">&lt;-</span> <span class="fu">mean</span>(Z)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  se <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(p_hat <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_hat) <span class="sc">/</span> n)      <span class="co"># EP do mean(Z)</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">estimate =</span> p_hat, <span class="at">se =</span> se)</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Estima P(X &gt; 1) e o EP - com condicionamento (g_i = E[Z|Y_i])</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>estimate_prob_conditioning <span class="ot">&lt;-</span> <span class="cf">function</span>(n) {</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  Y <span class="ot">&lt;-</span> <span class="fu">rexp</span>(n, <span class="at">rate =</span> <span class="dv">1</span>)</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>  g  <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pnorm</span>((<span class="dv">1</span> <span class="sc">-</span> Y) <span class="sc">/</span> <span class="dv">2</span>)             <span class="co"># E[Z | Y]</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>  est <span class="ot">&lt;-</span> <span class="fu">mean</span>(g)</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>  se  <span class="ot">&lt;-</span> <span class="fu">sd</span>(g) <span class="sc">/</span> <span class="fu">sqrt</span>(n)                   <span class="co"># EP via amostra de g</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">estimate =</span> est, <span class="at">se =</span> se)</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Número de simulações</span></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100000</span></span>
 <span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Resultados</span></span>
-<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Estimativa de P(X &gt; 1) sem condicionamento:"</span>, prob_simple, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimativas</span></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>res_simple <span class="ot">&lt;-</span> <span class="fu">estimate_prob_simple</span>(n)</span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>res_cond   <span class="ot">&lt;-</span> <span class="fu">estimate_prob_conditioning</span>(n)</span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Resultados</span></span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Sem condicionamento:  est ="</span>, res_simple<span class="sc">$</span>estimate, <span class="st">" | EP ="</span>, res_simple<span class="sc">$</span>se, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa de P(X &gt; 1) sem condicionamento: 0.4905 </code></pre>
+<pre><code>Sem condicionamento:  est = 0.4905  | EP = 0.001580853 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Estimativa de P(X &gt; 1) com condicionamento:"</span>, prob_conditioning, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Com condicionamento:  est ="</span>, res_cond<span class="sc">$</span>estimate,   <span class="st">" | EP ="</span>, res_cond<span class="sc">$</span>se,   <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa de P(X &gt; 1) com condicionamento: 0.4903664 </code></pre>
+<pre><code>Com condicionamento:  est = 0.4903664  | EP = 0.0005183444 </code></pre>
 </div>
 </div>
 </div>
@@ -818,38 +830,42 @@ Z_i =
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)  <span class="co"># Para reprodutibilidade</span></span>
 <span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para estimar P(X &gt; 1) sem condicionamento</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Estima P(X &gt; 1) e o EP - sem condicionamento (Bernoulli)</span></span>
 <span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> estimate_prob_simple(n):</span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    Y <span class="op">=</span> np.random.exponential(<span class="dv">1</span>, n)  <span class="co"># Y ~ Exp(1)</span></span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> np.random.normal(Y, <span class="dv">2</span>, n)  <span class="co"># X | Y ~ N(Y, 4)</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    Y <span class="op">=</span> np.random.exponential(<span class="dv">1</span>, n)       <span class="co"># Y ~ Exp(1)</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> np.random.normal(Y, <span class="dv">2</span>, n)         <span class="co"># X | Y ~ N(Y, 4)</span></span>
 <span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    Z <span class="op">=</span> (X <span class="op">&gt;</span> <span class="dv">1</span>).astype(<span class="bu">int</span>)</span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.mean(Z)</span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para estimar P(X &gt; 1) com condicionamento</span></span>
-<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> estimate_prob_conditioning(n):</span>
-<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>    Y <span class="op">=</span> np.random.exponential(<span class="dv">1</span>, n)  <span class="co"># Y ~ Exp(1)</span></span>
-<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>    g_Y <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> norm.cdf((<span class="dv">1</span> <span class="op">-</span> Y) <span class="op">/</span> <span class="dv">2</span>)  <span class="co"># E[Z | Y] usando a CDF da normal</span></span>
-<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.mean(g_Y)</span>
-<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Número de simulações</span></span>
-<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">100000</span></span>
-<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimativas</span></span>
-<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>prob_simple <span class="op">=</span> estimate_prob_simple(n)</span>
-<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>prob_conditioning <span class="op">=</span> estimate_prob_conditioning(n)</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    p_hat <span class="op">=</span> Z.mean()</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    se <span class="op">=</span> np.sqrt(p_hat <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> p_hat) <span class="op">/</span> n) <span class="co"># EP do mean(Z)</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> p_hat, se</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Estima P(X &gt; 1) e o EP - com condicionamento (g_i = E[Z|Y_i])</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> estimate_prob_conditioning(n):</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>    Y <span class="op">=</span> np.random.exponential(<span class="dv">1</span>, n)</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> norm.cdf((<span class="dv">1</span> <span class="op">-</span> Y) <span class="op">/</span> <span class="dv">2</span>)         <span class="co"># E[Z | Y]</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    est <span class="op">=</span> g.mean()</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    se <span class="op">=</span> g.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(n)       <span class="co"># EP via amostra de g</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> est, se</span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Número de simulações</span></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">100000</span></span>
 <span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Resultados</span></span>
-<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Estimativa de P(X &gt; 1) sem condicionamento:"</span>, prob_simple)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimativas</span></span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>prob_simple, se_simple <span class="op">=</span> estimate_prob_simple(n)</span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>prob_conditioning, se_conditioning <span class="op">=</span> estimate_prob_conditioning(n)</span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Resultados</span></span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Sem condicionamento:  est = </span><span class="sc">{</span>prob_simple<span class="sc">}</span><span class="ss">  | EP = </span><span class="sc">{</span>se_simple<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa de P(X &gt; 1) sem condicionamento: 0.48977</code></pre>
+<pre><code>Sem condicionamento:  est = 0.48977  | EP = 0.0015808078539152062</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Estimativa de P(X &gt; 1) com condicionamento:"</span>, prob_conditioning)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Com condicionamento:  est = </span><span class="sc">{</span>prob_conditioning<span class="sc">}</span><span class="ss">  | EP = </span><span class="sc">{</span>se_conditioning<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Estimativa de P(X &gt; 1) com condicionamento: 0.4900730050240221</code></pre>
+<pre><code>Com condicionamento:  est = 0.4900730050240221  | EP = 0.0005167915603236426</code></pre>
 </div>
 </div>
 </div>
