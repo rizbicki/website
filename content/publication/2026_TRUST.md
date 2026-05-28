@@ -1,20 +1,10 @@
 ---
-title : "Trustworthy Scientific Inference with Generative Models"
-date : 2026-02-01T00:00:00
+title : "Conformal Calibration of Statistical Confidence Sets"
+date : 2026-04-01T00:01:00
 draft : false
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
-authors :
-  - "James Carzon"
-  - "Luca Masserano"
-  - "Joshua D. Ingram"
-  - "Alex Shen"
-  - "Antonio Carlos Herling Ribeiro Junior"
-  - "Tommaso Dorigo"
-  - "Michele Doro"
-  - "Joshua S. Speagle"
-  - "Rafael Izbicki"
-  - "Ann B. Lee"
+authors : [L. M. C. Cabezas, G. P. Soares, T. R. Ramos, R. B. Stern,admin]
 
 # Publication type.
 # Legend:
@@ -28,11 +18,11 @@ authors :
 publication_types : ["2"]
 
 # Publication name and optional abbreviated version.
-publication : "Machine Learning: Science and Technology"
-#publication_short : "MLST"
+publication : "Transactions on Machine Learning Research"
+#publication_short : "In *ICMEW*"
 
 # Abstract and optional shortened version.
-abstract : "Generative models are increasingly used for scientific inverse problems, but their posterior or predictive uncertainty can still be biased or overconfident. This paper introduces Frequentist-Bayes (FreB), a protocol that reshapes AI-generated posterior distributions into locally valid confidence regions with the intended coverage while remaining efficient when training and target distributions agree. The approach is demonstrated on physical-science case studies involving dataset shift, competing theoretical models, and selection effects."
+abstract : ""
 abstract_short : ""
 
 # Featured image thumbnail (optional)
@@ -50,11 +40,11 @@ selected : false
 
 # Tags (optional).
 #   Set `tags : []` for no tags, or use the form `tags : ["A Tag", "Another Tag"]` for one or more tags.
-tags : ["Machine Learning", "Scientific Inference", "Generative Models", "Uncertainty Quantification", "Inverse Problems", "Dataset Shift"]
+tags : ["Nonparametric Statistics","Machine Learning","Conformal Predictions","Regression Trees","SBI","LFI","Confidence Sets"]
 
 # Links (optional).
-url_pdf : "https://iopscience.iop.org/article/10.1088/2632-2153/ae67cd"
-url_preprint : "https://arxiv.org/abs/2508.02602"
+url_pdf : "https://openreview.net/pdf?id=J4lK62PVE6"
+#url_preprint : "https://arxiv.org/abs/2508.17077"
 #url_code : ""
 #url_dataset : "#"
 #url_project : "#"
@@ -65,7 +55,7 @@ url_preprint : "https://arxiv.org/abs/2508.02602"
 
 # Custom links (optional).
 #   Uncomment line below to enable. For multiple links, use the form `[{...}, {...}, {...}]`.
-#url_custom : [{name : "DOI", url : "https://doi.org/10.48550/arXiv.2508.02602"}]
+#url_custom : [{name : "Custom Link", url : "http://example.org"}]
 
 # Does this page contain LaTeX math? (true/false)
 math : true
