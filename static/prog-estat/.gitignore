@@ -1,0 +1,17 @@
+# folders
+
+/.quarto/
+/_book/
+/notebooks/.ipynb_checkpoints/
+/notebooks/*_files/
+/notebooks/*.html
+/personal/
+
+# files
+
+*.aux
+*.log
+*.pdf
+*.tex
+*.toc
+.Rproj.user

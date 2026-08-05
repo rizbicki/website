@@ -1,0 +1,55 @@
+project:
+  type: book
+
+book:
+  title: "Curso de Programação Estatística"
+  author: "Andressa Cerqueira, Danilo Lourenço Lopes, Rafael Izbicki, Thiago Ramos"
+  date: today
+  cover-image: cover.png
+  chapters:
+    - index.qmd
+    - 0_py.qmd
+    - 0_R.qmd
+    - 1_intro.qmd
+    - 2_pseudorandom.qmd
+    - 3_discrete_inversion.qmd
+    - 4_continuous_inversion.qmd
+    - 5_discrete_rejection.qmd
+    - 6_continuous_rejection.qmd
+    - 7_transf.qmd
+    - 8_box_muller.qmd
+    - 9_monte_carlo.qmd
+    - 10_var_red.qmd
+    - 11_import.qmd
+    - references.qmd
+  navbar:
+    right:
+      - icon: github
+        href: https://github.com/thiagorr162/prog-estat
+        aria-label: GitHub
+
+bibliography: references.bib
+
+format:
+  html:
+    theme:
+      light: flatly
+      dark: darkly
+    toc: true
+    toc-depth: 2
+    code-fold: true   
+    code-summary: "Mostrar código"
+  pdf:
+    documentclass: scrreprt
+    toc: true
+    toc-depth: 2
+
+editor: source
+
+execute:
+  message: false
+  warning: false
+
+
+#| warning: false
+

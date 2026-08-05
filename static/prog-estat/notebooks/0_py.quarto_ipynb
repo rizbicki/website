@@ -1,0 +1,1632 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: Breve introdução ao Python\n",
+        "jupyter: python3\n",
+        "---\n",
+        "\n",
+        "\n",
+        "Aqui faremos uma breve introdução ao Python. Para uma introdução mais detalhada, você pode explorar:\n",
+        "- [Documentação Oficial do Python](https://docs.python.org/3/)\n",
+        "- [Real Python](https://realpython.com/)\n",
+        "\n",
+        "\n",
+        "## Variáveis e Tipos de Dados \n",
+        "\n",
+        "Em Python, variáveis são usadas para armazenar informações que podem ser manipuladas ao longo do código. Existem diferentes tipos de dados que podem ser atribuídos a uma variável. Vamos explorar os principais tipos básicos em Python: `int`, `float`, `str`, `bool`, e `None`.\n"
+      ],
+      "id": "7f18d286"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Exemplo de variáveis e tipos de dados\n",
+        "nome = \"Thiago\"              ## String\n",
+        "idade = 35                   ## Inteiro (int)\n",
+        "saldo_bancario = 1023.75      ## Float\n",
+        "estudante = True              ## Booleano (bool)\n",
+        "endereco = None               ## None, indicando ausência de valor\n",
+        "\n",
+        "## Usando o método .format() para formatar a string\n",
+        "print(\"Nome: {} (Tipo: {})\".format(nome, type(nome)))\n",
+        "print(\"Idade: {} (Tipo: {})\".format(idade, type(idade)))\n",
+        "print(\"Saldo Bancário: {} (Tipo: {})\".format(saldo_bancario, type(saldo_bancario)))\n",
+        "print(\"Estudante: {} (Tipo: {})\".format(estudante, type(estudante)))\n",
+        "print(\"Endereço: {} (Tipo: {})\".format(endereco, type(endereco)))"
+      ],
+      "id": "08fc4027",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### f-strings: Formatação de Strings em Python (*)\n",
+        "\n",
+        "Introduzidas na versão Python 3.6, as f-strings (ou \"formatted string literals\") são uma forma eficiente e legível de formatar strings, permitindo a inclusão de expressões e variáveis diretamente dentro de uma string.\n",
+        "\n",
+        "A sintaxe das f-strings utiliza a letra f antes da string e permite a inclusão de expressões dentro de chaves {}. Essas expressões são avaliadas em tempo de execução, e seus resultados são inseridos na string.\n"
+      ],
+      "id": "7754a49d"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Usando f-strings para formatar a string\n",
+        "print(f\"Nome: {nome} (Tipo: {type(nome)})\")\n",
+        "print(f\"Idade: {idade} (Tipo: {type(idade)})\")\n",
+        "print(f\"Saldo Bancário: {saldo_bancario} (Tipo: {type(saldo_bancario)})\")\n",
+        "print(f\"Estudante: {estudante} (Tipo: {type(estudante)})\")\n",
+        "print(f\"Endereço: {endereco} (Tipo: {type(endereco)})\")"
+      ],
+      "id": "35eebd86",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## O Comando help() em Python\n",
+        "\n",
+        "Python possui uma função embutida chamada help(), que é muito útil para obter informações sobre funções, módulos, objetos, e classes. Ele fornece uma explicação detalhada de como determinado elemento funciona, quais parâmetros aceita e o que retorna, entre outros detalhes. Essa função é especialmente útil quando você está começando ou precisa de uma rápida referência sem ter que sair do ambiente de desenvolvimento.\n"
+      ],
+      "id": "6ebb1648"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "help(len)"
+      ],
+      "id": "05bd9ea4",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "def exemplo():\n",
+        "    \"\"\"Esta é uma função de exemplo.\"\"\"\n",
+        "    pass\n",
+        "\n",
+        "help(exemplo)"
+      ],
+      "id": "8e355e66",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Armazenando Resultados em Variáveis\n",
+        "\n",
+        "Em Python, as variáveis são usadas para armazenar resultados de cálculos ou operações para uso posterior no código. Ao armazenar um valor em uma variável, você pode acessá-lo facilmente quando precisar, sem ter que repetir o cálculo ou operação.\n",
+        "\n",
+        "Quando você atribui um valor ou resultado de uma operação a uma variável, o Python guarda esse valor na memória e o associa ao nome que você escolheu para a variável. Isso permite que você reutilize o valor sempre que necessário.\n"
+      ],
+      "id": "5b5d5ffc"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "resultado = 5 + 3  ## Armazenando a soma de 5 e 3 em uma variável\n",
+        "print(resultado)    ## Resultado: 8"
+      ],
+      "id": "00b8e67d",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "x = 2 + 3\n",
+        "print(x)"
+      ],
+      "id": "359c6e04",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "y = 2 * x\n",
+        "y"
+      ],
+      "id": "2b420d1f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Variáveis Lógicas\n",
+        "\n",
+        "Python, assim como R, possui operadores lógicos para comparar valores e trabalhar com variáveis booleanas. Abaixo estão alguns dos principais operadores lógicos usados em Python:\n",
+        "\n",
+        "| ##  | Operador      | Descrição                                   |\n",
+        "|----|---------------|---------------------------------------------|\n",
+        "| 1  | `x < y`       | x é menor que y?                            |\n",
+        "| 2  | `x <= y`      | x é menor ou igual a y?                     |\n",
+        "| 3  | `x > y`       | x é maior que y?                            |\n",
+        "| 4  | `x >= y`      | x é maior ou igual a y?                     |\n",
+        "| 5  | `x == y`      | x é igual a y?                              |\n",
+        "| 6  | `x != y`      | x é diferente de y?                         |\n",
+        "| 7  | `not x`       | Negativa de x (inverte o valor lógico)       |\n",
+        "| 8  | `x or y`      | x ou y são verdadeiros? (ou inclusivo)       |\n",
+        "| 9  | `x and y`     | x e y são verdadeiros? (e lógico)            |\n",
+        "| 10 | `x ^ y`       | x ou y, mas não ambos, são verdadeiros? (xor lógico) |\n"
+      ],
+      "id": "febe3b71"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "a = 5\n",
+        "b = 10\n",
+        "print(a < b)  ## True\n",
+        "print(a == b)  ## False"
+      ],
+      "id": "666c492d",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "x = True\n",
+        "print(not x)  ## False"
+      ],
+      "id": "bba81648",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "x = False\n",
+        "y = True\n",
+        "print(x or y)  ## True"
+      ],
+      "id": "2bd080f5",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "x = True\n",
+        "y = False\n",
+        "print(x and y)  ## False"
+      ],
+      "id": "7037e014",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "x = True\n",
+        "y = False\n",
+        "print(x ^ y)  ## True (apenas um dos dois é verdadeiro)"
+      ],
+      "id": "643975c0",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Cuidado!\n",
+        "Em Python, o operador ^ não é usado para exponenciação. Em vez disso, ele é o operador bitwise XOR (ou exclusivo) para manipulação de bits.\n",
+        "\n",
+        "O operador XOR (ou exclusivo) compara os bits de dois números. Ele retorna 1 quando os bits são diferentes e 0 quando os bits são iguais.\n"
+      ],
+      "id": "22774b1e"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "a = 5   ## Em binário: 101\n",
+        "b = 3   ## Em binário: 011\n",
+        "\n",
+        "resultado = a ** b  ## Faz XOR bit a bit\n",
+        "\n",
+        "print(resultado)  ## Saída: 6 (Em binário: 110)"
+      ],
+      "id": "fc1c1e98",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "a = 5   ## Em binário: 101\n",
+        "b = 3   ## Em binário: 011\n",
+        "\n",
+        "resultado = a ^ b  ## Faz XOR bit a bit\n",
+        "\n",
+        "print(resultado)  ## Saída: 6 (Em binário: 110)"
+      ],
+      "id": "55bc4e6b",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Caracteres/Strings em Python\n",
+        "\n",
+        "Em Python, uma string é uma sequência de caracteres que pode ser usada para armazenar e manipular textos. Strings são um dos tipos de dados mais comuns e úteis, e Python oferece uma grande variedade de métodos e operações para trabalhar com elas.\n",
+        "\n",
+        "As strings em Python podem ser definidas de diferentes maneiras, usando aspas simples (') ou aspas duplas (\").\n"
+      ],
+      "id": "0658dce8"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Definindo strings\n",
+        "nome = 'Thiago'\n",
+        "cidade = \"São Carlos\""
+      ],
+      "id": "c9322478",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "- Concatenar Strings: Você pode unir duas ou mais strings usando o operador +.\n"
+      ],
+      "id": "8a0569c5"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Concatenação\n",
+        "nome_completo = \"Thiago\" + \" \" + \"Rodrigo\"\n",
+        "print(nome_completo)  ## Resultado: Thiago Rodrigo"
+      ],
+      "id": "0d07de0f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "- Repetir Strings: Você pode repetir uma string múltiplas vezes usando o operador *.\n"
+      ],
+      "id": "2dc4d93c"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "repeticao = \"Oi! \" * 3\n",
+        "print(repeticao)  ## Resultado: Oi! Oi! Oi! "
+      ],
+      "id": "d13b4ded",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "- Acessar Caracteres por Índice: As strings em Python são indexadas, e você pode acessar um caractere específico usando o índice (começando em 0).\n"
+      ],
+      "id": "40abc0dc"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "nome = \"Thiago\"\n",
+        "print(nome[0])  ## Resultado: T\n",
+        "print(nome[-1])  ## Resultado: o (último caractere)"
+      ],
+      "id": "46b46523",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "- Fatiar Strings (Slicing): Você pode pegar uma parte da string usando fatias (substrings).\n"
+      ],
+      "id": "91bae2b9"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "nome = \"Thiago\"\n",
+        "print(nome[0:3])  ## Resultado: Thi (caracteres do índice 0 ao 2)"
+      ],
+      "id": "acd59045",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "- Comprimento de Strings: Para saber quantos caracteres uma string tem, use a função len().\n"
+      ],
+      "id": "5c148024"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "nome = \"Thiago\"\n",
+        "print(len(nome))  ## Resultado: 6"
+      ],
+      "id": "ad270c06",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Métodos Úteis para Strings\n",
+        "\n",
+        "- lower() e upper(): Convertem todas as letras para minúsculas ou maiúsculas, respectivamente.\n"
+      ],
+      "id": "8c164663"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "nome = \"Thiago\"\n",
+        "print(nome.lower())  ## Resultado: thiago\n",
+        "print(nome.upper())  ## Resultado: THIAGO"
+      ],
+      "id": "91adf747",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "- strip(): Remove espaços em branco no início e no final da string.\n"
+      ],
+      "id": "9bcfc251"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "frase = \"   Olá!   \"\n",
+        "print(frase.strip())  ## Resultado: Olá!"
+      ],
+      "id": "efc94df4",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "- replace(): Substitui parte de uma string por outra.\n"
+      ],
+      "id": "f894c7df"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "frase = \"Eu gosto de R\"\n",
+        "nova_frase = frase.replace(\"R\", \"Python\")\n",
+        "print(nova_frase)  ## Resultado: Eu gosto de programação"
+      ],
+      "id": "9c26821f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "- split(): Divide uma string em uma lista, utilizando um delimitador (por padrão, espaço).\n"
+      ],
+      "id": "4ab057ee"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "frase = \"Eu gosto de Python\"\n",
+        "palavras = frase.split()\n",
+        "print(palavras)  ## Resultado: ['Eu', 'gosto', 'de', 'Python']"
+      ],
+      "id": "cd50e6bb",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "- join(): Une uma lista de strings em uma única string, usando um delimitador.\n"
+      ],
+      "id": "3eb8b324"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "lista = ['Thiago', 'Rodrigo', 'Ramos']\n",
+        "nome_completo = \" \".join(lista)\n",
+        "print(nome_completo)  ## Resultado: Thiago Rodrigo Ramos"
+      ],
+      "id": "98f52db5",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Listas\n",
+        "\n",
+        "Em Python, listas são coleções ordenadas e mutáveis, o que significa que você pode modificar os elementos após sua criação. Elas são definidas usando colchetes [] e podem armazenar múltiplos tipos de dados, como inteiros, strings ou até mesmo outras listas.\n",
+        "\n",
+        "Características principais:\n",
+        "\n",
+        "- Mutáveis: você pode adicionar, remover ou modificar elementos.\n",
+        "- Ordenadas: os elementos mantêm a ordem em que são inseridos.\n",
+        "- Acesso por índice: os elementos podem ser acessados pelo índice, começando por 0.\n"
+      ],
+      "id": "61430ecd"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Criando uma lista\n",
+        "frutas = ['maçã', 'banana', 'laranja']\n",
+        "\n",
+        "## Acessando elementos\n",
+        "print(frutas[1])  ## banana\n",
+        "\n",
+        "## Modificando a lista\n",
+        "frutas.append('uva')  ## Adiciona 'uva' ao final\n",
+        "frutas[0] = 'kiwi'    ## Substitui 'maçã' por 'kiwi'\n",
+        "\n",
+        "## Removendo um elemento\n",
+        "frutas.remove('banana')\n",
+        "\n",
+        "print(frutas)  ## ['kiwi', 'laranja', 'uva']"
+      ],
+      "id": "b0ba7e66",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Tuplas \n",
+        "\n",
+        "As tuplas em Python são semelhantes às listas, porém, diferentemente das listas, são imutáveis, ou seja, seus elementos não podem ser modificados após a criação. Elas são úteis quando você deseja garantir que uma sequência de valores permaneça inalterada. As tuplas são definidas usando parênteses ().\n",
+        "Características principais:\n",
+        "\n",
+        "- Imutáveis: uma vez criadas, seus elementos não podem ser alterados, adicionados ou removidos.\n",
+        "- Ordenadas: os elementos mantêm a ordem de inserção.\n",
+        "- Acesso por índice: assim como nas listas, os elementos podem ser acessados por índices, começando do 0.\n"
+      ],
+      "id": "36d01480"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Criando uma tupla\n",
+        "coordenadas = (10, 20)\n",
+        "\n",
+        "## Acessando elementos\n",
+        "print(coordenadas[0])  ## 10\n",
+        "\n",
+        "\n",
+        "## Tuplas podem armazenar diferentes tipos de dados\n",
+        "dados = ('Thiago', 30, True)\n",
+        "\n",
+        "print(dados)  ## ('Thiago', 30, True)"
+      ],
+      "id": "8fff03b3",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "### Tentando modificar a tupla (resultará em erro)\n",
+        "## coordenadas[0] = 15  # TypeError: 'tuple' object does not support item assignment"
+      ],
+      "id": "0c6716c7",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Dicionários\n",
+        "\n",
+        "Os dicionários em Python são coleções não ordenadas de pares chave-valor. Eles permitem associar valores a uma chave específica, sendo muito úteis quando você precisa acessar elementos por meio de uma chave, em vez de um índice. Eles são definidos com chaves {}.\n",
+        "\n",
+        "Características principais:\n",
+        "\n",
+        "- Mutáveis: você pode adicionar, remover ou modificar pares chave-valor.\n",
+        "- Não ordenados: a ordem dos elementos não é garantida nas versões anteriores ao Python 3.7.\n",
+        "- Acesso por chave: os valores são acessados por suas chaves, que podem ser de tipos imutáveis (como strings ou números).\n"
+      ],
+      "id": "1197a979"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Criando um dicionário\n",
+        "estudante = {\n",
+        "    'nome': 'Ana',\n",
+        "    'idade': 22,\n",
+        "    'curso': 'Estatística'\n",
+        "}\n",
+        "\n",
+        "## Acessando valores\n",
+        "print(estudante['nome'])  ## Ana\n",
+        "\n",
+        "## Modificando o dicionário\n",
+        "estudante['idade'] = 23  ## Atualiza o valor da chave 'idade'\n",
+        "\n",
+        "## Adicionando um novo par chave-valor\n",
+        "estudante['matricula'] = 12345\n",
+        "\n",
+        "## Removendo um elemento\n",
+        "del estudante['curso']\n",
+        "\n",
+        "print(estudante)  ## {'nome': 'Ana', 'idade': 23, 'matricula': 12345}"
+      ],
+      "id": "f3703ab3",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Funções em Python\n",
+        "\n",
+        "As funções em Python são blocos de código reutilizáveis que realizam uma tarefa específica. Elas ajudam a organizar o código, tornando-o mais modular e legível. Você pode definir suas próprias funções usando a palavra-chave def, e elas podem receber parâmetros, retornar valores ou simplesmente executar uma ação.\n",
+        "Características principais:\n",
+        "\n",
+        "- Reutilizáveis: uma vez definida, a função pode ser chamada várias vezes no código.\n",
+        "- Modulares: permitem dividir o código em partes menores e mais organizadas.\n",
+        "- Parâmetros opcionais ou obrigatórios: funções podem receber parâmetros (ou argumentos) para realizar operações com base neles.\n"
+      ],
+      "id": "949d174f"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "def saudacao(nome):\n",
+        "    \"\"\"Exibe uma saudação personalizada.\"\"\"\n",
+        "    print(f\"Olá, {nome}!\")\n",
+        "\n",
+        "## Chamando a função\n",
+        "saudacao(\"Thiago\")  ## Olá, Thiago!"
+      ],
+      "id": "a1587638",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Return\n",
+        "Funções podem retornar valores usando a palavra-chave return. Isso permite que o resultado da função seja usado em outras partes do código.\n"
+      ],
+      "id": "04626e86"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "def soma(a, b):\n",
+        "    \"\"\"Retorna a soma de dois números.\"\"\"\n",
+        "    return a + b\n",
+        "\n",
+        "resultado = soma(3, 5)\n",
+        "print(resultado)  ## 8"
+      ],
+      "id": "9d71a94f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Parâmetros Opcionais e Valores Padrão\n",
+        "\n",
+        "Você pode definir parâmetros opcionais em uma função, atribuindo valores padrão a eles.\n"
+      ],
+      "id": "a53776a7"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "def saudacao(nome=\"amigo\"):\n",
+        "    \"\"\"Exibe uma saudação personalizada, com um nome padrão.\"\"\"\n",
+        "    print(f\"Olá, {nome}!\")\n",
+        "\n",
+        "saudacao()         ## Olá, amigo!\n",
+        "saudacao(\"Rafael\")  ## Olá, Rafael!"
+      ],
+      "id": "8f2a2f93",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Lambda\n",
+        "\n",
+        "Python também oferece funções anônimas (ou funções lambda), que são funções curtas e sem nome. Elas são úteis quando você precisa de uma função simples e temporária.\n"
+      ],
+      "id": "5c12d6e8"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Função lambda para multiplicar dois números\n",
+        "multiplicar = lambda x, y: x * y\n",
+        "print(multiplicar(3, 4))  ## 12"
+      ],
+      "id": "7274c7a2",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Loops\n",
+        "\n",
+        "Os loops são estruturas fundamentais de programação que permitem executar um bloco de código repetidamente enquanto uma condição for verdadeira ou para cada item de uma sequência. Python oferece dois tipos principais de loops: for e while.\n",
+        "\n",
+        "### for\n",
+        "\n",
+        "O loop for é usado para iterar sobre uma sequência (como uma lista, tupla, string ou range) e executar um bloco de código para cada item dessa sequência. É especialmente útil quando o número de iterações é conhecido ou quando você deseja percorrer uma estrutura de dados.\n"
+      ],
+      "id": "2e02ca8b"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Iterando sobre uma lista\n",
+        "frutas = ['maçã', 'banana', 'laranja']\n",
+        "for fruta in frutas:\n",
+        "    print(fruta)"
+      ],
+      "id": "4a5875ec",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Iterando de 0 a 4\n",
+        "for i in range(5):\n",
+        "    print(i)"
+      ],
+      "id": "c715a443",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "frutas = ['maçã', 'banana', 'laranja']\n",
+        "for i, fruta in enumerate(frutas):\n",
+        "    print(i, fruta)"
+      ],
+      "id": "fceaedfc",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### while\n",
+        "\n",
+        "O loop while executa um bloco de código repetidamente enquanto uma condição for verdadeira. Ele é útil quando o número de iterações não é conhecido antecipadamente e depende de uma condição dinâmica.\n"
+      ],
+      "id": "5e8a259f"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Loop enquanto o valor de x for menor que 5\n",
+        "x = 0\n",
+        "while x < 5:\n",
+        "    print(x)\n",
+        "    x += 1"
+      ],
+      "id": "9edef61d",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Controle de Loops: break e continue\n",
+        "\n",
+        "**break**: interrompe o loop imediatamente, mesmo que a condição ainda seja verdadeira (no caso do while) ou ainda restem itens na sequência (no caso do for).\n",
+        "\n",
+        "**continue**: pula para a próxima iteração do loop, ignorando o código restante naquela iteração.\n"
+      ],
+      "id": "49e9196d"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "for i in range(10):\n",
+        "    if i == 5:\n",
+        "        break  ## Interrompe o loop quando i é igual a 5\n",
+        "    print(i)"
+      ],
+      "id": "742a9e3b",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "for i in range(5):\n",
+        "    if i == 3:\n",
+        "        continue  ## Pula a iteração quando i é igual a 3\n",
+        "    print(i)"
+      ],
+      "id": "98af4b10",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Estruturas Condicionais: if, else e elif em Python\n",
+        "\n",
+        "As estruturas condicionais em Python permitem que o programa tome decisões e execute blocos de código diferentes com base em condições específicas. As principais instruções condicionais são if, else e elif.\n",
+        "\n",
+        "### if\n",
+        "\n",
+        "A instrução if é usada para executar um bloco de código se uma condição for verdadeira. Se a condição avaliada for True, o bloco de código indentado após o if será executado.\n"
+      ],
+      "id": "56eef03e"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "idade = 20\n",
+        "if idade >= 18:\n",
+        "    print(\"Você é maior de idade\")"
+      ],
+      "id": "f13fef07",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### else\n",
+        "\n",
+        "A instrução else é usada para executar um bloco de código se a condição do if for falsa. É como uma segunda opção, caso a primeira condição não seja atendida.\n"
+      ],
+      "id": "cc262dad"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "idade = 16\n",
+        "if idade >= 18:\n",
+        "    print(\"Você é maior de idade\")\n",
+        "else:\n",
+        "    print(\"Você é menor de idade\")"
+      ],
+      "id": "d5254e24",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### elif\n",
+        "\n",
+        "A instrução elif (abreviação de else if) permite testar múltiplas condições. Se a condição if for falsa, o Python verificará a condição do elif. Você pode ter vários blocos elif em uma estrutura condicional.\n"
+      ],
+      "id": "3340e48e"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "nota = 85\n",
+        "if nota >= 90:\n",
+        "    print(\"Aprovado com excelência\")\n",
+        "elif nota >= 70:\n",
+        "    print(\"Aprovado\")\n",
+        "else:\n",
+        "    print(\"Reprovado\")"
+      ],
+      "id": "44b27940",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Operadores lógicos\n",
+        "\n",
+        "As condições podem usar operadores lógicos para combinar mais de uma verificação:\n",
+        "\n",
+        "- and: todas as condições devem ser verdadeiras.\n",
+        "- or: pelo menos uma condição deve ser verdadeira.\n",
+        "- not: inverte o resultado da condição.\n"
+      ],
+      "id": "ab7d0841"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "idade = 20\n",
+        "possui_carteira = True\n",
+        "\n",
+        "if idade >= 18 and possui_carteira:\n",
+        "    print(\"Você pode dirigir\")\n",
+        "else:\n",
+        "    print(\"Você não pode dirigir\")"
+      ],
+      "id": "48ecf313",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Bibliotecas Essenciais para Estatística: NumPy, Pandas e Matplotlib\n",
+        "\n",
+        "Em Python, as bibliotecas NumPy, Pandas, e Matplotlib são amplamente utilizadas para análise de dados e computação científica. Elas fornecem ferramentas poderosas para lidar com grandes volumes de dados, realizar cálculos matemáticos eficientes e criar visualizações de alta qualidade. Vamos detalhar cada uma delas:\n",
+        "\n",
+        "### NumPy\n",
+        "\n",
+        "NumPy (Numerical Python) é uma biblioteca fundamental para cálculos matemáticos em Python. Ela fornece suporte para arrays e matrizes multidimensionais, além de uma coleção de funções para operações com esses arrays.\n",
+        "Principais características:\n",
+        "\n",
+        "- Array multidimensional (ndarray): O ndarray é a estrutura central da NumPy, oferecendo suporte a vetores e matrizes de várias dimensões, com operações eficientes em termos de memória e tempo de execução.\n",
+        "- Operações vetorizadas: Permite realizar operações em todos os elementos de um array sem a necessidade de loops explícitos.\n",
+        "- Funções matemáticas: Inclui uma vasta gama de funções para álgebra linear, estatística, trigonometria, entre outros.\n"
+      ],
+      "id": "1dbf4abc"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import numpy as np\n",
+        "\n",
+        "## Criando um array NumPy\n",
+        "array = np.array([1, 2, 3, 4, 5])\n",
+        "\n",
+        "## Operações elementares\n",
+        "print(array * 2)  ## Multiplicação por escalar: [2 4 6 8 10]\n",
+        "\n",
+        "## Matrizes e operações matriciais\n",
+        "matriz = np.array([[1, 2], [3, 4]])\n",
+        "print(np.dot(matriz, matriz))  ## Multiplicação de matrizes"
+      ],
+      "id": "60fc0b2a",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "dados = np.array([1, 2, 3, 4, 5])\n",
+        "media = np.mean(dados)\n",
+        "print(media)  ## Saída: 3.0"
+      ],
+      "id": "905b222d",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "mediana = np.median(dados)\n",
+        "print(mediana)  ## Saída: 3.0"
+      ],
+      "id": "ecaef359",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "variancia = np.var(dados)\n",
+        "print(variancia)  ## Saída: 2.0"
+      ],
+      "id": "d551bf4b",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "desvio_padrao = np.std(dados)\n",
+        "print(desvio_padrao)  ## Saída: 1.4142135623730951"
+      ],
+      "id": "941b4fe6",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "minimo = np.min(dados)\n",
+        "maximo = np.max(dados)\n",
+        "print(minimo, maximo)  ## Saída: 1 5"
+      ],
+      "id": "04b259d8",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "p25 = np.percentile(dados, 25)\n",
+        "p50 = np.percentile(dados, 50)\n",
+        "p75 = np.percentile(dados, 75)\n",
+        "print(p25, p50, p75)  ## Saída: 2.0 3.0 4.0"
+      ],
+      "id": "cae5ffd7",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Pandas\n",
+        "\n",
+        "Pandas é uma biblioteca poderosa para manipulação de dados em Python, frequentemente usada em projetos de ciência de dados, análise estatística e processamento de dados tabulares. Ela oferece estruturas de dados como DataFrames e Series que facilitam a organização, limpeza e análise de dados, tornando-a uma das ferramentas mais populares para lidar com grandes volumes de dados.\n",
+        "\n",
+        "#### Séries\n",
+        "\n",
+        "Uma Series é uma coluna de dados unidimensional, semelhante a um array de NumPy, mas com rótulos (índices) associados a cada valor. A Series pode armazenar qualquer tipo de dado, como inteiros, floats, strings, ou objetos.\n"
+      ],
+      "id": "bcd02191"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import pandas as pd\n",
+        "\n",
+        "## Criando uma Series\n",
+        "s = pd.Series([1, 2, 3, 4, 5], index=['a', 'b', 'c', 'd', 'e'])\n",
+        "print(s)\n",
+        "\n",
+        "## Acessando elementos por índice\n",
+        "print(s['b'])  ## Saída: 2"
+      ],
+      "id": "eb58867d",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "#### DataFrame\n",
+        "\n",
+        "O DataFrame é a estrutura de dados mais importante do Pandas. Ele é uma tabela bidimensional (semelhante a uma planilha ou tabela SQL) com rótulos para as linhas e colunas. Cada coluna de um DataFrame é uma Series, e as colunas podem ter diferentes tipos de dados.\n"
+      ],
+      "id": "adf2df06"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Criando um DataFrame a partir de um dicionário\n",
+        "dados = {\n",
+        "    'Nome': ['Ana', 'Pedro', 'João'],\n",
+        "    'Idade': [23, 34, 19],\n",
+        "    'Cidade': ['São Paulo', 'Rio de Janeiro', 'Curitiba']\n",
+        "}\n",
+        "\n",
+        "df = pd.DataFrame(dados)\n",
+        "print(df)"
+      ],
+      "id": "25cf4189",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "#### Operações Essenciais com DataFrames\n",
+        "1. Selecionar Colunas\n",
+        "2. Filtragem de Dados\n",
+        "3. Alteração de Dados\n",
+        "4. Agrupamento e Agregação\n",
+        "5. Tratamento de Dados Faltantes\n"
+      ],
+      "id": "769f46ea"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Selecionando uma única coluna\n",
+        "print(df['Nome'])"
+      ],
+      "id": "b75c4624",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Selecionando múltiplas colunas\n",
+        "print(df[['Nome', 'Cidade']])"
+      ],
+      "id": "b755f2fb",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Filtrando o DataFrame para mostrar apenas pessoas com mais de 20 anos\n",
+        "filtro = df[df['Idade'] > 20]\n",
+        "print(filtro)"
+      ],
+      "id": "17921b58",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Alterando o valor de uma célula\n",
+        "df.loc[0, 'Idade'] = 24\n",
+        "## Alterando uma coluna inteira\n",
+        "df['Idade'] = df['Idade'] + 1"
+      ],
+      "id": "e47f2ecf",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Agrupando por 'Cidade' e calculando a média de 'Idade'\n",
+        "agrupado = df.groupby('Cidade')['Idade'].mean()\n",
+        "print(agrupado)"
+      ],
+      "id": "e04369f4",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Verificando valores faltantes\n",
+        "print(df.isnull().sum())\n",
+        "\n",
+        "## Removendo linhas com dados faltantes\n",
+        "df_limpo = df.dropna()\n",
+        "\n",
+        "## Preenchendo valores faltantes\n",
+        "df['Idade'].fillna(df['Idade'].mean())"
+      ],
+      "id": "2ec9b4b7",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "#### Estatísticas e Operações com Dados\n",
+        "\n",
+        "Pandas facilita o cálculo de estatísticas descritivas, como média, desvio padrão, contagem, entre outras.\n"
+      ],
+      "id": "26527886"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Estatísticas descritivas\n",
+        "print(df.describe())"
+      ],
+      "id": "c25f4369",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Soma, contagem e média de colunas específicas\n",
+        "print(df['Idade'].sum())\n",
+        "print(df['Idade'].count())\n",
+        "print(df['Idade'].mean())"
+      ],
+      "id": "e413f7ab",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Matplotlib: Biblioteca de Visualização de Dados em Python\n",
+        "\n",
+        "Matplotlib é uma biblioteca poderosa e flexível para visualização de dados em Python. Ela permite criar uma ampla gama de gráficos, desde simples gráficos de linha até visualizações complexas e altamente customizadas. Embora outras bibliotecas como Seaborn ou Plotly sejam populares para visualizações avançadas, Matplotlib continua sendo o núcleo para muitas dessas bibliotecas e é amplamente utilizado por sua versatilidade e integração com NumPy e Pandas.\n",
+        "\n",
+        "A maneira mais comum de usar Matplotlib é através do submódulo pyplot, que fornece uma interface simples para criar gráficos. A estrutura básica de um gráfico com pyplot envolve definir os dados e criar o gráfico com funções que controlam o comportamento do gráfico.\n"
+      ],
+      "id": "d8e111fe"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import matplotlib.pyplot as plt\n",
+        "\n",
+        "## Dados\n",
+        "x = [0, 1, 2, 3, 4]\n",
+        "y = [0, 1, 4, 9, 16]\n",
+        "\n",
+        "## Criando um gráfico de linha\n",
+        "plt.plot(x, y)\n",
+        "\n",
+        "## Adicionando título e rótulos aos eixos\n",
+        "plt.title('Gráfico de Quadrados')\n",
+        "plt.xlabel('Eixo X')\n",
+        "plt.ylabel('Eixo Y')\n",
+        "\n",
+        "## Exibindo o gráfico\n",
+        "plt.show()"
+      ],
+      "id": "6e4d3f1b",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "#### Tipos de Gráficos Comuns\n",
+        "\n",
+        "##### Linha\n"
+      ],
+      "id": "1824867f"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "x = [0, 1, 2, 3, 4]\n",
+        "y = [0, 1, 4, 9, 16]\n",
+        "plt.plot(x, y)\n",
+        "plt.title('Gráfico de Linha')\n",
+        "plt.show()"
+      ],
+      "id": "e7e499ff",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "##### Dispersão\n"
+      ],
+      "id": "a8a929ad"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "plt.scatter(x, y)\n",
+        "plt.title('Gráfico de Dispersão')\n",
+        "plt.show()"
+      ],
+      "id": "3e9303ba",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "##### Barras\n"
+      ],
+      "id": "8ff0e95b"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "scrolled": true
+      },
+      "source": [
+        "categorias = ['A', 'B', 'C']\n",
+        "valores = [5, 7, 3]\n",
+        "plt.bar(categorias, valores)\n",
+        "plt.title('Gráfico de Barras')\n",
+        "plt.show()"
+      ],
+      "id": "2617473e",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "##### Histograma\n"
+      ],
+      "id": "1ebbc7c6"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import numpy as np\n",
+        "\n",
+        "dados = np.random.randn(1000)\n",
+        "plt.hist(dados, bins=30, color='skyblue', edgecolor='black')\n",
+        "plt.title('Histograma de Dados Aleatórios')\n",
+        "plt.show()"
+      ],
+      "id": "83e3bff7",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "##### Pizza\n"
+      ],
+      "id": "f02ab35c"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "tamanhos = [15, 30, 45, 10]\n",
+        "labels = ['A', 'B', 'C', 'D']\n",
+        "plt.pie(tamanhos, labels=labels, autopct='%1.1f%%')\n",
+        "plt.title('Gráfico de Pizza')\n",
+        "plt.show()"
+      ],
+      "id": "ad49581f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "#### Customização\n",
+        "\n",
+        "##### Alterando Cores e Estilos de Linha\n"
+      ],
+      "id": "0de0d0ac"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "plt.plot(x, y, color='red', linestyle='--', marker='o')  ## Linha vermelha com marcador\n",
+        "plt.title('Gráfico Customizado')\n",
+        "plt.show()"
+      ],
+      "id": "9c150dcc",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "##### Adicionando Títulos e Rótulos aos Eixos\n"
+      ],
+      "id": "1e19af0d"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "plt.plot(x, y)\n",
+        "plt.title('Título do Gráfico')\n",
+        "plt.xlabel('Eixo X')\n",
+        "plt.ylabel('Eixo Y')\n",
+        "plt.show()"
+      ],
+      "id": "9e17f306",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "##### Legendas\n"
+      ],
+      "id": "308bee27"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "plt.plot(x, y, label='Quadrados')\n",
+        "plt.plot(x, [i**3 for i in x], label='Cubos')\n",
+        "plt.title('Gráfico com Legenda')\n",
+        "plt.legend()  ## Adiciona legenda\n",
+        "plt.show()"
+      ],
+      "id": "523fa1d3",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "##### Ajustando os Eixos\n"
+      ],
+      "id": "efb8ccb6"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "plt.plot(x, y)\n",
+        "plt.xlim(0, 5)\n",
+        "plt.ylim(0, 20)\n",
+        "plt.title('Ajuste de Eixos')\n",
+        "plt.show()"
+      ],
+      "id": "97d20fa6",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "##### Subplot\n"
+      ],
+      "id": "db4d5ff0"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "## Criando uma figura com dois gráficos lado a lado\n",
+        "plt.figure(figsize=(10, 4))\n",
+        "\n",
+        "plt.subplot(1, 2, 1)  ## 1 linha, 2 colunas, 1º gráfico\n",
+        "plt.plot(x, y)\n",
+        "plt.title('Gráfico de Linha')\n",
+        "\n",
+        "plt.subplot(1, 2, 2)  ## 1 linha, 2 colunas, 2º gráfico\n",
+        "plt.bar(categorias, valores)\n",
+        "plt.title('Gráfico de Barras')\n",
+        "\n",
+        "plt.tight_layout()\n",
+        "plt.show()"
+      ],
+      "id": "46a60db8",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "#### Integração com Pandas\n"
+      ],
+      "id": "a0d2f9a9"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import pandas as pd\n",
+        "\n",
+        "## Criando um DataFrame\n",
+        "dados = {\n",
+        "    'Dia': [1, 2, 3, 4, 5],\n",
+        "    'Vendas': [200, 300, 250, 400, 350]\n",
+        "}\n",
+        "df = pd.DataFrame(dados)\n",
+        "\n",
+        "## Plotando os dados\n",
+        "df.plot(x='Dia', y='Vendas', kind='line')\n",
+        "plt.title('Vendas ao Longo dos Dias')\n",
+        "plt.show()"
+      ],
+      "id": "2d56c2cc",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Exercícios\n",
+        "\n",
+        "### Exercício 1.\n",
+        "Execute as seguintes operações no Python e interprete os resultados:\n",
+        "\n",
+        "- Use a função `math.log()` para calcular o logaritmo natural de 10 e depois o logaritmo na base 10 de 1000.\n",
+        "- Descubra a função que calcula a raiz quadrada de um número utilizando a função `help()`, e aplique-a ao número 144.\n",
+        "\n",
+        "### Exercício 2.\n",
+        "Armazene o resultado de `2 * 7` em uma variável chamada `resultado`. Use `resultado` para calcular o valor de `resultado ** 2`.\n",
+        "\n",
+        "Liste todas as variáveis no ambiente do Python usando a função `globals()`. Exclua a variável `resultado` usando `del` e verifique novamente as variáveis presentes.\n",
+        "\n",
+        "### Exercício 3.\n",
+        "Crie um vetor NumPy `v` contendo os números 4, 8, 15, 16, 23, 42. Use subsetting para selecionar:\n",
+        "- O segundo e o quarto elemento.\n",
+        "- Todos os elementos exceto o terceiro.\n",
+        "- Os elementos que são maiores que 10.\n",
+        "\n",
+        "Multiplique cada elemento do vetor NumPy `v` por 2 e armazene o resultado em um novo vetor `v2`.\n",
+        "\n",
+        "### Exercício 4.\n",
+        "Verifique se `8 > 5` e se `8 == 10`.\n",
+        "\n",
+        "Crie dois vetores NumPy lógicos `a = np.array([True, False, True])` e `b = np.array([False, True, False])`. Aplique os operadores `&`, `|` e `np.logical_xor()` nesses vetores.\n",
+        "\n",
+        "### Exercício 5.\n",
+        "Escreva uma função `soma_quadrados` que receba dois números como argumentos e retorne a soma de seus quadrados. Teste sua função com os números 3 e 4.\n",
+        "\n",
+        "Modifique a função `soma_quadrados` para que o segundo argumento tenha um valor padrão de 2. Teste a função chamando-a com apenas um argumento.\n",
+        "\n",
+        "### Exercício 6.\n",
+        "Escreva um laço `for` que calcule a soma dos números de 1 a 100.\n",
+        "\n",
+        "Crie um laço `while` que multiplique os números de 1 a 6 e retorne o resultado.\n",
+        "\n",
+        "### Exercício 7.\n",
+        "Crie duas variáveis com o seu primeiro e último nome. Use a função `f-string` para juntar as duas variáveis em uma frase que diga “Meu nome completo é [nome completo]”.\n",
+        "\n",
+        "Altere o separador para um traço `-` e junte novamente as variáveis.\n",
+        "\n",
+        "### Exercício 8.\n",
+        "Crie um DataFrame com os dados fictícios a seguir utilizando `pandas`:\n",
+        "\n",
+        "| Nome  | Idade | Cidade      |\n",
+        "|-------|-------|-------------|\n",
+        "| Ana   | 23    | São Paulo   |\n",
+        "| Pedro | 34    | Rio de Janeiro |\n",
+        "| João  | 19    | Curitiba    |\n",
+        "\n",
+        "Filtre as observações onde a idade é maior que 20.\n",
+        "\n",
+        "Ordene o DataFrame pela coluna `Idade` em ordem decrescente.\n",
+        "\n",
+        "### Exercício 9.\n",
+        "Usando o DataFrame criado no exercício anterior, crie um gráfico de barras (`plt.bar`) que mostre a idade de cada pessoa.\n",
+        "\n",
+        "No gráfico anterior, mude a cor de cada barra.\n",
+        "\n",
+        "### Exercício 10.\n",
+        "Crie um DataFrame com os dados de temperatura de uma semana:\n",
+        "\n",
+        "| Dia   | Temperatura (°C) |\n",
+        "|-------|------------------|\n",
+        "| Seg   | 22               |\n",
+        "| Ter   | 24               |\n",
+        "| Qua   | 19               |\n",
+        "| Qui   | 21               |\n",
+        "| Sex   | 23               |\n",
+        "| Sáb   | 25               |\n",
+        "| Dom   | 20               |\n",
+        "\n",
+        "Agora, responda às perguntas abaixo:\n",
+        "\n",
+        "1. Filtre todos os dias em que a temperatura foi maior que 21°C.\n",
+        "2. Calcule a média das temperaturas da semana.\n",
+        "3. Crie um gráfico de linha (`plt.plot`) que mostre a variação da temperatura ao longo da semana.\n"
+      ],
+      "id": "48d1edef"
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "/home/thiagorr/.cache/pypoetry/virtualenvs/prog-stat-RBa3Jx7e-py3.10/share/jupyter/kernels/python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}
