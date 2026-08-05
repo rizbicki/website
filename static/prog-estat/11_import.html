@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>13&nbsp; Amostragem por Importância – Curso de Programação Estatística</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./references.html" rel="next">
+<link href="./10_var_red.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b53751a350365c71b6c909e95f209ed1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-391e8d52869022bb697e2ea9ab25a897.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-ffb5ca9f558d2f0186e140c54025885e.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Curso de Programação Estatística</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thiagorr162/prog-estat"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./11_import.html"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Amostragem por Importância</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Curso de Programação Estatística</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./0_py.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Breve introdução ao Python</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./0_R.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Breve Introdução ao R</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./1_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Por que Simular?</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./2_pseudorandom.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Números Pseudoaleatórios</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./3_discrete_inversion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Técnica da Inversão para Variáveis Discretas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./4_continuous_inversion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Técnica da Inversão para Variáveis Contínuas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./5_discrete_rejection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Método da Rejeição para Variáveis Discretas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./6_continuous_rejection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Método da Rejeição para Variáveis Contínuas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./7_transf.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Transformações e Misturas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./8_box_muller.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Método de Box-Muller</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./9_monte_carlo.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Método de Monte Carlo</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10_var_red.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Técnicas de Redução de Variância</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11_import.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Amostragem por Importância</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul class="collapse">
+  <li><a href="#quando-o-monte-carlo-usual-falha" id="toc-quando-o-monte-carlo-usual-falha" class="nav-link active" data-scroll-target="#quando-o-monte-carlo-usual-falha"><span class="header-section-number">13.1</span> Quando o Monte Carlo usual falha</a></li>
+  <li><a href="#a-ideia-da-amostragem-por-importância" id="toc-a-ideia-da-amostragem-por-importância" class="nav-link" data-scroll-target="#a-ideia-da-amostragem-por-importância"><span class="header-section-number">13.2</span> A ideia da amostragem por importância</a></li>
+  <li><a href="#a-escolha-da-proposta" id="toc-a-escolha-da-proposta" class="nav-link" data-scroll-target="#a-escolha-da-proposta"><span class="header-section-number">13.3</span> A escolha da proposta</a></li>
+  <li><a href="#de-volta-aos-eventos-raros" id="toc-de-volta-aos-eventos-raros" class="nav-link" data-scroll-target="#de-volta-aos-eventos-raros"><span class="header-section-number">13.4</span> De volta aos eventos raros</a></li>
+  <li><a href="#diagnóstico-o-tamanho-amostral-efetivo" id="toc-diagnóstico-o-tamanho-amostral-efetivo" class="nav-link" data-scroll-target="#diagnóstico-o-tamanho-amostral-efetivo"><span class="header-section-number">13.5</span> Diagnóstico: o tamanho amostral efetivo</a></li>
+  <li><a href="#ajustando-os-parâmetros-da-proposta" id="toc-ajustando-os-parâmetros-da-proposta" class="nav-link" data-scroll-target="#ajustando-os-parâmetros-da-proposta"><span class="header-section-number">13.6</span> Ajustando os parâmetros da proposta</a></li>
+  <li><a href="#amostragem-por-importância-autonormalizada" id="toc-amostragem-por-importância-autonormalizada" class="nav-link" data-scroll-target="#amostragem-por-importância-autonormalizada"><span class="header-section-number">13.7</span> Amostragem por importância autonormalizada</a></li>
+  <li><a href="#exercícios" id="toc-exercícios" class="nav-link" data-scroll-target="#exercícios"><span class="header-section-number">13.8</span> Exercícios</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Amostragem por Importância</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>As quatro técnicas do Capítulo 10 são bem diferentes entre si, mas todas têm algo em comum: os valores continuam sendo sorteados da distribuição <span class="math inline">\(f\)</span> do problema. O que muda é o que fazemos <strong>com</strong> eles — combinamos aos pares, corrigimos por uma variável auxiliar, substituímos por uma esperança condicional, espalhamos entre estratos.</p>
+<p>A <strong>amostragem por importância</strong> abandona essa restrição. Ela sorteia os valores de uma outra densidade <span class="math inline">\(g\)</span>, escolhida por nós, e desfaz o viés que isso introduziria atribuindo a cada valor um <strong>peso</strong>. Trocar a densidade de onde se sorteia é uma alavanca muito mais poderosa do que qualquer uma das anteriores, e resolve dois problemas que elas não resolvem:</p>
+<ul>
+<li><strong>eventos raros</strong>: quando a quantidade de interesse depende de uma região que <span class="math inline">\(f\)</span> quase nunca visita, o Monte Carlo usual gasta praticamente todas as simulações onde não há informação alguma;</li>
+<li><strong>densidades difíceis de simular</strong>: se sabemos calcular <span class="math inline">\(f(x)\)</span> mas não sabemos gerar valores de <span class="math inline">\(f\)</span>, ainda assim podemos estimar <span class="math inline">\(\mathbb{E}[h(X)]\)</span> — basta saber simular de alguma outra densidade.</li>
+</ul>
+<p>Como bônus, uma mesma amostra pode ser reaproveitada para estimar esperanças sob várias densidades diferentes, o que é útil em análises de sensibilidade (Exercício 10).</p>
+<p>Começamos pelo primeiro problema, que é o mais gritante.</p>
+<section id="quando-o-monte-carlo-usual-falha" class="level2" data-number="13.1">
+<h2 data-number="13.1" class="anchored" data-anchor-id="quando-o-monte-carlo-usual-falha"><span class="header-section-number">13.1</span> Quando o Monte Carlo usual falha</h2>
+<section id="exemplo-1-a-cauda-da-normal" class="level3" data-number="13.1.1">
+<h3 data-number="13.1.1" class="anchored" data-anchor-id="exemplo-1-a-cauda-da-normal"><span class="header-section-number">13.1.1</span> Exemplo 1: a cauda da normal</h3>
+<p>Seja <span class="math inline">\(Z \sim N(0,1)\)</span> e considere <span class="math display">\[
+p = \mathbb{P}(Z &gt; 4{,}5) \approx 3{,}3977 \times 10^{-6}.
+\]</span></p>
+<p>Escrevendo <span class="math inline">\(p = \mathbb{E}[h(Z)]\)</span> com <span class="math inline">\(h(z) = I(z &gt; 4{,}5)\)</span>, o estimador de Monte Carlo do Capítulo 9 é simplesmente a proporção de valores simulados que superam <span class="math inline">\(4{,}5\)</span>. Vamos aplicá-lo com <span class="math inline">\(B = 100\,000\)</span> simulações.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">0</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">100000</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>p_exato <span class="ot">&lt;-</span> <span class="fu">pnorm</span>(<span class="fl">4.5</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Monte Carlo usual: proporção de valores simulados acima de 4,5</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(B)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>indicadoras <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">*</span> (z <span class="sc">&gt;</span> <span class="fl">4.5</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>p_mc <span class="ot">&lt;-</span> <span class="fu">mean</span>(indicadoras)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>ep_mc <span class="ot">&lt;-</span> <span class="fu">sd</span>(indicadoras) <span class="sc">/</span> <span class="fu">sqrt</span>(B)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Valor exato:        "</span>, p_exato, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Valor exato:         3.397673e-06 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Monte Carlo usual:  "</span>, p_mc, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Monte Carlo usual:   0 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Erro padrão:        "</span>, ep_mc, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Erro padrão:         0 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Valores acima de 4,5:"</span>, <span class="fu">sum</span>(indicadoras), <span class="st">"de"</span>, B, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Valores acima de 4,5: 0 de 1e+05 </code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> norm</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">0</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="dv">100000</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>p_exato <span class="op">=</span> norm.sf(<span class="fl">4.5</span>)   <span class="co"># sf é a função de sobrevivência, igual a 1 - cdf</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Monte Carlo usual: proporção de valores simulados acima de 4,5</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> np.random.normal(<span class="dv">0</span>, <span class="dv">1</span>, B)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>indicadoras <span class="op">=</span> (z <span class="op">&gt;</span> <span class="fl">4.5</span>).astype(<span class="bu">float</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>p_mc <span class="op">=</span> indicadoras.mean()</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>ep_mc <span class="op">=</span> indicadoras.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(B)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Valor exato:        "</span>, p_exato)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Valor exato:         3.3976731247300535e-06</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Monte Carlo usual:  "</span>, p_mc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Monte Carlo usual:   0.0</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Erro padrão:        "</span>, ep_mc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Erro padrão:         0.0</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Valores acima de 4,5:"</span>, <span class="bu">int</span>(indicadoras.<span class="bu">sum</span>()), <span class="st">"de"</span>, B)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Valores acima de 4,5: 0 de 100000</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>Nenhum dos cem mil valores simulados ultrapassou <span class="math inline">\(4{,}5\)</span>, e a estimativa é exatamente zero — errada por completo, já que <span class="math inline">\(p &gt; 0\)</span>.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Atenção: o erro padrão também mente">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Atenção: o erro padrão também mente
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Quando todas as indicadoras valem zero, a variância amostral delas também vale zero, e o erro padrão estimado é <span class="math inline">\(0\)</span>. O intervalo de confiança do Capítulo 9 seria <span class="math inline">\([0,0]\)</span>: uma estimativa errada acompanhada de uma promessa de precisão absoluta.</p>
+<p>O problema é que o erro padrão é estimado <strong>com a mesma amostra</strong> que não viu o evento. Sempre que uma quantidade depende de uma região raramente visitada, o diagnóstico usual perde a validade — é preciso desconfiar antes, olhando quantas simulações efetivamente caíram na região de interesse.</p>
+</div>
+</div>
+<p>Não é questão de azar. Para o estimador <span class="math inline">\(\hat{p}\)</span> da proporção, <span class="math inline">\(\text{Var}(\hat{p}) = p(1-p)/B\)</span>, de modo que o <strong>erro relativo</strong> é</p>
+<p><span class="math display">\[
+\frac{\sqrt{\text{Var}(\hat{p})}}{p} = \sqrt{\frac{1-p}{Bp}} \approx
+\frac{1}{\sqrt{Bp}} .
+\]</span></p>
+<p>O que importa não é <span class="math inline">\(B\)</span>, e sim o produto <span class="math inline">\(Bp\)</span> — o número esperado de simulações que caem na região de interesse. Para obter um erro relativo de <span class="math inline">\(10\%\)</span> são necessárias <span class="math inline">\(B \approx 100/p \approx 2{,}9 \times 10^7\)</span> simulações; para <span class="math inline">\(p = 10^{-9}\)</span>, seriam <span class="math inline">\(10^{11}\)</span>. O método não escala.</p>
+<p>A raiz do problema é o <strong>sorteio</strong>, não o estimador: praticamente todas as <span class="math inline">\(B\)</span> simulações caem onde <span class="math inline">\(h\)</span> vale zero e não carregam informação nenhuma sobre <span class="math inline">\(p\)</span>. A saída é sortear em outro lugar.</p>
+</section>
+</section>
+<section id="a-ideia-da-amostragem-por-importância" class="level2" data-number="13.2">
+<h2 data-number="13.2" class="anchored" data-anchor-id="a-ideia-da-amostragem-por-importância"><span class="header-section-number">13.2</span> A ideia da amostragem por importância</h2>
+<p>Queremos estimar <span class="math inline">\(\theta = \mathbb{E}[h(X)]\)</span>, com <span class="math inline">\(X\)</span> de densidade <span class="math inline">\(f\)</span>. Seja <span class="math inline">\(g\)</span> uma outra densidade, chamada <strong>proposta</strong> (ou densidade de importância). Multiplicando e dividindo o integrando por <span class="math inline">\(g(x)\)</span>,</p>
+<p><span class="math display">\[
+\theta = \int h(x) f(x)\, dx
+= \int h(x) \frac{f(x)}{g(x)}\, g(x)\, dx
+= \mathbb{E}_g\!\left[ h(Y) \frac{f(Y)}{g(Y)} \right],
+\]</span></p>
+<p>em que <span class="math inline">\(Y\)</span> tem densidade <span class="math inline">\(g\)</span> e o índice em <span class="math inline">\(\mathbb{E}_g\)</span> lembra sob qual densidade a esperança é tomada. A conta é elementar, mas a consequência não é: <span class="math inline">\(\theta\)</span>, que era uma esperança sob <span class="math inline">\(f\)</span>, virou uma esperança sob <span class="math inline">\(g\)</span> — e podemos estimá-la simulando de <span class="math inline">\(g\)</span>.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Definição: pesos de importância">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Definição: pesos de importância
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Dadas a densidade alvo <span class="math inline">\(f\)</span> e a proposta <span class="math inline">\(g\)</span>, o <strong>peso de importância</strong> de um ponto <span class="math inline">\(y\)</span> é</p>
+<p><span class="math display">\[
+w(y) = \frac{f(y)}{g(y)} .
+\]</span></p>
+<p>O peso mede o quanto o ponto <span class="math inline">\(y\)</span> foi sorteado “em excesso” ou “em falta” em relação a <span class="math inline">\(f\)</span>: onde <span class="math inline">\(g &gt; f\)</span>, os pontos aparecem demais e são descontados (<span class="math inline">\(w &lt; 1\)</span>); onde <span class="math inline">\(g &lt; f\)</span>, aparecem de menos e são inflados (<span class="math inline">\(w &gt; 1\)</span>).</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled" title="Proposição: o estimador por importância">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proposição: o estimador por importância
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Sejam <span class="math inline">\(Y_1, \dots, Y_B\)</span> i.i.d. com densidade <span class="math inline">\(g\)</span>, e suponha que <span class="math inline">\(g(y) &gt; 0\)</span> sempre que <span class="math inline">\(h(y)f(y) \neq 0\)</span>. O <strong>estimador por amostragem por importância</strong></p>
+<p><span class="math display">\[
+\hat{\theta}_{\text{IS}} = \frac{1}{B} \sum_{i=1}^{B} w(Y_i)\, h(Y_i),
+\qquad w(y) = \frac{f(y)}{g(y)},
+\]</span></p>
+<p>é não viesado para <span class="math inline">\(\theta\)</span> e tem variância</p>
+<p><span class="math display">\[
+\text{Var}(\hat{\theta}_{\text{IS}}) = \frac{1}{B}
+\left\{ \int \frac{h(x)^2 f(x)^2}{g(x)}\, dx - \theta^2 \right\}.
+\]</span></p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Demonstração">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Demonstração
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>As parcelas <span class="math inline">\(w(Y_i)h(Y_i)\)</span> são i.i.d., e pela identidade acima cada uma tem média</p>
+<p><span class="math display">\[
+\mathbb{E}_g\!\left[ h(Y)\frac{f(Y)}{g(Y)} \right] = \theta,
+\]</span></p>
+<p>o que dá <span class="math inline">\(\mathbb{E}[\hat{\theta}_{\text{IS}}] = \theta\)</span>. Como as parcelas são independentes, a variância da média é a variância de uma parcela dividida por <span class="math inline">\(B\)</span>, e</p>
+<p><span class="math display">\[
+\text{Var}_g\!\left[ h(Y)\frac{f(Y)}{g(Y)} \right]
+= \mathbb{E}_g\!\left[ h(Y)^2 \frac{f(Y)^2}{g(Y)^2} \right] - \theta^2
+= \int h(x)^2 \frac{f(x)^2}{g(x)^2}\, g(x)\, dx - \theta^2 . \qquad \square
+\]</span></p>
+</div>
+</div>
+</div>
+<p>Comparando com a variância do Monte Carlo usual, <span class="math inline">\(\frac{1}{B}\{\int h(x)^2 f(x)\,dx - \theta^2\}\)</span>, vê-se que os dois estimadores diferem apenas na integral do segundo momento: onde um tem <span class="math inline">\(h^2 f\)</span>, o outro tem <span class="math inline">\(h^2 f^2/g\)</span>. Tudo se resume, portanto, a escolher <span class="math inline">\(g\)</span> que torne <span class="math inline">\(\int h^2 f^2 / g\)</span> pequena — e é a isso que voltaremos na próxima seção.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Atenção: o suporte de $g$ não pode ter buracos">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Atenção: o suporte de <span class="math inline">\(g\)</span> não pode ter buracos
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A condição “<span class="math inline">\(g(y) &gt; 0\)</span> sempre que <span class="math inline">\(h(y)f(y) \neq 0\)</span>” não é uma tecnicalidade. Se existir uma região onde <span class="math inline">\(h f\)</span> não se anula mas <span class="math inline">\(g\)</span> vale zero, essa região <strong>nunca será sorteada</strong>, e a contribuição dela para a integral desaparece silenciosamente: o estimador converge, com erro padrão pequeno e ar de confiabilidade, para o valor errado.</p>
+<p>Um caso concreto: usar <span class="math inline">\(g = \text{Unif}(0,1)\)</span> para estimar <span class="math inline">\(\mathbb{E}[X]\)</span> com <span class="math inline">\(X \sim \text{Exp}(1)\)</span>. Todo o intervalo <span class="math inline">\((1,\infty)\)</span> é ignorado.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Pseudo-algoritmo: amostragem por importância">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Pseudo-algoritmo: amostragem por importância
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Para estimar <span class="math inline">\(\theta = \mathbb{E}[h(X)]\)</span>, com <span class="math inline">\(X\)</span> de densidade <span class="math inline">\(f\)</span>:</p>
+<ol type="1">
+<li><p>Escolha uma proposta <span class="math inline">\(g\)</span> que saiba simular, com <span class="math inline">\(g &gt; 0\)</span> onde <span class="math inline">\(hf \neq 0\)</span>.</p></li>
+<li><p>Gere <span class="math inline">\(Y_1, \dots, Y_B\)</span> independentes com densidade <span class="math inline">\(g\)</span>.</p></li>
+<li><p>Calcule os pesos <span class="math inline">\(w_i = f(Y_i)/g(Y_i)\)</span> e as parcelas <span class="math inline">\(A_i = w_i\, h(Y_i)\)</span>.</p></li>
+<li><p>Devolva <span class="math display">\[
+\hat{\theta}_{\text{IS}} = \frac{1}{B}\sum_{i=1}^B A_i,
+\]</span> com erro padrão <span class="math inline">\(\hat{\sigma}_A/\sqrt{B}\)</span>, em que <span class="math inline">\(\hat{\sigma}_A\)</span> é o desvio padrão amostral dos <span class="math inline">\(A_i\)</span>.</p></li>
+</ol>
+</div>
+</div>
+<p>Note que o passo 4 é o de sempre: uma média de <span class="math inline">\(B\)</span> valores i.i.d., com o erro padrão do Capítulo 9. A única novidade está em <strong>quais</strong> valores entram na média.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Parentesco com o método da rejeição">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Parentesco com o método da rejeição
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>O método da rejeição do Capítulo 6 também parte de uma proposta <span class="math inline">\(g\)</span> e de valores simulados dela. A diferença está no que se faz com cada valor:</p>
+<ul>
+<li>a <strong>rejeição</strong> decide, no sorteio de uma moeda, se aceita ou descarta cada ponto; os pontos aceitos formam uma amostra genuína de <span class="math inline">\(f\)</span>, e todo o resto do trabalho é jogado fora;</li>
+<li>a <strong>amostragem por importância</strong> não descarta nada: cada ponto entra na conta, ponderado por <span class="math inline">\(w_i\)</span>.</li>
+</ul>
+<p>A rejeição exige que <span class="math inline">\(f/g\)</span> seja limitada por uma constante <span class="math inline">\(M\)</span> conhecida; a amostragem por importância não exige nada além do suporte, embora funcione muito melhor quando <span class="math inline">\(f/g\)</span> é razoavelmente limitada. Em compensação, a rejeição devolve uma amostra de <span class="math inline">\(f\)</span>, que serve para qualquer finalidade, enquanto a amostragem por importância devolve apenas uma estimativa (Exercício 7).</p>
+</div>
+</div>
+</section>
+<section id="a-escolha-da-proposta" class="level2" data-number="13.3">
+<h2 data-number="13.3" class="anchored" data-anchor-id="a-escolha-da-proposta"><span class="header-section-number">13.3</span> A escolha da proposta</h2>
+<p>Nem toda proposta serve, e a diferença entre uma boa e uma ruim é enorme. Há um resultado que diz exatamente qual é a melhor.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="Proposição: a proposta ótima">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proposição: a proposta ótima
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Entre todas as densidades <span class="math inline">\(g\)</span> admissíveis, a que minimiza <span class="math inline">\(\text{Var}(\hat{\theta}_{\text{IS}})\)</span> é</p>
+<p><span class="math display">\[
+g^*(x) = \frac{|h(x)|\, f(x)}{\int |h(u)|\, f(u)\, du} .
+\]</span></p>
+<p>Se, além disso, <span class="math inline">\(h \geq 0\)</span>, então <span class="math inline">\(g^* = h f / \theta\)</span> e o estimador tem <strong>variância zero</strong>: todos os pesos ficam iguais e <span class="math inline">\(\hat{\theta}_{\text{IS}} = \theta\)</span> em qualquer simulação.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Demonstração">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Demonstração
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Para qualquer <span class="math inline">\(g\)</span> admissível, o segundo momento da parcela satisfaz, pela desigualdade de Jensen (ou simplesmente porque variância é não negativa),</p>
+<p><span class="math display">\[
+\mathbb{E}_g\!\left[ \left( h(Y)\frac{f(Y)}{g(Y)} \right)^2 \right]
+\;\geq\;
+\left( \mathbb{E}_g\!\left[ \left| h(Y)\frac{f(Y)}{g(Y)} \right| \right] \right)^2
+= \left( \int |h(x)|\, f(x)\, dx \right)^2,
+\]</span></p>
+<p>e note que o lado direito <strong>não depende de <span class="math inline">\(g\)</span></strong>. Basta então verificar que <span class="math inline">\(g^*\)</span> atinge esse limite. Escrevendo <span class="math inline">\(c = \int |h|f\)</span>, temos <span class="math inline">\(g^* = |h|f/c\)</span> e</p>
+<p><span class="math display">\[
+\mathbb{E}_{g^*}\!\left[ \left( h(Y)\frac{f(Y)}{g^*(Y)} \right)^2 \right]
+= \int \frac{h(x)^2 f(x)^2}{g^*(x)}\, dx
+= \int \frac{h(x)^2 f(x)^2 \, c}{|h(x)| f(x)}\, dx
+= c \int |h(x)| f(x)\, dx = c^2 .
+\]</span></p>
+<p>Logo <span class="math inline">\(g^*\)</span> minimiza o segundo momento e, como <span class="math inline">\(\theta\)</span> é o mesmo para todas as propostas, também minimiza a variância. Quando <span class="math inline">\(h \geq 0\)</span> tem-se <span class="math inline">\(c = \int h f = \theta\)</span>, e o segundo momento vale <span class="math inline">\(\theta^2\)</span>: a variância é <span class="math inline">\(\theta^2 - \theta^2 = 0\)</span>. <span class="math inline">\(\square\)</span></p>
+</div>
+</div>
+</div>
+<p>O resultado é ao mesmo tempo perfeito e inútil. Perfeito porque exibe uma proposta com variância zero; inútil porque essa proposta depende de <span class="math inline">\(\int |h|f\)</span>, que é essencialmente a quantidade que queremos estimar. Se soubéssemos <span class="math inline">\(g^*\)</span>, não precisaríamos simular.</p>
+<p>O valor da proposição é servir de <strong>bússola</strong>. Ela diz que a proposta deve ter formato parecido com <span class="math inline">\(|h| f\)</span>: colocar massa onde o produto <span class="math inline">\(|h(x)|f(x)\)</span> é grande e pouca massa onde ele é pequeno. Na prática, escolhemos uma família de densidades que saibamos simular — exponenciais, normais, gamas — e ajustamos os parâmetros para imitar <span class="math inline">\(|h| f\)</span>.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Atenção: a cauda de $g$ não pode ser leve demais">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Atenção: a cauda de <span class="math inline">\(g\)</span> não pode ser leve demais
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A variância do estimador envolve <span class="math inline">\(\int h^2 f^2 / g\)</span>, com <span class="math inline">\(g\)</span> <strong>no denominador</strong>. Se <span class="math inline">\(g\)</span> decair mais rápido que <span class="math inline">\(|h| f\)</span> na cauda, essa razão explode e a integral pode divergir: a variância fica <strong>infinita</strong>, mesmo que a variância do Monte Carlo usual seja finita.</p>
+<p>E o pior é o sintoma. Com variância infinita o estimador continua não viesado e a Lei dos Grandes Números continua valendo, de modo que as estimativas parecem se estabilizar — até que um único ponto muito longe na cauda receba um peso enorme e desloque a média inteira. O Teorema Central do Limite não vale, e o erro padrão calculado pela fórmula usual não significa nada.</p>
+<p>A regra prática: <strong>a proposta deve ter cauda mais pesada que a do alvo</strong>. Na dúvida, prefira uma <span class="math inline">\(g\)</span> dispersa demais a uma <span class="math inline">\(g\)</span> concentrada demais.</p>
+</div>
+</div>
+<section id="exemplo-2-quando-a-cauda-da-proposta-é-leve-demais" class="level3" data-number="13.3.1">
+<h3 data-number="13.3.1" class="anchored" data-anchor-id="exemplo-2-quando-a-cauda-da-proposta-é-leve-demais"><span class="header-section-number">13.3.1</span> Exemplo 2: quando a cauda da proposta é leve demais</h3>
+<p>Vamos estimar algo perfeitamente comum: <span class="math inline">\(\theta = \mathbb{E}[X^2] = 1\)</span>, com <span class="math inline">\(X \sim N(0,1)\)</span>. Aqui não há evento raro nenhum, e o Monte Carlo usual funciona bem, com <span class="math inline">\(\text{Var}(X^2) = \mathbb{E}[X^4] - 1 = 2\)</span>. Usaremos como proposta uma <span class="math inline">\(N(0,\sigma^2)\)</span>, para dois valores de <span class="math inline">\(\sigma\)</span>.</p>
+<p>O segundo momento da parcela é, com <span class="math inline">\(\varphi_\sigma\)</span> denotando a densidade da <span class="math inline">\(N(0,\sigma^2)\)</span>,</p>
+<p><span class="math display">\[
+\int x^4 \frac{\varphi(x)^2}{\varphi_\sigma(x)}\, dx
+\;\propto\; \int x^4 \exp\!\left\{ -x^2\left( 1 - \frac{1}{2\sigma^2} \right) \right\} dx,
+\]</span></p>
+<p>que converge se e somente se <span class="math inline">\(1 - \frac{1}{2\sigma^2} &gt; 0\)</span>, isto é, se <span class="math inline">\(\sigma &gt; 1/\sqrt{2} \approx 0{,}707\)</span>. Tomamos <span class="math inline">\(\sigma = 0{,}5\)</span> (variância infinita) e <span class="math inline">\(\sigma = 1{,}5\)</span> (variância finita) e olhamos a <strong>média corrente</strong>, ou seja, a estimativa que teríamos após cada número de simulações.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">20000</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Devolve as parcelas A_i = Y_i^2 * w_i do estimador por importância,</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># com proposta N(0, sigma^2) e alvo N(0,1)</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>parcelas_is <span class="ot">&lt;-</span> <span class="cf">function</span>(B, sigma) {</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(B, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> sigma)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  w <span class="ot">&lt;-</span> <span class="fu">dnorm</span>(y) <span class="sc">/</span> <span class="fu">dnorm</span>(y, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> sigma)   <span class="co"># pesos f(y)/g(y)</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  y<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> w</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>a_leve <span class="ot">&lt;-</span> <span class="fu">parcelas_is</span>(B, <span class="at">sigma =</span> <span class="fl">0.5</span>)   <span class="co"># cauda leve demais</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>a_ok   <span class="ot">&lt;-</span> <span class="fu">parcelas_is</span>(B, <span class="at">sigma =</span> <span class="fl">1.5</span>)   <span class="co"># cauda suficientemente pesada</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Média corrente: a estimativa que teríamos após i simulações</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>media_corrente <span class="ot">&lt;-</span> <span class="cf">function</span>(a) <span class="fu">cumsum</span>(a) <span class="sc">/</span> <span class="fu">seq_along</span>(a)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>dados <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">i =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>B, <span class="dv">2</span>),</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">media =</span> <span class="fu">c</span>(<span class="fu">media_corrente</span>(a_leve), <span class="fu">media_corrente</span>(a_ok)),</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">proposta =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"sigma = 0,5 (variancia infinita)"</span>,</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"sigma = 1,5 (variancia finita)"</span>), <span class="at">each =</span> B)</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dados, <span class="fu">aes</span>(<span class="at">x =</span> i, <span class="at">y =</span> media)) <span class="sc">+</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> proposta, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"numero de simulacoes"</span>, <span class="at">y =</span> <span class="st">"estimativa acumulada"</span>,</span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Media corrente do estimador por importancia"</span>) <span class="sc">+</span></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="11_import_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> norm</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">2</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="dv">20000</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Devolve as parcelas A_i = Y_i^2 * w_i do estimador por importância,</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="co"># com proposta N(0, sigma^2) e alvo N(0,1)</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> parcelas_is(B, sigma):</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> np.random.normal(<span class="dv">0</span>, sigma, B)</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> norm.pdf(y) <span class="op">/</span> norm.pdf(y, <span class="dv">0</span>, sigma)   <span class="co"># pesos f(y)/g(y)</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> y<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> w</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>a_leve <span class="op">=</span> parcelas_is(B, <span class="fl">0.5</span>)   <span class="co"># cauda leve demais</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>a_ok   <span class="op">=</span> parcelas_is(B, <span class="fl">1.5</span>)   <span class="co"># cauda suficientemente pesada</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Média corrente: a estimativa que teríamos após i simulações</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> media_corrente(a):</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.cumsum(a) <span class="op">/</span> np.arange(<span class="dv">1</span>, <span class="bu">len</span>(a) <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>fig, eixos <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">6</span>))</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>titulos <span class="op">=</span> [<span class="st">"sigma = 0,5 (variancia infinita)"</span>,</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>           <span class="st">"sigma = 1,5 (variancia finita)"</span>]</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> eixo, a, titulo <span class="kw">in</span> <span class="bu">zip</span>(eixos, [a_leve, a_ok], titulos):</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>    eixo.plot(media_corrente(a), color<span class="op">=</span><span class="st">'blue'</span>)</span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>    eixo.axhline(<span class="dv">1</span>, color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>    eixo.set_title(titulo)</span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>    eixo.set_xlabel(<span class="st">'numero de simulacoes'</span>)</span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>    eixo.set_ylabel(<span class="st">'estimativa acumulada'</span>)</span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="11_import_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>O painel de cima é a assinatura da variância infinita: longos trechos de aparente estabilidade, interrompidos por saltos que jogam a estimativa para longe. O painel de baixo é o comportamento esperado de uma média de variáveis com variância finita.</p>
+<p>E há um segundo recado, menos óbvio. Para <span class="math inline">\(\sigma = 1{,}5\)</span> a variância da parcela é aproximadamente <span class="math inline">\(0{,}49\)</span>, contra <span class="math inline">\(2\)</span> do Monte Carlo usual — uma redução de quatro vezes. A amostragem por importância <strong>não serve apenas para eventos raros</strong>: aqui ela ganha porque <span class="math inline">\(x^2 f(x)\)</span> é uma função com duas corcovas afastadas da origem, e uma normal mais dispersa se parece mais com ela do que a própria <span class="math inline">\(N(0,1)\)</span>. O valor de <span class="math inline">\(\sigma\)</span> que minimiza a variância é objeto do Exercício 5.</p>
+</section>
+</section>
+<section id="de-volta-aos-eventos-raros" class="level2" data-number="13.4">
+<h2 data-number="13.4" class="anchored" data-anchor-id="de-volta-aos-eventos-raros"><span class="header-section-number">13.4</span> De volta aos eventos raros</h2>
+<section id="exemplo-3-mathbbpz-45-por-amostragem-por-importância" class="level3" data-number="13.4.1">
+<h3 data-number="13.4.1" class="anchored" data-anchor-id="exemplo-3-mathbbpz-45-por-amostragem-por-importância"><span class="header-section-number">13.4.1</span> Exemplo 3: <span class="math inline">\(\mathbb{P}(Z &gt; 4{,}5)\)</span> por amostragem por importância</h3>
+<p>Voltemos ao Exemplo 1. Aqui <span class="math inline">\(h(z) = I(z &gt; 4{,}5) \geq 0\)</span>, então a proposição diz que a proposta ótima é</p>
+<p><span class="math display">\[
+g^*(y) = \frac{\varphi(y)\, I(y &gt; 4{,}5)}{p},
+\]</span></p>
+<p>a normal padrão <strong>truncada</strong> em <span class="math inline">\(4{,}5\)</span> — que não sabemos simular sem conhecer <span class="math inline">\(p\)</span>, justamente o que queremos estimar (Exercício 12). Mas a bússola já ajuda: a proposta deve viver inteiramente em <span class="math inline">\((4{,}5, \infty)\)</span> e ter, ali, o formato de <span class="math inline">\(\varphi\)</span>. Escrevendo <span class="math inline">\(y = 4{,}5 + s\)</span>,</p>
+<p><span class="math display">\[
+\frac{\varphi(4{,}5+s)}{\varphi(4{,}5)} = e^{-4{,}5\,s - s^2/2} \approx e^{-4{,}5\,s}
+\quad \text{para } s \text{ pequeno},
+\]</span></p>
+<p>isto é, logo acima do limiar a normal decai como uma <strong>exponencial de taxa <span class="math inline">\(4{,}5\)</span></strong>. Isso sugere a família de propostas</p>
+<p><span class="math display">\[
+g_\lambda(y) = \lambda e^{-\lambda (y - 4{,}5)}, \qquad y &gt; 4{,}5,
+\]</span></p>
+<p>— uma exponencial de taxa <span class="math inline">\(\lambda\)</span> deslocada para <span class="math inline">\(4{,}5\)</span> — e sugere ainda a escolha <span class="math inline">\(\lambda = 4{,}5\)</span>. Vamos comparar <span class="math inline">\(\lambda = 1\)</span> (a escolha ingênua) com <span class="math inline">\(\lambda = 4{,}5\)</span>.</p>
+<p>Como <span class="math inline">\(h(y) = 1\)</span> para todo <span class="math inline">\(y\)</span> gerado, o estimador é simplesmente a média dos pesos:</p>
+<p><span class="math display">\[
+\hat{p}_{\text{IS}} = \frac{1}{B}\sum_{i=1}^B \frac{\varphi(Y_i)}{g_\lambda(Y_i)},
+\qquad Y_i = 4{,}5 + S_i, \quad S_i \sim \text{Exp}(\lambda).
+\]</span></p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">100000</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>limiar <span class="ot">&lt;-</span> <span class="fl">4.5</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Amostragem por importância com proposta exponencial de taxa lambda,</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co"># deslocada para começar no limiar</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>is_exp_deslocada <span class="ot">&lt;-</span> <span class="cf">function</span>(B, lambda, limiar) {</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> <span class="fu">rexp</span>(B, <span class="at">rate =</span> lambda)            <span class="co"># S ~ Exp(lambda)</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> limiar <span class="sc">+</span> s                        <span class="co"># Y = limiar + S, sempre acima do limiar</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">&lt;-</span> lambda <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda <span class="sc">*</span> s)         <span class="co"># densidade da proposta avaliada em y</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  w <span class="ot">&lt;-</span> <span class="fu">dnorm</span>(y) <span class="sc">/</span> g                      <span class="co"># pesos; h(y) = 1, pois y &gt; limiar</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">est =</span> <span class="fu">mean</span>(w), <span class="at">ep =</span> <span class="fu">sd</span>(w) <span class="sc">/</span> <span class="fu">sqrt</span>(B), <span class="at">pesos =</span> w)</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>is_1  <span class="ot">&lt;-</span> <span class="fu">is_exp_deslocada</span>(B, <span class="at">lambda =</span> <span class="dv">1</span>,   limiar)</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>is_45 <span class="ot">&lt;-</span> <span class="fu">is_exp_deslocada</span>(B, <span class="at">lambda =</span> <span class="fl">4.5</span>, limiar)</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Monte Carlo usual, com o mesmo número de simulações</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(B)</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>p_mc  <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="dv">1</span> <span class="sc">*</span> (z <span class="sc">&gt;</span> limiar))</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>ep_mc <span class="ot">&lt;-</span> <span class="fu">sd</span>(<span class="dv">1</span> <span class="sc">*</span> (z <span class="sc">&gt;</span> limiar)) <span class="sc">/</span> <span class="fu">sqrt</span>(B)</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>mostra <span class="ot">&lt;-</span> <span class="cf">function</span>(rotulo, est, ep) {</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># quando a estimativa é zero, o erro relativo não está definido</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>  rel <span class="ot">&lt;-</span> <span class="cf">if</span> (est <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">sprintf</span>(<span class="st">"%.4f"</span>, ep <span class="sc">/</span> est) <span class="cf">else</span> <span class="st">"---"</span></span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"%-20s est = %.4e   EP = %.4e   EP/est = %s</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>              rotulo, est, ep, rel))</span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Valor exato: %.4e</span><span class="sc">\n\n</span><span class="st">"</span>, p_exato))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Valor exato: 3.3977e-06</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mostra</span>(<span class="st">"Monte Carlo usual"</span>, p_mc, ep_mc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Monte Carlo usual    est = 0.0000e+00   EP = 0.0000e+00   EP/est = ---</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mostra</span>(<span class="st">"IS, lambda = 1"</span>,   is_1<span class="sc">$</span>est,  is_1<span class="sc">$</span>ep)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>IS, lambda = 1       est = 3.3992e-06   EP = 1.3987e-08   EP/est = 0.0041</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mostra</span>(<span class="st">"IS, lambda = 4,5"</span>, is_45<span class="sc">$</span>est, is_45<span class="sc">$</span>ep)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>IS, lambda = 4,5     est = 3.3983e-06   EP = 9.1122e-10   EP/est = 0.0003</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> norm</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">1</span>)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="dv">100000</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>limiar <span class="op">=</span> <span class="fl">4.5</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Amostragem por importância com proposta exponencial de taxa lambda,</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co"># deslocada para começar no limiar</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> is_exp_deslocada(B, lam, limiar):</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> np.random.exponential(scale<span class="op">=</span><span class="dv">1</span><span class="op">/</span>lam, size<span class="op">=</span>B)   <span class="co"># S ~ Exp(lam)</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> limiar <span class="op">+</span> s                    <span class="co"># Y = limiar + S, sempre acima do limiar</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> lam <span class="op">*</span> np.exp(<span class="op">-</span>lam <span class="op">*</span> s)        <span class="co"># densidade da proposta avaliada em y</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> norm.pdf(y) <span class="op">/</span> g               <span class="co"># pesos; h(y) = 1, pois y &gt; limiar</span></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"est"</span>: w.mean(), <span class="st">"ep"</span>: w.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(B), <span class="st">"pesos"</span>: w}</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>is_1  <span class="op">=</span> is_exp_deslocada(B, <span class="fl">1.0</span>, limiar)</span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>is_45 <span class="op">=</span> is_exp_deslocada(B, <span class="fl">4.5</span>, limiar)</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Monte Carlo usual, com o mesmo número de simulações</span></span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> np.random.normal(<span class="dv">0</span>, <span class="dv">1</span>, B)</span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>ind <span class="op">=</span> (z <span class="op">&gt;</span> limiar).astype(<span class="bu">float</span>)</span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>p_mc, ep_mc <span class="op">=</span> ind.mean(), ind.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(B)</span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mostra(rotulo, est, ep):</span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># quando a estimativa é zero, o erro relativo não está definido</span></span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>    rel <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>ep<span class="op">/</span>est<span class="sc">:.4f}</span><span class="ss">"</span> <span class="cf">if</span> est <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">"---"</span></span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>rotulo<span class="sc">:&lt;20s}</span><span class="ss"> est = </span><span class="sc">{</span>est<span class="sc">:.4e}</span><span class="ss">   EP = </span><span class="sc">{</span>ep<span class="sc">:.4e}</span><span class="ss">   EP/est = </span><span class="sc">{</span>rel<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Valor exato: </span><span class="sc">{</span>p_exato<span class="sc">:.4e}</span><span class="ch">\n</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Valor exato: 3.3977e-06</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>mostra(<span class="st">"Monte Carlo usual"</span>, p_mc, ep_mc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Monte Carlo usual    est = 1.0000e-05   EP = 1.0000e-05   EP/est = 1.0000</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>mostra(<span class="st">"IS, lambda = 1"</span>,   is_1[<span class="st">"est"</span>],  is_1[<span class="st">"ep"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>IS, lambda = 1       est = 3.4198e-06   EP = 1.4012e-08   EP/est = 0.0041</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>mostra(<span class="st">"IS, lambda = 4,5"</span>, is_45[<span class="st">"est"</span>], is_45[<span class="st">"ep"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>IS, lambda = 4,5     est = 3.3982e-06   EP = 9.0241e-10   EP/est = 0.0003</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>A coluna <code>EP/est</code> é o erro relativo, e é onde a história aparece. As duas propostas produzem estimativas corretas, mas com <span class="math inline">\(\lambda = 4{,}5\)</span> o erro relativo é mais de dez vezes menor que com <span class="math inline">\(\lambda = 1\)</span> — ou seja, mais de cem vezes menos variância, apenas por trocar um parâmetro da mesma família. Ambas são incomparavelmente melhores que o Monte Carlo usual, que com as mesmas <span class="math inline">\(10^5\)</span> simulações acerta no máximo a ordem de grandeza, quando acerta.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Deslocar a proposta é a receita para caudas">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Deslocar a proposta é a receita para caudas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>O padrão do Exemplo 3 se repete em quase todo problema de evento raro: se a região de interesse é <span class="math inline">\(\{X &gt; a\}\)</span>, procure uma proposta <strong>centrada em <span class="math inline">\(a\)</span></strong>, e não na média de <span class="math inline">\(f\)</span>. Isso vale tanto para a família exponencial deslocada usada aqui quanto para propostas do tipo <span class="math inline">\(N(\mu, 1)\)</span> com <span class="math inline">\(\mu \approx a\)</span> (Exercício 13) ou para somas de variáveis (Exercício 8).</p>
+<p>A técnica geral por trás disso chama-se <em>tilting</em> exponencial, e consiste em trocar <span class="math inline">\(f(x)\)</span> por <span class="math inline">\(f(x)e^{tx}/\mathbb{E}[e^{tX}]\)</span>, escolhendo <span class="math inline">\(t\)</span> de modo que a nova densidade tenha média <span class="math inline">\(a\)</span>.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="diagnóstico-o-tamanho-amostral-efetivo" class="level2" data-number="13.5">
+<h2 data-number="13.5" class="anchored" data-anchor-id="diagnóstico-o-tamanho-amostral-efetivo"><span class="header-section-number">13.5</span> Diagnóstico: o tamanho amostral efetivo</h2>
+<p>Como saber, olhando apenas para a saída da simulação, se a proposta foi boa? O sintoma de uma proposta ruim é sempre o mesmo: <strong>poucos pesos muito grandes</strong> dominam a soma, e as demais simulações praticamente não contribuem. Se dez pontos entre um milhão respondem por quase toda a estimativa, a amostra efetiva tem tamanho dez, não um milhão.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Definição: tamanho amostral efetivo">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Definição: tamanho amostral efetivo
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Dados os pesos <span class="math inline">\(w_1, \dots, w_B\)</span>, o <strong>tamanho amostral efetivo</strong> (TAE) é</p>
+<p><span class="math display">\[
+\text{TAE} = \frac{\left( \sum_{i=1}^B w_i \right)^2}{\sum_{i=1}^B w_i^2} .
+\]</span></p>
+<p>Ele satisfaz <span class="math inline">\(1 \leq \text{TAE} \leq B\)</span>, com <span class="math inline">\(\text{TAE} = B\)</span> quando todos os pesos são iguais e <span class="math inline">\(\text{TAE} = 1\)</span> quando um único peso é não nulo.</p>
+</div>
+</div>
+<p>A interpretação é que a estimativa por importância com <span class="math inline">\(B\)</span> pontos tem precisão comparável à de uma estimativa por Monte Carlo usual com <span class="math inline">\(\text{TAE}\)</span> pontos sorteados de <span class="math inline">\(f\)</span> (Exercício 14). É uma regra de bolso, não um teorema — mas é um alarme barato e eficaz: um TAE muito menor que <span class="math inline">\(B\)</span> diz que a proposta não cobre bem o alvo.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>tae <span class="ot">&lt;-</span> <span class="cf">function</span>(w) <span class="fu">sum</span>(w)<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="fu">sum</span>(w<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"TAE com lambda = 1:  "</span>, <span class="fu">round</span>(<span class="fu">tae</span>(is_1<span class="sc">$</span>pesos), <span class="dv">1</span>),  <span class="st">"de"</span>, B, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>TAE com lambda = 1:   37130 de 1e+05 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"TAE com lambda = 4,5:"</span>, <span class="fu">round</span>(<span class="fu">tae</span>(is_45<span class="sc">$</span>pesos), <span class="dv">1</span>), <span class="st">"de"</span>, B, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>TAE com lambda = 4,5: 99286.2 de 1e+05 </code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tae(w):</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> w.<span class="bu">sum</span>()<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> (w<span class="op">**</span><span class="dv">2</span>).<span class="bu">sum</span>()</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"TAE com lambda = 1:  "</span>, <span class="bu">round</span>(tae(is_1[<span class="st">"pesos"</span>]), <span class="dv">1</span>),  <span class="st">"de"</span>, B)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>TAE com lambda = 1:   37329.6 de 100000</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"TAE com lambda = 4,5:"</span>, <span class="bu">round</span>(tae(is_45[<span class="st">"pesos"</span>]), <span class="dv">1</span>), <span class="st">"de"</span>, B)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>TAE com lambda = 4,5: 99299.8 de 100000</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>O diagnóstico reproduz o que já sabíamos do erro padrão: com <span class="math inline">\(\lambda = 1\)</span> pouco mais de um terço das simulações é efetivamente aproveitado, enquanto com <span class="math inline">\(\lambda = 4{,}5\)</span> a amostra efetiva é quase <span class="math inline">\(B\)</span> inteiro.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Atenção: o TAE não detecta buracos no suporte">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Atenção: o TAE não detecta buracos no suporte
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>O TAE só enxerga os pontos que foram sorteados. Se <span class="math inline">\(g\)</span> ignora completamente uma região onde <span class="math inline">\(hf\)</span> é grande, nenhum peso grande aparece — e o TAE fica confortavelmente alto, apontando para uma estimativa errada. Ele detecta pesos desbalanceados, não regiões esquecidas.</p>
+</div>
+</div>
+</section>
+<section id="ajustando-os-parâmetros-da-proposta" class="level2" data-number="13.6">
+<h2 data-number="13.6" class="anchored" data-anchor-id="ajustando-os-parâmetros-da-proposta"><span class="header-section-number">13.6</span> Ajustando os parâmetros da proposta</h2>
+<p>Quando a proposta pertence a uma família paramétrica, às vezes é possível escolher o parâmetro <strong>analiticamente</strong>, minimizando a variância. O exemplo a seguir faz essa conta até o fim.</p>
+<section id="exemplo-4-mathbbesqrtx-com-proposta-exponencial" class="level3" data-number="13.6.1">
+<h3 data-number="13.6.1" class="anchored" data-anchor-id="exemplo-4-mathbbesqrtx-com-proposta-exponencial"><span class="header-section-number">13.6.1</span> Exemplo 4: <span class="math inline">\(\mathbb{E}[\sqrt{X}]\)</span> com proposta exponencial</h3>
+<p>Queremos estimar <span class="math display">\[
+\theta = \mathbb{E}[\sqrt{X}], \qquad X \sim \text{Exp}(1),
+\]</span> que equivale à integral <span class="math display">\[
+\theta = \int_0^\infty \sqrt{x}\, e^{-x}\, dx = \Gamma\!\left( \tfrac{3}{2} \right)
+= \frac{\sqrt{\pi}}{2} \approx 0{,}8862 .
+\]</span></p>
+<p>O Monte Carlo direto — simular <span class="math inline">\(X \sim \text{Exp}(1)\)</span> e promediar <span class="math inline">\(\sqrt{X}\)</span> — tem variância <span class="math display">\[
+\text{Var}(\sqrt{X}) = \mathbb{E}[X] - \theta^2 = 1 - \frac{\pi}{4}
+\approx 0{,}2146 .
+\]</span></p>
+<p>Tomemos como proposta <span class="math inline">\(g_\lambda(x) = \lambda e^{-\lambda x}\)</span>, <span class="math inline">\(x &gt; 0\)</span>, isto é, uma <span class="math inline">\(\text{Exp}(\lambda)\)</span>. As parcelas do estimador são</p>
+<p><span class="math display">\[
+A_\lambda(x) = \frac{h(x) f(x)}{g_\lambda(x)}
+= \frac{\sqrt{x}\, e^{-x}}{\lambda e^{-\lambda x}}
+= \frac{1}{\lambda} \sqrt{x}\, e^{-(1-\lambda)x},
+\]</span></p>
+<p>e o estimador é <span class="math inline">\(\hat{\theta}_{\text{IS}} = \frac1B \sum_{i=1}^B A_\lambda(X_i)\)</span>, com <span class="math inline">\(X_i \sim \text{Exp}(\lambda)\)</span>. Note que <span class="math inline">\(\lambda = 1\)</span> devolve <span class="math inline">\(g = f\)</span>, <span class="math inline">\(A_1(x) = \sqrt{x}\)</span>, e portanto o Monte Carlo direto: ele é um caso particular da amostragem por importância.</p>
+<p>Para escolher <span class="math inline">\(\lambda\)</span>, calculamos o segundo momento das parcelas sob <span class="math inline">\(g_\lambda\)</span>:</p>
+<p><span class="math display">\[
+\mathbb{E}_{g_\lambda}\!\left[ A_\lambda(X)^2 \right]
+= \int_0^\infty \frac{x\, e^{-2(1-\lambda)x}}{\lambda^2}\, \lambda e^{-\lambda x}\, dx
+= \frac{1}{\lambda} \int_0^\infty x\, e^{-(2-\lambda)x}\, dx
+= \frac{1}{\lambda (2-\lambda)^2},
+\]</span></p>
+<p>finito apenas para <span class="math inline">\(0 &lt; \lambda &lt; 2\)</span> — mais uma vez, a cauda da proposta não pode ser leve demais. Logo</p>
+<p><span class="math display">\[
+\text{Var}(\hat{\theta}_{\text{IS}})
+= \frac{1}{B}\left( \frac{1}{\lambda(2-\lambda)^2} - \theta^2 \right).
+\]</span></p>
+<p>Minimizar essa expressão é maximizar <span class="math inline">\(\lambda(2-\lambda)^2\)</span>; derivando,</p>
+<p><span class="math display">\[
+\frac{d}{d\lambda}\,\lambda(2-\lambda)^2 = (2-\lambda)(2 - 3\lambda) = 0
+\quad \Longrightarrow \quad \lambda^\star = \frac{2}{3},
+\]</span></p>
+<p>com <span class="math inline">\(1/[\lambda^\star(2-\lambda^\star)^2] = 27/32 = 0{,}84375\)</span> e, portanto,</p>
+<p><span class="math display">\[
+\text{Var}(\hat{\theta}_{\text{IS},\lambda^\star})
+= \frac{1}{B}\left( 0{,}84375 - \frac{\pi}{4} \right)
+= \frac{0{,}05835}{B},
+\]</span></p>
+<p>um ganho de <span class="math inline">\(0{,}2146 / 0{,}05835 \approx 3{,}68\)</span> vezes em relação ao Monte Carlo direto. O sentido da resposta é o esperado: <span class="math inline">\(\lambda^\star &lt; 1\)</span> significa uma exponencial mais dispersa que a original, deslocando massa para valores maiores de <span class="math inline">\(x\)</span> — que é onde <span class="math inline">\(\sqrt{x}e^{-x}\)</span> tem seu máximo.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Pseudo-algoritmo: o estimador do Exemplo 4">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Pseudo-algoritmo: o estimador do Exemplo 4
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p>Fixe <span class="math inline">\(\lambda\)</span> (use <span class="math inline">\(\lambda = 2/3\)</span> para o mínimo da variância).</p></li>
+<li><p>Gere <span class="math inline">\(X_1, \dots, X_B \stackrel{iid}{\sim} \text{Exp}(\lambda)\)</span>.</p></li>
+<li><p>Calcule <span class="math inline">\(A_i = \dfrac{\sqrt{X_i}\, e^{-X_i}}{\lambda e^{-\lambda X_i}}\)</span>.</p></li>
+<li><p>Devolva <span class="math inline">\(\hat{\theta} = \dfrac{1}{B} \sum_{i=1}^B A_i\)</span>, com erro padrão <span class="math inline">\(\hat{\sigma}_A/\sqrt{B}\)</span>.</p></li>
+</ol>
+</div>
+</div>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>theta_exato <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(pi) <span class="sc">/</span> <span class="dv">2</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>is_exp <span class="ot">&lt;-</span> <span class="cf">function</span>(B, lambda) {</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">rexp</span>(B, <span class="at">rate =</span> lambda)</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(x) <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>x) <span class="sc">/</span> (lambda <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda <span class="sc">*</span> x))</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">est =</span> <span class="fu">mean</span>(a), <span class="at">ep =</span> <span class="fu">sd</span>(a) <span class="sc">/</span> <span class="fu">sqrt</span>(B))</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>out_1   <span class="ot">&lt;-</span> <span class="fu">is_exp</span>(B, <span class="at">lambda =</span> <span class="dv">1</span>)      <span class="co"># equivale ao Monte Carlo direto</span></span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>out_opt <span class="ot">&lt;-</span> <span class="fu">is_exp</span>(B, <span class="at">lambda =</span> <span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>)    <span class="co"># proposta ótima na família</span></span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Valor exato          : %.6f</span><span class="sc">\n</span><span class="st">"</span>, theta_exato))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Valor exato          : 0.886227</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"IS Exp(1)   (= MC)   : %.6f   EP = %.5f</span><span class="sc">\n</span><span class="st">"</span>, out_1<span class="sc">$</span>est,   out_1<span class="sc">$</span>ep))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>IS Exp(1)   (= MC)   : 0.882998   EP = 0.00468</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"IS Exp(2/3) (ótima)  : %.6f   EP = %.5f</span><span class="sc">\n</span><span class="st">"</span>, out_opt<span class="sc">$</span>est, out_opt<span class="sc">$</span>ep))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>IS Exp(2/3) (ótima)  : 0.889350   EP = 0.00240</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Fator de redução     : %.4f  (teórico: %.4f)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>            (out_opt<span class="sc">$</span>ep <span class="sc">/</span> out_1<span class="sc">$</span>ep)<span class="sc">^</span><span class="dv">2</span>, <span class="fl">0.05835</span> <span class="sc">/</span> <span class="fl">0.21460</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Fator de redução     : 0.2631  (teórico: 0.2719)</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-5-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">1</span>)</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>theta_exato <span class="op">=</span> np.sqrt(np.pi) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="dv">10000</span></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> is_exp(B, lam):</span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> np.random.exponential(scale<span class="op">=</span><span class="dv">1</span><span class="op">/</span>lam, size<span class="op">=</span>B)</span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> np.sqrt(x) <span class="op">*</span> np.exp(<span class="op">-</span>x) <span class="op">/</span> (lam <span class="op">*</span> np.exp(<span class="op">-</span>lam <span class="op">*</span> x))</span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"est"</span>: a.mean(), <span class="st">"ep"</span>: a.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(B)}</span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-13"><a href="#cb51-13" aria-hidden="true" tabindex="-1"></a>out_1   <span class="op">=</span> is_exp(B, <span class="fl">1.0</span>)      <span class="co"># equivale ao Monte Carlo direto</span></span>
+<span id="cb51-14"><a href="#cb51-14" aria-hidden="true" tabindex="-1"></a>out_opt <span class="op">=</span> is_exp(B, <span class="dv">2</span><span class="op">/</span><span class="dv">3</span>)      <span class="co"># proposta ótima na família</span></span>
+<span id="cb51-15"><a href="#cb51-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-16"><a href="#cb51-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Valor exato          : </span><span class="sc">{</span>theta_exato<span class="sc">:.6f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Valor exato          : 0.886227</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"IS Exp(1)   (= MC)   : </span><span class="sc">{</span>out_1[<span class="st">'est'</span>]<span class="sc">:.6f}</span><span class="ss">   EP = </span><span class="sc">{</span>out_1[<span class="st">'ep'</span>]<span class="sc">:.5f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>IS Exp(1)   (= MC)   : 0.881945   EP = 0.00459</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"IS Exp(2/3) (ótima)  : </span><span class="sc">{</span>out_opt[<span class="st">'est'</span>]<span class="sc">:.6f}</span><span class="ss">   EP = </span><span class="sc">{</span>out_opt[<span class="st">'ep'</span>]<span class="sc">:.5f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>IS Exp(2/3) (ótima)  : 0.887836   EP = 0.00243</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Fator de redução     : </span><span class="sc">{</span>(out_opt[<span class="st">'ep'</span>]<span class="op">/</span>out_1[<span class="st">'ep'</span>])<span class="op">**</span><span class="dv">2</span><span class="sc">:.4f}</span><span class="ss">"</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"  (teórico: </span><span class="sc">{</span><span class="fl">0.05835</span><span class="op">/</span><span class="fl">0.21460</span><span class="sc">:.4f}</span><span class="ss">)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Fator de redução     : 0.2797  (teórico: 0.2719)</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="amostragem-por-importância-autonormalizada" class="level2" data-number="13.7">
+<h2 data-number="13.7" class="anchored" data-anchor-id="amostragem-por-importância-autonormalizada"><span class="header-section-number">13.7</span> Amostragem por importância autonormalizada</h2>
+<p>Até aqui supusemos que sabemos calcular <span class="math inline">\(f(x)\)</span>. Em muitas aplicações, porém, só conhecemos <span class="math inline">\(f\)</span> <strong>a menos de uma constante multiplicativa</strong>: temos uma função <span class="math inline">\(q(x) \geq 0\)</span> com</p>
+<p><span class="math display">\[
+f(x) = \frac{q(x)}{Z}, \qquad Z = \int q(u)\, du \ \text{ desconhecida}.
+\]</span></p>
+<p>Isso é a regra, não a exceção. Densidades condicionais, distribuições truncadas e sobretudo distribuições a posteriori em inferência bayesiana quase sempre chegam nessa forma, porque a constante <span class="math inline">\(Z\)</span> é justamente uma integral que não sabemos calcular.</p>
+<p>A saída é estimar <span class="math inline">\(Z\)</span> com a mesma amostra. Definindo os pesos <strong>não normalizados</strong> <span class="math inline">\(w_i = q(Y_i)/g(Y_i)\)</span>, temos, pela Lei dos Grandes Números,</p>
+<p><span class="math display">\[
+\frac{1}{B}\sum_{i=1}^B w_i \; \longrightarrow \;
+\mathbb{E}_g\!\left[ \frac{q(Y)}{g(Y)} \right] = \int q(u)\, du = Z,
+\qquad
+\frac{1}{B}\sum_{i=1}^B w_i\, h(Y_i) \; \longrightarrow \; Z\,\theta,
+\]</span></p>
+<p>e o quociente das duas médias faz <span class="math inline">\(Z\)</span> desaparecer.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Definição: estimador autonormalizado">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Definição: estimador autonormalizado
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Com <span class="math inline">\(Y_1, \dots, Y_B\)</span> i.i.d. de densidade <span class="math inline">\(g\)</span> e <span class="math inline">\(w_i = q(Y_i)/g(Y_i)\)</span>, o <strong>estimador autonormalizado</strong> de <span class="math inline">\(\theta = \mathbb{E}_f[h(X)]\)</span> é</p>
+<p><span class="math display">\[
+\hat{\theta}_{\text{AN}} = \frac{\sum_{i=1}^B w_i\, h(Y_i)}{\sum_{i=1}^B w_i}
+= \sum_{i=1}^B \bar{w}_i\, h(Y_i),
+\qquad
+\bar{w}_i = \frac{w_i}{\sum_{j=1}^B w_j}.
+\]</span></p>
+<p>Ele é uma <strong>média ponderada</strong> dos valores <span class="math inline">\(h(Y_i)\)</span>, com pesos <span class="math inline">\(\bar{w}_i\)</span> que somam <span class="math inline">\(1\)</span>.</p>
+</div>
+</div>
+<p>Por ser um quociente de duas médias, <span class="math inline">\(\hat{\theta}_{\text{AN}}\)</span> converge para <span class="math inline">\(\theta\)</span> pela Lei dos Grandes Números, mas <strong>não é não viesado</strong>: a esperança de um quociente não é o quociente das esperanças. O viés é da ordem de <span class="math inline">\(1/B\)</span> — desprezível diante do erro padrão, que é da ordem de <span class="math inline">\(1/\sqrt{B}\)</span>, exatamente como acontecia com a constante estimada das variáveis de controle no Capítulo 10.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Pseudo-algoritmo: amostragem por importância autonormalizada">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Pseudo-algoritmo: amostragem por importância autonormalizada
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p>Escolha <span class="math inline">\(g\)</span> que saiba simular, com <span class="math inline">\(g &gt; 0\)</span> onde <span class="math inline">\(q &gt; 0\)</span>.</p></li>
+<li><p>Gere <span class="math inline">\(Y_1, \dots, Y_B\)</span> independentes com densidade <span class="math inline">\(g\)</span>.</p></li>
+<li><p>Calcule os pesos não normalizados <span class="math inline">\(w_i = q(Y_i)/g(Y_i)\)</span> e normalize: <span class="math inline">\(\bar{w}_i = w_i / \sum_j w_j\)</span>.</p></li>
+<li><p>Devolva <span class="math inline">\(\hat{\theta}_{\text{AN}} = \sum_{i=1}^B \bar{w}_i\, h(Y_i)\)</span>.</p></li>
+<li><p>Verifique o TAE, <span class="math inline">\(\left(\sum_i w_i\right)^2 / \sum_i w_i^2\)</span>, antes de acreditar no resultado.</p></li>
+</ol>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Um bônus: probabilidades saem de graça">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Um bônus: probabilidades saem de graça
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Tomando <span class="math inline">\(h(x) = I(x \in A)\)</span>, o estimador vira a soma dos pesos normalizados dos pontos que caíram em <span class="math inline">\(A\)</span>. Ou seja, uma única amostra ponderada permite estimar a média, a variância, quantis e qualquer probabilidade sob <span class="math inline">\(f\)</span> — sem repetir a simulação.</p>
+</div>
+</div>
+<section id="exemplo-5-uma-densidade-conhecida-a-menos-de-constante" class="level3" data-number="13.7.1">
+<h3 data-number="13.7.1" class="anchored" data-anchor-id="exemplo-5-uma-densidade-conhecida-a-menos-de-constante"><span class="header-section-number">13.7.1</span> Exemplo 5: uma densidade conhecida a menos de constante</h3>
+<p>Considere a densidade sobre <span class="math inline">\((0,1)\)</span> dada por</p>
+<p><span class="math display">\[
+f(\theta) = \frac{q(\theta)}{Z}, \qquad q(\theta) = \theta^{13}(1-\theta)^{7},
+\]</span></p>
+<p>e suponha que queiramos <span class="math inline">\(\mathbb{E}_f[\theta]\)</span> e <span class="math inline">\(\mathbb{P}_f(\theta &gt; 0{,}7)\)</span>.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="De onde vem essa densidade">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+De onde vem essa densidade
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Ela é a distribuição a posteriori de uma probabilidade de sucesso <span class="math inline">\(\theta\)</span> com distribuição a priori <span class="math inline">\(\text{Unif}(0,1)\)</span>, depois de observar <span class="math inline">\(13\)</span> sucessos em <span class="math inline">\(20\)</span> ensaios de Bernoulli: <span class="math inline">\(q(\theta)\)</span> é exatamente a verossimilhança. Neste caso sabemos que <span class="math inline">\(Z = B(14,8)\)</span> e que <span class="math inline">\(f\)</span> é uma <span class="math inline">\(\text{Beta}(14,8)\)</span> — o que nos dá um valor exato para conferir. Em problemas reais, <span class="math inline">\(Z\)</span> é uma integral intratável, e é aí que o método é indispensável.</p>
+</div>
+</div>
+<p>Vamos comparar duas propostas: a <span class="math inline">\(\text{Unif}(0,1)\)</span>, que ignora tudo o que sabemos, e uma <span class="math inline">\(N(0{,}65;\ 0{,}1^2)\)</span>, ajustada grosseiramente ao formato de <span class="math inline">\(q\)</span> (o máximo de <span class="math inline">\(q\)</span> está em <span class="math inline">\(13/20 = 0{,}65\)</span>).</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-6-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-1" role="tab" aria-controls="tabset-6-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-2" role="tab" aria-controls="tabset-6-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-6-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-6-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">3</span>)</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Densidade alvo, conhecida apenas a menos da constante Z</span></span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>q <span class="ot">&lt;-</span> <span class="cf">function</span>(theta) <span class="fu">ifelse</span>(theta <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> theta <span class="sc">&lt;</span> <span class="dv">1</span>, theta<span class="sc">^</span><span class="dv">13</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> theta)<span class="sc">^</span><span class="dv">7</span>, <span class="dv">0</span>)</span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimador autonormalizado: devolve média, P(theta &gt; 0,7) e o TAE</span></span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a>is_autonormalizada <span class="ot">&lt;-</span> <span class="cf">function</span>(y, g_y) {</span>
+<span id="cb59-9"><a href="#cb59-9" aria-hidden="true" tabindex="-1"></a>  w <span class="ot">&lt;-</span> <span class="fu">q</span>(y) <span class="sc">/</span> g_y</span>
+<span id="cb59-10"><a href="#cb59-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">media =</span> <span class="fu">sum</span>(w <span class="sc">*</span> y) <span class="sc">/</span> <span class="fu">sum</span>(w),</span>
+<span id="cb59-11"><a href="#cb59-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">prob  =</span> <span class="fu">sum</span>(w <span class="sc">*</span> (y <span class="sc">&gt;</span> <span class="fl">0.7</span>)) <span class="sc">/</span> <span class="fu">sum</span>(w),</span>
+<span id="cb59-12"><a href="#cb59-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">tae   =</span> <span class="fu">sum</span>(w)<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="fu">sum</span>(w<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb59-13"><a href="#cb59-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb59-14"><a href="#cb59-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-15"><a href="#cb59-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Proposta 1: Unif(0,1)</span></span>
+<span id="cb59-16"><a href="#cb59-16" aria-hidden="true" tabindex="-1"></a>y1 <span class="ot">&lt;-</span> <span class="fu">runif</span>(B)</span>
+<span id="cb59-17"><a href="#cb59-17" aria-hidden="true" tabindex="-1"></a>res1 <span class="ot">&lt;-</span> <span class="fu">is_autonormalizada</span>(y1, <span class="fu">dunif</span>(y1))</span>
+<span id="cb59-18"><a href="#cb59-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-19"><a href="#cb59-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Proposta 2: N(0,65 ; 0,1^2)</span></span>
+<span id="cb59-20"><a href="#cb59-20" aria-hidden="true" tabindex="-1"></a>y2 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(B, <span class="at">mean =</span> <span class="fl">0.65</span>, <span class="at">sd =</span> <span class="fl">0.1</span>)</span>
+<span id="cb59-21"><a href="#cb59-21" aria-hidden="true" tabindex="-1"></a>res2 <span class="ot">&lt;-</span> <span class="fu">is_autonormalizada</span>(y2, <span class="fu">dnorm</span>(y2, <span class="at">mean =</span> <span class="fl">0.65</span>, <span class="at">sd =</span> <span class="fl">0.1</span>))</span>
+<span id="cb59-22"><a href="#cb59-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-23"><a href="#cb59-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Valores exatos, pois f é uma Beta(14, 8)</span></span>
+<span id="cb59-24"><a href="#cb59-24" aria-hidden="true" tabindex="-1"></a>media_exata <span class="ot">&lt;-</span> <span class="dv">14</span> <span class="sc">/</span> <span class="dv">22</span></span>
+<span id="cb59-25"><a href="#cb59-25" aria-hidden="true" tabindex="-1"></a>prob_exata  <span class="ot">&lt;-</span> <span class="fu">pbeta</span>(<span class="fl">0.7</span>, <span class="dv">14</span>, <span class="dv">8</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb59-26"><a href="#cb59-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-27"><a href="#cb59-27" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"%-18s %10s %10s %8s</span><span class="sc">\n</span><span class="st">"</span>, <span class="st">"Proposta"</span>, <span class="st">"media"</span>, <span class="st">"P(&gt;0,7)"</span>, <span class="st">"TAE"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Proposta                media    P(&gt;0,7)      TAE</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"%-18s %10.4f %10.4f %8s</span><span class="sc">\n</span><span class="st">"</span>, <span class="st">"valor exato"</span>, media_exata, prob_exata, <span class="st">"-"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>valor exato            0.6364     0.2770        -</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"%-18s %10.4f %10.4f %8.0f</span><span class="sc">\n</span><span class="st">"</span>, <span class="st">"Unif(0,1)"</span>,</span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>            res1<span class="sc">$</span>media, res1<span class="sc">$</span>prob, res1<span class="sc">$</span>tae))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Unif(0,1)              0.6349     0.2659     3588</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"%-18s %10.4f %10.4f %8.0f</span><span class="sc">\n</span><span class="st">"</span>, <span class="st">"Normal ajustada"</span>,</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>            res2<span class="sc">$</span>media, res2<span class="sc">$</span>prob, res2<span class="sc">$</span>tae))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Normal ajustada        0.6353     0.2691     9711</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-6-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> norm, uniform, beta</span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">3</span>)</span>
+<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="dv">10000</span></span>
+<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Densidade alvo, conhecida apenas a menos da constante Z</span></span>
+<span id="cb67-8"><a href="#cb67-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> q(theta):</span>
+<span id="cb67-9"><a href="#cb67-9" aria-hidden="true" tabindex="-1"></a>    dentro <span class="op">=</span> (theta <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">&amp;</span> (theta <span class="op">&lt;</span> <span class="dv">1</span>)</span>
+<span id="cb67-10"><a href="#cb67-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.where(dentro, theta<span class="op">**</span><span class="dv">13</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> theta)<span class="op">**</span><span class="dv">7</span>, <span class="fl">0.0</span>)</span>
+<span id="cb67-11"><a href="#cb67-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-12"><a href="#cb67-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimador autonormalizado: devolve média, P(theta &gt; 0,7) e o TAE</span></span>
+<span id="cb67-13"><a href="#cb67-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> is_autonormalizada(y, g_y):</span>
+<span id="cb67-14"><a href="#cb67-14" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> q(y) <span class="op">/</span> g_y</span>
+<span id="cb67-15"><a href="#cb67-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"media"</span>: np.<span class="bu">sum</span>(w <span class="op">*</span> y) <span class="op">/</span> np.<span class="bu">sum</span>(w),</span>
+<span id="cb67-16"><a href="#cb67-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">"prob"</span>:  np.<span class="bu">sum</span>(w <span class="op">*</span> (y <span class="op">&gt;</span> <span class="fl">0.7</span>)) <span class="op">/</span> np.<span class="bu">sum</span>(w),</span>
+<span id="cb67-17"><a href="#cb67-17" aria-hidden="true" tabindex="-1"></a>            <span class="st">"tae"</span>:   np.<span class="bu">sum</span>(w)<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> np.<span class="bu">sum</span>(w<span class="op">**</span><span class="dv">2</span>)}</span>
+<span id="cb67-18"><a href="#cb67-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-19"><a href="#cb67-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Proposta 1: Unif(0,1)</span></span>
+<span id="cb67-20"><a href="#cb67-20" aria-hidden="true" tabindex="-1"></a>y1 <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>, B)</span>
+<span id="cb67-21"><a href="#cb67-21" aria-hidden="true" tabindex="-1"></a>res1 <span class="op">=</span> is_autonormalizada(y1, uniform.pdf(y1))</span>
+<span id="cb67-22"><a href="#cb67-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-23"><a href="#cb67-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Proposta 2: N(0,65 ; 0,1^2)</span></span>
+<span id="cb67-24"><a href="#cb67-24" aria-hidden="true" tabindex="-1"></a>y2 <span class="op">=</span> np.random.normal(<span class="fl">0.65</span>, <span class="fl">0.1</span>, B)</span>
+<span id="cb67-25"><a href="#cb67-25" aria-hidden="true" tabindex="-1"></a>res2 <span class="op">=</span> is_autonormalizada(y2, norm.pdf(y2, <span class="fl">0.65</span>, <span class="fl">0.1</span>))</span>
+<span id="cb67-26"><a href="#cb67-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-27"><a href="#cb67-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Valores exatos, pois f é uma Beta(14, 8)</span></span>
+<span id="cb67-28"><a href="#cb67-28" aria-hidden="true" tabindex="-1"></a>media_exata <span class="op">=</span> <span class="dv">14</span> <span class="op">/</span> <span class="dv">22</span></span>
+<span id="cb67-29"><a href="#cb67-29" aria-hidden="true" tabindex="-1"></a>prob_exata <span class="op">=</span> beta.sf(<span class="fl">0.7</span>, <span class="dv">14</span>, <span class="dv">8</span>)</span>
+<span id="cb67-30"><a href="#cb67-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-31"><a href="#cb67-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="st">'Proposta'</span><span class="sc">:&lt;18s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'media'</span><span class="sc">:&gt;10s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'P(&gt;0,7)'</span><span class="sc">:&gt;10s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'TAE'</span><span class="sc">:&gt;8s}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Proposta                media    P(&gt;0,7)      TAE</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="st">'valor exato'</span><span class="sc">:&lt;18s}</span><span class="ss"> </span><span class="sc">{</span>media_exata<span class="sc">:&gt;10.4f}</span><span class="ss"> </span><span class="sc">{</span>prob_exata<span class="sc">:&gt;10.4f}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'-'</span><span class="sc">:&gt;8s}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>valor exato            0.6364     0.2770        -</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="st">'Unif(0,1)'</span><span class="sc">:&lt;18s}</span><span class="ss"> </span><span class="sc">{</span>res1[<span class="st">'media'</span>]<span class="sc">:&gt;10.4f}</span><span class="ss"> </span><span class="sc">{</span>res1[<span class="st">'prob'</span>]<span class="sc">:&gt;10.4f}</span><span class="ss"> </span><span class="sc">{</span>res1[<span class="st">'tae'</span>]<span class="sc">:&gt;8.0f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Unif(0,1)              0.6360     0.2790     3541</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="st">'Normal ajustada'</span><span class="sc">:&lt;18s}</span><span class="ss"> </span><span class="sc">{</span>res2[<span class="st">'media'</span>]<span class="sc">:&gt;10.4f}</span><span class="ss"> </span><span class="sc">{</span>res2[<span class="st">'prob'</span>]<span class="sc">:&gt;10.4f}</span><span class="ss"> </span><span class="sc">{</span>res2[<span class="st">'tae'</span>]<span class="sc">:&gt;8.0f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Normal ajustada        0.6360     0.2729     9725</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>As duas propostas acertam a média com boa precisão, mas o TAE denuncia a diferença de qualidade: a <span class="math inline">\(\text{Unif}(0,1)\)</span> desperdiça a maior parte das simulações em regiões onde <span class="math inline">\(q\)</span> é praticamente zero, enquanto a normal ajustada aproveita quase todas. A diferença fica mais visível na estimativa de <span class="math inline">\(\mathbb{P}_f(\theta &gt; 0{,}7)\)</span>, que depende de uma região de menor probabilidade e por isso é mais sensível ao desperdício.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Atenção: autonormalizar não conserta uma proposta ruim">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Atenção: autonormalizar não conserta uma proposta ruim
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A normalização pelos pesos garante que a estimativa seja uma média ponderada legítima — em particular, uma probabilidade estimada nunca sai de <span class="math inline">\([0,1]\)</span>. Isso dá uma falsa sensação de segurança: se <span class="math inline">\(g\)</span> não cobre bem <span class="math inline">\(q\)</span>, o resultado continua ruim, apenas de forma menos escandalosa. O TAE é o que revela o problema.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="exercícios" class="level2" data-number="13.8">
+<h2 data-number="13.8" class="anchored" data-anchor-id="exercícios"><span class="header-section-number">13.8</span> Exercícios</h2>
+<p><span style="color:#2C92B2;"><strong>Exercício 1</strong></span>. Seja <span class="math inline">\(Z \sim N(0,1)\)</span> e <span class="math inline">\(p = \mathbb{P}(Z &gt; 5)\)</span>.</p>
+<ol type="a">
+<li><p>Estime <span class="math inline">\(p\)</span> por Monte Carlo usual com <span class="math inline">\(B = 10^6\)</span>. Quantas simulações caíram acima de <span class="math inline">\(5\)</span>? Quantas seriam necessárias, em média, para que caíssem <span class="math inline">\(100\)</span>?</p></li>
+<li><p>Estime <span class="math inline">\(p\)</span> por amostragem por importância com a proposta exponencial deslocada <span class="math inline">\(g_\lambda(y) = \lambda e^{-\lambda(y-5)}\)</span>, <span class="math inline">\(y &gt; 5\)</span>, para <span class="math inline">\(\lambda \in \{1, 3, 5, 8\}\)</span>, sempre com <span class="math inline">\(B = 10^5\)</span>. Compare os erros relativos.</p></li>
+<li><p>Compare as estimativas com o valor exato (<code>pnorm(5, lower.tail = FALSE)</code> em R, <code>scipy.stats.norm.sf(5)</code> em Python) e calcule o TAE de cada proposta.</p></li>
+<li><p>O melhor <span class="math inline">\(\lambda\)</span> do item (b) é próximo de <span class="math inline">\(5\)</span>. Explique por quê, usando o argumento de que <span class="math inline">\(\varphi(5+s)/\varphi(5) \approx e^{-5s}\)</span>.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 2</strong></span>. Estime <span class="math inline">\(\theta = \int_0^2 \sqrt{x}\, e^{-x}\, dx\)</span> por amostragem por importância com duas propostas diferentes:</p>
+<ol type="a">
+<li><p><span class="math inline">\(g_1 = \text{Unif}(0,2)\)</span>;</p></li>
+<li><p><span class="math inline">\(g_2\)</span> = a densidade <span class="math inline">\(\text{Exp}(1)\)</span> <strong>truncada</strong> ao intervalo <span class="math inline">\((0,2)\)</span>, isto é, <span class="math inline">\(g_2(x) = e^{-x}/(1 - e^{-2})\)</span> para <span class="math inline">\(0 &lt; x &lt; 2\)</span>. (Simule-a pelo método da inversão do Capítulo 4.)</p></li>
+<li><p>Justifique, antes de rodar o código, qual das duas deve ser melhor, esboçando <span class="math inline">\(|h(x)|f(x)\)</span> com <span class="math inline">\(h(x) = \sqrt{x}\)</span> e <span class="math inline">\(f\)</span> a densidade que cada proposta imita. Depois compare os erros padrão obtidos e verifique se a previsão se confirmou.</p></li>
+<li><p>Use <code>integrate</code> (R) ou <code>scipy.integrate.quad</code> (Python) como valor de referência.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 3</strong></span>. Seja <span class="math inline">\(X \sim \text{Exp}(1)\)</span> e <span class="math inline">\(\theta = \mathbb{E}[\log(1+X)]\)</span>.</p>
+<ol type="a">
+<li><p>Estime <span class="math inline">\(\theta\)</span> por Monte Carlo usual com <span class="math inline">\(B = 10^4\)</span> e calcule o erro padrão.</p></li>
+<li><p>Faça o gráfico de <span class="math inline">\(h(x)f(x) = \log(1+x)e^{-x}\)</span> e verifique que o máximo está em torno de <span class="math inline">\(x \approx 0{,}76\)</span> (a equação a resolver é <span class="math inline">\(1/(1+x) = \log(1+x)\)</span>).</p></li>
+<li><p>Proponha uma densidade <span class="math inline">\(g\)</span> com formato parecido — por exemplo uma <span class="math inline">\(\text{Gama}(2, \beta)\)</span>, cuja moda é <span class="math inline">\(1/\beta\)</span> — e implemente o estimador por importância.</p></li>
+<li><p>O ganho aqui é modesto, bem menor que nos exemplos de eventos raros. Explique por quê, comparando o formato de <span class="math inline">\(h f\)</span> com o de <span class="math inline">\(f\)</span>.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 4</strong></span>. Sejam <span class="math inline">\(f\)</span> e <span class="math inline">\(g\)</span> densidades com <span class="math inline">\(g &gt; 0\)</span> onde <span class="math inline">\(f &gt; 0\)</span>, e <span class="math inline">\(w(Y) = f(Y)/g(Y)\)</span> com <span class="math inline">\(Y \sim g\)</span>.</p>
+<ol type="a">
+<li><p>Mostre que <span class="math inline">\(\mathbb{E}_g[w(Y)] = 1\)</span>.</p></li>
+<li><p>Mostre que <span class="math inline">\(\text{Var}_g(w(Y)) = \int \frac{f(x)^2}{g(x)}\,dx - 1\)</span>.</p></li>
+<li><p>A quantidade do item (b) é a <strong>divergência do qui-quadrado</strong> entre <span class="math inline">\(f\)</span> e <span class="math inline">\(g\)</span>, e vale zero se e somente se <span class="math inline">\(f = g\)</span>. Verifique numericamente os itens (a) e (b) para <span class="math inline">\(f = N(0,1)\)</span> e <span class="math inline">\(g = N(0,\sigma^2)\)</span>, com <span class="math inline">\(\sigma \in \{0{,}8;\ 1;\ 2\}\)</span>.</p></li>
+<li><p>Explique por que um valor grande em (b) implica um TAE pequeno.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 5</strong></span>. Volte ao Exemplo 2: <span class="math inline">\(\theta = \mathbb{E}[X^2] = 1\)</span> com <span class="math inline">\(X \sim N(0,1)\)</span> e proposta <span class="math inline">\(N(0,\sigma^2)\)</span>.</p>
+<ol type="a">
+<li><p>Mostre que, escrevendo <span class="math inline">\(c = 1 - \frac{1}{2\sigma^2}\)</span>, o segundo momento da parcela é <span class="math display">\[
+\mathbb{E}_g[A^2] = \frac{3\sigma}{4c^2\sqrt{2c}}, \qquad \sigma &gt; 1/\sqrt{2}.
+\]</span> (Dica: <span class="math inline">\(\int_{-\infty}^{\infty} x^4 e^{-ax^2}\,dx = \frac{3}{4a^2}\sqrt{\pi/a}\)</span>.)</p></li>
+<li><p>Minimize essa expressão e conclua que <span class="math inline">\(\sigma^\star = \sqrt{3}\)</span>.</p></li>
+<li><p>Calcule o fator de redução de variância em relação ao Monte Carlo usual e verifique-o empiricamente com <span class="math inline">\(B = 10^5\)</span>.</p></li>
+<li><p>Faça o gráfico de <span class="math inline">\(\text{Var}(A)\)</span> contra <span class="math inline">\(\sigma \in (0{,}71;\ 4)\)</span> e observe o que acontece quando <span class="math inline">\(\sigma \to 1/\sqrt{2}\)</span>.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 6</strong></span>. Uma forma de nunca cair no problema da cauda leve demais é usar uma proposta de cauda <strong>muito</strong> pesada. Tome <span class="math inline">\(f = N(0,1)\)</span>, <span class="math inline">\(h(x) = x^4\)</span> e como proposta a densidade de Cauchy padrão, <span class="math inline">\(g(x) = \frac{1}{\pi(1+x^2)}\)</span>.</p>
+<ol type="a">
+<li><p>Mostre que os pesos <span class="math inline">\(w(x) = \pi(1+x^2)\varphi(x)\)</span> são limitados e conclua que a variância do estimador é finita.</p></li>
+<li><p>Estime <span class="math inline">\(\mathbb{E}[X^4] = 3\)</span> com <span class="math inline">\(B = 10^5\)</span> e compare o erro padrão com o do Monte Carlo usual.</p></li>
+<li><p>A proposta é segura, mas é melhor ou pior que o Monte Carlo usual neste problema? Explique o resultado em termos do formato de <span class="math inline">\(|h|f\)</span>.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 7</strong></span>. Seja <span class="math inline">\(f\)</span> a densidade da <strong>meia-normal</strong>, <span class="math inline">\(f(x) = \sqrt{2/\pi}\, e^{-x^2/2}\)</span> para <span class="math inline">\(x &gt; 0\)</span>, e <span class="math inline">\(g(x) = e^{-x}\)</span> a densidade <span class="math inline">\(\text{Exp}(1)\)</span>, como no Capítulo 6.</p>
+<ol type="a">
+<li><p>Mostre que <span class="math inline">\(f(x)/g(x) \leq M = \sqrt{2e/\pi} \approx 1{,}3155\)</span> e que a igualdade ocorre em <span class="math inline">\(x = 1\)</span>.</p></li>
+<li><p>Estime <span class="math inline">\(\mathbb{E}_f[X] = \sqrt{2/\pi}\)</span> de duas maneiras, ambas partindo de <span class="math inline">\(B = 10^4\)</span> valores gerados de <span class="math inline">\(g\)</span>: pelo método da rejeição (aceitando cerca de <span class="math inline">\(B/M\)</span> deles e tirando a média simples) e por amostragem por importância (usando todos os <span class="math inline">\(B\)</span>).</p></li>
+<li><p>Compare os erros padrão. Qual método aproveita melhor o mesmo esforço computacional?</p></li>
+<li><p>Cite uma situação em que ainda assim se prefere a rejeição.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 8</strong></span>. Sejam <span class="math inline">\(X_1, \dots, X_{10}\)</span> i.i.d. <span class="math inline">\(\text{Exp}(1)\)</span> e <span class="math inline">\(S = \sum_{i=1}^{10} X_i\)</span>. Queremos <span class="math inline">\(\theta = \mathbb{P}(S &gt; 40)\)</span>.</p>
+<ol type="a">
+<li><p>Estime <span class="math inline">\(\theta\)</span> por Monte Carlo usual com <span class="math inline">\(B = 10^6\)</span> e comente o resultado.</p></li>
+<li><p>Considere a proposta que gera <span class="math inline">\(X_1, \dots, X_{10}\)</span> i.i.d. <span class="math inline">\(\text{Exp}(\lambda)\)</span>, com <span class="math inline">\(\lambda &lt; 1\)</span>. Mostre que o peso de uma configuração <span class="math inline">\((x_1,\dots,x_{10})\)</span> é <span class="math display">\[
+w(x_1,\dots,x_{10}) = \prod_{i=1}^{10} \frac{e^{-x_i}}{\lambda e^{-\lambda x_i}}
+= \lambda^{-10}\, e^{-(1-\lambda)\sum_i x_i}.
+\]</span></p></li>
+<li><p>Implemente o estimador com <span class="math inline">\(\lambda = 1/4\)</span> e <span class="math inline">\(B = 10^5\)</span>. Compare com o valor exato, <span class="math inline">\(\mathbb{P}(W &gt; 40)\)</span> com <span class="math inline">\(W \sim \text{Gama}(10,1)\)</span> (<code>pgamma</code> em R, <code>scipy.stats.gamma</code> em Python).</p></li>
+<li><p>Explique a escolha <span class="math inline">\(\lambda = 10/40\)</span>: sob a proposta, qual é a média de <span class="math inline">\(S\)</span>? Repita com <span class="math inline">\(\lambda \in \{1/2;\ 1/4;\ 1/8\}\)</span> e veja qual dá o menor erro relativo.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 9</strong></span>. Volte ao Exemplo 5, com <span class="math inline">\(q(\theta) = \theta^{13}(1-\theta)^7\)</span>.</p>
+<ol type="a">
+<li><p>Reproduza as estimativas com as duas propostas do exemplo.</p></li>
+<li><p>Acrescente uma terceira proposta, <span class="math inline">\(N(0{,}5;\ 0{,}05^2)\)</span>, e compare o TAE e o erro da média estimada. O que deu errado?</p></li>
+<li><p>Acrescente uma quarta proposta, <span class="math inline">\(\text{Beta}(10,6)\)</span>, e compare com as demais.</p></li>
+<li><p>Repita o exercício com <span class="math inline">\(q(\theta) = \theta^{130}(1-\theta)^{70}\)</span> (o mesmo formato, com <span class="math inline">\(200\)</span> ensaios em vez de <span class="math inline">\(20\)</span>). O que acontece com o TAE da proposta <span class="math inline">\(\text{Unif}(0,1)\)</span>? Que lição isso dá sobre amostragem por importância em problemas com muita informação?</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 10</strong></span>. Uma vantagem prática da amostragem por importância é reaproveitar uma <strong>única</strong> amostra para vários alvos. Sejam <span class="math inline">\(f_\mu\)</span> a densidade da <span class="math inline">\(N(\mu, 1)\)</span> e <span class="math inline">\(h(x) = x^2\)</span>, de modo que <span class="math inline">\(\theta(\mu) = \mathbb{E}_{f_\mu}[X^2] = 1 + \mu^2\)</span>.</p>
+<ol type="a">
+<li><p>Gere uma única amostra <span class="math inline">\(Y_1, \dots, Y_B\)</span> de <span class="math inline">\(g = N(0, 2^2)\)</span>, com <span class="math inline">\(B = 10^4\)</span>.</p></li>
+<li><p>Usando <strong>essa mesma amostra</strong>, estime <span class="math inline">\(\theta(\mu)\)</span> para <span class="math inline">\(\mu \in \{-1, 0, 1, 2, 3, 4\}\)</span>, recalculando apenas os pesos <span class="math inline">\(w_i = f_\mu(Y_i)/g(Y_i)\)</span>.</p></li>
+<li><p>Faça o gráfico das estimativas contra <span class="math inline">\(\mu\)</span>, junto com a curva exata <span class="math inline">\(1 + \mu^2\)</span> e com as bandas de <span class="math inline">\(\pm 2\)</span> erros padrão.</p></li>
+<li><p>A partir de que valor de <span class="math inline">\(\mu\)</span> a estimativa deixa de ser confiável? Relacione com o TAE de cada <span class="math inline">\(\mu\)</span>.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 11</strong></span>. Suponha que a proposta <span class="math inline">\(g\)</span> tenha suporte <strong>menor</strong> que o de <span class="math inline">\(f\)</span>: tome <span class="math inline">\(f = \text{Exp}(1)\)</span>, <span class="math inline">\(g = \text{Unif}(0,3)\)</span> e <span class="math inline">\(h(x) = x\)</span>.</p>
+<ol type="a">
+<li><p>Calcule analiticamente para qual valor o estimador por importância converge, e mostre que ele não é <span class="math inline">\(\mathbb{E}[X] = 1\)</span>.</p></li>
+<li><p>Confirme numericamente com <span class="math inline">\(B = 10^6\)</span> e observe que o erro padrão é pequeno — o estimador converge confiantemente para o valor errado.</p></li>
+<li><p>Calcule o TAE e verifique que ele <strong>não</strong> detecta o problema.</p></li>
+<li><p>Como você detectaria esse erro na prática, sem conhecer a resposta?</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 12</strong></span>. Considere de novo <span class="math inline">\(p = \mathbb{P}(Z &gt; 4{,}5)\)</span>, com <span class="math inline">\(Z \sim N(0,1)\)</span>, e a proposta ótima <span class="math inline">\(g^*(y) = \varphi(y)I(y &gt; 4{,}5)/p\)</span>, isto é, a normal padrão truncada em <span class="math inline">\(4{,}5\)</span>.</p>
+<ol type="a">
+<li><p>Mostre que, se <span class="math inline">\(U \sim \text{Unif}(0,1)\)</span>, então <span class="math inline">\(Y = \Phi^{-1}\big(1 - U\,(1 - \Phi(4{,}5))\big)\)</span> tem densidade <span class="math inline">\(g^*\)</span>. (Em R, use <code>qnorm(u * pnorm(4.5, lower.tail = FALSE), lower.tail = FALSE)</code>, que é numericamente mais estável.)</p></li>
+<li><p>Gere <span class="math inline">\(B = 1000\)</span> valores de <span class="math inline">\(g^*\)</span>, calcule os pesos <span class="math inline">\(w_i = \varphi(Y_i)/g^*(Y_i)\)</span> e verifique que todos são iguais a <span class="math inline">\(p\)</span>: a variância é exatamente zero.</p></li>
+<li><p>Explique por que essa proposta é inútil na prática, apesar de ótima.</p></li>
+<li><p>Compare o histograma dos valores gerados em (b) com o dos valores gerados pela proposta exponencial deslocada com <span class="math inline">\(\lambda = 4{,}5\)</span> do Exemplo 3. Por que a segunda funciona tão bem?</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 13</strong></span>. (Desafio) Estime <span class="math inline">\(p = \mathbb{P}(Z &gt; 6)\)</span>, com <span class="math inline">\(Z \sim N(0,1)\)</span>, usando propostas da família <span class="math inline">\(g_\mu = N(\mu, 1)\)</span>.</p>
+<ol type="a">
+<li><p>Mostre que o estimador é <span class="math inline">\(\hat{p} = \frac1B \sum_{i=1}^B I(Y_i &gt; 6)\, \frac{\varphi(Y_i)}{\varphi(Y_i - \mu)}\)</span>, com <span class="math inline">\(Y_i \sim N(\mu,1)\)</span>, e que os pesos valem <span class="math inline">\(e^{-\mu Y_i + \mu^2/2}\)</span>.</p></li>
+<li><p>Mostre que o segundo momento das parcelas é <span class="math display">\[
+m(\mu) = e^{\mu^2}\, \mathbb{P}(Z &gt; 6 + \mu).
+\]</span> (Dica: verifique que <span class="math inline">\(\varphi(y-\mu)\,e^{-2\mu y} = \varphi(y+\mu)\)</span>.)</p></li>
+<li><p>Encontre numericamente o <span class="math inline">\(\mu^\star\)</span> que minimiza <span class="math inline">\(m(\mu)\)</span> e mostre que a condição de primeira ordem é <span class="math inline">\(2\mu = \varphi(6+\mu)/\mathbb{P}(Z &gt; 6+\mu)\)</span>. Argumente que <span class="math inline">\(\mu^\star \approx 6\)</span> quando o limiar é grande.</p></li>
+<li><p>Compare, em erro relativo, o Monte Carlo usual, a amostragem por importância com <span class="math inline">\(\mu \in \{3, 6, 9\}\)</span> e com <span class="math inline">\(\mu^\star\)</span>.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 14</strong></span>. (Desafio) Este exercício justifica o tamanho amostral efetivo.</p>
+<ol type="a">
+<li><p>Mostre que <span class="math display">\[
+\text{TAE} = \frac{\left(\sum_i w_i\right)^2}{\sum_i w_i^2}
+= \frac{B}{1 + \widehat{\text{cv}}^2(w)},
+\]</span> onde <span class="math inline">\(\widehat{\text{cv}}^2(w)\)</span> é o quadrado do coeficiente de variação amostral dos pesos (use a versão com denominador <span class="math inline">\(B\)</span> na variância amostral).</p></li>
+<li><p>Conclua, usando o Exercício 4, que <span class="math inline">\(\text{TAE}/B\)</span> converge para <span class="math inline">\(1/\big(1 + \chi^2(f \Vert g)\big)\)</span>, em que <span class="math inline">\(\chi^2(f\Vert g) = \int f^2/g - 1\)</span>.</p></li>
+<li><p>Considere o estimador autonormalizado de <span class="math inline">\(\theta = \mathbb{E}_f[h(X)]\)</span> e suponha <span class="math inline">\(h\)</span> pouco correlacionada com os pesos. Argumente que sua variância é aproximadamente <span class="math inline">\(\text{Var}_f(h(X)) / \text{TAE}\)</span>, o que justifica a leitura “amostra efetiva de tamanho TAE”.</p></li>
+<li><p>Verifique (c) numericamente para <span class="math inline">\(f = N(0,1)\)</span>, <span class="math inline">\(g = N(0, \sigma^2)\)</span> e <span class="math inline">\(h(x) = x\)</span>, repetindo a estimação <span class="math inline">\(R = 1000\)</span> vezes.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 15</strong></span>. (Desafio) A <strong>amostragem por importância defensiva</strong> protege contra o desastre do Exemplo 2. Dada uma proposta qualquer <span class="math inline">\(g_0\)</span> e um <span class="math inline">\(\alpha \in (0,1)\)</span>, use a mistura</p>
+<p><span class="math display">\[
+g(x) = \alpha f(x) + (1-\alpha) g_0(x) .
+\]</span></p>
+<ol type="a">
+<li><p>Descreva como simular de <span class="math inline">\(g\)</span> (sorteie primeiro de qual das duas componentes o valor virá) e escreva os pesos.</p></li>
+<li><p>Mostre que <span class="math inline">\(w(x) = f(x)/g(x) \leq 1/\alpha\)</span> para todo <span class="math inline">\(x\)</span>.</p></li>
+<li><p>Conclua que <span class="math inline">\(\mathbb{E}_g[h^2 w^2] \leq \frac{1}{\alpha}\mathbb{E}_f[h(X)^2]\)</span>, de modo que a variância é finita sempre que <span class="math inline">\(\text{Var}_f(h(X))\)</span> for finita — qualquer que seja <span class="math inline">\(g_0\)</span>.</p></li>
+<li><p>Aplique ao Exemplo 2 com <span class="math inline">\(g_0 = N(0;\ 0{,}5^2)\)</span> e <span class="math inline">\(\alpha = 0{,}2\)</span>, e refaça o gráfico da média corrente. O desastre sumiu? Compare a variância resultante com a do Monte Carlo usual e comente: o que exatamente se comprou com a mistura?</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 16</strong></span>. (Desafio) Seja <span class="math inline">\(X \sim \text{Exp}(1)\)</span> e <span class="math inline">\(\theta = \mathbb{P}(X &gt; t) = e^{-t}\)</span>, e considere a família de propostas <span class="math inline">\(\text{Exp}(\lambda)\)</span> com <span class="math inline">\(0 &lt; \lambda &lt; 2\)</span>.</p>
+<ol type="a">
+<li><p>Mostre que o segundo momento das parcelas é <span class="math display">\[
+m(\lambda) = \frac{e^{-(2-\lambda)t}}{\lambda(2-\lambda)} .
+\]</span></p></li>
+<li><p>Mostre que a condição de primeira ordem para minimizar <span class="math inline">\(m\)</span> leva à equação <span class="math inline">\(t\lambda^2 - 2(t+1)\lambda + 2 = 0\)</span> e conclua que <span class="math display">\[
+\lambda^\star = \frac{t + 1 - \sqrt{t^2+1}}{t} .
+\]</span></p></li>
+<li><p>Verifique que <span class="math inline">\(\lambda^\star \to 1/t\)</span> quando <span class="math inline">\(t \to \infty\)</span> e interprete: sob a proposta ótima, qual é a média de <span class="math inline">\(X\)</span>?</p></li>
+<li><p>Para <span class="math inline">\(t = 10\)</span>, compare numericamente (<span class="math inline">\(B = 10^5\)</span>) o erro relativo do Monte Carlo usual, da proposta com <span class="math inline">\(\lambda = 1/t\)</span> e da proposta com <span class="math inline">\(\lambda^\star\)</span>. A diferença entre as duas últimas é relevante?</p></li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./10_var_red.html" class="pagination-link" aria-label="Técnicas de Redução de Variância">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Técnicas de Redução de Variância</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./references.html" class="pagination-link" aria-label="References">
+        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

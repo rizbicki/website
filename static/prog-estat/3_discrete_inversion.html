@@ -1,0 +1,2191 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>5&nbsp; Técnica da Inversão para Variáveis Discretas – Curso de Programação Estatística</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./4_continuous_inversion.html" rel="next">
+<link href="./2_pseudorandom.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b53751a350365c71b6c909e95f209ed1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-391e8d52869022bb697e2ea9ab25a897.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-ffb5ca9f558d2f0186e140c54025885e.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Curso de Programação Estatística</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thiagorr162/prog-estat"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./3_discrete_inversion.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Técnica da Inversão para Variáveis Discretas</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Curso de Programação Estatística</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./0_py.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Breve introdução ao Python</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./0_R.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Breve Introdução ao R</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./1_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Por que Simular?</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./2_pseudorandom.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Números Pseudoaleatórios</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./3_discrete_inversion.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Técnica da Inversão para Variáveis Discretas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./4_continuous_inversion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Técnica da Inversão para Variáveis Contínuas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./5_discrete_rejection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Método da Rejeição para Variáveis Discretas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./6_continuous_rejection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Método da Rejeição para Variáveis Contínuas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./7_transf.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Transformações e Misturas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./8_box_muller.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Método de Box-Muller</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./9_monte_carlo.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Método de Monte Carlo</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10_var_red.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Técnicas de Redução de Variância</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11_import.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Amostragem por Importância</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul class="collapse">
+  <li><a href="#inversa-da-f.d.a." id="toc-inversa-da-f.d.a." class="nav-link active" data-scroll-target="#inversa-da-f.d.a."><span class="header-section-number">5.1</span> Inversa da f.d.a.</a></li>
+  <li><a href="#geração-de-variáveis-aleatórias-discretas-genéricas" id="toc-geração-de-variáveis-aleatórias-discretas-genéricas" class="nav-link" data-scroll-target="#geração-de-variáveis-aleatórias-discretas-genéricas"><span class="header-section-number">5.2</span> Geração de Variáveis Aleatórias Discretas Genéricas</a></li>
+  <li><a href="#por-que-o-método-funciona" id="toc-por-que-o-método-funciona" class="nav-link" data-scroll-target="#por-que-o-método-funciona"><span class="header-section-number">5.3</span> Por que o método funciona</a></li>
+  <li><a href="#exemplo-1-geração-de-uma-bernoulli-por-inversão" id="toc-exemplo-1-geração-de-uma-bernoulli-por-inversão" class="nav-link" data-scroll-target="#exemplo-1-geração-de-uma-bernoulli-por-inversão"><span class="header-section-number">5.4</span> Exemplo 1: Geração de uma Bernoulli por inversão</a></li>
+  <li><a href="#exemplo-2-geração-de-variáveis-aleatórias-com-distribuição-geométrica" id="toc-exemplo-2-geração-de-variáveis-aleatórias-com-distribuição-geométrica" class="nav-link" data-scroll-target="#exemplo-2-geração-de-variáveis-aleatórias-com-distribuição-geométrica"><span class="header-section-number">5.5</span> Exemplo 2: Geração de Variáveis Aleatórias com Distribuição Geométrica</a></li>
+  <li><a href="#exemplo-3-geração-de-variáveis-aleatórias-com-distribuição-poisson" id="toc-exemplo-3-geração-de-variáveis-aleatórias-com-distribuição-poisson" class="nav-link" data-scroll-target="#exemplo-3-geração-de-variáveis-aleatórias-com-distribuição-poisson"><span class="header-section-number">5.6</span> Exemplo 3: Geração de Variáveis Aleatórias com Distribuição Poisson</a></li>
+  <li><a href="#exemplo-4-permutações-e-amostragem-sem-reposição" id="toc-exemplo-4-permutações-e-amostragem-sem-reposição" class="nav-link" data-scroll-target="#exemplo-4-permutações-e-amostragem-sem-reposição"><span class="header-section-number">5.7</span> Exemplo 4: permutações e amostragem sem reposição</a></li>
+  <li><a href="#exercícios" id="toc-exercícios" class="nav-link" data-scroll-target="#exercícios"><span class="header-section-number">5.8</span> Exercícios</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Técnica da Inversão para Variáveis Discretas</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>No capítulo anterior vimos como gerar números pseudoaleatórios com distribuição <span class="math inline">\(\text{Unif}(0,1)\)</span>. A partir de agora, esses números uniformes são a nossa única matéria-prima: todo o resto do livro consiste em transformá-los em v.a. com a distribuição que quisermos.</p>
+<p>A <strong>técnica da inversão</strong> é a primeira dessas transformações, e é uma maneira poderosa de gerar v.a. com uma distribuição arbitrária. A ideia básica é usar a <strong>função de distribuição acumulada (f.d.a.)</strong> para mapear um número uniforme gerado entre 0 e 1 no valor correspondente da v.a. discreta.</p>
+<section id="inversa-da-f.d.a." class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="inversa-da-f.d.a."><span class="header-section-number">5.1</span> Inversa da f.d.a.</h2>
+<p>O método da inversão recebe esse nome pois seu algoritmo também pode ser caracterizado pela função inversa da f.d.a. A <strong>inversa da f.d.a.</strong>, também conhecida como <strong>função quantil</strong>, é definida da seguinte forma:</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Definição: inversa da f.d.a.">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Definição: inversa da f.d.a.
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Seja <span class="math inline">\(F\)</span> a função de distribuição acumulada de uma v.a. <span class="math inline">\(X\)</span>. A inversa de <span class="math inline">\(F\)</span>, denotada por <span class="math inline">\(F^{-1}\)</span>, é definida como</p>
+<p><span class="math display">\[
+F^{-1}(p) = \inf \{ x \in \mathbb{R} : F(x) \geq p \}, \quad \text{para } p \in (0, 1).
+\]</span></p>
+</div>
+</div>
+<p>Em palavras: <span class="math inline">\(F^{-1}(p)\)</span> toma um número <span class="math inline">\(p\)</span>, que representa uma probabilidade acumulada, e devolve o <strong>menor</strong> valor <span class="math inline">\(x\)</span> cuja probabilidade acumulada já alcançou <span class="math inline">\(p\)</span>. Assim, o menor valor <span class="math inline">\(x_i\)</span> tal que <span class="math inline">\(F(x_i) \geq u\)</span> é justamente <span class="math inline">\(F^{-1}(u)\)</span>.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Atenção: no caso discreto, a inversa não é a usual">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Atenção: no caso discreto, a inversa não é a usual
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Quando <span class="math inline">\(X\)</span> é discreta, <span class="math inline">\(F\)</span> é uma função escada: ela é constante entre os valores do suporte e dá saltos de tamanho <span class="math inline">\(p(x_i)\)</span> em cada <span class="math inline">\(x_i\)</span>. Uma função assim não é injetora, e portanto não tem inversa no sentido usual — daí a necessidade do <span class="math inline">\(\inf\)</span> na definição acima.</p>
+<p>Uma consequência prática: vale que <span class="math inline">\(F^{-1}(F(x_i)) = x_i\)</span> para os pontos <span class="math inline">\(x_i\)</span> do suporte, mas <strong>não</strong> para um <span class="math inline">\(x\)</span> qualquer. Por exemplo, se <span class="math inline">\(X\)</span> só assume os valores <span class="math inline">\(0\)</span> e <span class="math inline">\(1\)</span>, então <span class="math inline">\(F(0{,}7) = F(0)\)</span>, e portanto <span class="math inline">\(F^{-1}(F(0{,}7)) = 0\)</span>, que é diferente de <span class="math inline">\(0{,}7\)</span>.</p>
+</div>
+</div>
+</section>
+<section id="geração-de-variáveis-aleatórias-discretas-genéricas" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="geração-de-variáveis-aleatórias-discretas-genéricas"><span class="header-section-number">5.2</span> Geração de Variáveis Aleatórias Discretas Genéricas</h2>
+<p>Considere uma v.a. discreta <span class="math inline">\(X\)</span> que assume os valores <span class="math inline">\(x_1 &lt; x_2 &lt; \ldots\)</span>. Dadas as probabilidades <span class="math inline">\(p(x_i) = \mathbb{P}(X = x_i)\)</span> de cada um desses valores, a f.d.a. avaliada em <span class="math inline">\(x_i\)</span> é</p>
+<p><span class="math display">\[
+F(x_i) = \sum_{j=1}^{i} p(x_j).
+\]</span></p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Pseudo-algoritmo: inversão para v.a. discretas">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Pseudo-algoritmo: inversão para v.a. discretas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p>Gere <span class="math inline">\(U \sim \text{Unif}(0,1)\)</span>.</p></li>
+<li><p>Encontre o menor valor <span class="math inline">\(x_i\)</span> tal que <span class="math inline">\(F(x_i) \geq U\)</span>.</p></li>
+<li><p>Retorne <span class="math inline">\(x_i\)</span>.</p></li>
+</ol>
+</div>
+</div>
+<p>Na prática, o passo 2 é feito percorrendo os valores <span class="math inline">\(x_1, x_2, \ldots\)</span> em ordem e acumulando as probabilidades até que a soma acumulada alcance <span class="math inline">\(U\)</span>. O código a seguir faz exatamente isso e ilustra graficamente o que está acontecendo: a reta horizontal marca o valor sorteado de <span class="math inline">\(U\)</span>, e a reta vertical marca o valor de <span class="math inline">\(X\)</span> devolvido pelo algoritmo.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Exemplo de valores e probabilidades de uma variável aleatória discreta</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>valores <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>probabilidades <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.25</span>, <span class="fl">0.15</span>, <span class="dv">0</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># cumsum acumula as probabilidades: cdf[i] = p(x_1) + ... + p(x_i) = F(x_i)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>cdf <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(probabilidades)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Passo 1 do algoritmo: gerar um número aleatório uniforme</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>u <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Passo 2: percorrer os valores em ordem e parar no primeiro com F(x_i) &gt;= u</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>valor_gerado <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(valores)) {</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (u <span class="sc">&lt;=</span> cdf[i]) {</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    valor_gerado <span class="ot">&lt;-</span> valores[i]</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">break</span>  <span class="co"># encontramos o menor x_i; não precisamos olhar os seguintes</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>valor_gerado</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 5</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Criando um data frame com os valores e a f.d.a. para o gráfico</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">valores =</span> valores, <span class="at">cdf =</span> cdf)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Gráfico da f.d.a. com o número aleatório u e o valor gerado</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> valores, <span class="at">y =</span> cdf)) <span class="sc">+</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_step</span>(<span class="at">direction =</span> <span class="st">"hv"</span>, <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> u, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> valor_gerado, <span class="at">color =</span> <span class="st">"green"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Técnica da inversão para geração de v.a. discreta"</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Valores da variável aleatória"</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"F(x)"</span>) <span class="sc">+</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fu">max</span>(valores), <span class="at">y =</span> u,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"u = %.2f"</span>, u), <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> valor_gerado, <span class="at">y =</span> <span class="fu">max</span>(cdf),</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"valor gerado = %d"</span>, valor_gerado),</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>           <span class="at">hjust =</span> <span class="sc">-</span><span class="fl">0.1</span>, <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">"darkgreen"</span>) <span class="sc">+</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_discrete_inversion_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Exemplo de valores e probabilidades de uma variável aleatória discreta</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>valores <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>]</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>probabilidades <span class="op">=</span> [<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.25</span>, <span class="fl">0.15</span>, <span class="dv">0</span>]</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># np.cumsum acumula as probabilidades: cdf[i] = p(x_1) + ... + p(x_i) = F(x_i)</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>cdf <span class="op">=</span> np.cumsum(probabilidades)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Passo 1 do algoritmo: gerar um número aleatório uniforme</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>u <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Passo 2: percorrer os valores em ordem e parar no primeiro com F(x_i) &gt;= u</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>valor_gerado <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, valor <span class="kw">in</span> <span class="bu">enumerate</span>(valores):</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> u <span class="op">&lt;=</span> cdf[i]:</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        valor_gerado <span class="op">=</span> valor</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span>  <span class="co"># encontramos o menor x_i; não precisamos olhar os seguintes</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(valor_gerado)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>3</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Gráfico da f.d.a. com o número aleatório u e o valor gerado</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>plt.step(valores, cdf, label<span class="op">=</span><span class="st">'F(x)'</span>, color<span class="op">=</span><span class="st">'blue'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, where<span class="op">=</span><span class="st">'post'</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>plt.axhline(y<span class="op">=</span>u, color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, label<span class="op">=</span><span class="ss">f'u = </span><span class="sc">{</span>u<span class="sc">:.2f}</span><span class="ss">'</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>plt.axvline(x<span class="op">=</span>valor_gerado, color<span class="op">=</span><span class="st">'green'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>            label<span class="op">=</span><span class="ss">f'valor gerado = </span><span class="sc">{</span>valor_gerado<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Técnica da inversão para geração de v.a. discreta'</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Valores da variável aleatória'</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'F(x)'</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_discrete_inversion_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="por-que-o-método-funciona" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="por-que-o-método-funciona"><span class="header-section-number">5.3</span> Por que o método funciona</h2>
+<p>Até aqui, o algoritmo foi apresentado como uma receita. A proposição a seguir garante que ele de fato produz a distribuição desejada.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="Proposição">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proposição
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Considere uma v.a. discreta <span class="math inline">\(X\)</span> com suporte ordenado <span class="math inline">\(x_1&lt;x_2&lt;\cdots\)</span> e probabilidades <span class="math inline">\(p_i=\mathbb{P}(X=x_i)\)</span>. Defina <span class="math inline">\(F(x_i)=\sum_{j\le i}p_j\)</span> e <span class="math inline">\(F(x)=0\)</span> para <span class="math inline">\(x&lt;x_1\)</span>. Seja <span class="math inline">\(U\sim\text{Unif}(0,1)\)</span> e</p>
+<p><span class="math display">\[
+\tilde{X}=\min\{x_i:\,F(x_i)\ge U\}.
+\]</span></p>
+<p>Então <span class="math inline">\(\tilde{X}\)</span> tem a mesma distribuição de <span class="math inline">\(X\)</span>.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Demonstração">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Demonstração
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>O algoritmo devolve <span class="math inline">\(x_i\)</span> exatamente quando a soma acumulada ainda não havia alcançado <span class="math inline">\(U\)</span> no passo anterior, mas passa a alcançá-la em <span class="math inline">\(x_i\)</span>. Ou seja, para cada <span class="math inline">\(i\ge1\)</span>,</p>
+<p><span class="math display">\[
+\{\tilde{X}=x_i\}=\{F(x_{i-1})&lt;U\le F(x_i)\},
+\]</span></p>
+<p>onde convencionamos <span class="math inline">\(F(x_0)=0\)</span>. Como <span class="math inline">\(U\sim\text{Unif}(0,1)\)</span>, a probabilidade de <span class="math inline">\(U\)</span> cair em um intervalo contido em <span class="math inline">\((0,1)\)</span> é o comprimento desse intervalo. Logo,</p>
+<p><span class="math display">\[
+\mathbb{P}(\tilde{X}=x_i)=F(x_i)-F(x_{i-1})=p_i.
+\]</span></p>
+<p>Portanto, <span class="math inline">\(\tilde{X}\)</span> reproduz exatamente a função de probabilidade desejada. <span class="math inline">\(\square\)</span></p>
+</div>
+</div>
+</div>
+</section>
+<section id="exemplo-1-geração-de-uma-bernoulli-por-inversão" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="exemplo-1-geração-de-uma-bernoulli-por-inversão"><span class="header-section-number">5.4</span> Exemplo 1: Geração de uma Bernoulli por inversão</h2>
+<p>Para <span class="math inline">\(X\sim\text{Bernoulli}(p)\)</span>, temos <span class="math inline">\(\mathbb P(X=0)=1-p\)</span>, <span class="math inline">\(\mathbb P(X=1)=p\)</span> e</p>
+<p><span class="math display">\[
+F(0)=1-p,\quad F(1)=1.
+\]</span></p>
+<p>Assim, o método da inversão consiste em gerar <span class="math inline">\(U\sim\text{Unif}(0,1)\)</span> e devolver o menor valor cuja acumulada alcança <span class="math inline">\(U\)</span>: se <span class="math inline">\(U\le F(0)=1-p\)</span>, o menor valor é <span class="math inline">\(0\)</span>; caso contrário, é <span class="math inline">\(1\)</span>. Ou seja,</p>
+<p><span class="math display">\[
+X=F^{-1}(U)=
+\begin{cases}
+0, &amp; \text{se } U\le 1-p,\\[4pt]
+1, &amp; \text{se } U&gt; 1-p.
+\end{cases}
+\]</span></p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Pseudo-algoritmo: Bernoulli">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Pseudo-algoritmo: Bernoulli
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>Gere <span class="math inline">\(U \sim \text{Unif}(0,1)\)</span>.</li>
+<li>Se <span class="math inline">\(U \le 1-p\)</span>, retorne <span class="math inline">\(0\)</span>; caso contrário, retorne <span class="math inline">\(1\)</span>.</li>
+</ol>
+</div>
+</div>
+<p>Abaixo, simulamos <span class="math inline">\(n\)</span> observações, calculamos a distribuição empírica associada a elas e a comparamos com a real de uma Bernoulli.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># parâmetros</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fl">0.3</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># simulação por inversão</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>u <span class="ot">&lt;-</span> <span class="fu">runif</span>(n)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(u <span class="sc">&gt;</span> <span class="dv">1</span> <span class="sc">-</span> p)  <span class="co"># 1 se U &gt; 1-p, senão 0</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># distribuição empírica (garantindo níveis 0 e 1)</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>emp <span class="ot">&lt;-</span> <span class="fu">prop.table</span>(<span class="fu">table</span>(<span class="fu">factor</span>(x, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))))</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>real <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">0</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span> <span class="sc">-</span> p, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> p)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co"># tabela de comparação</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">valor =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">real =</span> <span class="fu">as.numeric</span>(real),</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimada =</span> <span class="fu">as.numeric</span>(emp)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>comp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  valor real estimada
+1     0  0.7   0.7048
+2     1  0.3   0.2952</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># gráfico comparando real vs estimada</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr); <span class="fu">library</span>(ggplot2)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>comp_long <span class="ot">&lt;-</span> <span class="fu">pivot_longer</span>(comp, <span class="at">cols =</span> <span class="fu">c</span>(real, estimada),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">names_to =</span> <span class="st">"tipo"</span>, <span class="at">values_to =</span> <span class="st">"prob"</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(comp_long, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(valor), <span class="at">y =</span> prob, <span class="at">fill =</span> tipo)) <span class="sc">+</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="st">"dodge"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">name =</span> <span class="st">"Valor de X"</span>) <span class="sc">+</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">sprintf</span>(<span class="st">"Bernoulli(p) com p = %.2f — n = %d"</span>, p, n),</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Probabilidade"</span>) <span class="sc">+</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>(), <span class="at">legend.title =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_discrete_inversion_files/figure-html/unnamed-chunk-3-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">123</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># parâmetros</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> <span class="fl">0.3</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">10000</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co"># simulação por inversão</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>u <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>, n)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> (u <span class="op">&gt;</span> <span class="dv">1</span> <span class="op">-</span> p).astype(<span class="bu">int</span>)  <span class="co"># 1 se U &gt; 1-p, senão 0</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co"># distribuição empírica (garantindo níveis 0 e 1)</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>counts <span class="op">=</span> np.bincount(x, minlength<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>emp <span class="op">=</span> counts <span class="op">/</span> n</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>real <span class="op">=</span> np.array([<span class="dv">1</span> <span class="op">-</span> p, p])</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co"># tabela de comparação (impresso no console)</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"valor | real   | estimada"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>valor | real   | estimada</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> v <span class="kw">in</span> [<span class="dv">0</span>, <span class="dv">1</span>]:</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>v<span class="sc">:5d}</span><span class="ss"> | </span><span class="sc">{</span>real[v]<span class="sc">:.4f}</span><span class="ss"> | </span><span class="sc">{</span>emp[v]<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>    0 | 0.7000 | 0.6995
+    1 | 0.3000 | 0.3005</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># gráfico comparando real vs estimada</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>vals <span class="op">=</span> np.array([<span class="dv">0</span>, <span class="dv">1</span>], dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>width <span class="op">=</span> <span class="fl">0.35</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>plt.bar(vals <span class="op">-</span> width<span class="op">/</span><span class="dv">2</span>, real, width, edgecolor<span class="op">=</span><span class="st">'black'</span>, label<span class="op">=</span><span class="st">'real'</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>plt.bar(vals <span class="op">+</span> width<span class="op">/</span><span class="dv">2</span>, emp,  width, edgecolor<span class="op">=</span><span class="st">'black'</span>, label<span class="op">=</span><span class="st">'estimada'</span>)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>plt.xticks(vals, [<span class="st">'0'</span>, <span class="st">'1'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>([&lt;matplotlib.axis.XTick object at 0x7097e33420d0&gt;, &lt;matplotlib.axis.XTick object at 0x7097e3341950&gt;], [Text(0.0, 0, '0'), Text(1.0, 0, '1')])</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Valor de X'</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Probabilidade'</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="ss">f'Bernoulli(p) com p = </span><span class="sc">{</span>p<span class="sc">:.2f}</span><span class="ss"> — n = </span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>, axis<span class="op">=</span><span class="st">'y'</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_discrete_inversion_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="exemplo-2-geração-de-variáveis-aleatórias-com-distribuição-geométrica" class="level2" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="exemplo-2-geração-de-variáveis-aleatórias-com-distribuição-geométrica"><span class="header-section-number">5.5</span> Exemplo 2: Geração de Variáveis Aleatórias com Distribuição Geométrica</h2>
+<p>A distribuição geométrica modela o número de falhas até o primeiro sucesso em uma sequência de experimentos de Bernoulli. Se a probabilidade de sucesso em cada tentativa é <span class="math inline">\(p\)</span>, a função de probabilidade é dada por</p>
+<p><span class="math display">\[
+\mathbb{P}(X = k) = (1 - p)^{k}\, p, \quad k = 0, 1, 2, \dots
+\]</span></p>
+<p>onde <span class="math inline">\(k\)</span> representa o número de falhas antes do primeiro sucesso.</p>
+<p>Nos exemplos anteriores o suporte era finito e pequeno, então dava para percorrer os valores um a um. Aqui o suporte é infinito, e vale a pena obter uma fórmula fechada para <span class="math inline">\(F^{-1}\)</span>. Começamos calculando a f.d.a., usando a soma da progressão geométrica <span class="math inline">\(\sum_{x=0}^{k} r^x = \frac{1 - r^{k+1}}{1 - r}\)</span> com <span class="math inline">\(r = 1-p\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+F(k) &amp; = \mathbb{P}(X \leq k) = \sum_{x=0}^{k}(1 - p)^{x}p \\
+&amp;= p \sum_{x=0}^{k} (1 - p)^x\\
+&amp; = p \cdot \frac{1 - (1 - p)^{k+1}}{1 - (1-p)}\\
+&amp; = p \cdot \frac{1 - (1 - p)^{k+1}}{p}\\
+&amp;= 1 - (1 - p)^{k+1}.
+\end{aligned}
+\]</span></p>
+<p>Queremos agora a <strong>inversa da f.d.a.</strong>, ou seja, dado <span class="math inline">\(u \in (0,1)\)</span>, o menor inteiro <span class="math inline">\(k\)</span> tal que <span class="math inline">\(F(k) \geq u\)</span>. Note que a condição é uma <strong>desigualdade</strong>, e não uma igualdade: como <span class="math inline">\(X\)</span> é discreta, em geral não existe <span class="math inline">\(k\)</span> inteiro com <span class="math inline">\(F(k) = u\)</span> exatamente. Vamos resolver a desigualdade passo a passo.</p>
+<p>Partimos de</p>
+<p><span class="math display">\[
+1 - (1 - p)^{k+1} \geq u.
+\]</span></p>
+<p>Isolando o termo <span class="math inline">\((1-p)^{k+1}\)</span> (subtraindo <span class="math inline">\(1\)</span> dos dois lados e multiplicando por <span class="math inline">\(-1\)</span>, o que inverte a desigualdade):</p>
+<p><span class="math display">\[
+(1 - p)^{k+1} \leq 1 - u.
+\]</span></p>
+<p>Aplicamos agora o logaritmo natural nos dois lados. Como o logaritmo é crescente, a desigualdade se mantém:</p>
+<p><span class="math display">\[
+\log\!\left((1 - p)^{k+1}\right) \leq \log(1 - u).
+\]</span></p>
+<p>Usando a propriedade que permite trazer o expoente para frente:</p>
+<p><span class="math display">\[
+(k+1) \cdot \log(1 - p) \leq \log(1 - u).
+\]</span></p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Atenção: a desigualdade se inverte aqui">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Atenção: a desigualdade se inverte aqui
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Para <span class="math inline">\(0 &lt; p &lt; 1\)</span> temos <span class="math inline">\(0 &lt; 1-p &lt; 1\)</span>, e portanto <span class="math inline">\(\log(1-p) &lt; 0\)</span>. Ao dividir os dois lados por <span class="math inline">\(\log(1-p)\)</span>, estamos dividindo por um número <strong>negativo</strong>, e o sentido da desigualdade se inverte. Esquecer disso é um erro comum e leva a uma fórmula com <span class="math inline">\(\lfloor \cdot \rfloor\)</span> no lugar de <span class="math inline">\(\lceil \cdot \rceil\)</span>.</p>
+</div>
+</div>
+<p>Dividindo por <span class="math inline">\(\log(1-p) &lt; 0\)</span> e isolando <span class="math inline">\(k\)</span>:</p>
+<p><span class="math display">\[
+k + 1 \geq \frac{\log(1 - u)}{\log(1 - p)}
+\qquad \Longleftrightarrow \qquad
+k \geq \frac{\log(1 - u)}{\log(1 - p)} - 1.
+\]</span></p>
+<p>Como queremos o <strong>menor</strong> inteiro que satisfaz essa desigualdade, arredondamos para cima:</p>
+<p><span class="math display">\[
+F^{-1}(u) = \left\lceil \frac{\log(1 - u)}{\log(1 - p)} - 1 \right\rceil.
+\]</span></p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Pseudo-algoritmo: Geométrica">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Pseudo-algoritmo: Geométrica
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>Gere <span class="math inline">\(U \sim \text{Unif}(0,1)\)</span>.</li>
+<li>Retorne <span class="math inline">\(X = \left\lceil \dfrac{\log(1 - U)}{\log(1 - p)} - 1 \right\rceil\)</span>.</li>
+</ol>
+</div>
+</div>
+<p>Podemos agora gerar v.a. com distribuição geométrica a partir de números uniformes.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Função que calcula a inversa da f.d.a. da geométrica</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>inversa_cdf_geometrica <span class="ot">&lt;-</span> <span class="cf">function</span>(p, u) {</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># k = número de falhas antes do 1º sucesso</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ceiling</span>(<span class="fu">log</span>(<span class="dv">1</span> <span class="sc">-</span> u) <span class="sc">/</span> <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">-</span> p) <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Parâmetro p da distribuição geométrica</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Gerando 1000 números uniformes</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>uniformes <span class="ot">&lt;-</span> <span class="fu">runif</span>(n)</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="co"># sapply aplica a função a cada elemento de `uniformes` e devolve um vetor com</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="co"># os 1000 resultados; é uma forma compacta de escrever um laço for</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>geometricas <span class="ot">&lt;-</span> <span class="fu">sapply</span>(uniformes, inversa_cdf_geometrica, <span class="at">p =</span> p)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotando um histograma das variáveis geométricas geradas</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a><span class="co"># binwidth = 1 com boundary = -0.5 deixa uma barra centrada em cada inteiro</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">geometricas =</span> geometricas)</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> geometricas)) <span class="sc">+</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">1</span>, <span class="at">boundary =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">closed =</span> <span class="st">"left"</span>,</span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">fill =</span> <span class="st">"skyblue"</span>) <span class="sc">+</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Geométricas geradas pela inversa da f.d.a. (p = 0.5)"</span>,</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Número de falhas antes do primeiro sucesso"</span>,</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Frequência"</span>) <span class="sc">+</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_discrete_inversion_files/figure-html/unnamed-chunk-5-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para calcular a f.d.a. da distribuição geométrica</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>cdf_geometrica <span class="ot">&lt;-</span> <span class="cf">function</span>(k, p) {</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span> <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> p)<span class="sc">^</span>(k <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Gerando valores de k para plotar a f.d.a.</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>k_values <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">20</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>cdf_values <span class="ot">&lt;-</span> <span class="fu">sapply</span>(k_values, cdf_geometrica, <span class="at">p =</span> p)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotando a f.d.a. da distribuição geométrica</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>df_cdf <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">k_values =</span> k_values, <span class="at">cdf_values =</span> cdf_values)</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_cdf, <span class="fu">aes</span>(<span class="at">x =</span> k_values, <span class="at">y =</span> cdf_values)) <span class="sc">+</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_step</span>(<span class="at">direction =</span> <span class="st">"hv"</span>, <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"f.d.a. da distribuição geométrica (p = 0.5)"</span>,</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"k (número de falhas antes do primeiro sucesso)"</span>,</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"F(k)"</span>) <span class="sc">+</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_discrete_inversion_files/figure-html/unnamed-chunk-5-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Função que calcula a inversa da f.d.a. da geométrica</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> inversa_cdf_geometrica(p, u):</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># k = número de falhas antes do 1º sucesso</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> math.ceil(math.log(<span class="dv">1</span> <span class="op">-</span> u) <span class="op">/</span> math.log(<span class="dv">1</span> <span class="op">-</span> p) <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Parâmetro p da distribuição geométrica</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">123</span>)</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Gerando 1000 números uniformes</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>uniformes <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>, n)</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="co"># A list comprehension abaixo aplica a função a cada elemento de `uniformes` e</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="co"># devolve uma lista com os 1000 resultados; é uma forma compacta de escrever um for</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>geometricas <span class="op">=</span> [inversa_cdf_geometrica(p, u) <span class="cf">for</span> u <span class="kw">in</span> uniformes]</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotando um histograma das variáveis geométricas geradas</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a><span class="co"># align='left' com bins inteiros deixa uma barra centrada em cada inteiro</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>plt.hist(geometricas,</span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>         bins<span class="op">=</span><span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">max</span>(geometricas) <span class="op">+</span> <span class="dv">2</span>),  <span class="co"># +2 para incluir o último valor</span></span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>         color<span class="op">=</span><span class="st">'skyblue'</span>, edgecolor<span class="op">=</span><span class="st">'black'</span>, align<span class="op">=</span><span class="st">'left'</span>)</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Geométricas geradas pela inversa da f.d.a. (p = 0.5)'</span>)</span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Número de falhas antes do primeiro sucesso'</span>)</span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Frequência'</span>)</span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_discrete_inversion_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para calcular a f.d.a. da distribuição geométrica</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cdf_geometrica(k, p):</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span> <span class="op">-</span> (<span class="dv">1</span> <span class="op">-</span> p)<span class="op">**</span>(k <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Gerando valores de k para plotar a f.d.a.</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>k_values <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">21</span>)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>cdf_values <span class="op">=</span> [cdf_geometrica(k, p) <span class="cf">for</span> k <span class="kw">in</span> k_values]</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotando a f.d.a. da distribuição geométrica</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>plt.step(k_values, cdf_values, where<span class="op">=</span><span class="st">'post'</span>, color<span class="op">=</span><span class="st">'blue'</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'f.d.a. da distribuição geométrica (p = 0.5)'</span>)</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'k (número de falhas antes do primeiro sucesso)'</span>)</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'F(k)'</span>)</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_discrete_inversion_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="exemplo-3-geração-de-variáveis-aleatórias-com-distribuição-poisson" class="level2" data-number="5.6">
+<h2 data-number="5.6" class="anchored" data-anchor-id="exemplo-3-geração-de-variáveis-aleatórias-com-distribuição-poisson"><span class="header-section-number">5.6</span> Exemplo 3: Geração de Variáveis Aleatórias com Distribuição Poisson</h2>
+<p>A distribuição de Poisson é usada para modelar o número de eventos que ocorrem em um intervalo de tempo ou espaço fixo, quando os eventos ocorrem com uma taxa constante <span class="math inline">\(\lambda\)</span> e de forma independente.</p>
+<p>A função de probabilidade da distribuição de Poisson é dada por</p>
+<p><span class="math display">\[
+\mathbb{P}(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}, \quad k = 0, 1, 2, \ldots
+\]</span></p>
+<p>Diferentemente da geométrica, aqui não há fórmula fechada simples para <span class="math inline">\(F^{-1}\)</span>: vamos ter que voltar à ideia de acumular as probabilidades uma a uma até ultrapassar <span class="math inline">\(U\)</span>. O problema é que calcular <span class="math inline">\(\mathbb{P}(X=k)\)</span> do zero para cada <span class="math inline">\(k\)</span> exige recalcular <span class="math inline">\(\lambda^k\)</span> e <span class="math inline">\(k!\)</span>, o que é caro e, para <span class="math inline">\(k\)</span> grande, chega a estourar a capacidade numérica do computador.</p>
+<p>A saída é notar que as probabilidades da Poisson satisfazem a relação recursiva</p>
+<p><span class="math display">\[
+\mathbb{P}(X = k+1) = \frac{\lambda}{k+1} \cdot \mathbb{P}(X = k),
+\qquad \text{com } \mathbb{P}(X = 0) = e^{-\lambda},
+\]</span></p>
+<p>que segue diretamente da função de probabilidade:</p>
+<p><span class="math display">\[
+\frac{\mathbb{P}(X = k+1)}{\mathbb{P}(X = k)}
+= \frac{\lambda^{k+1} e^{-\lambda} / (k+1)!}{\lambda^{k} e^{-\lambda} / k!}
+= \frac{\lambda}{k+1}.
+\]</span></p>
+<p>Assim, cada probabilidade é obtida da anterior com uma única multiplicação e uma única divisão, sem calcular fatoriais nem potências.</p>
+<section id="técnica-da-inversão-usando-a-fórmula-recursiva" class="level3" data-number="5.6.1">
+<h3 data-number="5.6.1" class="anchored" data-anchor-id="técnica-da-inversão-usando-a-fórmula-recursiva"><span class="header-section-number">5.6.1</span> Técnica da Inversão Usando a Fórmula Recursiva</h3>
+<p>Juntando a recursão com o algoritmo da inversão, obtemos:</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Pseudo-algoritmo: Poisson">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Pseudo-algoritmo: Poisson
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>Gere <span class="math inline">\(U \sim \text{Unif}(0,1)\)</span>.</li>
+<li>Faça <span class="math inline">\(i = 0\)</span>, <span class="math inline">\(p = e^{-\lambda}\)</span> e <span class="math inline">\(F = p\)</span>.</li>
+<li>Se <span class="math inline">\(U \leq F\)</span>, faça <span class="math inline">\(X = i\)</span> e pare.</li>
+<li>Caso contrário, atualize <span class="math inline">\(i = i+1\)</span>, <span class="math inline">\(p = \dfrac{\lambda p}{i}\)</span> e <span class="math inline">\(F = F + p\)</span>.</li>
+<li>Volte para o passo 3.</li>
+</ol>
+</div>
+</div>
+<p>A seguir implementamos esse método:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Gera um valor de Poisson por inversão, usando a fórmula recursiva</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>inversa_cdf_poisson_recursiva <span class="ot">&lt;-</span> <span class="cf">function</span>(lam, u) {</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  k <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span>lam)  <span class="co"># P(X = 0)</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  F_acm <span class="ot">&lt;-</span> p      <span class="co"># acumulada até k = 0</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Continuamos somando até que F(k) &gt;= u</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (u <span class="sc">&gt;</span> F_acm) {</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    k <span class="ot">&lt;-</span> k <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    p <span class="ot">&lt;-</span> p <span class="sc">*</span> lam <span class="sc">/</span> k  <span class="co"># atualiza P(X = k) a partir de P(X = k-1)</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    F_acm <span class="ot">&lt;-</span> F_acm <span class="sc">+</span> p</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(k)</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Parâmetro lambda da distribuição Poisson</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>lam <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Gerando 1000 números uniformes</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>uniformes <span class="ot">&lt;-</span> <span class="fu">runif</span>(n)</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a><span class="co"># sapply aplica a função a cada elemento de `uniformes` e devolve um vetor com</span></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a><span class="co"># os 1000 resultados; é uma forma compacta de escrever um laço for</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>poisson_vars <span class="ot">&lt;-</span> <span class="fu">sapply</span>(uniformes, inversa_cdf_poisson_recursiva, <span class="at">lam =</span> lam)</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotando o histograma das variáveis Poisson geradas</span></span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a><span class="co"># binwidth = 1 com boundary = -0.5 deixa uma barra centrada em cada inteiro</span></span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">poisson_vars =</span> poisson_vars)</span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> poisson_vars)) <span class="sc">+</span></span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">1</span>, <span class="at">boundary =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">closed =</span> <span class="st">"left"</span>,</span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">fill =</span> <span class="st">"skyblue"</span>) <span class="sc">+</span></span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Poisson geradas pela fórmula recursiva (λ = 3)"</span>,</span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Número de eventos"</span>,</span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Frequência"</span>) <span class="sc">+</span></span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_discrete_inversion_files/figure-html/unnamed-chunk-7-5.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para calcular a f.d.a. da Poisson, também pela recursão</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>cdf_poisson <span class="ot">&lt;-</span> <span class="cf">function</span>(k, lam) {</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  cdf <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span>lam)  <span class="co"># P(X = 0)</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">0</span><span class="sc">:</span>k) {</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    cdf <span class="ot">&lt;-</span> cdf <span class="sc">+</span> p  <span class="co"># acumula P(X = i)</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (i <span class="sc">&lt;</span> k) {</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>      p <span class="ot">&lt;-</span> p <span class="sc">*</span> lam <span class="sc">/</span> (i <span class="sc">+</span> <span class="dv">1</span>)  <span class="co"># atualiza para o próximo valor</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(cdf)</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Gerando valores de k para a f.d.a.</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>k_values <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">14</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>cdf_values <span class="ot">&lt;-</span> <span class="fu">sapply</span>(k_values, cdf_poisson, <span class="at">lam =</span> lam)</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotando a f.d.a. da distribuição Poisson</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>df_cdf <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">k_values =</span> k_values, <span class="at">cdf_values =</span> cdf_values)</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_cdf, <span class="fu">aes</span>(<span class="at">x =</span> k_values, <span class="at">y =</span> cdf_values)) <span class="sc">+</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_step</span>(<span class="at">direction =</span> <span class="st">"hv"</span>, <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"f.d.a. da distribuição Poisson (λ = 3)"</span>,</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"k (número de eventos)"</span>,</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"F(k)"</span>) <span class="sc">+</span></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_discrete_inversion_files/figure-html/unnamed-chunk-7-6.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Gera um valor de Poisson por inversão, usando a fórmula recursiva</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> inversa_cdf_poisson_recursiva(lam, u):</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> math.exp(<span class="op">-</span>lam)  <span class="co"># P(X = 0)</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    F_acm <span class="op">=</span> p           <span class="co"># acumulada até k = 0</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Continuamos somando até que F(k) &gt;= u</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> u <span class="op">&gt;</span> F_acm:</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>        k <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>        p <span class="op">=</span> p <span class="op">*</span> lam <span class="op">/</span> k  <span class="co"># atualiza P(X = k) a partir de P(X = k-1)</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>        F_acm <span class="op">+=</span> p</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> k</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Parâmetro lambda da distribuição Poisson</span></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>lam <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">123</span>)</span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Gerando 1000 números uniformes</span></span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>uniformes <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>, n)</span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a><span class="co"># A list comprehension abaixo aplica a função a cada elemento de `uniformes` e</span></span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a><span class="co"># devolve uma lista com os 1000 resultados; é uma forma compacta de escrever um for</span></span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>poisson_vars <span class="op">=</span> [inversa_cdf_poisson_recursiva(lam, u) <span class="cf">for</span> u <span class="kw">in</span> uniformes]</span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotando o histograma das variáveis Poisson geradas</span></span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a><span class="co"># align='left' com bins inteiros deixa uma barra centrada em cada inteiro</span></span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>plt.hist(poisson_vars,</span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>         bins<span class="op">=</span><span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">max</span>(poisson_vars) <span class="op">+</span> <span class="dv">2</span>),  <span class="co"># +2 para incluir o último valor</span></span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>         color<span class="op">=</span><span class="st">'skyblue'</span>, edgecolor<span class="op">=</span><span class="st">'black'</span>, align<span class="op">=</span><span class="st">'left'</span>)</span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Poisson geradas pela fórmula recursiva (λ = 3)'</span>)</span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Número de eventos'</span>)</span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Frequência'</span>)</span>
+<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_discrete_inversion_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para calcular a f.d.a. da Poisson, também pela recursão</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cdf_poisson(k, lam):</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    cdf <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> math.exp(<span class="op">-</span>lam)  <span class="co"># P(X = 0)</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(k <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>        cdf <span class="op">+=</span> p  <span class="co"># acumula P(X = i)</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> i <span class="op">&lt;</span> k:</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>            p <span class="op">=</span> p <span class="op">*</span> lam <span class="op">/</span> (i <span class="op">+</span> <span class="dv">1</span>)  <span class="co"># atualiza para o próximo valor</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cdf</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Gerando valores de k para a f.d.a.</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>k_values <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">15</span>)</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>cdf_values <span class="op">=</span> [cdf_poisson(k, lam) <span class="cf">for</span> k <span class="kw">in</span> k_values]</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotando a f.d.a. da distribuição Poisson</span></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>plt.step(k_values, cdf_values, where<span class="op">=</span><span class="st">'post'</span>, color<span class="op">=</span><span class="st">'blue'</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'f.d.a. da distribuição Poisson (λ = 3)'</span>)</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'k (número de eventos)'</span>)</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'F(k)'</span>)</span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_discrete_inversion_files/figure-html/unnamed-chunk-8-2.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="exemplo-4-permutações-e-amostragem-sem-reposição" class="level2" data-number="5.7">
+<h2 data-number="5.7" class="anchored" data-anchor-id="exemplo-4-permutações-e-amostragem-sem-reposição"><span class="header-section-number">5.7</span> Exemplo 4: permutações e amostragem sem reposição</h2>
+<p>Nos três exemplos anteriores, cada chamada do algoritmo devolvia um número, e as chamadas eram independentes umas das outras. Este exemplo é diferente: o objeto sorteado é uma <strong>permutação</strong> — uma reordenação de <span class="math inline">\(n\)</span> elementos, sorteada uniformemente entre as <span class="math inline">\(n!\)</span> possíveis — e, a partir dela, uma <strong>amostra sem reposição</strong>.</p>
+<p>Essas duas operações aparecem o tempo todo: ao separar um conjunto de dados em treino e teste (como fizemos no Capítulo 1 com os dados <code>iris</code>), ao sortear a ordem em que os tratamentos são aplicados em um experimento, ou ao sortear quem será entrevistado em uma pesquisa. Em todos os casos, a exigência é a mesma: nenhum arranjo pode ser mais provável que outro.</p>
+<section id="o-ingrediente-básico-a-uniforme-discreta" class="level3" data-number="5.7.1">
+<h3 data-number="5.7.1" class="anchored" data-anchor-id="o-ingrediente-básico-a-uniforme-discreta"><span class="header-section-number">5.7.1</span> O ingrediente básico: a uniforme discreta</h3>
+<p>O bloco de construção é a distribuição uniforme sobre <span class="math inline">\(\{1, 2, \ldots, k\}\)</span>, isto é, <span class="math inline">\(\mathbb{P}(X = i) = 1/k\)</span> para todo <span class="math inline">\(i\)</span>. Aqui a inversão fica especialmente simples, porque a f.d.a. é <span class="math inline">\(F(i) = i/k\)</span>: o menor <span class="math inline">\(i\)</span> com <span class="math inline">\(i/k \geq U\)</span> é</p>
+<p><span class="math display">\[
+X = \lceil k\,U \rceil,
+\]</span></p>
+<p>onde <span class="math inline">\(\lceil \cdot \rceil\)</span> é o <strong>teto</strong>, o menor inteiro maior ou igual ao argumento. Diferentemente dos exemplos anteriores, não é preciso percorrer valor por valor: uma conta resolve.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Por que $\lceil kU \rceil$ e não $\lfloor kU \rfloor$">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Por que <span class="math inline">\(\lceil kU \rceil\)</span> e não <span class="math inline">\(\lfloor kU \rfloor\)</span>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Se usássemos o piso <span class="math inline">\(\lfloor kU \rfloor\)</span>, obteríamos valores em <span class="math inline">\(\{0, 1, \ldots, k-1\}\)</span> — o que também é uniforme, mas sobre o conjunto errado. A forma equivalente para começar em 1 é <span class="math inline">\(\lfloor kU \rfloor + 1\)</span>. Note que <span class="math inline">\(\lceil kU \rceil\)</span> só difere dessa segunda expressão quando <span class="math inline">\(kU\)</span> é exatamente um inteiro, o que tem probabilidade zero.</p>
+</div>
+</div>
+</section>
+<section id="embaralhamento-de-fisheryates" class="level3" data-number="5.7.2">
+<h3 data-number="5.7.2" class="anchored" data-anchor-id="embaralhamento-de-fisheryates"><span class="header-section-number">5.7.2</span> Embaralhamento de Fisher–Yates</h3>
+<p>Uma ideia que <strong>não</strong> funciona é sortear uma posição para cada elemento de forma independente: dois elementos podem cair na mesma posição. O algoritmo de Fisher–Yates resolve isso decidindo as posições uma de cada vez, sempre sorteando entre os elementos que ainda não foram fixados.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Pseudo-algoritmo: embaralhamento de Fisher–Yates">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Pseudo-algoritmo: embaralhamento de Fisher–Yates
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Entrada: um vetor <span class="math inline">\(v = (v_1, \ldots, v_n)\)</span>.</p>
+<ol type="1">
+<li><p>Para <span class="math inline">\(i = n, n-1, \ldots, 2\)</span>:</p>
+<ol type="a">
+<li><p>Sorteie <span class="math inline">\(j\)</span> uniformemente em <span class="math inline">\(\{1, 2, \ldots, i\}\)</span>, isto é, gere <span class="math inline">\(U \sim \text{Unif}(0,1)\)</span> e faça <span class="math inline">\(j = \lceil i\,U \rceil\)</span>;</p></li>
+<li><p>Troque <span class="math inline">\(v_i\)</span> e <span class="math inline">\(v_j\)</span> de lugar.</p></li>
+</ol></li>
+<li><p>Devolva <span class="math inline">\(v\)</span>.</p></li>
+</ol>
+</div>
+</div>
+<p>O laço fixa a última posição primeiro: no passo <span class="math inline">\(i = n\)</span>, o elemento que vai ocupar a posição <span class="math inline">\(n\)</span> é sorteado uniformemente entre os <span class="math inline">\(n\)</span> disponíveis. No passo seguinte, a posição <span class="math inline">\(n-1\)</span> recebe um dos <span class="math inline">\(n-1\)</span> elementos restantes, e assim por diante.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="Proposição">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proposição
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>O algoritmo acima devolve cada uma das <span class="math inline">\(n!\)</span> permutações de <span class="math inline">\(v\)</span> com probabilidade <span class="math inline">\(1/n!\)</span>.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Demonstração">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Demonstração
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-13" class="callout-13-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>O algoritmo faz <span class="math inline">\(n-1\)</span> sorteios independentes: no passo <span class="math inline">\(i\)</span>, o valor de <span class="math inline">\(j\)</span> tem <span class="math inline">\(i\)</span> possibilidades igualmente prováveis. O número de sequências de sorteios <span class="math inline">\((j_n, j_{n-1}, \ldots, j_2)\)</span> é, portanto,</p>
+<p><span class="math display">\[
+n \times (n-1) \times \cdots \times 2 = n!,
+\]</span></p>
+<p>e todas elas têm a mesma probabilidade <span class="math inline">\(1/n!\)</span>, por independência.</p>
+<p>Falta ver que sequências de sorteios diferentes produzem permutações diferentes. Isso vale porque o algoritmo pode ser desfeito: dada a permutação final, a última troca (a do passo <span class="math inline">\(i = 2\)</span>) pode ser revertida, revelando <span class="math inline">\(j_2\)</span>; depois a do passo <span class="math inline">\(i = 3\)</span>, revelando <span class="math inline">\(j_3\)</span>; e assim por diante. Ou seja, a permutação final determina a sequência de sorteios.</p>
+<p>Temos então <span class="math inline">\(n!\)</span> sequências de sorteios, todas com a mesma probabilidade, em correspondência um a um com as <span class="math inline">\(n!\)</span> permutações possíveis. Logo cada permutação tem probabilidade <span class="math inline">\(1/n!\)</span>. <span class="math inline">\(\square\)</span></p>
+</div>
+</div>
+</div>
+<p>O código abaixo implementa o pseudo-algoritmo e o verifica no menor caso em que a verificação é possível: com <span class="math inline">\(n = 3\)</span> existem <span class="math inline">\(3! = 6\)</span> permutações, e podemos contar quantas vezes cada uma aparece em 6000 embaralhamentos. O esperado é <span class="math inline">\(1/6 \approx 0{,}1667\)</span> para cada.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>embaralhar <span class="ot">&lt;-</span> <span class="cf">function</span>(v) {</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> <span class="fu">length</span>(v)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># O laço vai do fim para o começo: primeiro decidimos quem fica na última</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># posição, depois na penúltima, e assim por diante</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> n<span class="sc">:</span><span class="dv">2</span>) {</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sorteio uniforme em {1, ..., i}, pela inversão da uniforme discreta</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    j <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(i <span class="sc">*</span> <span class="fu">runif</span>(<span class="dv">1</span>))</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Troca de v[i] com v[j]; a variável temp guarda o valor que seria perdido</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>    temp <span class="ot">&lt;-</span> v[i]</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>    v[i] <span class="ot">&lt;-</span> v[j]</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>    v[j] <span class="ot">&lt;-</span> temp</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(v)</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificação: as 6 permutações de (1, 2, 3) devem sair com a mesma frequência</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">6000</span></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>permutacoes <span class="ot">&lt;-</span> <span class="fu">character</span>(B)</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (b <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>B) {</span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># paste(..., collapse = "") transforma o vetor c(2, 3, 1) no texto "231",</span></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># para que possamos contar as repetições com table()</span></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>  permutacoes[b] <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="fu">embaralhar</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>), <span class="at">collapse =</span> <span class="st">""</span>)</span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>frequencias <span class="ot">&lt;-</span> <span class="fu">table</span>(permutacoes) <span class="sc">/</span> B</span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">round</span>(frequencias, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>permutacoes
+   123    132    213    231    312    321 
+0.1692 0.1657 0.1608 0.1608 0.1710 0.1725 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">permutacao =</span> <span class="fu">names</span>(frequencias),</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">frequencia =</span> <span class="fu">as.numeric</span>(frequencias))</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co"># A linha vermelha marca o valor teórico 1/6</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> permutacao, <span class="at">y =</span> frequencia)) <span class="sc">+</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"skyblue"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">1</span> <span class="sc">/</span> <span class="dv">6</span>, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Frequência das 6 permutações de (1, 2, 3) em 6000 embaralhamentos"</span>,</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Permutação obtida"</span>, <span class="at">y =</span> <span class="st">"Frequência relativa"</span>) <span class="sc">+</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_discrete_inversion_files/figure-html/unnamed-chunk-9-5.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-5-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> embaralhar(v):</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Em Python, listas são passadas por referência: sem esta cópia, a função</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># alteraria a lista original de quem a chamou</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> <span class="bu">list</span>(v)</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="bu">len</span>(v)</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># O laço vai do fim para o começo: primeiro decidimos quem fica na última</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># posição, depois na penúltima, e assim por diante</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n, <span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>):</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Sorteio uniforme em {1, ..., i}, pela inversão da uniforme discreta</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>        j <span class="op">=</span> <span class="bu">int</span>(np.ceil(i <span class="op">*</span> np.random.uniform()))</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Troca de v[i] com v[j]. Atenção: as posições da lista começam em 0,</span></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>        <span class="co"># por isso subtraímos 1 dos índices</span></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>        v[i <span class="op">-</span> <span class="dv">1</span>], v[j <span class="op">-</span> <span class="dv">1</span>] <span class="op">=</span> v[j <span class="op">-</span> <span class="dv">1</span>], v[i <span class="op">-</span> <span class="dv">1</span>]</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> v</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificação: as 6 permutações de (1, 2, 3) devem sair com a mesma frequência</span></span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="dv">6000</span></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>contagem <span class="op">=</span> {}</span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> b <span class="kw">in</span> <span class="bu">range</span>(B):</span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># A permutação [2, 3, 1] vira o texto "231", para podermos contar repetições</span></span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>    chave <span class="op">=</span> <span class="st">""</span>.join(<span class="bu">str</span>(x) <span class="cf">for</span> x <span class="kw">in</span> embaralhar([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]))</span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>    contagem[chave] <span class="op">=</span> contagem.get(chave, <span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>permutacoes <span class="op">=</span> <span class="bu">sorted</span>(contagem)</span>
+<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a>frequencias <span class="op">=</span> [contagem[p] <span class="op">/</span> B <span class="cf">for</span> p <span class="kw">in</span> permutacoes]</span>
+<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-32"><a href="#cb28-32" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> p, f <span class="kw">in</span> <span class="bu">zip</span>(permutacoes, frequencias):</span>
+<span id="cb28-33"><a href="#cb28-33" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(p, <span class="bu">round</span>(f, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>123 0.1555
+132 0.1677
+213 0.1743
+231 0.1682
+312 0.1652
+321 0.1692</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A linha vermelha marca o valor teórico 1/6</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>plt.bar(permutacoes, frequencias, color<span class="op">=</span><span class="st">'skyblue'</span>, edgecolor<span class="op">=</span><span class="st">'black'</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>plt.axhline(<span class="dv">1</span> <span class="op">/</span> <span class="dv">6</span>, color<span class="op">=</span><span class="st">'red'</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Frequência das 6 permutações de (1, 2, 3) em 6000 embaralhamentos'</span>)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Permutação obtida'</span>)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Frequência relativa'</span>)</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_discrete_inversion_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="amostragem-sem-reposição" class="level3" data-number="5.7.3">
+<h3 data-number="5.7.3" class="anchored" data-anchor-id="amostragem-sem-reposição"><span class="header-section-number">5.7.3</span> Amostragem sem reposição</h3>
+<p>Sortear <span class="math inline">\(k\)</span> elementos entre <span class="math inline">\(n\)</span>, sem repetir nenhum, é o mesmo algoritmo interrompido no meio. Depois do primeiro passo, a posição <span class="math inline">\(n\)</span> guarda um elemento sorteado uniformemente entre os <span class="math inline">\(n\)</span>; depois do segundo, as posições <span class="math inline">\(n\)</span> e <span class="math inline">\(n-1\)</span> guardam dois elementos distintos; e assim por diante. Basta então rodar o laço <span class="math inline">\(k\)</span> vezes e devolver as <span class="math inline">\(k\)</span> últimas posições.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Pseudo-algoritmo: amostra de tamanho $k$ sem reposição">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Pseudo-algoritmo: amostra de tamanho <span class="math inline">\(k\)</span> sem reposição
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Entrada: um vetor <span class="math inline">\(v = (v_1, \ldots, v_n)\)</span> e o tamanho <span class="math inline">\(k \leq n\)</span> da amostra.</p>
+<ol type="1">
+<li><p>Para <span class="math inline">\(i = n, n-1, \ldots, n-k+1\)</span>:</p>
+<ol type="a">
+<li><p>Sorteie <span class="math inline">\(j\)</span> uniformemente em <span class="math inline">\(\{1, \ldots, i\}\)</span>;</p></li>
+<li><p>Troque <span class="math inline">\(v_i\)</span> e <span class="math inline">\(v_j\)</span> de lugar.</p></li>
+</ol></li>
+<li><p>Devolva <span class="math inline">\((v_{n-k+1}, \ldots, v_n)\)</span>.</p></li>
+</ol>
+</div>
+</div>
+<p>Para verificar, sorteamos 10 000 amostras de tamanho <span class="math inline">\(k = 3\)</span> entre <span class="math inline">\(n = 10\)</span> elementos e contamos com que frequência cada elemento aparece. Como todos os elementos têm a mesma chance de entrar na amostra, essa frequência deve ficar próxima de <span class="math inline">\(k/n = 0{,}3\)</span>.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-6-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-1" role="tab" aria-controls="tabset-6-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-2" role="tab" aria-controls="tabset-6-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-6-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-6-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>amostrar_sem_reposicao <span class="ot">&lt;-</span> <span class="cf">function</span>(v, k) {</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> <span class="fu">length</span>(v)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Mesmo laço do embaralhamento, mas parando depois de k passos</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> n<span class="sc">:</span>(n <span class="sc">-</span> k <span class="sc">+</span> <span class="dv">1</span>)) {</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    j <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(i <span class="sc">*</span> <span class="fu">runif</span>(<span class="dv">1</span>))</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    temp <span class="ot">&lt;-</span> v[i]</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>    v[i] <span class="ot">&lt;-</span> v[j]</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    v[j] <span class="ot">&lt;-</span> temp</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># As k últimas posições são a amostra</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(v[(n <span class="sc">-</span> k <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>n])</span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Uma amostra de tamanho 3 entre 10 elementos:"</span>,</span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">amostrar_sem_reposicao</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Uma amostra de tamanho 3 entre 10 elementos: 3 9 10 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificação: com que frequência cada elemento entra na amostra?</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>contagem <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (b <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>B) {</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  amostra <span class="ot">&lt;-</span> <span class="fu">amostrar_sem_reposicao</span>(<span class="dv">1</span><span class="sc">:</span>n, k)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  contagem[amostra] <span class="ot">&lt;-</span> contagem[amostra] <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Proporção das amostras que contêm cada elemento (esperado k/n = 0,3):</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Proporção das amostras que contêm cada elemento (esperado k/n = 0,3):</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">round</span>(contagem <span class="sc">/</span> B, <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] 0.306 0.307 0.291 0.304 0.298 0.304 0.292 0.301 0.296 0.298</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-6-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> amostrar_sem_reposicao(v, k):</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> <span class="bu">list</span>(v)</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="bu">len</span>(v)</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Mesmo laço do embaralhamento, mas parando depois de k passos</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n, n <span class="op">-</span> k, <span class="op">-</span><span class="dv">1</span>):</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>        j <span class="op">=</span> <span class="bu">int</span>(np.ceil(i <span class="op">*</span> np.random.uniform()))</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>        v[i <span class="op">-</span> <span class="dv">1</span>], v[j <span class="op">-</span> <span class="dv">1</span>] <span class="op">=</span> v[j <span class="op">-</span> <span class="dv">1</span>], v[i <span class="op">-</span> <span class="dv">1</span>]</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># As k últimas posições são a amostra</span></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> v[n <span class="op">-</span> k:]</span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Uma amostra de tamanho 3 entre 10 elementos:"</span>,</span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>      amostrar_sem_reposicao(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">11</span>), <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Uma amostra de tamanho 3 entre 10 elementos: [6, 9, 4]</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificação: com que frequência cada elemento entra na amostra?</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="dv">10000</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>contagem <span class="op">=</span> np.zeros(n)</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> b <span class="kw">in</span> <span class="bu">range</span>(B):</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>    amostra <span class="op">=</span> amostrar_sem_reposicao(<span class="bu">range</span>(<span class="dv">1</span>, n <span class="op">+</span> <span class="dv">1</span>), k)</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> x <span class="kw">in</span> amostra:</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>        contagem[x <span class="op">-</span> <span class="dv">1</span>] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Proporção das amostras que contêm cada elemento (esperado k/n = 0,3):"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Proporção das amostras que contêm cada elemento (esperado k/n = 0,3):</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(np.<span class="bu">round</span>(contagem <span class="op">/</span> B, <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[0.303 0.296 0.301 0.302 0.304 0.304 0.292 0.3   0.306 0.293]</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Atenção: com reposição é outra coisa">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Atenção: com reposição é outra coisa
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Sortear <span class="math inline">\(k\)</span> valores <strong>com</strong> reposição — o que <code>sample(v, k, replace = TRUE)</code> e <code>np.random.choice(v, k)</code> fazem — é o problema dos exemplos anteriores, repetido <span class="math inline">\(k\)</span> vezes de forma independente, e pode devolver o mesmo elemento mais de uma vez. Sem reposição, os sorteios <strong>não</strong> são independentes: a cada elemento retirado, os demais ficam mais prováveis.</p>
+<p>As funções prontas para o caso sem reposição são <code>sample(v)</code> e <code>sample(v, k)</code> no R, e <code>np.random.permutation(v)</code> e <code>np.random.choice(v, k, replace=False)</code> no Python. Todas implementam, por dentro, alguma variante do Fisher–Yates. Foi o que usamos no Capítulo 1 para separar os dados <code>iris</code> em treino e teste — lá, a separação precisava ser sem reposição, sob pena de a mesma flor aparecer nos dois conjuntos.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="exercícios" class="level2" data-number="5.8">
+<h2 data-number="5.8" class="anchored" data-anchor-id="exercícios"><span class="header-section-number">5.8</span> Exercícios</h2>
+<p><span style="color:#2C92B2;"><strong>Exercício 1</strong></span>. Seja <span class="math inline">\(X\)</span> uma v.a. tal que <span class="math inline">\(\mathbb{P}(X=1)=0.3\)</span>, <span class="math inline">\(\mathbb{P}(X=3)=0.1\)</span> e <span class="math inline">\(\mathbb{P}(X=4)=0.6\)</span>.</p>
+<ol type="a">
+<li><p>Escreva um pseudo-algoritmo para gerar um valor de <span class="math inline">\(X\)</span>.</p></li>
+<li><p>Implemente uma função para gerar <span class="math inline">\(n\)</span> valores de <span class="math inline">\(X\)</span>.</p></li>
+<li><p>Compare a distribuição das frequências obtidas na amostra simulada com as probabilidades reais.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 2</strong></span>. Considere <span class="math inline">\(X\)</span> uma v.a. tal que</p>
+<p><span class="math display">\[
+\mathbb{P}(X=i) = \alpha \mathbb{P}(X_1=i) + (1-\alpha) \mathbb{P}(X_2=i), \quad i=0,1,\dots
+\]</span></p>
+<p>onde <span class="math inline">\(0 \leq \alpha \leq 1\)</span> e <span class="math inline">\(X_1, X_2\)</span> são v.a. discretas.</p>
+<p>A distribuição de <span class="math inline">\(X\)</span> é chamada de distribuição de mistura. Podemos escrever</p>
+<p><span class="math display">\[
+X = \begin{cases}
+X_1, &amp; \text{com probabilidade } \alpha, \\
+X_2, &amp; \text{com probabilidade } 1-\alpha.
+\end{cases}
+\]</span></p>
+<p>Implemente um algoritmo para gerar uma amostra de tamanho <span class="math inline">\(n\)</span> da distribuição mistura de uma Poisson e de uma Geométrica, com base nas funções implementadas nos Exemplos 2 e 3.</p>
+<p><span style="color:#2C92B2;"><strong>Exercício 3</strong></span>. Seja <span class="math inline">\(X \sim \text{Binomial}(m,p)\)</span>, isto é,</p>
+<p><span class="math display">\[
+\mathbb{P}(X=k) = \binom{m}{k} p^k (1-p)^{m-k}, \quad k = 0, 1, \ldots, m.
+\]</span></p>
+<ol type="a">
+<li>Mostre que as probabilidades satisfazem a relação recursiva</li>
+</ol>
+<p><span class="math display">\[
+\mathbb{P}(X=k+1) = \frac{m-k}{k+1} \cdot \frac{p}{1-p} \cdot \mathbb{P}(X=k),
+\qquad \text{com } \mathbb{P}(X=0) = (1-p)^m.
+\]</span></p>
+<ol start="2" type="a">
+<li><p>Adapte a função do Exemplo 3 para gerar uma Binomial por inversão usando essa recursão. Assim como no caso da Poisson, você não deve calcular fatoriais nem potências dentro do laço.</p></li>
+<li><p>Gere 1000 valores com <span class="math inline">\(m=10\)</span> e <span class="math inline">\(p=0.3\)</span> e compare o histograma obtido com as probabilidades teóricas.</p></li>
+<li><p>Diferentemente da Poisson, aqui o laço do algoritmo sempre para em no máximo <span class="math inline">\(m\)</span> passos. Por quê?</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 4</strong></span>. Este exercício explora o embaralhamento do Exemplo 4.</p>
+<ol type="a">
+<li><p>Uma variante natural — e errada — do Fisher–Yates é sortear <span class="math inline">\(j\)</span> uniformemente em <span class="math inline">\(\{1, \ldots, n\}\)</span> a cada passo, em vez de em <span class="math inline">\(\{1, \ldots, i\}\)</span>. Implemente essa versão, gere 6000 permutações de <span class="math inline">\((1,2,3)\)</span> e compare as frequências das seis permutações com <span class="math inline">\(1/6\)</span>. Em seguida, explique por que ela <strong>não pode</strong> funcionar: quantas sequências de sorteios equiprováveis o algoritmo produz quando <span class="math inline">\(n = 3\)</span>? Por que esse número não ser divisível por <span class="math inline">\(6\)</span> já garante que alguma permutação sai com frequência diferente das outras?</p></li>
+<li><p>Um <strong>desarranjo</strong> é uma permutação que não deixa nenhum elemento na posição original. Usando a função <code>embaralhar</code>, estime a probabilidade de que uma permutação aleatória de <span class="math inline">\((1, \ldots, 10)\)</span> seja um desarranjo e compare com o valor teórico, que é próximo de <span class="math inline">\(1/e \approx 0{,}3679\)</span>. Repita com <span class="math inline">\(n = 5\)</span> e <span class="math inline">\(n = 50\)</span>: a probabilidade muda muito com <span class="math inline">\(n\)</span>?</p></li>
+<li><p>Separe os índices <span class="math inline">\(1, \ldots, 150\)</span> em um conjunto de treino com 70% dos elementos e um de teste com os 30% restantes, usando <code>amostrar_sem_reposicao</code> e sem chamar <code>sample</code> nem <code>np.random.choice</code>. Confira que os dois conjuntos não têm elementos em comum e que juntos somam 150 índices.</p></li>
+<li><p>Quantos números uniformes <code>embaralhar</code> consome para um vetor de tamanho <span class="math inline">\(n\)</span>? E <code>amostrar_sem_reposicao</code>, para uma amostra de tamanho <span class="math inline">\(k\)</span>? Compare com a alternativa ingênua de sortear <span class="math inline">\(k\)</span> valores <strong>com</strong> reposição e recomeçar do zero sempre que houver repetição: para <span class="math inline">\(n = 365\)</span> e <span class="math inline">\(k = 23\)</span> (o problema do aniversário), estime por simulação a probabilidade de haver repetição em uma tentativa e o número médio de tentativas até obter 23 valores distintos.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 5</strong></span>. (Desafio) No algoritmo geral da inversão, os valores <span class="math inline">\(x_1, x_2, \ldots, x_m\)</span> são percorridos em ordem até que <span class="math inline">\(F(x_i) \geq U\)</span>. O número de comparações feitas até devolver <span class="math inline">\(x_i\)</span> é, portanto, igual a <span class="math inline">\(i\)</span>.</p>
+<ol type="a">
+<li>Mostre que o número esperado de comparações do algoritmo é</li>
+</ol>
+<p><span class="math display">\[
+\sum_{i=1}^{m} i \cdot p(x_i).
+\]</span></p>
+<ol start="2" type="a">
+<li><p>Note que a soma acima depende da <strong>ordem</strong> em que listamos os valores, embora a distribuição gerada não dependa. Argumente que essa soma é mínima quando os valores estão listados em ordem decrescente de probabilidade.</p></li>
+<li><p>Considere uma v.a. com probabilidades <span class="math inline">\((0.05,\, 0.05,\, 0.1,\, 0.2,\, 0.6)\)</span>, nessa ordem. Modifique a função que você implementou no Exercício 1 para também contar quantas comparações foram feitas em cada geração. Gere 20000 valores com as probabilidades nessa ordem e depois em ordem decrescente, e compare a média empírica de comparações com o valor previsto pelo item (a).</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 6</strong></span>. (Desafio) O <strong>método do alias</strong> gera uma v.a. discreta com <span class="math inline">\(m\)</span> valores fazendo sempre o mesmo trabalho, qualquer que seja <span class="math inline">\(m\)</span> — em vez do número crescente de comparações do Exercício 5. A ideia é escrever a distribuição como uma mistura de <span class="math inline">\(m\)</span> distribuições, cada uma concentrada em no máximo <strong>dois</strong> pontos.</p>
+<p>O gerador guarda dois vetores, calculados uma única vez: as probabilidades de corte <span class="math inline">\(q_1, \ldots, q_m\)</span> e os <em>apelidos</em> (aliases) <span class="math inline">\(a_1, \ldots, a_m\)</span>. O algoritmo é:</p>
+<ol type="1">
+<li>Sorteie <span class="math inline">\(i\)</span> uniformemente em <span class="math inline">\(\{1, \ldots, m\}\)</span>;</li>
+<li>Gere <span class="math inline">\(U \sim \text{Unif}(0,1)\)</span>. Se <span class="math inline">\(U \leq q_i\)</span>, devolva <span class="math inline">\(x_i\)</span>; caso contrário, devolva <span class="math inline">\(x_{a_i}\)</span>.</li>
+</ol>
+<ol type="a">
+<li>Considere <span class="math inline">\(X\)</span> com valores <span class="math inline">\(1, 2, 3, 4\)</span> e probabilidades <span class="math inline">\((0{,}1;\ 0{,}2;\ 0{,}3;\ 0{,}4)\)</span>, e a tabela</li>
+</ol>
+<p><span class="math display">\[
+q = (0{,}4;\ 0{,}8;\ 0{,}6;\ 1{,}0),
+\qquad
+a = (3,\ 4,\ 4,\ 4).
+\]</span></p>
+<p>Verifique, enumerando os caminhos que levam a cada valor, que o algoritmo devolve exatamente essas probabilidades. Por exemplo, o valor <span class="math inline">\(3\)</span> pode sair da coluna <span class="math inline">\(i = 3\)</span> (quando <span class="math inline">\(U \leq 0{,}6\)</span>) ou da coluna <span class="math inline">\(i = 1\)</span> (quando <span class="math inline">\(U &gt; 0{,}4\)</span>, pois <span class="math inline">\(a_1 = 3\)</span>), o que dá <span class="math inline">\(\frac{1}{4}(0{,}6) + \frac{1}{4}(1 - 0{,}4) = 0{,}15 + 0{,}15 = 0{,}3\)</span>.</p>
+<ol start="2" type="a">
+<li><p>Implemente o algoritmo com essa tabela, gere 20 000 valores e compare as frequências obtidas com as probabilidades verdadeiras.</p></li>
+<li><p>Explique por que o custo de gerar um valor não depende de <span class="math inline">\(m\)</span>, e compare com o número esperado de comparações calculado no Exercício 5.</p></li>
+<li><p>Falta construir a tabela. Multiplique todas as probabilidades por <span class="math inline">\(m\)</span>, de modo que a média passe a ser <span class="math inline">\(1\)</span>. Mostre que, se nem todas forem iguais a <span class="math inline">\(1\)</span>, sempre existem um índice <span class="math inline">\(i\)</span> com <span class="math inline">\(m\,p_i \leq 1\)</span> e um índice <span class="math inline">\(j\)</span> com <span class="math inline">\(m\,p_j \geq 1\)</span>. Faça então <span class="math inline">\(q_i = m\,p_i\)</span> e <span class="math inline">\(a_i = j\)</span>: a coluna <span class="math inline">\(i\)</span> fica completa, e o que faltava para enchê-la (<span class="math inline">\(1 - q_i\)</span>) é descontado de <span class="math inline">\(m\,p_j\)</span>. Repita o procedimento com as <span class="math inline">\(m-1\)</span> colunas restantes. Implemente essa construção e verifique que ela reproduz a tabela do item (a).</p></li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./2_pseudorandom.html" class="pagination-link" aria-label="Números Pseudoaleatórios">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Números Pseudoaleatórios</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./4_continuous_inversion.html" class="pagination-link" aria-label="Técnica da Inversão para Variáveis Contínuas">
+        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Técnica da Inversão para Variáveis Contínuas</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

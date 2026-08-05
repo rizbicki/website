@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>10&nbsp; Método de Box-Muller – Curso de Programação Estatística</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./9_monte_carlo.html" rel="next">
+<link href="./7_transf.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b53751a350365c71b6c909e95f209ed1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-391e8d52869022bb697e2ea9ab25a897.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-ffb5ca9f558d2f0186e140c54025885e.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Curso de Programação Estatística</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thiagorr162/prog-estat"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./8_box_muller.html"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Método de Box-Muller</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Curso de Programação Estatística</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./0_py.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Breve introdução ao Python</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./0_R.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Breve Introdução ao R</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./1_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Por que Simular?</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./2_pseudorandom.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Números Pseudoaleatórios</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./3_discrete_inversion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Técnica da Inversão para Variáveis Discretas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./4_continuous_inversion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Técnica da Inversão para Variáveis Contínuas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./5_discrete_rejection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Método da Rejeição para Variáveis Discretas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./6_continuous_rejection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Método da Rejeição para Variáveis Contínuas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./7_transf.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Transformações e Misturas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./8_box_muller.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Método de Box-Muller</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./9_monte_carlo.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Método de Monte Carlo</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10_var_red.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Técnicas de Redução de Variância</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11_import.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Amostragem por Importância</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul class="collapse">
+  <li><a href="#a-ideia-olhar-para-o-par-não-para-a-coordenada" id="toc-a-ideia-olhar-para-o-par-não-para-a-coordenada" class="nav-link active" data-scroll-target="#a-ideia-olhar-para-o-par-não-para-a-coordenada"><span class="header-section-number">10.1</span> A ideia: olhar para o par, não para a coordenada</a></li>
+  <li><a href="#representação-em-coordenadas-polares" id="toc-representação-em-coordenadas-polares" class="nav-link" data-scroll-target="#representação-em-coordenadas-polares"><span class="header-section-number">10.2</span> Representação em coordenadas polares</a></li>
+  <li><a href="#a-distribuição-de-r-e-theta" id="toc-a-distribuição-de-r-e-theta" class="nav-link" data-scroll-target="#a-distribuição-de-r-e-theta"><span class="header-section-number">10.3</span> A distribuição de <span class="math inline">\(R\)</span> e <span class="math inline">\(\Theta\)</span></a></li>
+  <li><a href="#o-algoritmo" id="toc-o-algoritmo" class="nav-link" data-scroll-target="#o-algoritmo"><span class="header-section-number">10.4</span> O algoritmo</a></li>
+  <li><a href="#exemplo-1-gerando-normais-padrão" id="toc-exemplo-1-gerando-normais-padrão" class="nav-link" data-scroll-target="#exemplo-1-gerando-normais-padrão"><span class="header-section-number">10.5</span> Exemplo 1: gerando normais padrão</a></li>
+  <li><a href="#exemplo-2-de-n01-para-nmu-sigma2" id="toc-exemplo-2-de-n01-para-nmu-sigma2" class="nav-link" data-scroll-target="#exemplo-2-de-n01-para-nmu-sigma2"><span class="header-section-number">10.6</span> Exemplo 2: de <span class="math inline">\(N(0,1)\)</span> para <span class="math inline">\(N(\mu, \sigma^2)\)</span></a></li>
+  <li><a href="#exemplo-3-um-par-de-normais-correlacionadas" id="toc-exemplo-3-um-par-de-normais-correlacionadas" class="nav-link" data-scroll-target="#exemplo-3-um-par-de-normais-correlacionadas"><span class="header-section-number">10.7</span> Exemplo 3: um par de normais correlacionadas</a></li>
+  <li><a href="#o-método-polar-de-marsaglia" id="toc-o-método-polar-de-marsaglia" class="nav-link" data-scroll-target="#o-método-polar-de-marsaglia"><span class="header-section-number">10.8</span> O método polar de Marsaglia</a></li>
+  <li><a href="#exercícios" id="toc-exercícios" class="nav-link" data-scroll-target="#exercícios"><span class="header-section-number">10.9</span> Exercícios</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Método de Box-Muller</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>No Capítulo 6 já geramos valores de uma <span class="math inline">\(N(0,1)\)</span> pelo método da rejeição: propúnhamos uma <span class="math inline">\(\text{Exp}(1)\)</span>, aceitávamos cerca de <span class="math inline">\(76\%\)</span> dos candidatos e sorteávamos um sinal no final. O algoritmo funciona, mas cobra caro — são necessários, em média, cerca de <span class="math inline">\(3{,}6\)</span> uniformes para cada normal produzida, e há um laço que pode, em princípio, demorar.</p>
+<p>Este capítulo apresenta um método que faz melhor: a partir de <strong>exatamente dois</strong> uniformes, ele devolve <strong>duas</strong> normais padrão independentes, sem rejeitar nada. É o método de Box-Muller, e ele é um caso particular do método da transformação do capítulo anterior — com uma escolha de transformação que ninguém adivinharia olhando apenas para a densidade da normal.</p>
+<p>O truque é justamente esse: em vez de atacar uma normal de cada vez, atacamos <strong>duas ao mesmo tempo</strong>.</p>
+<section id="a-ideia-olhar-para-o-par-não-para-a-coordenada" class="level2" data-number="10.1">
+<h2 data-number="10.1" class="anchored" data-anchor-id="a-ideia-olhar-para-o-par-não-para-a-coordenada"><span class="header-section-number">10.1</span> A ideia: olhar para o par, não para a coordenada</h2>
+<p>Por que olhar para duas normais ajudaria, se nem uma sabemos gerar por inversão? Porque o <strong>par</strong> tem uma estrutura que a coordenada isolada não tem. Se <span class="math inline">\(X \sim N(0,1)\)</span> e <span class="math inline">\(Y \sim N(0,1)\)</span> são independentes, a densidade conjunta é</p>
+<p><span class="math display">\[
+f_{X,Y}(x,y) = \frac{1}{\sqrt{2\pi}} e^{-x^2/2} \cdot
+               \frac{1}{\sqrt{2\pi}} e^{-y^2/2} =
+               \frac{1}{2\pi} e^{-(x^2 + y^2)/2}.
+\]</span></p>
+<p>Repare que <span class="math inline">\((x,y)\)</span> aparece <strong>somente</strong> através de <span class="math inline">\(x^2 + y^2\)</span>, ou seja, através da distância do ponto à origem. Dois pontos que estejam à mesma distância da origem têm exatamente a mesma densidade, não importa em que direção estejam. A nuvem de pontos <span class="math inline">\((X, Y)\)</span> é circularmente simétrica: não tem direção preferida.</p>
+<p>E a maneira natural de descrever algo que só depende da distância à origem é trocar as coordenadas cartesianas <span class="math inline">\((x,y)\)</span> pelas <strong>coordenadas polares</strong>: a distância <span class="math inline">\(r\)</span> e o ângulo <span class="math inline">\(\theta\)</span>. É o que faremos a seguir — e a surpresa é que, nessas coordenadas, as duas variáveis resultantes são fáceis de simular.</p>
+</section>
+<section id="representação-em-coordenadas-polares" class="level2" data-number="10.2">
+<h2 data-number="10.2" class="anchored" data-anchor-id="representação-em-coordenadas-polares"><span class="header-section-number">10.2</span> Representação em coordenadas polares</h2>
+<p>Considere duas variáveis aleatórias <span class="math inline">\(X \sim N(0, 1)\)</span> e <span class="math inline">\(Y \sim N(0, 1)\)</span>, independentes entre si. No plano cartesiano, podemos representar o ponto <span class="math inline">\((X, Y)\)</span> e descrevê-lo pelo par <span class="math inline">\((R, \Theta)\)</span>, em que <span class="math inline">\(R\)</span> é a distância do ponto à origem e <span class="math inline">\(\Theta\)</span> é o ângulo formado com o eixo horizontal.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="polar.png" class="img-fluid figure-img"></p>
+<figcaption>Representação em Coordenadas Polares</figcaption>
+</figure>
+</div>
+<p>As relações trigonométricas para <span class="math inline">\(\Theta\)</span> são</p>
+<p><span class="math display">\[
+\sin \Theta = \frac{\text{cateto oposto}}{\text{hipotenusa}} = \frac{Y}{R}
+\qquad \text{e} \qquad
+\cos \Theta = \frac{\text{cateto adjacente}}{\text{hipotenusa}} = \frac{X}{R}.
+\]</span></p>
+<p>Dessa forma, obtemos as duas relações que usaremos o capítulo inteiro:</p>
+<p><span class="math display">\[
+X = R \cos \Theta, \qquad Y = R \sin \Theta,
+\qquad \text{com} \qquad R^2 = X^2 + Y^2.
+\]</span></p>
+</section>
+<section id="a-distribuição-de-r-e-theta" class="level2" data-number="10.3">
+<h2 data-number="10.3" class="anchored" data-anchor-id="a-distribuição-de-r-e-theta"><span class="header-section-number">10.3</span> A distribuição de <span class="math inline">\(R\)</span> e <span class="math inline">\(\Theta\)</span></h2>
+<p>As variáveis <span class="math inline">\(R\)</span> e <span class="math inline">\(\Theta\)</span> são uma transformação do par <span class="math inline">\((X, Y)\)</span>. Para obter a densidade conjunta de <span class="math inline">\((R, \Theta)\)</span>, usamos a fórmula de mudança de variáveis em duas dimensões:</p>
+<p><span class="math display">\[
+f_{R, \Theta}(r, \theta) =
+f_{X, Y}\big(h_1(r, \theta), h_2(r, \theta)\big)\, |J_h(r, \theta)|,
+\]</span></p>
+<p>em que <span class="math inline">\(h_1(r,\theta) = r\cos\theta\)</span> e <span class="math inline">\(h_2(r,\theta) = r\sin\theta\)</span> são as transformações inversas (as que expressam <span class="math inline">\(X\)</span> e <span class="math inline">\(Y\)</span> em termos de <span class="math inline">\(R\)</span> e <span class="math inline">\(\Theta\)</span>), e <span class="math inline">\(J_h\)</span> é o Jacobiano dessas funções:</p>
+<p><span class="math display">\[
+J_h(r, \theta) =
+\begin{vmatrix}
+\frac{\partial h_1}{\partial r} &amp; \frac{\partial h_1}{\partial \theta} \\
+\frac{\partial h_2}{\partial r} &amp; \frac{\partial h_2}{\partial \theta} \\
+\end{vmatrix}
+=
+\begin{vmatrix}
+\cos \theta &amp; -r \sin \theta \\
+\sin \theta &amp; r \cos \theta \\
+\end{vmatrix} = r(\cos^2 \theta + \sin^2 \theta) = r.
+\]</span></p>
+<div class="callout callout-style-default callout-important callout-titled" title="Proposição: a versão polar de duas normais">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proposição: a versão polar de duas normais
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Sejam <span class="math inline">\(X\)</span> e <span class="math inline">\(Y\)</span> independentes, ambas <span class="math inline">\(N(0,1)\)</span>, e sejam <span class="math inline">\(R \geq 0\)</span> e <span class="math inline">\(\Theta \in (0, 2\pi)\)</span> suas coordenadas polares. Então <span class="math inline">\(R\)</span> e <span class="math inline">\(\Theta\)</span> são <strong>independentes</strong>, com</p>
+<p><span class="math display">\[
+\Theta \sim \text{Unif}(0, 2\pi)
+\qquad \text{e} \qquad
+R^2 \sim \text{Exp}(1/2).
+\]</span></p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Demonstração">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Demonstração
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Substituindo <span class="math inline">\(f_{X,Y}(x,y) = \frac{1}{2\pi} e^{-(x^2+y^2)/2}\)</span> na fórmula da mudança de variáveis, e usando que <span class="math inline">\((r\cos\theta)^2 + (r\sin\theta)^2 = r^2\)</span>, obtemos</p>
+<p><span class="math display">\[
+f_{R, \Theta}(r, \theta) = \frac{1}{2\pi} e^{-r^2/2}\, r
+= \underbrace{\frac{1}{2\pi}}_{f_\Theta(\theta)} \cdot
+  \underbrace{r e^{-r^2/2}}_{f_R(r)},
+\qquad 0 &lt; r &lt; \infty, \; 0 &lt; \theta &lt; 2\pi.
+\]</span></p>
+<p>A densidade conjunta <strong>fatorou</strong> em um termo que só depende de <span class="math inline">\(\theta\)</span> e outro que só depende de <span class="math inline">\(r\)</span>: é exatamente isso que significa <span class="math inline">\(R\)</span> e <span class="math inline">\(\Theta\)</span> serem independentes. Como cada fator é uma densidade legítima em seu domínio, lemos diretamente que</p>
+<p><span class="math display">\[
+f_{\Theta}(\theta) = \frac{1}{2\pi}, \quad 0 &lt; \theta &lt; 2\pi,
+\qquad \text{e} \qquad
+f_R(r) = r e^{-r^2/2}, \quad r &gt; 0,
+\]</span></p>
+<p>isto é, <span class="math inline">\(\Theta \sim \text{Unif}(0, 2\pi)\)</span> e <span class="math inline">\(R \sim \text{Rayleigh}(1)\)</span>.</p>
+<p>Falta passar de <span class="math inline">\(R\)</span> para <span class="math inline">\(R^2\)</span>. Para <span class="math inline">\(w &gt; 0\)</span>,</p>
+<p><span class="math display">\[
+\mathbb{P}(R^2 \leq w) = \mathbb{P}(R \leq \sqrt{w}) =
+\int_0^{\sqrt{w}} r e^{-r^2/2}\, dr = 1 - e^{-w/2},
+\]</span></p>
+<p>que é a f.d.a. de uma <span class="math inline">\(\text{Exp}(1/2)\)</span> (exponencial de <strong>taxa</strong> <span class="math inline">\(1/2\)</span>, e portanto de média <span class="math inline">\(2\)</span>). <span class="math inline">\(\square\)</span></p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Rayleigh, qui-quadrado e exponencial">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Rayleigh, qui-quadrado e exponencial
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A distribuição de <span class="math inline">\(R\)</span> tem nome: <span class="math inline">\(\text{Rayleigh}(1)\)</span>. E a de <span class="math inline">\(R^2\)</span> tem dois: como <span class="math inline">\(R^2 = X^2 + Y^2\)</span> é a soma dos quadrados de duas normais padrão independentes, pela definição do Capítulo 7 temos <span class="math inline">\(R^2 \sim \chi^2_2\)</span>. A demonstração acima mostra que essa <span class="math inline">\(\chi^2_2\)</span> é a mesma coisa que uma <span class="math inline">\(\text{Exp}(1/2)\)</span> — fato que também aparece no Exercício 11 do Capítulo 7, por outro caminho.</p>
+<p>Não é uma coincidência sem graça: é justamente ela que torna o método viável, porque exponenciais nós sabemos gerar por inversão desde o Capítulo 4.</p>
+</div>
+</div>
+</section>
+<section id="o-algoritmo" class="level2" data-number="10.4">
+<h2 data-number="10.4" class="anchored" data-anchor-id="o-algoritmo"><span class="header-section-number">10.4</span> O algoritmo</h2>
+<p>A proposição acima descreve o caminho de ida: <strong>das</strong> normais <strong>para</strong> as coordenadas polares. O método de Box-Muller percorre esse caminho ao contrário. Se conseguirmos gerar <span class="math inline">\(R\)</span> e <span class="math inline">\(\Theta\)</span> com as distribuições certas, as fórmulas <span class="math inline">\(X = R\cos\Theta\)</span> e <span class="math inline">\(Y = R\sin\Theta\)</span> nos devolvem o par de normais.</p>
+<p>E gerar <span class="math inline">\(R\)</span> e <span class="math inline">\(\Theta\)</span> é fácil, porque as duas são independentes e cada uma sai de um único uniforme:</p>
+<ul>
+<li><span class="math inline">\(\Theta \sim \text{Unif}(0, 2\pi)\)</span> é apenas uma mudança de escala: <span class="math inline">\(\Theta = 2\pi U_2\)</span>;</li>
+<li><span class="math inline">\(R^2 \sim \text{Exp}(1/2)\)</span> sai por inversão (Capítulo 4): como <span class="math inline">\(F(w) = 1 - e^{-w/2}\)</span>, temos <span class="math inline">\(R^2 = -2\log(1 - U_1)\)</span>, ou, trocando <span class="math inline">\(1-U_1\)</span> por <span class="math inline">\(U_1\)</span> (a mesma observação feita no Capítulo 7), <span class="math inline">\(R^2 = -2 \log U_1\)</span>. Daí <span class="math inline">\(R = \sqrt{-2\log U_1}\)</span>.</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled" title="Pseudo-algoritmo: Box-Muller">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Pseudo-algoritmo: Box-Muller
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p>Gere <span class="math inline">\(U_1 \sim \text{Unif}(0,1)\)</span> e <span class="math inline">\(U_2 \sim \text{Unif}(0,1)\)</span>, independentes.</p></li>
+<li><p>Calcule o raio <span class="math inline">\(R = \sqrt{-2 \log U_1}\)</span> e o ângulo <span class="math inline">\(\Theta = 2\pi U_2\)</span>.</p></li>
+<li><p>Devolva o par</p></li>
+</ol>
+<p><span class="math display">\[
+X = R \cos \Theta = \sqrt{-2 \log U_1} \, \cos(2\pi U_2),
+\qquad
+Y = R \sin \Theta = \sqrt{-2 \log U_1} \, \sin(2\pi U_2).
+\]</span></p>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled" title="Proposição: validade do método">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proposição: validade do método
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>As variáveis <span class="math inline">\(X\)</span> e <span class="math inline">\(Y\)</span> devolvidas pelo algoritmo são independentes e ambas têm distribuição <span class="math inline">\(N(0,1)\)</span>.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Demonstração">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Demonstração
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>O passo 2 produz <span class="math inline">\(\Theta \sim \text{Unif}(0,2\pi)\)</span> e <span class="math inline">\(R^2 \sim \text{Exp}(1/2)\)</span>, independentes (porque <span class="math inline">\(U_1\)</span> e <span class="math inline">\(U_2\)</span> o são). Logo, o par <span class="math inline">\((R, \Theta)\)</span> gerado tem exatamente a densidade conjunta</p>
+<p><span class="math display">\[
+f_{R,\Theta}(r,\theta) = \frac{1}{2\pi}\, r e^{-r^2/2}
+\]</span></p>
+<p>obtida na proposição anterior.</p>
+<p>Falta ver que aplicar <span class="math inline">\(x = r\cos\theta\)</span>, <span class="math inline">\(y = r\sin\theta\)</span> a esse par devolve a densidade conjunta de duas normais padrão. Usamos de novo a fórmula de mudança de variáveis, agora no sentido contrário: o Jacobiano da transformação que leva <span class="math inline">\((x,y)\)</span> em <span class="math inline">\((r,\theta)\)</span> é o inverso do anterior, ou seja, <span class="math inline">\(1/r\)</span>. Como <span class="math inline">\(r = \sqrt{x^2+y^2}\)</span>,</p>
+<p><span class="math display">\[
+f_{X,Y}(x,y) = f_{R,\Theta}(r, \theta) \cdot \frac{1}{r}
+= \frac{1}{2\pi}\, r e^{-r^2/2} \cdot \frac{1}{r}
+= \frac{1}{2\pi} e^{-(x^2+y^2)/2}
+= \frac{e^{-x^2/2}}{\sqrt{2\pi}} \cdot \frac{e^{-y^2/2}}{\sqrt{2\pi}}.
+\]</span></p>
+<p>A densidade conjunta fatorou no produto de duas densidades <span class="math inline">\(N(0,1)\)</span>, o que significa que <span class="math inline">\(X\)</span> e <span class="math inline">\(Y\)</span> são independentes e cada uma é <span class="math inline">\(N(0,1)\)</span>. <span class="math inline">\(\square\)</span></p>
+</div>
+</div>
+</div>
+<p>Vale registrar o que o método tem de notável: ele é <strong>exato</strong> (não é uma aproximação, como somar doze uniformes e apelar para o Teorema Central do Limite), <strong>não rejeita nada</strong> (todo par de uniformes vira um par de normais) e consome exatamente <strong>um uniforme por normal gerada</strong> — contra os <span class="math inline">\(3{,}6\)</span> do método da rejeição do Capítulo 6.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Atenção: três armadilhas de implementação">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Atenção: três armadilhas de implementação
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p><strong><code>log</code> é logaritmo natural</strong> tanto em R quanto em Python (<code>np.log</code>). Se você usar <code>log10</code>, o método simplesmente gera outra distribuição, sem dar erro.</p></li>
+<li><p><strong>Os senos e cossenos estão em radianos.</strong> É por isso que <span class="math inline">\(\Theta = 2\pi U_2\)</span> entra direto em <code>cos()</code> e <code>sin()</code>, sem conversão para graus.</p></li>
+<li><p><strong><span class="math inline">\(U_1\)</span> não pode valer <span class="math inline">\(0\)</span></strong>, senão <span class="math inline">\(\log U_1 = -\infty\)</span> e o algoritmo devolve <code>Inf</code> ou <code>NaN</code>. O <code>runif</code> do R e o <code>np.random.uniform</code> do Python não devolvem esse valor na prática, mas um gerador escrito por você (como o LCG do Capítulo 2) pode devolver — veja o Exercício 11.</p></li>
+<li><p>Em Python, <code>^</code> <strong>não</strong> é exponenciação: use <code>**</code>. Escrever <code>V1^2</code> não dá erro, mas calcula um “ou exclusivo” bit a bit.</p></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="exemplo-1-gerando-normais-padrão" class="level2" data-number="10.5">
+<h2 data-number="10.5" class="anchored" data-anchor-id="exemplo-1-gerando-normais-padrão"><span class="header-section-number">10.5</span> Exemplo 1: gerando normais padrão</h2>
+<p>O código abaixo implementa o pseudo-algoritmo em uma função que devolve <span class="math inline">\(B\)</span> pares. Como cada par traz duas normais, geramos <span class="math inline">\(B = 2500\)</span> pares para obter <span class="math inline">\(5000\)</span> valores.</p>
+<p>Além de comparar o histograma com a densidade da <span class="math inline">\(N(0,1)\)</span>, fazemos duas conferências que dizem respeito ao par: a correlação entre <span class="math inline">\(X\)</span> e <span class="math inline">\(Y\)</span> (que deve ser próxima de zero) e o gráfico de dispersão dos pares, que deve exibir a nuvem circular discutida no início do capítulo.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Gera B pares de normais padrão pelo método de Box-Muller.</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Devolve um data.frame com colunas x e y: cada linha é um par (X, Y)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>box_muller <span class="ot">&lt;-</span> <span class="cf">function</span>(B) {</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">numeric</span>(B)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  Y <span class="ot">&lt;-</span> <span class="fu">numeric</span>(B)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>B) {</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passo 1: dois uniformes independentes</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    U1 <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    U2 <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passo 2: o raio e o ângulo. Em R, log() é o logaritmo natural</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    R <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="sc">-</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">log</span>(U1))</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    Theta <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> pi <span class="sc">*</span> U2</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passo 3: de coordenadas polares de volta para as cartesianas.</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># cos e sin esperam o ângulo em radianos, que é o que Theta já é</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    X[i] <span class="ot">&lt;-</span> R <span class="sc">*</span> <span class="fu">cos</span>(Theta)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    Y[i] <span class="ot">&lt;-</span> R <span class="sc">*</span> <span class="fu">sin</span>(Theta)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">data.frame</span>(<span class="at">x =</span> X, <span class="at">y =</span> Y))</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">2500</span>   <span class="co"># número de PARES: no fim teremos 2 * B = 5000 valores normais</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>pares <span class="ot">&lt;-</span> <span class="fu">box_muller</span>(B)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"X: média"</span>, <span class="fu">round</span>(<span class="fu">mean</span>(pares<span class="sc">$</span>x), <span class="dv">3</span>),</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"e desvio padrão"</span>, <span class="fu">round</span>(<span class="fu">sd</span>(pares<span class="sc">$</span>x), <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>X: média 0.04 e desvio padrão 0.99 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Y: média"</span>, <span class="fu">round</span>(<span class="fu">mean</span>(pares<span class="sc">$</span>y), <span class="dv">3</span>),</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"e desvio padrão"</span>, <span class="fu">round</span>(<span class="fu">sd</span>(pares<span class="sc">$</span>y), <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Y: média -0.02 e desvio padrão 1.015 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Correlação entre X e Y:"</span>, <span class="fu">round</span>(<span class="fu">cor</span>(pares<span class="sc">$</span>x, pares<span class="sc">$</span>y), <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Correlação entre X e Y: -0.009 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># As duas colunas juntas: 2B valores, todos N(0,1)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">z =</span> <span class="fu">c</span>(pares<span class="sc">$</span>x, pares<span class="sc">$</span>y))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> z)) <span class="sc">+</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">40</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill =</span> <span class="st">"skyblue"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"5000 valores gerados por Box-Muller"</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Valor gerado"</span>, <span class="at">y =</span> <span class="st">"Densidade"</span>) <span class="sc">+</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="8_box_muller_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># coord_fixed deixa as duas escalas iguais: sem isso, um círculo pareceria</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># uma elipse</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(pares, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y)) <span class="sc">+</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="fl">0.8</span>, <span class="at">color =</span> <span class="st">"steelblue"</span>) <span class="sc">+</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>() <span class="sc">+</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Os pares (X, Y) formam uma nuvem circular"</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"X"</span>, <span class="at">y =</span> <span class="st">"Y"</span>) <span class="sc">+</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="8_box_muller_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> norm</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Gera B pares de normais padrão pelo método de Box-Muller.</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Devolve dois vetores de tamanho B: o i-ésimo par é (X[i], Y[i])</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> box_muller(B):</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> np.zeros(B)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    Y <span class="op">=</span> np.zeros(B)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(B):</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Passo 1: dois uniformes independentes</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        U1 <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        U2 <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Passo 2: o raio e o ângulo. np.log é o logaritmo natural</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        R <span class="op">=</span> np.sqrt(<span class="op">-</span><span class="dv">2</span> <span class="op">*</span> np.log(U1))</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>        Theta <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> U2</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Passo 3: de coordenadas polares de volta para as cartesianas.</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>        <span class="co"># cos e sin esperam o ângulo em radianos, que é o que Theta já é</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>        X[i] <span class="op">=</span> R <span class="op">*</span> np.cos(Theta)</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>        Y[i] <span class="op">=</span> R <span class="op">*</span> np.sin(Theta)</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> X, Y</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="dv">2500</span>   <span class="co"># número de PARES: no fim teremos 2 * B = 5000 valores normais</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>X, Y <span class="op">=</span> box_muller(B)</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"X: média"</span>, <span class="bu">round</span>(X.mean(), <span class="dv">3</span>),</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>      <span class="st">"e desvio padrão"</span>, <span class="bu">round</span>(X.std(ddof<span class="op">=</span><span class="dv">1</span>), <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>X: média 0.009 e desvio padrão 1.036</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Y: média"</span>, <span class="bu">round</span>(Y.mean(), <span class="dv">3</span>),</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>      <span class="st">"e desvio padrão"</span>, <span class="bu">round</span>(Y.std(ddof<span class="op">=</span><span class="dv">1</span>), <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Y: média 0.006 e desvio padrão 0.987</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Correlação entre X e Y:"</span>, <span class="bu">round</span>(np.corrcoef(X, Y)[<span class="dv">0</span>, <span class="dv">1</span>], <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Correlação entre X e Y: -0.039</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Os dois vetores juntos: 2B valores, todos N(0,1)</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>Z <span class="op">=</span> np.concatenate([X, Y])</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Malha usada só para desenhar a densidade teórica</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>grade <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">400</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>plt.hist(Z, bins<span class="op">=</span><span class="dv">40</span>, density<span class="op">=</span><span class="va">True</span>, color<span class="op">=</span><span class="st">"skyblue"</span>, edgecolor<span class="op">=</span><span class="st">"black"</span>)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>plt.plot(grade, norm.pdf(grade), color<span class="op">=</span><span class="st">"red"</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"5000 valores gerados por Box-Muller"</span>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Valor gerado"</span>)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Densidade"</span>)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="8_box_muller_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set_aspect deixa as duas escalas iguais: sem isso, um círculo pareceria</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># uma elipse</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">6</span>))</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>plt.scatter(X, Y, alpha<span class="op">=</span><span class="fl">0.3</span>, s<span class="op">=</span><span class="dv">8</span>, color<span class="op">=</span><span class="st">"steelblue"</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>plt.gca().set_aspect(<span class="st">"equal"</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Os pares (X, Y) formam uma nuvem circular"</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"X"</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Y"</span>)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="8_box_muller_files/figure-html/unnamed-chunk-4-3.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="exemplo-2-de-n01-para-nmu-sigma2" class="level2" data-number="10.6">
+<h2 data-number="10.6" class="anchored" data-anchor-id="exemplo-2-de-n01-para-nmu-sigma2"><span class="header-section-number">10.6</span> Exemplo 2: de <span class="math inline">\(N(0,1)\)</span> para <span class="math inline">\(N(\mu, \sigma^2)\)</span></h2>
+<p>O método entrega normais <strong>padrão</strong>, mas na prática quase sempre queremos uma normal com média e variância dadas. A ponte é uma transformação afim, que já é um uso do método do Capítulo 7.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="Proposição">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proposição
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Se <span class="math inline">\(Z \sim N(0,1)\)</span>, então <span class="math inline">\(X = \mu + \sigma Z \sim N(\mu, \sigma^2)\)</span>, para quaisquer <span class="math inline">\(\mu \in \mathbb{R}\)</span> e <span class="math inline">\(\sigma &gt; 0\)</span>.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Demonstração">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Demonstração
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A função <span class="math inline">\(g(z) = \mu + \sigma z\)</span> é estritamente crescente (pois <span class="math inline">\(\sigma &gt; 0\)</span>), com inversa <span class="math inline">\(g^{-1}(x) = (x - \mu)/\sigma\)</span>. Pela fórmula da densidade de uma transformação monótona (Capítulo 7),</p>
+<p><span class="math display">\[
+f_X(x) = f_Z\left(\frac{x-\mu}{\sigma}\right) \cdot \frac{1}{\sigma}
+= \frac{1}{\sigma\sqrt{2\pi}}\,
+  e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2},
+\]</span></p>
+<p>que é a densidade da <span class="math inline">\(N(\mu, \sigma^2)\)</span>. <span class="math inline">\(\square\)</span></p>
+</div>
+</div>
+</div>
+<p>Note que <span class="math inline">\(\sigma\)</span> é o <strong>desvio padrão</strong>, não a variância: essa é uma fonte frequente de erro, agravada pelo fato de que R e Python discordam da notação usual — <code>rnorm</code> e <code>np.random.normal</code> pedem o desvio padrão, enquanto a notação <span class="math inline">\(N(\mu, \sigma^2)\)</span> exibe a variância.</p>
+<p>Vamos simular alturas de uma população adulta, modeladas por uma <span class="math inline">\(N(170, 8^2)\)</span> (em centímetros), usando a função <code>box_muller</code> do Exemplo 1.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2024</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="dv">170</span>     <span class="co"># média desejada</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="dv">8</span>    <span class="co"># desvio padrão desejado</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>pares <span class="ot">&lt;-</span> <span class="fu">box_muller</span>(<span class="dv">2500</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">&lt;-</span> <span class="fu">c</span>(pares<span class="sc">$</span>x, pares<span class="sc">$</span>y)   <span class="co"># 5000 valores N(0,1)</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co"># A transformação afim que desloca e reescala</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> mu <span class="sc">+</span> sigma <span class="sc">*</span> Z</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Média amostral:"</span>, <span class="fu">round</span>(<span class="fu">mean</span>(X), <span class="dv">2</span>), <span class="st">" (teórica:"</span>, mu, <span class="st">")</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Média amostral: 169.91  (teórica: 170 )</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Desvio padrão amostral:"</span>, <span class="fu">round</span>(<span class="fu">sd</span>(X), <span class="dv">2</span>), <span class="st">" (teórico:"</span>, sigma, <span class="st">")</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Desvio padrão amostral: 7.86  (teórico: 8 )</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Proporção de valores acima de 186 cm:"</span>, <span class="fu">round</span>(<span class="fu">mean</span>(X <span class="sc">&gt;</span> <span class="dv">186</span>), <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Proporção de valores acima de 186 cm: 0.0182 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Valor teórico:"</span>, <span class="fu">round</span>(<span class="dv">1</span> <span class="sc">-</span> <span class="fu">pnorm</span>(<span class="dv">186</span>, <span class="at">mean =</span> mu, <span class="at">sd =</span> sigma), <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Valor teórico: 0.0228 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">x =</span> X), <span class="fu">aes</span>(<span class="at">x =</span> x)) <span class="sc">+</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">40</span>,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill =</span> <span class="st">"lightgreen"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> <span class="cf">function</span>(x) <span class="fu">dnorm</span>(x, <span class="at">mean =</span> mu, <span class="at">sd =</span> sigma),</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"N(170, 64) obtida deslocando e reescalando normais padrão"</span>,</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Altura (cm)"</span>, <span class="at">y =</span> <span class="st">"Densidade"</span>) <span class="sc">+</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="8_box_muller_files/figure-html/unnamed-chunk-5-5.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">2024</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>mu <span class="op">=</span> <span class="dv">170</span>      <span class="co"># média desejada</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>sigma <span class="op">=</span> <span class="dv">8</span>     <span class="co"># desvio padrão desejado</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>X1, Y1 <span class="op">=</span> box_muller(<span class="dv">2500</span>)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>Z <span class="op">=</span> np.concatenate([X1, Y1])   <span class="co"># 5000 valores N(0,1)</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="co"># A transformação afim que desloca e reescala</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> mu <span class="op">+</span> sigma <span class="op">*</span> Z</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Média amostral:"</span>, <span class="bu">round</span>(X.mean(), <span class="dv">2</span>), <span class="st">" (teórica:"</span>, mu, <span class="st">")"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Média amostral: 169.93  (teórica: 170 )</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Desvio padrão amostral:"</span>, <span class="bu">round</span>(X.std(ddof<span class="op">=</span><span class="dv">1</span>), <span class="dv">2</span>),</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>      <span class="st">" (teórico:"</span>, sigma, <span class="st">")"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Desvio padrão amostral: 8.12  (teórico: 8 )</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Proporção de valores acima de 186 cm:"</span>, <span class="bu">round</span>(np.mean(X <span class="op">&gt;</span> <span class="dv">186</span>), <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Proporção de valores acima de 186 cm: 0.0228</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Valor teórico:"</span>, <span class="bu">round</span>(<span class="dv">1</span> <span class="op">-</span> norm.cdf(<span class="dv">186</span>, loc<span class="op">=</span>mu, scale<span class="op">=</span>sigma), <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Valor teórico: 0.0228</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Malha usada só para desenhar a densidade teórica</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>grade <span class="op">=</span> np.linspace(X.<span class="bu">min</span>(), X.<span class="bu">max</span>(), <span class="dv">400</span>)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>plt.hist(X, bins<span class="op">=</span><span class="dv">40</span>, density<span class="op">=</span><span class="va">True</span>, color<span class="op">=</span><span class="st">"lightgreen"</span>, edgecolor<span class="op">=</span><span class="st">"black"</span>)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>plt.plot(grade, norm.pdf(grade, loc<span class="op">=</span>mu, scale<span class="op">=</span>sigma), color<span class="op">=</span><span class="st">"red"</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"N(170, 64) obtida deslocando e reescalando normais padrão"</span>)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Altura (cm)"</span>)</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Densidade"</span>)</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="8_box_muller_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="exemplo-3-um-par-de-normais-correlacionadas" class="level2" data-number="10.7">
+<h2 data-number="10.7" class="anchored" data-anchor-id="exemplo-3-um-par-de-normais-correlacionadas"><span class="header-section-number">10.7</span> Exemplo 3: um par de normais correlacionadas</h2>
+<p>Até aqui tratamos as duas normais devolvidas pelo método como valores separados. Mas há situações em que queremos justamente um <strong>par</strong> — duas medidas do mesmo indivíduo, como peso e altura, que não são independentes. Nesses casos, o fato de o Box-Muller já produzir pares é uma conveniência e tanto.</p>
+<p>Queremos gerar <span class="math inline">\((X, Y)\)</span> com distribuição normal bivariada, ambas com média <span class="math inline">\(0\)</span> e variância <span class="math inline">\(1\)</span>, e com <span class="math inline">\(\text{corr}(X,Y) = \rho\)</span>. A construção é uma transformação do par de normais independentes <span class="math inline">\((Z_1, Z_2)\)</span>:</p>
+<p><span class="math display">\[
+X = Z_1, \qquad Y = \rho Z_1 + \sqrt{1 - \rho^2}\, Z_2.
+\]</span></p>
+<p>A intuição é que <span class="math inline">\(Y\)</span> empresta uma fração <span class="math inline">\(\rho\)</span> do valor de <span class="math inline">\(X\)</span> e completa o resto com ruído independente; o coeficiente <span class="math inline">\(\sqrt{1-\rho^2}\)</span> é exatamente o que faz a variância de <span class="math inline">\(Y\)</span> voltar a valer <span class="math inline">\(1\)</span>:</p>
+<p><span class="math display">\[
+\text{Var}(Y) = \rho^2 \text{Var}(Z_1) + (1 - \rho^2)\text{Var}(Z_2) = 1,
+\qquad
+\text{Cov}(X, Y) = \rho\, \text{Var}(Z_1) = \rho.
+\]</span></p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Pseudo-algoritmo: normal bivariada com correlação $\rho$">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Pseudo-algoritmo: normal bivariada com correlação <span class="math inline">\(\rho\)</span>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p>Gere <span class="math inline">\(Z_1\)</span> e <span class="math inline">\(Z_2\)</span> independentes, ambas <span class="math inline">\(N(0,1)\)</span>, por Box-Muller.</p></li>
+<li><p>Devolva <span class="math inline">\(X = Z_1\)</span> e <span class="math inline">\(Y = \rho Z_1 + \sqrt{1-\rho^2}\, Z_2\)</span>.</p></li>
+</ol>
+</div>
+</div>
+<p>Como conferência, além da correlação amostral, comparamos a proporção de pontos no primeiro quadrante com o valor teórico, que para a normal bivariada padrão é</p>
+<p><span class="math display">\[
+\mathbb{P}(X &gt; 0, Y &gt; 0) = \frac{1}{4} + \frac{\arcsin \rho}{2\pi}.
+\]</span></p>
+<p>Quando <span class="math inline">\(\rho = 0\)</span> essa expressão vale <span class="math inline">\(1/4\)</span>, como esperado para variáveis independentes e simétricas; quanto maior <span class="math inline">\(\rho\)</span>, mais os pontos se concentram nos quadrantes em que <span class="math inline">\(X\)</span> e <span class="math inline">\(Y\)</span> têm o mesmo sinal.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7</span>)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>rho <span class="ot">&lt;-</span> <span class="fl">0.8</span>   <span class="co"># correlação desejada</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">2000</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>pares <span class="ot">&lt;-</span> <span class="fu">box_muller</span>(B)</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>Z1 <span class="ot">&lt;-</span> pares<span class="sc">$</span>x</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>Z2 <span class="ot">&lt;-</span> pares<span class="sc">$</span>y</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="co"># X é a primeira normal; Y mistura as duas para criar a correlação</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> Z1</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> rho <span class="sc">*</span> Z1 <span class="sc">+</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> rho<span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> Z2</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Correlação amostral:"</span>, <span class="fu">round</span>(<span class="fu">cor</span>(X, Y), <span class="dv">3</span>), <span class="st">" (teórica:"</span>, rho, <span class="st">")</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Correlação amostral: 0.808  (teórica: 0.8 )</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Desvio padrão de Y:"</span>, <span class="fu">round</span>(<span class="fu">sd</span>(Y), <span class="dv">3</span>), <span class="st">" (teórico: 1)</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Desvio padrão de Y: 0.999  (teórico: 1)</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>prob_teorica <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> <span class="dv">4</span> <span class="sc">+</span> <span class="fu">asin</span>(rho) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> pi)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"P(X &gt; 0 e Y &gt; 0) observada:"</span>, <span class="fu">round</span>(<span class="fu">mean</span>(X <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> Y <span class="sc">&gt;</span> <span class="dv">0</span>), <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>P(X &gt; 0 e Y &gt; 0) observada: 0.4105 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"P(X &gt; 0 e Y &gt; 0) teórica:"</span>, <span class="fu">round</span>(prob_teorica, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>P(X &gt; 0 e Y &gt; 0) teórica: 0.3976 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">x =</span> X, <span class="at">y =</span> Y), <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y)) <span class="sc">+</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="fl">0.8</span>, <span class="at">color =</span> <span class="st">"darkorange"</span>) <span class="sc">+</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>() <span class="sc">+</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Normal bivariada com correlação 0,8"</span>,</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"X"</span>, <span class="at">y =</span> <span class="st">"Y"</span>) <span class="sc">+</span></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="8_box_muller_files/figure-html/unnamed-chunk-7-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">7</span>)</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>rho <span class="op">=</span> <span class="fl">0.8</span>   <span class="co"># correlação desejada</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="dv">2000</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>Z1, Z2 <span class="op">=</span> box_muller(B)</span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a><span class="co"># X é a primeira normal; Y mistura as duas para criar a correlação</span></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> Z1</span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> rho <span class="op">*</span> Z1 <span class="op">+</span> np.sqrt(<span class="dv">1</span> <span class="op">-</span> rho<span class="op">**</span><span class="dv">2</span>) <span class="op">*</span> Z2</span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Correlação amostral:"</span>, <span class="bu">round</span>(np.corrcoef(X, Y)[<span class="dv">0</span>, <span class="dv">1</span>], <span class="dv">3</span>),</span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>      <span class="st">" (teórica:"</span>, rho, <span class="st">")"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Correlação amostral: 0.798  (teórica: 0.8 )</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Desvio padrão de Y:"</span>, <span class="bu">round</span>(Y.std(ddof<span class="op">=</span><span class="dv">1</span>), <span class="dv">3</span>), <span class="st">" (teórico: 1)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Desvio padrão de Y: 0.997  (teórico: 1)</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>prob_teorica <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">4</span> <span class="op">+</span> np.arcsin(rho) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> np.pi)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"P(X &gt; 0 e Y &gt; 0) observada:"</span>, <span class="bu">round</span>(np.mean((X <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">&amp;</span> (Y <span class="op">&gt;</span> <span class="dv">0</span>)), <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>P(X &gt; 0 e Y &gt; 0) observada: 0.402</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"P(X &gt; 0 e Y &gt; 0) teórica:"</span>, <span class="bu">round</span>(prob_teorica, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>P(X &gt; 0 e Y &gt; 0) teórica: 0.3976</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">6</span>))</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>plt.scatter(X, Y, alpha<span class="op">=</span><span class="fl">0.3</span>, s<span class="op">=</span><span class="dv">8</span>, color<span class="op">=</span><span class="st">"darkorange"</span>)</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>plt.gca().set_aspect(<span class="st">"equal"</span>)</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Normal bivariada com correlação 0,8"</span>)</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"X"</span>)</span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Y"</span>)</span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="8_box_muller_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>Compare este gráfico com o do Exemplo 1: a nuvem deixou de ser circular e virou uma elipse inclinada. A simetria que motivou o capítulo inteiro é uma propriedade de normais <strong>independentes</strong> e de mesma variância; quando elas se correlacionam, as coordenadas polares deixam de ajudar.</p>
+</section>
+<section id="o-método-polar-de-marsaglia" class="level2" data-number="10.8">
+<h2 data-number="10.8" class="anchored" data-anchor-id="o-método-polar-de-marsaglia"><span class="header-section-number">10.8</span> O método polar de Marsaglia</h2>
+<p>O Box-Muller tem um custo escondido: cada par exige um logaritmo, uma raiz, um seno e um cosseno. Funções trigonométricas são caras — historicamente, bem mais caras que uma rejeição ocasional. Marsaglia propôs uma variante que produz exatamente a mesma distribuição sem calcular nenhum seno ou cosseno, ao preço de descartar alguns candidatos. É um híbrido bonito dos dois métodos: rejeição para sortear a direção, transformação para gerar o raio.</p>
+<p>A ideia é que não precisamos do <strong>ângulo</strong>; precisamos apenas de seu seno e seu cosseno. E um ângulo uniforme com seu seno e cosseno é o que se obtém sorteando um ponto uniformemente dentro do círculo de raio <span class="math inline">\(1\)</span>: se <span class="math inline">\((V_1, V_2)\)</span> é esse ponto e <span class="math inline">\(S = V_1^2 + V_2^2\)</span>, então</p>
+<p><span class="math display">\[
+\cos \Theta = \frac{V_1}{\sqrt{S}}
+\qquad \text{e} \qquad
+\sin \Theta = \frac{V_2}{\sqrt{S}},
+\]</span></p>
+<p>sem nunca calcular <span class="math inline">\(\Theta\)</span>. Sortear um ponto uniforme no círculo, por sua vez, é um caso do método da rejeição do Capítulo 6: sorteia-se um ponto no quadrado <span class="math inline">\([-1,1] \times [-1,1]\)</span> e descarta-se quem cair fora do círculo.</p>
+<p>O que fecha o método é um fato menos óbvio: condicionado à aceitação, <span class="math inline">\(S\)</span> é <span class="math inline">\(\text{Unif}(0,1)\)</span> e é <strong>independente</strong> do ângulo. Logo, o próprio <span class="math inline">\(S\)</span> pode fazer o papel do <span class="math inline">\(U_1\)</span> do Box-Muller, e nenhum uniforme extra é necessário para o raio.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Pseudo-algoritmo: método polar">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Pseudo-algoritmo: método polar
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p>Gere <span class="math inline">\(V_1, V_2 \sim \text{Unif}(-1, 1)\)</span> independentes, e faça <span class="math inline">\(S = V_1^2 + V_2^2\)</span>.</p></li>
+<li><p>Se <span class="math inline">\(S \geq 1\)</span> ou <span class="math inline">\(S = 0\)</span>, volte ao passo 1 (o ponto caiu fora do círculo).</p></li>
+<li><p>Devolva o par</p></li>
+</ol>
+<p><span class="math display">\[
+X = V_1 \sqrt{\frac{-2 \log S}{S}},
+\qquad
+Y = V_2 \sqrt{\frac{-2 \log S}{S}}.
+\]</span></p>
+</div>
+</div>
+<p>O fator <span class="math inline">\(\sqrt{-2\log S}\)</span> é o raio <span class="math inline">\(R\)</span>, exatamente como no Box-Muller; a divisão extra por <span class="math inline">\(\sqrt{S}\)</span> é o que normaliza <span class="math inline">\((V_1, V_2)\)</span> para virar <span class="math inline">\((\cos\Theta,
+\sin\Theta)\)</span>.</p>
+<p>Como a área do círculo de raio <span class="math inline">\(1\)</span> é <span class="math inline">\(\pi\)</span> e a do quadrado é <span class="math inline">\(4\)</span>, a taxa de aceitação é <span class="math inline">\(\pi/4 \approx 0{,}785\)</span>: descartamos cerca de um em cada cinco pares.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">2500</span></span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">numeric</span>(B)</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> <span class="fu">numeric</span>(B)</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>n_sorteios <span class="ot">&lt;-</span> <span class="dv">0</span>   <span class="co"># conta quantos pares (V1, V2) foram sorteados ao todo</span></span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>i <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (i <span class="sc">&lt;=</span> B) {</span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Passo 1: um ponto uniforme no quadrado [-1, 1] x [-1, 1]</span></span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>  V1 <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="at">min =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">max =</span> <span class="dv">1</span>)</span>
+<span id="cb53-12"><a href="#cb53-12" aria-hidden="true" tabindex="-1"></a>  V2 <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="at">min =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">max =</span> <span class="dv">1</span>)</span>
+<span id="cb53-13"><a href="#cb53-13" aria-hidden="true" tabindex="-1"></a>  n_sorteios <span class="ot">&lt;-</span> n_sorteios <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb53-14"><a href="#cb53-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-15"><a href="#cb53-15" aria-hidden="true" tabindex="-1"></a>  S <span class="ot">&lt;-</span> V1<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> V2<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb53-16"><a href="#cb53-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-17"><a href="#cb53-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Passo 2: só aceitamos os pontos que caíram dentro do círculo de raio 1</span></span>
+<span id="cb53-18"><a href="#cb53-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (S <span class="sc">&lt;</span> <span class="dv">1</span> <span class="sc">&amp;&amp;</span> S <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb53-19"><a href="#cb53-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passo 3: o fator comum faz o papel de R / sqrt(S)</span></span>
+<span id="cb53-20"><a href="#cb53-20" aria-hidden="true" tabindex="-1"></a>    fator <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="sc">-</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">log</span>(S) <span class="sc">/</span> S)</span>
+<span id="cb53-21"><a href="#cb53-21" aria-hidden="true" tabindex="-1"></a>    X[i] <span class="ot">&lt;-</span> V1 <span class="sc">*</span> fator</span>
+<span id="cb53-22"><a href="#cb53-22" aria-hidden="true" tabindex="-1"></a>    Y[i] <span class="ot">&lt;-</span> V2 <span class="sc">*</span> fator</span>
+<span id="cb53-23"><a href="#cb53-23" aria-hidden="true" tabindex="-1"></a>    i <span class="ot">&lt;-</span> i <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb53-24"><a href="#cb53-24" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb53-25"><a href="#cb53-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb53-26"><a href="#cb53-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-27"><a href="#cb53-27" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Pares sorteados:"</span>, n_sorteios, <span class="st">"para"</span>, B, <span class="st">"aceitos</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Pares sorteados: 3212 para 2500 aceitos</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Taxa de aceitação observada:"</span>, <span class="fu">round</span>(B <span class="sc">/</span> n_sorteios, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Taxa de aceitação observada: 0.778 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Taxa de aceitação teórica (pi/4):"</span>, <span class="fu">round</span>(pi <span class="sc">/</span> <span class="dv">4</span>, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Taxa de aceitação teórica (pi/4): 0.785 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Média e desvio padrão de X:"</span>, <span class="fu">round</span>(<span class="fu">mean</span>(X), <span class="dv">3</span>), <span class="fu">round</span>(<span class="fu">sd</span>(X), <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Média e desvio padrão de X: 0.003 0.99 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">z =</span> <span class="fu">c</span>(X, Y))</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> z)) <span class="sc">+</span></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">40</span>,</span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill =</span> <span class="st">"lightcoral"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"5000 valores gerados pelo método polar"</span>,</span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Valor gerado"</span>, <span class="at">y =</span> <span class="st">"Densidade"</span>) <span class="sc">+</span></span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="8_box_muller_files/figure-html/unnamed-chunk-9-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="dv">2500</span></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> np.zeros(B)</span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> np.zeros(B)</span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>n_sorteios <span class="op">=</span> <span class="dv">0</span>   <span class="co"># conta quantos pares (V1, V2) foram sorteados ao todo</span></span>
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> i <span class="op">&lt;</span> B:</span>
+<span id="cb62-10"><a href="#cb62-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passo 1: um ponto uniforme no quadrado [-1, 1] x [-1, 1]</span></span>
+<span id="cb62-11"><a href="#cb62-11" aria-hidden="true" tabindex="-1"></a>    V1 <span class="op">=</span> np.random.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb62-12"><a href="#cb62-12" aria-hidden="true" tabindex="-1"></a>    V2 <span class="op">=</span> np.random.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb62-13"><a href="#cb62-13" aria-hidden="true" tabindex="-1"></a>    n_sorteios <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb62-14"><a href="#cb62-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-15"><a href="#cb62-15" aria-hidden="true" tabindex="-1"></a>    S <span class="op">=</span> V1<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> V2<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb62-16"><a href="#cb62-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-17"><a href="#cb62-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passo 2: só aceitamos os pontos que caíram dentro do círculo de raio 1</span></span>
+<span id="cb62-18"><a href="#cb62-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> S <span class="op">&lt;</span> <span class="dv">1</span> <span class="kw">and</span> S <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb62-19"><a href="#cb62-19" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Passo 3: o fator comum faz o papel de R / sqrt(S)</span></span>
+<span id="cb62-20"><a href="#cb62-20" aria-hidden="true" tabindex="-1"></a>        fator <span class="op">=</span> np.sqrt(<span class="op">-</span><span class="dv">2</span> <span class="op">*</span> np.log(S) <span class="op">/</span> S)</span>
+<span id="cb62-21"><a href="#cb62-21" aria-hidden="true" tabindex="-1"></a>        X[i] <span class="op">=</span> V1 <span class="op">*</span> fator</span>
+<span id="cb62-22"><a href="#cb62-22" aria-hidden="true" tabindex="-1"></a>        Y[i] <span class="op">=</span> V2 <span class="op">*</span> fator</span>
+<span id="cb62-23"><a href="#cb62-23" aria-hidden="true" tabindex="-1"></a>        i <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb62-24"><a href="#cb62-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-25"><a href="#cb62-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Pares sorteados:"</span>, n_sorteios, <span class="st">"para"</span>, B, <span class="st">"aceitos"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Pares sorteados: 3168 para 2500 aceitos</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Taxa de aceitação observada:"</span>, <span class="bu">round</span>(B <span class="op">/</span> n_sorteios, <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Taxa de aceitação observada: 0.789</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Taxa de aceitação teórica (pi/4):"</span>, <span class="bu">round</span>(np.pi <span class="op">/</span> <span class="dv">4</span>, <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Taxa de aceitação teórica (pi/4): 0.785</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Média e desvio padrão de X:"</span>, <span class="bu">round</span>(X.mean(), <span class="dv">3</span>),</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>      <span class="bu">round</span>(X.std(ddof<span class="op">=</span><span class="dv">1</span>), <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Média e desvio padrão de X: 0.013 1.01</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>Z <span class="op">=</span> np.concatenate([X, Y])</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>grade <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">400</span>)</span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>plt.hist(Z, bins<span class="op">=</span><span class="dv">40</span>, density<span class="op">=</span><span class="va">True</span>, color<span class="op">=</span><span class="st">"lightcoral"</span>, edgecolor<span class="op">=</span><span class="st">"black"</span>)</span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>plt.plot(grade, norm.pdf(grade), color<span class="op">=</span><span class="st">"red"</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"5000 valores gerados pelo método polar"</span>)</span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Valor gerado"</span>)</span>
+<span id="cb70-9"><a href="#cb70-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Densidade"</span>)</span>
+<span id="cb70-10"><a href="#cb70-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="8_box_muller_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="E o que R e Python usam de verdade?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+E o que R e Python usam de verdade?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Nenhum dos dois usa o Box-Muller por padrão. O R gera normais por <strong>inversão</strong> da f.d.a., com uma aproximação numérica muito precisa de <span class="math inline">\(\Phi^{-1}\)</span>: rode <code>RNGkind()</code> e veja <code>"Inversion"</code> na segunda posição. (Dá para pedir o Box-Muller com <code>RNGkind(normal.kind = "Box-Muller")</code>.)</p>
+<p>Já o gerador legado do NumPy — o <code>np.random.normal</code> que usamos no livro inteiro — implementa exatamente o <strong>método polar</strong> desta seção. A API mais nova (<code>np.random.default_rng</code>) usa um terceiro algoritmo, o <em>ziggurat</em>, mais rápido e bem mais complicado de explicar.</p>
+</div>
+</div>
+</section>
+<section id="exercícios" class="level2" data-number="10.9">
+<h2 data-number="10.9" class="anchored" data-anchor-id="exercícios"><span class="header-section-number">10.9</span> Exercícios</h2>
+<p><span style="color:#2C92B2;"><strong>Exercício 1</strong></span>. Implemente o método de Box-Muller em uma função que receba <span class="math inline">\(B\)</span> e devolva <span class="math inline">\(B\)</span> pares de valores independentes com distribuição <span class="math inline">\(N(0,1)\)</span>.</p>
+<ol type="a">
+<li><p>Gere <span class="math inline">\(B = 5000\)</span> pares e faça o histograma dos <span class="math inline">\(10\,000\)</span> valores obtidos, sobrepondo a densidade da <span class="math inline">\(N(0,1)\)</span>.</p></li>
+<li><p>Faça um gráfico quantil-quantil (<code>qqnorm</code> seguido de <code>qqline</code> em R, <code>scipy.stats.probplot</code> em Python) e comente o que ele mostra nas caudas.</p></li>
+<li><p>Verifique a independência do par de três maneiras: calcule a correlação amostral, faça o gráfico de dispersão e compare a proporção de pontos em cada um dos quatro quadrantes com <span class="math inline">\(1/4\)</span>.</p></li>
+<li><p>Estime <span class="math inline">\(\mathbb{P}(|X| &gt; 1{,}96)\)</span> e compare com o valor teórico <span class="math inline">\(0{,}05\)</span>.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 2</strong></span>. Este exercício verifica, na mão, os fatos sobre <span class="math inline">\(R\)</span> usados no capítulo. Lembre que <span class="math inline">\(f_R(r) = re^{-r^2/2}\)</span> para <span class="math inline">\(r &gt; 0\)</span>.</p>
+<ol type="a">
+<li><p>Mostre que a f.d.a. de <span class="math inline">\(R\)</span> é <span class="math inline">\(F_R(r) = 1 - e^{-r^2/2}\)</span> e que, portanto, <span class="math inline">\(R^2 \sim \text{Exp}(1/2)\)</span>.</p></li>
+<li><p>Mostre, invertendo <span class="math inline">\(F_R\)</span>, que <span class="math inline">\(R = \sqrt{-2\log(1-U)}\)</span> com <span class="math inline">\(U \sim \text{Unif}(0,1)\)</span>. Conclua que o passo 2 do Box-Muller é o método da inversão aplicado à Rayleigh.</p></li>
+<li><p>Verifique que <span class="math inline">\(\mathbb{E}[R^2] = 2\)</span>, coerente com <span class="math inline">\(R^2 \sim \chi^2_2\)</span>, e que <span class="math inline">\(\mathbb{E}[R] = \sqrt{\pi/2}\)</span>.</p></li>
+<li><p>Gere <span class="math inline">\(B = 5000\)</span> valores de <span class="math inline">\(R\)</span> (você pode usar o Box-Muller e calcular <span class="math inline">\(\sqrt{X^2+Y^2}\)</span>, ou gerar <span class="math inline">\(R\)</span> diretamente pelo item (b)) e compare o histograma com <span class="math inline">\(f_R\)</span>. Compare também as médias amostrais de <span class="math inline">\(R\)</span> e <span class="math inline">\(R^2\)</span> com os valores do item (c).</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 3</strong></span>. A partir das normais padrão do Exercício 1:</p>
+<ol type="a">
+<li><p>Gere <span class="math inline">\(B = 5000\)</span> valores de uma <span class="math inline">\(N(-2, 9)\)</span> e compare o histograma com a densidade teórica. Cuidado: <span class="math inline">\(9\)</span> é a variância.</p></li>
+<li><p>A distribuição <strong>log-normal</strong> é a de <span class="math inline">\(W = e^{X}\)</span>, com <span class="math inline">\(X \sim N(\mu, \sigma^2)\)</span>; ela é muito usada para modelar salários e preços, que são positivos e assimétricos. Gere <span class="math inline">\(B = 5000\)</span> valores de <span class="math inline">\(W\)</span> com <span class="math inline">\(\mu = 0\)</span> e <span class="math inline">\(\sigma = 1\)</span> e compare o histograma com a densidade da log-normal (<code>dlnorm</code> em R, <code>scipy.stats.lognorm.pdf(x, s=sigma)</code> em Python).</p></li>
+<li><p>Estime <span class="math inline">\(\mathbb{E}[W]\)</span> e compare com <span class="math inline">\(e^{\mu}\)</span> e com <span class="math inline">\(e^{\mu + \sigma^2/2}\)</span>. Qual dos dois é o valor correto? Explique por que <span class="math inline">\(\mathbb{E}[e^X] \neq e^{\mathbb{E}[X]}\)</span>.</p></li>
+<li><p>Compare a média e a mediana amostrais de <span class="math inline">\(W\)</span>. Por que elas são tão diferentes, se para <span class="math inline">\(X\)</span> elas coincidem?</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 4</strong></span>. Continuando o Exemplo 3.</p>
+<ol type="a">
+<li><p>Verifique, por conta própria, que <span class="math inline">\(\text{Var}(Y) = 1\)</span> e <span class="math inline">\(\text{Cov}(X,Y) = \rho\)</span> para <span class="math inline">\(X = Z_1\)</span> e <span class="math inline">\(Y = \rho Z_1 + \sqrt{1-\rho^2}Z_2\)</span>.</p></li>
+<li><p>Gere <span class="math inline">\(B = 2000\)</span> pares para <span class="math inline">\(\rho = -0{,}9\)</span>, <span class="math inline">\(\rho = 0\)</span> e <span class="math inline">\(\rho = 0{,}9\)</span>, e faça os três gráficos de dispersão lado a lado. Descreva como a nuvem muda.</p></li>
+<li><p>Para cada um dos três valores de <span class="math inline">\(\rho\)</span>, estime <span class="math inline">\(\mathbb{P}(X &gt; 0, Y &gt; 0)\)</span> e compare com <span class="math inline">\(1/4 + \arcsin(\rho)/(2\pi)\)</span>.</p></li>
+<li><p>Adapte a construção para gerar um par com médias <span class="math inline">\(\mu_1, \mu_2\)</span> e desvios padrão <span class="math inline">\(\sigma_1, \sigma_2\)</span> quaisquer. Gere <span class="math inline">\(B = 2000\)</span> pares “peso e altura” com <span class="math inline">\(\mu = (70, 170)\)</span>, <span class="math inline">\(\sigma = (12, 8)\)</span> e <span class="math inline">\(\rho = 0{,}6\)</span>, e confira as médias, os desvios e a correlação amostrais.</p></li>
+<li><p>O Exemplo 3 do Capítulo 7 gera vetores normais em dimensão qualquer, transformando um vetor <span class="math inline">\(Z\)</span> de normais padrão em <span class="math inline">\(LZ\)</span>, com <span class="math inline">\(\Sigma = LL^{\top}\)</span>. Verifique que, em dimensão <span class="math inline">\(2\)</span>, as duas construções são exatamente a mesma: calcule a decomposição de Cholesky de <span class="math display">\[
+\Sigma = \begin{pmatrix} 1 &amp; \rho \\ \rho &amp; 1 \end{pmatrix}
+\]</span> (com <code>t(chol(Sigma))</code> em R e <code>np.linalg.cholesky</code> em Python) e confira que a matriz obtida é <span class="math display">\[
+L = \begin{pmatrix} 1 &amp; 0 \\ \rho &amp; \sqrt{1-\rho^2} \end{pmatrix},
+\]</span> de modo que <span class="math inline">\(LZ\)</span> reproduz linha por linha as fórmulas de <span class="math inline">\(X\)</span> e <span class="math inline">\(Y\)</span> usadas neste exemplo.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 5</strong></span>. A mesma mudança de variáveis do capítulo resolve uma integral famosa. Seja <span class="math inline">\(I = \int_{-\infty}^{\infty} e^{-x^2/2}\, dx\)</span>.</p>
+<ol type="a">
+<li><p>Escreva <span class="math inline">\(I^2\)</span> como a integral dupla <span class="math inline">\(\int\int e^{-(x^2+y^2)/2}\, dx\, dy\)</span> e passe para coordenadas polares, lembrando que o elemento de área vira <span class="math inline">\(r\, dr\, d\theta\)</span> — o mesmo Jacobiano da seção sobre a distribuição de <span class="math inline">\(R\)</span> e <span class="math inline">\(\Theta\)</span>.</p></li>
+<li><p>Conclua que <span class="math inline">\(I = \sqrt{2\pi}\)</span>, isto é, que a constante que aparece na densidade da normal é exatamente a que a faz integrar <span class="math inline">\(1\)</span>.</p></li>
+<li><p>Confira o resultado numericamente (<code>integrate</code> em R, <code>scipy.integrate.quad</code> em Python).</p></li>
+<li><p>Em uma frase: qual é a relação entre esse cálculo e o método de Box-Muller?</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 6</strong></span>. Sobre o método polar.</p>
+<ol type="a">
+<li><p>Implemente-o em uma função e verifique, com <span class="math inline">\(B = 5000\)</span> pares, que os valores gerados são <span class="math inline">\(N(0,1)\)</span> e que a correlação entre as duas coordenadas é próxima de zero.</p></li>
+<li><p>Registre a proporção de pares aceitos e compare com <span class="math inline">\(\pi/4\)</span>. Use essa proporção para estimar <span class="math inline">\(\pi\)</span>: por que <span class="math inline">\(4 \times (\text{taxa de aceitação})\)</span> é uma estimativa de <span class="math inline">\(\pi\)</span>?</p></li>
+<li><p>Guarde os valores de <span class="math inline">\(S\)</span> dos pares <strong>aceitos</strong> e faça o histograma. Ele é compatível com uma <span class="math inline">\(\text{Unif}(0,1)\)</span>? Explique geometricamente por que <span class="math inline">\(\mathbb{P}(S \leq s \mid S &lt; 1) = s\)</span> para <span class="math inline">\(0 &lt; s &lt; 1\)</span> (dica: compare áreas de círculos).</p></li>
+<li><p>Quantos uniformes o método consome, em média, por normal gerada? Compare com o <span class="math inline">\(1\)</span> do Box-Muller e com o <span class="math inline">\(3{,}6\)</span> do método da rejeição do Capítulo 6.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 7</strong></span>. Agora temos três geradores de normais: a rejeição do Capítulo 6, o Box-Muller e o método polar.</p>
+<ol type="a">
+<li><p>Meça o tempo que cada um leva para gerar <span class="math inline">\(10^5\)</span> valores (<code>system.time</code> em R, <code>time.time</code> em Python). Rode cada medição algumas vezes: os tempos variam.</p></li>
+<li><p>Compare com o tempo das funções prontas <code>rnorm</code> e <code>np.random.normal</code>. A diferença é grande? O que ela sugere sobre a implementação dessas funções?</p></li>
+<li><p>Em R, rode <code>RNGkind()</code> e descubra qual método o <code>rnorm</code> usa por padrão. Em seguida troque para <code>RNGkind(normal.kind = "Box-Muller")</code>, gere uma amostra e confira que continua sendo normal. Volte ao padrão com <code>RNGkind(normal.kind = "Inversion")</code> ao final.</p></li>
+<li><p>O método polar rejeita cerca de <span class="math inline">\(21\%\)</span> dos pares, mas costuma ser mais rápido que o Box-Muller. Como isso é possível?</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 8</strong></span>. Um erro tentador é economizar um uniforme, usando o <strong>mesmo</strong> <span class="math inline">\(U\)</span> nas duas fórmulas:</p>
+<p><span class="math display">\[
+X = \sqrt{-2 \log U} \, \cos(2\pi U),
+\qquad
+Y = \sqrt{-2 \log U} \, \sin(2\pi U).
+\]</span></p>
+<ol type="a">
+<li><p>Gere <span class="math inline">\(B = 2000\)</span> pares assim e faça o gráfico de dispersão de <span class="math inline">\((X, Y)\)</span>. O que aconteceu com a nuvem circular?</p></li>
+<li><p>Calcule a correlação amostral entre <span class="math inline">\(X\)</span> e <span class="math inline">\(Y\)</span> e o desvio padrão de cada uma. Faça o histograma de <span class="math inline">\(X\)</span> sozinho e compare com a densidade da <span class="math inline">\(N(0,1)\)</span>: o defeito aparece de forma tão evidente quanto no gráfico de dispersão?</p></li>
+<li><p>Qual hipótese da proposição de validade do método foi violada? Responda em termos de <span class="math inline">\(R\)</span> e <span class="math inline">\(\Theta\)</span>.</p></li>
+<li><p>Conclua que olhar apenas para o histograma de <span class="math inline">\(X\)</span> é insuficiente para atestar que um gerador de <strong>pares</strong> está correto. Que gráfico você faria primeiro, ao desconfiar de um gerador desse tipo?</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 9</strong></span>. Um dardo é atirado em um alvo. O erro horizontal <span class="math inline">\(X\)</span> e o erro vertical <span class="math inline">\(Y\)</span> (em centímetros, em relação ao centro) são independentes e <span class="math inline">\(N(0, \sigma^2)\)</span>, com <span class="math inline">\(\sigma = 3\)</span>. A distância do dardo ao centro é <span class="math inline">\(D = \sqrt{X^2 + Y^2}\)</span>.</p>
+<ol type="a">
+<li><p>Use o Box-Muller para gerar <span class="math inline">\(B = 5000\)</span> pares <span class="math inline">\((X,Y)\)</span> e obtenha os valores correspondentes de <span class="math inline">\(D\)</span>.</p></li>
+<li><p>Pela teoria do capítulo, <span class="math inline">\(D = \sigma R\)</span> com <span class="math inline">\(R \sim \text{Rayleigh}(1)\)</span>. Mostre que <span class="math inline">\(\mathbb{P}(D \leq d) = 1 - e^{-d^2/(2\sigma^2)}\)</span> e compare essa expressão com a f.d.a. empírica dos valores simulados.</p></li>
+<li><p>Estime a probabilidade de o dardo cair a menos de <span class="math inline">\(2\)</span> cm do centro e a probabilidade de cair a mais de <span class="math inline">\(6\)</span> cm, comparando com os valores exatos do item (b).</p></li>
+<li><p>Qual é a distância <strong>mediana</strong> ao centro? Compare o valor simulado com o teórico <span class="math inline">\(\sigma\sqrt{2\log 2}\)</span>.</p></li>
+<li><p>Note que <span class="math inline">\(\mathbb{P}(D \leq d)\)</span> cresce a partir de <span class="math inline">\(0\)</span> e que a densidade de <span class="math inline">\(D\)</span> vale zero em <span class="math inline">\(d = 0\)</span>: acertar exatamente o centro é o resultado <em>menos</em> provável, mesmo sendo o centro o ponto de maior densidade de <span class="math inline">\((X,Y)\)</span>. Explique essa aparente contradição.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 10</strong></span>. (Desafio) Todo gerador uniforme produz, na verdade, um número finito de valores distintos. Seja <span class="math inline">\(u_{\min}\)</span> o menor valor estritamente positivo que o seu gerador pode devolver.</p>
+<ol type="a">
+<li><p>Mostre que o Box-Muller nunca produz um valor com <span class="math inline">\(|X| &gt; \sqrt{-2 \log u_{\min}}\)</span>, qualquer que seja <span class="math inline">\(U_2\)</span>.</p></li>
+<li><p>Suponha <span class="math inline">\(u_{\min} = 2^{-32}\)</span> (resolução típica de um gerador de 32 bits) e depois <span class="math inline">\(u_{\min} = 2^{-53}\)</span> (precisão de um <code>double</code>). Calcule o limite em cada caso. A resposta está entre <span class="math inline">\(6\)</span> e <span class="math inline">\(9\)</span> desvios padrão.</p></li>
+<li><p>Calcule <span class="math inline">\(\mathbb{P}(|X| &gt; 6{,}66)\)</span> para <span class="math inline">\(X \sim N(0,1)\)</span>. Para quais aplicações essa truncagem da cauda seria irrelevante, e para quais ela poderia importar?</p></li>
+<li><p>Descubra experimentalmente se o <code>runif</code> do R (ou o <code>np.random.uniform</code> do Python) pode devolver exatamente <span class="math inline">\(0\)</span>: gere alguns milhões de valores e olhe o mínimo. O que aconteceria com o algoritmo se ele devolvesse?</p></li>
+<li><p>O método polar sofre do mesmo problema? Onde entra o <span class="math inline">\(u_{\min}\)</span> nele?</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 11</strong></span>. (Desafio) Este exercício mostra que um gerador uniforme “razoável” pode virar um gerador normal péssimo — um fenômeno descoberto por Neave em 1973.</p>
+<p>Use a função <code>gerar_lcg(n, a, c, m, semente)</code> do Capítulo 2 para produzir os uniformes, dividindo os valores por <span class="math inline">\(m\)</span>. Tome os pares <span class="math inline">\((U_1, U_2), (U_3, U_4), \dots\)</span> de valores <strong>consecutivos</strong> do gerador e aplique o Box-Muller a cada par.</p>
+<ol type="a">
+<li><p>Comece com <span class="math inline">\(m = 2^{10}\)</span>, <span class="math inline">\(a = 5\)</span>, <span class="math inline">\(c = 3\)</span> e semente <span class="math inline">\(5\)</span>, gerando <span class="math inline">\(10\,000\)</span> uniformes (ou seja, <span class="math inline">\(5000\)</span> pares). Atenção: esse gerador <strong>pode</strong> devolver o valor <span class="math inline">\(0\)</span>, e <span class="math inline">\(\log 0 = -\infty\)</span> — é exatamente a armadilha do callout de atenção deste capítulo. Decida o que fazer com esses casos e justifique.</p></li>
+<li><p>Faça o gráfico de dispersão dos <span class="math inline">\(5000\)</span> pares <span class="math inline">\((X, Y)\)</span>, com escalas iguais nos dois eixos. Compare com o gráfico do Exemplo 1 e descreva o que vê.</p></li>
+<li><p>Faça o histograma de <span class="math inline">\(X\)</span> sozinho, sobrepondo a densidade da <span class="math inline">\(N(0,1)\)</span>. Ele denuncia o problema com a mesma clareza? Compare também o maior <span class="math inline">\(|Y|\)</span> obtido com o maior <span class="math inline">\(|Z|\)</span> de uma amostra de <span class="math inline">\(5000\)</span> valores de <code>rnorm</code> (ou <code>np.random.normal</code>): o gerador ruim consegue produzir valores na cauda?</p></li>
+<li><p>Explique o que aconteceu. Que propriedade da <strong>sequência</strong> de uniformes o Box-Muller exige, e que o histograma de um único <span class="math inline">\(U\)</span> não enxerga? (Duas dicas: os pares consecutivos de um LCG caem sobre poucas retas do quadrado <span class="math inline">\([0,1] \times [0,1]\)</span>; e o período desse gerador é <span class="math inline">\(m = 1024\)</span>.)</p></li>
+<li><p>Repita o experimento com o famoso gerador RANDU (<span class="math inline">\(a = 65539\)</span>, <span class="math inline">\(c = 0\)</span>, <span class="math inline">\(m = 2^{31}\)</span>, semente <strong>ímpar</strong>). Desta vez o gráfico de dispersão parece bem comportado. Isso prova que o RANDU é um bom gerador? (O defeito dele aparece em <strong>ternos</strong>: vale <span class="math inline">\(x_{n+2} = 6x_{n+1} - 9x_n \bmod 2^{31}\)</span>, de modo que os pontos <span class="math inline">\((U_n, U_{n+1}, U_{n+2})\)</span> se acumulam em poucos planos do cubo. Um teste que só usa pares nunca veria isso.)</p></li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./7_transf.html" class="pagination-link" aria-label="Transformações e Misturas">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Transformações e Misturas</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./9_monte_carlo.html" class="pagination-link" aria-label="Método de Monte Carlo">
+        <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Método de Monte Carlo</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

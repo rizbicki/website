@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>8&nbsp; Método da Rejeição para Variáveis Contínuas – Curso de Programação Estatística</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./7_transf.html" rel="next">
+<link href="./5_discrete_rejection.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b53751a350365c71b6c909e95f209ed1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-391e8d52869022bb697e2ea9ab25a897.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-ffb5ca9f558d2f0186e140c54025885e.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Curso de Programação Estatística</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thiagorr162/prog-estat"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./6_continuous_rejection.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Método da Rejeição para Variáveis Contínuas</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Curso de Programação Estatística</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./0_py.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Breve introdução ao Python</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./0_R.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Breve Introdução ao R</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./1_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Por que Simular?</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./2_pseudorandom.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Números Pseudoaleatórios</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./3_discrete_inversion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Técnica da Inversão para Variáveis Discretas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./4_continuous_inversion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Técnica da Inversão para Variáveis Contínuas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./5_discrete_rejection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Método da Rejeição para Variáveis Discretas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./6_continuous_rejection.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Método da Rejeição para Variáveis Contínuas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./7_transf.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Transformações e Misturas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./8_box_muller.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Método de Box-Muller</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./9_monte_carlo.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Método de Monte Carlo</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10_var_red.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Técnicas de Redução de Variância</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11_import.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Amostragem por Importância</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul class="collapse">
+  <li><a href="#algoritmo" id="toc-algoritmo" class="nav-link active" data-scroll-target="#algoritmo"><span class="header-section-number">8.1</span> Algoritmo</a></li>
+  <li><a href="#interpretação-geométrica" id="toc-interpretação-geométrica" class="nav-link" data-scroll-target="#interpretação-geométrica"><span class="header-section-number">8.2</span> Interpretação geométrica</a></li>
+  <li><a href="#exemplo-1-uma-densidade-em-01-com-proposta-uniforme" id="toc-exemplo-1-uma-densidade-em-01-com-proposta-uniforme" class="nav-link" data-scroll-target="#exemplo-1-uma-densidade-em-01-com-proposta-uniforme"><span class="header-section-number">8.3</span> Exemplo 1: uma densidade em <span class="math inline">\((0,1)\)</span> com proposta uniforme</a></li>
+  <li><a href="#exemplo-2-gerando-uma-normal-a-partir-de-exponenciais" id="toc-exemplo-2-gerando-uma-normal-a-partir-de-exponenciais" class="nav-link" data-scroll-target="#exemplo-2-gerando-uma-normal-a-partir-de-exponenciais"><span class="header-section-number">8.4</span> Exemplo 2: gerando uma normal a partir de exponenciais</a></li>
+  <li><a href="#por-que-o-método-funciona" id="toc-por-que-o-método-funciona" class="nav-link" data-scroll-target="#por-que-o-método-funciona"><span class="header-section-number">8.5</span> Por que o método funciona</a></li>
+  <li><a href="#eficiência-e-escolha-da-distribuição-proposta" id="toc-eficiência-e-escolha-da-distribuição-proposta" class="nav-link" data-scroll-target="#eficiência-e-escolha-da-distribuição-proposta"><span class="header-section-number">8.6</span> Eficiência e escolha da distribuição proposta</a></li>
+  <li><a href="#exercícios" id="toc-exercícios" class="nav-link" data-scroll-target="#exercícios"><span class="header-section-number">8.7</span> Exercícios</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Método da Rejeição para Variáveis Contínuas</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>No capítulo anterior usamos o método da rejeição para gerar v.a. discretas: sorteávamos candidatos a partir de uma distribuição fácil de simular e aceitávamos cada candidato com probabilidade proporcional à razão entre o alvo e a proposta. A versão contínua é a mesma ideia, palavra por palavra, trocando as funções de probabilidade <span class="math inline">\(p_j\)</span> e <span class="math inline">\(q_j\)</span> por densidades <span class="math inline">\(f\)</span> e <span class="math inline">\(g\)</span>.</p>
+<p>Aqui o método é ainda mais valioso. No Capítulo 4 vimos que a inversão exige uma fórmula explícita para <span class="math inline">\(F^{-1}\)</span>, e avisamos que isso é a exceção: para a normal, por exemplo, nem mesmo <span class="math inline">\(F\)</span> tem forma fechada. O método da rejeição não precisa de <span class="math inline">\(F\)</span> nem de <span class="math inline">\(F^{-1}\)</span> — basta saber <strong>calcular</strong> a densidade alvo em um ponto e saber <strong>simular</strong> de alguma outra densidade parecida com ela. Como veremos no Exemplo 2, isso já é suficiente para gerar valores da normal.</p>
+<section id="algoritmo" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="algoritmo"><span class="header-section-number">8.1</span> Algoritmo</h2>
+<p>Seja <span class="math inline">\(X\)</span> uma v.a. contínua com densidade <span class="math inline">\(f\)</span>; essa é a <strong>distribuição alvo</strong>. O método supõe que sabemos simular uma segunda v.a. <span class="math inline">\(Y\)</span>, com densidade <span class="math inline">\(g\)</span>, chamada de <strong>distribuição proposta</strong>.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Atenção: a proposta precisa cobrir o suporte do alvo">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Atenção: a proposta precisa cobrir o suporte do alvo
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>É indispensável que <span class="math inline">\(g(x) &gt; 0\)</span> sempre que <span class="math inline">\(f(x) &gt; 0\)</span>. Se a proposta nunca sugere valores de uma região onde o alvo tem densidade positiva, essa região jamais aparecerá na amostra — e o algoritmo devolve, silenciosamente, uma distribuição errada.</p>
+</div>
+</div>
+<p>Além disso, supomos conhecida uma constante <span class="math inline">\(c\)</span> tal que</p>
+<p><span class="math display">\[
+\frac{f(x)}{g(x)} \leq c \quad \text{para todo } x \text{ com } f(x) &gt; 0.
+\]</span></p>
+<p>Exatamente como no caso discreto, necessariamente <span class="math inline">\(c \geq 1\)</span>: integrando a desigualdade <span class="math inline">\(f(x) \leq c\, g(x)\)</span> sobre o conjunto onde <span class="math inline">\(f\)</span> é positiva, obtemos</p>
+<p><span class="math display">\[
+1 = \int_{\{f &gt; 0\}} f(x)\, dx \;\leq\; c \int_{\{f &gt; 0\}} g(x)\, dx \;\leq\; c,
+\]</span></p>
+<p>pois a integral de <span class="math inline">\(g\)</span> sobre um subconjunto da reta é, no máximo, <span class="math inline">\(1\)</span>.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Pseudo-algoritmo: rejeição para v.a. contínuas">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Pseudo-algoritmo: rejeição para v.a. contínuas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p>Gere <span class="math inline">\(Y\)</span> a partir da densidade proposta <span class="math inline">\(g\)</span>.</p></li>
+<li><p>Gere <span class="math inline">\(U \sim \text{Unif}(0,1)\)</span>, independente de <span class="math inline">\(Y\)</span>.</p></li>
+<li><p>Se <span class="math inline">\(U \leq \dfrac{f(Y)}{c\, g(Y)}\)</span>, devolva <span class="math inline">\(X = Y\)</span>. Caso contrário, descarte <span class="math inline">\(Y\)</span> e volte ao passo 1.</p></li>
+</ol>
+</div>
+</div>
+<p>Como no caso discreto, o passo 3 é apenas um sorteio de Bernoulli: aceitamos o candidato com probabilidade <span class="math inline">\(f(Y) / (c\, g(Y))\)</span>, e é a escolha de <span class="math inline">\(c\)</span> que garante que esse número esteja entre <span class="math inline">\(0\)</span> e <span class="math inline">\(1\)</span>.</p>
+</section>
+<section id="interpretação-geométrica" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="interpretação-geométrica"><span class="header-section-number">8.2</span> Interpretação geométrica</h2>
+<p>A figura a seguir ilustra o passo 3 no caso em que a proposta é uma <span class="math inline">\(\text{Unif}(0,1)\)</span>, de modo que <span class="math inline">\(c\,g(x)\)</span> é uma reta horizontal na altura <span class="math inline">\(c\)</span>. Sorteado um candidato <span class="math inline">\(Y\)</span>, olhamos a haste vertical que vai de <span class="math inline">\(0\)</span> até <span class="math inline">\(c\, g(Y)\)</span>: a parte verde (abaixo de <span class="math inline">\(f(Y)\)</span>) corresponde a aceitar, e a parte vermelha a rejeitar. O papel de <span class="math inline">\(U\)</span> é sortear um ponto uniformemente ao longo dessa haste.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Densidade alvo: f(x) = 20 x (1-x)^3, para 0 &lt; x &lt; 1</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="dv">20</span> <span class="sc">*</span> x <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> x)<span class="sc">^</span><span class="dv">3</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Densidade proposta: Unif(0,1). O rep() faz a função servir tanto para um</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># número quanto para um vetor de valores</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">length</span>(x))</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Menor constante com f(x) &lt;= cte * g(x). Chamamos de `cte` (e não de `c`)</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># para não esconder a função c() do R</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>cte <span class="ot">&lt;-</span> <span class="dv">135</span> <span class="sc">/</span> <span class="dv">64</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Candidato usado apenas para ilustrar o sorteio de aceitação</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> <span class="fl">0.6</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>grade <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">length.out =</span> <span class="dv">400</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>df_curvas <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> grade, <span class="at">f =</span> <span class="fu">f</span>(grade), <span class="at">teto =</span> cte <span class="sc">*</span> <span class="fu">g</span>(grade))</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_curvas, <span class="fu">aes</span>(<span class="at">x =</span> x)) <span class="sc">+</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> f, <span class="at">color =</span> <span class="st">"f(x)"</span>), <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> teto, <span class="at">color =</span> <span class="st">"c g(x)"</span>), <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># A haste em Y vai de 0 até o teto c*g(Y); abaixo de f(Y) aceitamos</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x =</span> Y, <span class="at">xend =</span> Y, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">yend =</span> <span class="fu">f</span>(Y),</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="st">"darkgreen"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x =</span> Y, <span class="at">xend =</span> Y, <span class="at">y =</span> <span class="fu">f</span>(Y), <span class="at">yend =</span> cte <span class="sc">*</span> <span class="fu">g</span>(Y),</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> Y <span class="sc">+</span> <span class="fl">0.03</span>, <span class="at">y =</span> <span class="fu">f</span>(Y) <span class="sc">/</span> <span class="dv">2</span>, <span class="at">label =</span> <span class="st">"aceita"</span>,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="st">"darkgreen"</span>, <span class="at">hjust =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> Y <span class="sc">+</span> <span class="fl">0.03</span>, <span class="at">y =</span> (<span class="fu">f</span>(Y) <span class="sc">+</span> cte) <span class="sc">/</span> <span class="dv">2</span>, <span class="at">label =</span> <span class="st">"rejeita"</span>,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">hjust =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> Y, <span class="at">y =</span> <span class="sc">-</span><span class="fl">0.09</span>, <span class="at">label =</span> <span class="st">"Y"</span>) <span class="sc">+</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"f(x)"</span> <span class="ot">=</span> <span class="st">"black"</span>, <span class="st">"c g(x)"</span> <span class="ot">=</span> <span class="st">"blue"</span>), <span class="at">name =</span> <span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.12</span>, <span class="fl">2.6</span>)) <span class="sc">+</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"x"</span>, <span class="at">y =</span> <span class="st">"Densidade"</span>) <span class="sc">+</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="6_continuous_rejection_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Densidade alvo: f(x) = 20 x (1-x)^3, para 0 &lt; x &lt; 1</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(x):</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">20</span> <span class="op">*</span> x <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> x)<span class="op">**</span><span class="dv">3</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Densidade proposta: Unif(0,1). O ones_like faz a função servir tanto para um</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># número quanto para um vetor de valores</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> g(x):</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.ones_like(x, dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Menor constante com f(x) &lt;= cte * g(x)</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>cte <span class="op">=</span> <span class="dv">135</span> <span class="op">/</span> <span class="dv">64</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Candidato usado apenas para ilustrar o sorteio de aceitação</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> <span class="fl">0.6</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>grade <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">400</span>)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>plt.plot(grade, f(grade), color<span class="op">=</span><span class="st">"black"</span>, label<span class="op">=</span><span class="st">"f(x)"</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>plt.plot(grade, cte <span class="op">*</span> g(grade), color<span class="op">=</span><span class="st">"blue"</span>, label<span class="op">=</span><span class="st">"c g(x)"</span>)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># A haste em Y vai de 0 até o teto c*g(Y); abaixo de f(Y) aceitamos</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>plt.vlines(Y, <span class="dv">0</span>, f(Y), color<span class="op">=</span><span class="st">"darkgreen"</span>, linewidth<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>plt.vlines(Y, f(Y), cte <span class="op">*</span> g(Y), color<span class="op">=</span><span class="st">"red"</span>, linewidth<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>plt.text(Y <span class="op">+</span> <span class="fl">0.03</span>, f(Y) <span class="op">/</span> <span class="dv">2</span>, <span class="st">"aceita"</span>, color<span class="op">=</span><span class="st">"darkgreen"</span>)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>plt.text(Y <span class="op">+</span> <span class="fl">0.03</span>, (f(Y) <span class="op">+</span> cte) <span class="op">/</span> <span class="dv">2</span>, <span class="st">"rejeita"</span>, color<span class="op">=</span><span class="st">"red"</span>)</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>plt.text(Y, <span class="op">-</span><span class="fl">0.09</span>, <span class="st">"Y"</span>, horizontalalignment<span class="op">=</span><span class="st">"center"</span>)</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="op">-</span><span class="fl">0.12</span>, <span class="fl">2.6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>(-0.12, 2.6)</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"x"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Densidade"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"upper center"</span>, ncol<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="6_continuous_rejection_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>Essa leitura sugere uma segunda maneira de enxergar o método, que costuma ser mais esclarecedora do que a conta. Chame de <span class="math inline">\(V = U \cdot c\, g(Y)\)</span> a altura sorteada na haste. O par <span class="math inline">\((Y, V)\)</span> é um ponto sorteado uniformemente na região abaixo da curva <span class="math inline">\(c\,g\)</span>, e o passo 3 mantém apenas os pontos que caem abaixo de <span class="math inline">\(f\)</span>. O gráfico abaixo mostra 500 candidatos e o que acontece com cada um deles.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>n_candidatos <span class="ot">&lt;-</span> <span class="dv">500</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Passo 1: candidatos da proposta Unif(0,1)</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> <span class="fu">runif</span>(n_candidatos)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Passo 2: os uniformes que decidem a aceitação</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>U <span class="ot">&lt;-</span> <span class="fu">runif</span>(n_candidatos)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Altura sorteada na haste: um ponto uniforme entre 0 e c*g(Y)</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>V <span class="ot">&lt;-</span> U <span class="sc">*</span> cte <span class="sc">*</span> <span class="fu">g</span>(Y)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Passo 3: ficamos com os pontos que caíram abaixo da curva f</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>aceito <span class="ot">&lt;-</span> V <span class="sc">&lt;=</span> <span class="fu">f</span>(Y)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>df_pontos <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> Y,</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">altura =</span> V,</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">status =</span> <span class="fu">ifelse</span>(aceito, <span class="st">"aceito"</span>, <span class="st">"rejeitado"</span>)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_pontos, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> altura, <span class="at">color =</span> status)) <span class="sc">+</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.5</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> df_curvas, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> f), <span class="at">inherit.aes =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>            <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"aceito"</span> <span class="ot">=</span> <span class="st">"darkgreen"</span>, <span class="st">"rejeitado"</span> <span class="ot">=</span> <span class="st">"red"</span>),</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>                     <span class="at">name =</span> <span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">2.6</span>)) <span class="sc">+</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"x"</span>, <span class="at">y =</span> <span class="st">"Altura sorteada"</span>) <span class="sc">+</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="6_continuous_rejection_files/figure-html/unnamed-chunk-3-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>n_candidatos <span class="op">=</span> <span class="dv">500</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Passo 1: candidatos da proposta Unif(0,1)</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>, n_candidatos)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Passo 2: os uniformes que decidem a aceitação</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>U <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>, n_candidatos)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Altura sorteada na haste: um ponto uniforme entre 0 e c*g(Y)</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>V <span class="op">=</span> U <span class="op">*</span> cte <span class="op">*</span> g(Y)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Passo 3: ficamos com os pontos que caíram abaixo da curva f</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>aceito <span class="op">=</span> V <span class="op">&lt;=</span> f(Y)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>plt.scatter(Y[aceito], V[aceito], s<span class="op">=</span><span class="dv">12</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, color<span class="op">=</span><span class="st">"darkgreen"</span>,</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>            label<span class="op">=</span><span class="st">"aceito"</span>)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>plt.scatter(Y[<span class="op">~</span>aceito], V[<span class="op">~</span>aceito], s<span class="op">=</span><span class="dv">12</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, color<span class="op">=</span><span class="st">"red"</span>,</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>            label<span class="op">=</span><span class="st">"rejeitado"</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>plt.plot(grade, f(grade), color<span class="op">=</span><span class="st">"black"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">0</span>, <span class="fl">2.6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>(0.0, 2.6)</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"x"</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Altura sorteada"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"upper center"</span>, ncol<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="6_continuous_rejection_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Outra maneira de ver o método">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Outra maneira de ver o método
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Os pontos verdes estão espalhados uniformemente na região sob a curva <span class="math inline">\(f\)</span>. E um ponto uniforme sob o gráfico de uma densidade tem uma propriedade notável: sua <strong>abscissa</strong> tem exatamente essa densidade. A razão é que a região é mais alta onde <span class="math inline">\(f\)</span> é maior, então mais pontos caem sobre esses valores de <span class="math inline">\(x\)</span> — na proporção certa.</p>
+<p>Ou seja, o método da rejeição pode ser lido assim: <em>para simular de <span class="math inline">\(f\)</span>, sorteie um ponto uniforme sob o gráfico de <span class="math inline">\(f\)</span> e devolva sua coordenada horizontal</em>. A proposta <span class="math inline">\(g\)</span> e a constante <span class="math inline">\(c\)</span> servem só para construir uma região maior, e fácil de sortear, que contenha a região de interesse. O Exercício 8 pede a demonstração desse fato.</p>
+</div>
+</div>
+</section>
+<section id="exemplo-1-uma-densidade-em-01-com-proposta-uniforme" class="level2" data-number="8.3">
+<h2 data-number="8.3" class="anchored" data-anchor-id="exemplo-1-uma-densidade-em-01-com-proposta-uniforme"><span class="header-section-number">8.3</span> Exemplo 1: uma densidade em <span class="math inline">\((0,1)\)</span> com proposta uniforme</h2>
+<p>Queremos gerar valores da densidade</p>
+<p><span class="math display">\[
+f(x) = 20x(1 - x)^3, \quad 0 &lt; x &lt; 1,
+\]</span></p>
+<p>que é a densidade de uma <span class="math inline">\(\text{Beta}(2,4)\)</span>. Como o suporte é o intervalo <span class="math inline">\((0,1)\)</span>, a escolha mais simples de proposta é <span class="math inline">\(g(x) = 1\)</span> para <span class="math inline">\(0 &lt; x &lt; 1\)</span>, isto é, <span class="math inline">\(Y \sim \text{Unif}(0,1)\)</span>.</p>
+<p>Nesse caso a razão <span class="math inline">\(f(x)/g(x)\)</span> é a própria <span class="math inline">\(f(x)\)</span>, e a menor constante possível é o valor máximo da densidade. Derivando,</p>
+<p><span class="math display">\[
+f'(x) = 20\left[(1-x)^3 - 3x(1-x)^2\right] = 20(1-x)^2(1 - 4x),
+\]</span></p>
+<p>que se anula em <span class="math inline">\(x = 1/4\)</span> (e em <span class="math inline">\(x = 1\)</span>, onde <span class="math inline">\(f\)</span> vale zero). Logo</p>
+<p><span class="math display">\[
+c = f(1/4) = 20 \cdot \frac{1}{4} \cdot \left(\frac{3}{4}\right)^3
+= \frac{135}{64} \approx 2{,}11.
+\]</span></p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Pseudo-algoritmo: Beta(2,4) com proposta uniforme">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Pseudo-algoritmo: Beta(2,4) com proposta uniforme
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p>Gere <span class="math inline">\(Y \sim \text{Unif}(0,1)\)</span>.</p></li>
+<li><p>Gere <span class="math inline">\(U \sim \text{Unif}(0,1)\)</span>.</p></li>
+<li><p>Se <span class="math inline">\(U \leq \dfrac{20\,Y(1-Y)^3}{135/64}\)</span>, devolva <span class="math inline">\(X = Y\)</span>. Caso contrário, volte ao passo 1.</p></li>
+</ol>
+</div>
+</div>
+<p>O código a seguir gera <span class="math inline">\(B = 1000\)</span> valores. Além das amostras aceitas, contamos <strong>quantos candidatos foram necessários</strong>, para comparar a taxa de aceitação observada com o valor teórico <span class="math inline">\(1/c\)</span>.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="dv">20</span> <span class="sc">*</span> x <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> x)<span class="sc">^</span><span class="dv">3</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="dv">1</span>          <span class="co"># densidade da Unif(0,1)</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>cte <span class="ot">&lt;-</span> <span class="dv">135</span> <span class="sc">/</span> <span class="dv">64</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">1000</span>            <span class="co"># quantos valores queremos gerar</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>amostras <span class="ot">&lt;-</span> <span class="fu">c</span>()      <span class="co"># guarda os valores aceitos</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>n_propostas <span class="ot">&lt;-</span> <span class="dv">0</span>     <span class="co"># conta quantas vezes o passo 1 foi executado</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (<span class="fu">length</span>(amostras) <span class="sc">&lt;</span> B) {</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Passo 1: gerar Y da proposta Unif(0,1)</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  Y <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  n_propostas <span class="ot">&lt;-</span> n_propostas <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Passo 2: gerar U ~ Unif(0,1)</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  U <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>)</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Passo 3: aceitar Y com probabilidade f(Y) / (cte * g(Y))</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (U <span class="sc">&lt;=</span> <span class="fu">f</span>(Y) <span class="sc">/</span> (cte <span class="sc">*</span> <span class="fu">g</span>(Y))) {</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    amostras <span class="ot">&lt;-</span> <span class="fu">c</span>(amostras, Y)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Candidatos gerados:"</span>, n_propostas, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Candidatos gerados: 2081 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Taxa de aceitação observada:"</span>, <span class="fu">round</span>(B <span class="sc">/</span> n_propostas, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Taxa de aceitação observada: 0.481 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Taxa de aceitação teórica (1/c):"</span>, <span class="fu">round</span>(<span class="dv">1</span> <span class="sc">/</span> cte, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Taxa de aceitação teórica (1/c): 0.474 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> amostras)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> x)) <span class="sc">+</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">30</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill =</span> <span class="st">"skyblue"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> f, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Rejeição para f(x) = 20x(1-x)^3"</span>,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Valor de X"</span>, <span class="at">y =</span> <span class="st">"Densidade"</span>) <span class="sc">+</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="6_continuous_rejection_files/figure-html/unnamed-chunk-5-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(x):</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">20</span> <span class="op">*</span> x <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> x)<span class="op">**</span><span class="dv">3</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> g(x):</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">1.0</span>              <span class="co"># densidade da Unif(0,1)</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>cte <span class="op">=</span> <span class="dv">135</span> <span class="op">/</span> <span class="dv">64</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="dv">1000</span>             <span class="co"># quantos valores queremos gerar</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>amostras <span class="op">=</span> []        <span class="co"># guarda os valores aceitos</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>n_propostas <span class="op">=</span> <span class="dv">0</span>      <span class="co"># conta quantas vezes o passo 1 foi executado</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="bu">len</span>(amostras) <span class="op">&lt;</span> B:</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passo 1: gerar Y da proposta Unif(0,1)</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    Y <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    n_propostas <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passo 2: gerar U ~ Unif(0,1)</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>    U <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passo 3: aceitar Y com probabilidade f(Y) / (cte * g(Y))</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> U <span class="op">&lt;=</span> f(Y) <span class="op">/</span> (cte <span class="op">*</span> g(Y)):</span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>        amostras.append(Y)</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>amostras <span class="op">=</span> np.array(amostras)</span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Candidatos gerados:"</span>, n_propostas)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Candidatos gerados: 2084</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Taxa de aceitação observada:"</span>, <span class="bu">round</span>(B <span class="op">/</span> n_propostas, <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Taxa de aceitação observada: 0.48</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Taxa de aceitação teórica (1/c):"</span>, <span class="bu">round</span>(<span class="dv">1</span> <span class="op">/</span> cte, <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Taxa de aceitação teórica (1/c): 0.474</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Malha usada só para desenhar a densidade teórica</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>grade <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">400</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>plt.hist(amostras, bins<span class="op">=</span><span class="dv">30</span>, density<span class="op">=</span><span class="va">True</span>, color<span class="op">=</span><span class="st">"skyblue"</span>, edgecolor<span class="op">=</span><span class="st">"black"</span>)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>plt.plot(grade, f(grade), color<span class="op">=</span><span class="st">"red"</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Rejeição para f(x) = 20x(1-x)^3"</span>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Valor de X"</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Densidade"</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="6_continuous_rejection_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="exemplo-2-gerando-uma-normal-a-partir-de-exponenciais" class="level2" data-number="8.4">
+<h2 data-number="8.4" class="anchored" data-anchor-id="exemplo-2-gerando-uma-normal-a-partir-de-exponenciais"><span class="header-section-number">8.4</span> Exemplo 2: gerando uma normal a partir de exponenciais</h2>
+<p>Este é o exemplo que a inversão não conseguia resolver. Queremos gerar <span class="math inline">\(X \sim N(0,1)\)</span>, cuja f.d.a. não tem forma fechada — muito menos sua inversa.</p>
+<p>A ideia é gerar primeiro o <strong>módulo</strong> <span class="math inline">\(|X|\)</span> e depois sortear o sinal. Se <span class="math inline">\(X \sim N(0,1)\)</span>, a densidade de <span class="math inline">\(|X|\)</span> é o dobro da densidade da normal restrita aos valores positivos:</p>
+<p><span class="math display">\[
+f(x) = \sqrt{\frac{2}{\pi}}\, e^{-x^2/2}, \quad x &gt; 0.
+\]</span></p>
+<p>Como proposta, usamos <span class="math inline">\(Y \sim \text{Exp}(1)\)</span>, com densidade <span class="math inline">\(g(x) = e^{-x}\)</span> para <span class="math inline">\(x &gt; 0\)</span> — uma distribuição que já sabemos simular por inversão (Capítulo 4) e que, como o alvo, tem suporte em <span class="math inline">\((0, \infty)\)</span> e cai a zero na cauda direita. A razão entre as duas densidades é</p>
+<p><span class="math display">\[
+\frac{f(x)}{g(x)} = \sqrt{\frac{2}{\pi}}\, e^{x - x^2/2}.
+\]</span></p>
+<p>O expoente <span class="math inline">\(x - x^2/2\)</span> é máximo em <span class="math inline">\(x = 1\)</span>, onde vale <span class="math inline">\(1/2\)</span>. Portanto</p>
+<p><span class="math display">\[
+c = \sqrt{\frac{2}{\pi}}\, e^{1/2} = \sqrt{\frac{2e}{\pi}} \approx 1{,}3155,
+\]</span></p>
+<p>e a taxa de aceitação é <span class="math inline">\(1/c \approx 0{,}76\)</span>: descartamos menos de um quarto dos candidatos.</p>
+<p>O critério de aceitação fica particularmente simples. Substituindo <span class="math inline">\(c\)</span>,</p>
+<p><span class="math display">\[
+\frac{f(Y)}{c\, g(Y)}
+= \frac{\sqrt{2/\pi}\, e^{Y - Y^2/2}}{\sqrt{2/\pi}\, e^{1/2}}
+= e^{-(Y-1)^2/2},
+\]</span></p>
+<p>uma expressão que não envolve nem <span class="math inline">\(\pi\)</span> nem raízes.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Pseudo-algoritmo: normal padrão por rejeição">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Pseudo-algoritmo: normal padrão por rejeição
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p>Gere <span class="math inline">\(Y \sim \text{Exp}(1)\)</span>.</p></li>
+<li><p>Gere <span class="math inline">\(U \sim \text{Unif}(0,1)\)</span>.</p></li>
+<li><p>Se <span class="math inline">\(U &gt; e^{-(Y-1)^2/2}\)</span>, volte ao passo 1. Caso contrário, siga: <span class="math inline">\(Y\)</span> é um valor de <span class="math inline">\(|X|\)</span>.</p></li>
+<li><p>Sorteie um sinal <span class="math inline">\(S\)</span>, igual a <span class="math inline">\(+1\)</span> ou <span class="math inline">\(-1\)</span> com probabilidade <span class="math inline">\(1/2\)</span> cada, e devolva <span class="math inline">\(X = S \cdot Y\)</span>.</p></li>
+</ol>
+</div>
+</div>
+<p>O passo 4 é o que transforma o módulo em uma normal: como a densidade da <span class="math inline">\(N(0,1)\)</span> é simétrica em torno de zero, metade da massa está de cada lado.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="co"># A constante c só é usada no relatório final: o critério do passo 3 já está</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="co"># escrito na forma simplificada</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>cte <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="dv">2</span> <span class="sc">*</span> <span class="fu">exp</span>(<span class="dv">1</span>) <span class="sc">/</span> pi)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">5000</span>            <span class="co"># quantos valores queremos gerar</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>modulos <span class="ot">&lt;-</span> <span class="fu">c</span>()       <span class="co"># guarda os valores aceitos de |X|</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>n_propostas <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (<span class="fu">length</span>(modulos) <span class="sc">&lt;</span> B) {</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Passo 1: Y ~ Exp(1), gerada por inversão (Capítulo 4)</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>  U1 <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>)</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  Y <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fu">log</span>(<span class="dv">1</span> <span class="sc">-</span> U1)</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>  n_propostas <span class="ot">&lt;-</span> n_propostas <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Passo 2: o uniforme que decide a aceitação</span></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>  U <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>)</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Passo 3: a razão f(Y) / (c * g(Y)) se simplifica para exp(-(Y-1)^2 / 2)</span></span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (U <span class="sc">&lt;=</span> <span class="fu">exp</span>(<span class="sc">-</span>(Y <span class="sc">-</span> <span class="dv">1</span>)<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">2</span>)) {</span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>    modulos <span class="ot">&lt;-</span> <span class="fu">c</span>(modulos, Y)</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Passo 4: cada módulo recebe um sinal + ou - com probabilidade 1/2</span></span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>sinais <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="at">size =</span> B, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> sinais <span class="sc">*</span> modulos</span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Candidatos gerados:"</span>, n_propostas, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Candidatos gerados: 6610 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Taxa de aceitação observada:"</span>, <span class="fu">round</span>(B <span class="sc">/</span> n_propostas, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Taxa de aceitação observada: 0.756 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Taxa de aceitação teórica (1/c):"</span>, <span class="fu">round</span>(<span class="dv">1</span> <span class="sc">/</span> cte, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Taxa de aceitação teórica (1/c): 0.76 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Média e desvio padrão amostrais:"</span>, <span class="fu">round</span>(<span class="fu">mean</span>(X), <span class="dv">3</span>), <span class="fu">round</span>(<span class="fu">sd</span>(X), <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Média e desvio padrão amostrais: 0 1.01 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> X)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> x)) <span class="sc">+</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">40</span>,</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill =</span> <span class="st">"lightcoral"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Normal padrão gerada por rejeição"</span>,</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Valor de X"</span>, <span class="at">y =</span> <span class="st">"Densidade"</span>) <span class="sc">+</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="6_continuous_rejection_files/figure-html/unnamed-chunk-7-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
+<div class="cell">
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> norm</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co"># A constante c só é usada no relatório final: o critério do passo 3 já está</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="co"># escrito na forma simplificada</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>cte <span class="op">=</span> np.sqrt(<span class="dv">2</span> <span class="op">*</span> np.exp(<span class="dv">1</span>) <span class="op">/</span> np.pi)</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="dv">5000</span>             <span class="co"># quantos valores queremos gerar</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>modulos <span class="op">=</span> []         <span class="co"># guarda os valores aceitos de |X|</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>n_propostas <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="bu">len</span>(modulos) <span class="op">&lt;</span> B:</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passo 1: Y ~ Exp(1), gerada por inversão (Capítulo 4)</span></span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>    U1 <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>    Y <span class="op">=</span> <span class="op">-</span>np.log(<span class="dv">1</span> <span class="op">-</span> U1)</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>    n_propostas <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passo 2: o uniforme que decide a aceitação</span></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>    U <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passo 3: a razão f(Y) / (c * g(Y)) se simplifica para exp(-(Y-1)^2 / 2)</span></span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> U <span class="op">&lt;=</span> np.exp(<span class="op">-</span>(Y <span class="op">-</span> <span class="dv">1</span>)<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">2</span>):</span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>        modulos.append(Y)</span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>modulos <span class="op">=</span> np.array(modulos)</span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Passo 4: cada módulo recebe um sinal + ou - com probabilidade 1/2</span></span>
+<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>sinais <span class="op">=</span> np.random.choice([<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>], size<span class="op">=</span>B)</span>
+<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> sinais <span class="op">*</span> modulos</span>
+<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Candidatos gerados:"</span>, n_propostas)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Candidatos gerados: 6558</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Taxa de aceitação observada:"</span>, <span class="bu">round</span>(B <span class="op">/</span> n_propostas, <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Taxa de aceitação observada: 0.762</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Taxa de aceitação teórica (1/c):"</span>, <span class="bu">round</span>(<span class="dv">1</span> <span class="op">/</span> cte, <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Taxa de aceitação teórica (1/c): 0.76</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Média e desvio padrão amostrais:"</span>,</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>      <span class="bu">round</span>(X.mean(), <span class="dv">3</span>), <span class="bu">round</span>(X.std(ddof<span class="op">=</span><span class="dv">1</span>), <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Média e desvio padrão amostrais: 0.008 1.002</code></pre>
+</div>
+<details class="code-fold">
+<summary>Mostrar código</summary>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Malha usada só para desenhar a densidade teórica</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>grade <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">400</span>)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>plt.hist(X, bins<span class="op">=</span><span class="dv">40</span>, density<span class="op">=</span><span class="va">True</span>, color<span class="op">=</span><span class="st">"lightcoral"</span>, edgecolor<span class="op">=</span><span class="st">"black"</span>)</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>plt.plot(grade, norm.pdf(grade), color<span class="op">=</span><span class="st">"red"</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Normal padrão gerada por rejeição"</span>)</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Valor de X"</span>)</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Densidade"</span>)</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="6_continuous_rejection_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="por-que-o-método-funciona" class="level2" data-number="8.5">
+<h2 data-number="8.5" class="anchored" data-anchor-id="por-que-o-método-funciona"><span class="header-section-number">8.5</span> Por que o método funciona</h2>
+<div class="callout callout-style-default callout-important callout-titled" title="Proposição">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proposição
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suponha que <span class="math inline">\(g(x) &gt; 0\)</span> sempre que <span class="math inline">\(f(x) &gt; 0\)</span> e que <span class="math inline">\(f(x)/g(x) \leq c\)</span> para todo <span class="math inline">\(x\)</span> com <span class="math inline">\(f(x) &gt; 0\)</span>. Então:</p>
+<ol type="i">
+<li><p>o valor <span class="math inline">\(X\)</span> devolvido pelo método da rejeição tem densidade <span class="math inline">\(f\)</span>;</p></li>
+<li><p>o número <span class="math inline">\(N\)</span> de candidatos gerados até o primeiro aceite tem distribuição geométrica com probabilidade de sucesso <span class="math inline">\(1/c\)</span>. Em particular, <span class="math inline">\(\mathbb{E}[N] = c\)</span>.</p></li>
+</ol>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Demonstração">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Demonstração
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Seja <span class="math inline">\(Y\)</span> o candidato gerado em um passo qualquer do algoritmo e <span class="math inline">\(U\)</span> o uniforme correspondente. Condicionando no valor de <span class="math inline">\(Y\)</span>, a probabilidade de aceitar é</p>
+<p><span class="math display">\[
+\mathbb{P}\left(U \leq \frac{f(Y)}{c\, g(Y)} \,\Big|\, Y = y\right)
+= \frac{f(y)}{c\, g(y)},
+\]</span></p>
+<p>porque <span class="math inline">\(\mathbb{P}(U \leq a) = a\)</span> para <span class="math inline">\(a \in [0,1]\)</span>. Logo, para qualquer <span class="math inline">\(x\)</span>,</p>
+<p><span class="math display">\[
+\begin{aligned}
+\mathbb{P}\left(Y \leq x,\ \text{aceitar } Y\right)
+&amp;= \int_{-\infty}^{x} \frac{f(y)}{c\, g(y)}\, g(y)\, dy \\
+&amp;= \frac{1}{c} \int_{-\infty}^{x} f(y)\, dy
+\;=\; \frac{F(x)}{c},
+\end{aligned}
+\]</span></p>
+<p>em que <span class="math inline">\(F\)</span> é a f.d.a. do alvo. Fazendo <span class="math inline">\(x \to \infty\)</span> e usando que <span class="math inline">\(F(\infty) = 1\)</span>,</p>
+<p><span class="math display">\[
+\mathbb{P}(\text{aceitar}) = \frac{1}{c}.
+\]</span></p>
+<p>Como os passos do algoritmo são independentes e cada um aceita com probabilidade <span class="math inline">\(1/c\)</span>, o número <span class="math inline">\(N\)</span> de candidatos até o primeiro aceite tem distribuição geométrica com probabilidade de sucesso <span class="math inline">\(1/c\)</span>, e portanto <span class="math inline">\(\mathbb{E}[N] = c\)</span>. Isso prova (ii).</p>
+<p>Para (i), o valor devolvido é o candidato do passo em que houve aceite, ou seja, <span class="math inline">\(Y\)</span> condicionado ao aceite. Pela definição de probabilidade condicional,</p>
+<p><span class="math display">\[
+\mathbb{P}(X \leq x)
+= \mathbb{P}(Y \leq x \mid \text{aceitar})
+= \frac{\mathbb{P}(Y \leq x,\ \text{aceitar})}{\mathbb{P}(\text{aceitar})}
+= \frac{F(x)/c}{1/c}
+= F(x).
+\]</span></p>
+<p>Portanto <span class="math inline">\(X\)</span> tem f.d.a. <span class="math inline">\(F\)</span>, isto é, densidade <span class="math inline">\(f\)</span>. <span class="math inline">\(\square\)</span></p>
+</div>
+</div>
+</div>
+<p>Repare que a demonstração usa <span class="math inline">\(f\)</span> e <span class="math inline">\(g\)</span> apenas através da razão <span class="math inline">\(f/g\)</span>. Isso tem uma consequência prática grande, explorada no Exercício 3: se conhecemos o alvo apenas <strong>a menos de uma constante de normalização</strong> — sabemos calcular <span class="math inline">\(f^*\)</span>, mas não a constante <span class="math inline">\(k\)</span> com <span class="math inline">\(f = k f^*\)</span> — o método continua funcionando. Basta achar <span class="math inline">\(c'\)</span> com <span class="math inline">\(f^*(x) \leq c' g(x)\)</span> e usar o critério <span class="math inline">\(U \leq f^*(Y)/(c'\,g(Y))\)</span>, que é idêntico ao original com <span class="math inline">\(c = k\,c'\)</span>.</p>
+</section>
+<section id="eficiência-e-escolha-da-distribuição-proposta" class="level2" data-number="8.6">
+<h2 data-number="8.6" class="anchored" data-anchor-id="eficiência-e-escolha-da-distribuição-proposta"><span class="header-section-number">8.6</span> Eficiência e escolha da distribuição proposta</h2>
+<p>O item (ii) diz que, para gerar <strong>um</strong> valor do alvo, o algoritmo gasta em média <span class="math inline">\(c\)</span> candidatos; equivalentemente, a fração aceita é <span class="math inline">\(1/c\)</span>. Toda a eficiência do método está nessa única constante, e <span class="math inline">\(c\)</span> depende só de <span class="math inline">\(f\)</span> e <span class="math inline">\(g\)</span> — não do tamanho da amostra que queremos gerar.</p>
+<p>Na leitura geométrica da seção anterior, <span class="math inline">\(1/c\)</span> é uma razão de áreas: a região sob <span class="math inline">\(f\)</span> tem área <span class="math inline">\(1\)</span>, a região sob <span class="math inline">\(c\,g\)</span> tem área <span class="math inline">\(c\)</span>, e aceitamos os pontos que caem na primeira. <strong>Quanto mais justo o “envelope” <span class="math inline">\(c\,g\)</span> ficar em volta de <span class="math inline">\(f\)</span>, menos área desperdiçada e mais eficiente o algoritmo.</strong> No Exemplo 1, <span class="math inline">\(c \approx 2{,}11\)</span>: o retângulo de altura <span class="math inline">\(2{,}11\)</span> tem mais que o dobro da área sob <span class="math inline">\(f\)</span>, e por isso rejeitamos mais da metade dos candidatos. No Exemplo 2 a proposta exponencial acompanha bem melhor o formato do alvo, e <span class="math inline">\(c \approx 1{,}32\)</span>.</p>
+<p>Há duas armadilhas frequentes na escolha de <span class="math inline">\(g\)</span>.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Atenção: a proposta precisa ter caudas mais pesadas que o alvo">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Atenção: a proposta precisa ter caudas mais pesadas que o alvo
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Se <span class="math inline">\(g\)</span> vai a zero mais rápido que <span class="math inline">\(f\)</span> quando <span class="math inline">\(|x| \to \infty\)</span>, a razão <span class="math inline">\(f/g\)</span> explode e <strong>não existe</strong> constante <span class="math inline">\(c\)</span> válida. É o que acontece, por exemplo, ao tentar usar uma normal como proposta para uma Cauchy: a densidade da normal decai como <span class="math inline">\(e^{-x^2/2}\)</span>, e a da Cauchy apenas como <span class="math inline">\(1/x^2\)</span>. Na direção contrária — Cauchy como proposta para gerar uma normal — a razão é limitada e o método funciona bem (Exercício 6).</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Atenção: uma proposta espalhada demais custa caro">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Atenção: uma proposta espalhada demais custa caro
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Mesmo quando <span class="math inline">\(c\)</span> existe, ele pode ser grande. No Exemplo 1, se usássemos <span class="math inline">\(Y \sim \text{Unif}(0,3)\)</span> — que também cobre o suporte de <span class="math inline">\(f\)</span> — teríamos <span class="math inline">\(g(x) = 1/3\)</span> e <span class="math inline">\(c = 3 \times 135/64 \approx 6{,}33\)</span>: o mesmo resultado a um custo três vezes maior, porque dois terços dos candidatos cairiam fora de <span class="math inline">\((0,1)\)</span> e seriam rejeitados na certa.</p>
+</div>
+</div>
+<p>Por fim, nem sempre o máximo de <span class="math inline">\(f/g\)</span> sai no papel. Quando não sair, calcule a razão em uma grade fina de pontos, ou use uma rotina de otimização numérica (<code>optimize</code> em R, <code>scipy.optimize.minimize_scalar</code> em Python), como pede o Exercício 7.</p>
+</section>
+<section id="exercícios" class="level2" data-number="8.7">
+<h2 data-number="8.7" class="anchored" data-anchor-id="exercícios"><span class="header-section-number">8.7</span> Exercícios</h2>
+<p><span style="color:#2C92B2;"><strong>Exercício 1</strong></span>. Seja <span class="math inline">\(X \sim \text{Gama}(3/2, 1)\)</span>, com densidade</p>
+<p><span class="math display">\[
+f(x) = \frac{1}{\Gamma(3/2)} x^{1/2} e^{-x}, \quad x &gt; 0.
+\]</span></p>
+<p>Use como proposta a distribuição <span class="math inline">\(\text{Exp}(2/3)\)</span>.</p>
+<p><em>Observação:</em> o parâmetro <span class="math inline">\(2/3\)</span> foi escolhido para que a proposta tenha a mesma média do alvo: <span class="math inline">\(\mathbb{E}[X] = 3/2 = \mathbb{E}[Y]\)</span>.</p>
+<ol type="a">
+<li><p>Mostre que a razão <span class="math inline">\(f(x)/g(x)\)</span> é máxima em <span class="math inline">\(x = 3/2\)</span> e calcule a constante <span class="math inline">\(c\)</span>.</p></li>
+<li><p>Escreva um pseudo-algoritmo para simular um valor de <span class="math inline">\(X\)</span>.</p></li>
+<li><p>Implemente uma função que gere <strong>um</strong> valor de <span class="math inline">\(X\)</span> e devolva também quantos candidatos foram necessários. Compare esse número com <span class="math inline">\(\mathbb{E}[N] = c\)</span>.</p></li>
+<li><p>Implemente uma função que gere uma amostra de tamanho <span class="math inline">\(B\)</span> de <span class="math inline">\(X\)</span>, e use-a com <span class="math inline">\(B = 5000\)</span>.</p></li>
+<li><p>Qual foi o número médio de candidatos por valor gerado? Compare com <span class="math inline">\(c\)</span>.</p></li>
+<li><p>Compare o histograma dos valores simulados com a densidade de <span class="math inline">\(X\)</span> (<code>dgamma</code> em R, <code>scipy.stats.gamma.pdf</code> em Python).</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 2</strong></span>. Queremos gerar valores da densidade</p>
+<p><span class="math display">\[
+f(x) = \frac{1}{2}\sin(x), \quad 0 \leq x \leq \pi.
+\]</span></p>
+<ol type="a">
+<li><p>Usando como proposta a <span class="math inline">\(\text{Unif}(0, \pi)\)</span>, isto é, <span class="math inline">\(g(x) = 1/\pi\)</span>, encontre a menor constante <span class="math inline">\(c\)</span> tal que <span class="math inline">\(f(x) \leq c\, g(x)\)</span> para todo <span class="math inline">\(x \in [0, \pi]\)</span>.</p></li>
+<li><p>Implemente o método e gere <span class="math inline">\(B = 5000\)</span> valores. Compare o histograma com a densidade teórica e a taxa de aceitação observada com <span class="math inline">\(1/c\)</span>.</p></li>
+<li><p>Considere agora a proposta</p></li>
+</ol>
+<p><span class="math display">\[
+g_2(x) = \frac{6x(\pi - x)}{\pi^3}, \quad 0 \leq x \leq \pi,
+\]</span></p>
+<p>que é uma <span class="math inline">\(\text{Beta}(2,2)\)</span> reescalada para o intervalo <span class="math inline">\([0,\pi]\)</span>. Verifique que <span class="math inline">\(g_2\)</span> integra <span class="math inline">\(1\)</span> e mostre que a razão <span class="math inline">\(f(x)/g_2(x)\)</span> é máxima em <span class="math inline">\(x = \pi/2\)</span>, com <span class="math inline">\(c_2 = \pi/3\)</span>.</p>
+<ol start="4" type="a">
+<li><p>Compare <span class="math inline">\(1/c\)</span> com <span class="math inline">\(1/c_2\)</span>. Qual das duas propostas é mais eficiente, e por quê? Olhe o formato das duas propostas ao lado do de <span class="math inline">\(f\)</span>.</p></li>
+<li><p>Para usar <span class="math inline">\(g_2\)</span> seria preciso saber simular dela. Explique por que isso não é imediato, e sugira um caminho (dica: qual método deste livro gera uma <span class="math inline">\(\text{Beta}(2,2)\)</span>?).</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 3</strong></span>. Muitas vezes conhecemos a densidade alvo apenas <strong>a menos de uma constante de normalização</strong>: sabemos calcular <span class="math inline">\(f^*\)</span>, mas não a constante <span class="math inline">\(k\)</span> tal que <span class="math inline">\(f = k f^*\)</span>. Considere</p>
+<p><span class="math display">\[
+f^*(x) = e^{-x} \sin^2(x), \quad x &gt; 0,
+\]</span></p>
+<p>e use como proposta a <span class="math inline">\(\text{Exp}(1)\)</span>, ou seja, <span class="math inline">\(g(x) = e^{-x}\)</span> para <span class="math inline">\(x &gt; 0\)</span>.</p>
+<ol type="a">
+<li><p>Mostre que <span class="math inline">\(f^*(x)/g(x) = \sin^2(x)\)</span> e conclua que <span class="math inline">\(c' = 1\)</span> serve.</p></li>
+<li><p>Escreva o pseudo-algoritmo usando apenas <span class="math inline">\(f^*\)</span>, <span class="math inline">\(g\)</span> e <span class="math inline">\(c'\)</span>, e explique por que ele não depende de <span class="math inline">\(k\)</span>.</p></li>
+<li><p>Implemente o algoritmo e gere <span class="math inline">\(B = 5000\)</span> valores. Construa o histograma de densidade.</p></li>
+<li><p>Calcule <span class="math inline">\(k\)</span> exatamente, usando que <span class="math inline">\(\sin^2 x = (1 - \cos 2x)/2\)</span> e que <span class="math inline">\(\int_0^\infty e^{-x}\cos(2x)\, dx = 1/5\)</span>. Sobreponha <span class="math inline">\(f = k f^*\)</span> ao histograma do item (c).</p></li>
+<li><p>(Desafio) Pela proposição, a taxa de aceitação estima <span class="math inline">\(1/c = 1/(k c')\)</span>. Use a taxa observada no item (c) para construir uma estimativa <span class="math inline">\(\hat{k}\)</span> e compare com o valor exato. Repare que acabamos de estimar uma integral sem nunca tê-la calculado.</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 4</strong></span>. Seja <span class="math inline">\(Z \sim N(0,1)\)</span> e considere como alvo a distribuição de <span class="math inline">\(Z\)</span> <strong>condicionada</strong> a <span class="math inline">\(Z \geq 2\)</span>, cuja densidade é</p>
+<p><span class="math display">\[
+f(x) = \frac{\varphi(x)}{1 - \Phi(2)}, \quad x \geq 2,
+\]</span></p>
+<p>onde <span class="math inline">\(\varphi\)</span> e <span class="math inline">\(\Phi\)</span> são a densidade e a f.d.a. da <span class="math inline">\(N(0,1)\)</span>.</p>
+<ol type="a">
+<li><p>Usando a própria <span class="math inline">\(N(0,1)\)</span> como proposta, mostre que <span class="math inline">\(f(x)/\varphi(x) = 1/(1 - \Phi(2))\)</span> para <span class="math inline">\(x \geq 2\)</span> e <span class="math inline">\(0\)</span> caso contrário. Conclua que <span class="math inline">\(c = 1/(1 - \Phi(2))\)</span> e calcule seu valor (<code>pnorm</code> em R, <code>scipy.stats.norm.cdf</code> em Python).</p></li>
+<li><p>Mostre que, com esse <span class="math inline">\(c\)</span>, a probabilidade de aceitação vale <span class="math inline">\(1\)</span> quando <span class="math inline">\(y \geq 2\)</span> e <span class="math inline">\(0\)</span> caso contrário — ou seja, o algoritmo se reduz a “gere normais até obter uma maior ou igual a 2”. Implemente e gere <span class="math inline">\(B = 2000\)</span> valores, registrando o número médio de candidatos.</p></li>
+<li><p>Considere agora a proposta <strong>exponencial deslocada</strong>, com densidade <span class="math inline">\(g_\lambda(x) = \lambda e^{-\lambda(x - 2)}\)</span> para <span class="math inline">\(x \geq 2\)</span>, que se simula fazendo <span class="math inline">\(Y = 2 + \text{Exp}(\lambda)\)</span>. Mostre que <span class="math inline">\(f(x)/g_\lambda(x) \propto e^{-x^2/2 + \lambda x}\)</span> e que essa razão é limitada para todo <span class="math inline">\(\lambda &gt; 0\)</span>. Onde está o máximo quando <span class="math inline">\(\lambda \geq 2\)</span>?</p></li>
+<li><p>Calcule <span class="math inline">\(c(\lambda)\)</span> para <span class="math inline">\(\lambda\)</span> em uma grade de <span class="math inline">\(2\)</span> a <span class="math inline">\(5\)</span> e faça um gráfico de <span class="math inline">\(c(\lambda)\)</span> contra <span class="math inline">\(\lambda\)</span>. Implemente o método com o <span class="math inline">\(\lambda\)</span> que minimiza <span class="math inline">\(c\)</span> e compare a taxa de aceitação com a do item (b).</p></li>
+<li><p>(Desafio) Mostre analiticamente que o <span class="math inline">\(\lambda\)</span> ótimo é <span class="math inline">\(\lambda^* = 1 + \sqrt{2}\)</span>. O que esse exercício sugere sobre usar rejeição para amostrar de eventos raros?</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 5</strong></span>. Este exercício explora diretamente a leitura geométrica do método: em vez de uma densidade na reta, vamos sortear um ponto uniformemente em uma região do plano.</p>
+<p>Queremos gerar um ponto <span class="math inline">\((X_1, X_2)\)</span> uniformemente distribuído no disco unitário <span class="math inline">\(D = \{(x_1,x_2): x_1^2 + x_2^2 \leq 1\}\)</span>, isto é, com densidade conjunta <span class="math inline">\(f(x_1,x_2) = 1/\pi\)</span> em <span class="math inline">\(D\)</span>. Como proposta, sorteamos um ponto uniforme no quadrado <span class="math inline">\([-1,1]^2\)</span>, cuja densidade conjunta é <span class="math inline">\(g(x_1,x_2) = 1/4\)</span>.</p>
+<ol type="a">
+<li><p>Mostre que <span class="math inline">\(f/g = 4/\pi\)</span> dentro do disco e <span class="math inline">\(0\)</span> fora dele, e conclua que <span class="math inline">\(c = 4/\pi\)</span>. Verifique que o critério do passo 3 se reduz a “aceite se o ponto caiu dentro do disco”.</p></li>
+<li><p>Implemente o algoritmo, gere <span class="math inline">\(B = 5000\)</span> pontos e faça um gráfico de dispersão.</p></li>
+<li><p>A taxa de aceitação é <span class="math inline">\(1/c = \pi/4\)</span>. Use isso ao contrário: a partir da taxa observada, construa um estimador <span class="math inline">\(\hat{\pi}\)</span> e compare com o valor de <span class="math inline">\(\pi\)</span>.</p></li>
+<li><p>(Desafio) O mesmo raciocínio vale em <span class="math inline">\(d\)</span> dimensões: sorteie um ponto no cubo <span class="math inline">\([-1,1]^d\)</span> e aceite se ele cair na bola unitária. O volume da bola é <span class="math inline">\(V_d = \pi^{d/2}/\Gamma(d/2 + 1)\)</span>, de modo que a taxa de aceitação é <span class="math inline">\(V_d/2^d\)</span>. Calcule essa taxa para <span class="math inline">\(d = 2, 5, 10\)</span> e <span class="math inline">\(20\)</span>. O que isso diz sobre usar rejeição em dimensão alta?</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 6</strong></span>. Vamos verificar a afirmação sobre caudas feita no texto. Sejam <span class="math inline">\(f\)</span> a densidade da <span class="math inline">\(N(0,1)\)</span> e <span class="math inline">\(g\)</span> a densidade da Cauchy padrão,</p>
+<p><span class="math display">\[
+g(x) = \frac{1}{\pi(1 + x^2)}, \quad x \in \mathbb{R}.
+\]</span></p>
+<ol type="a">
+<li>Mostre que</li>
+</ol>
+<p><span class="math display">\[
+\frac{f(x)}{g(x)} = \sqrt{\frac{\pi}{2}}\,(1 + x^2)\, e^{-x^2/2}
+\]</span></p>
+<p>e que essa razão é máxima em <span class="math inline">\(x = \pm 1\)</span>, com <span class="math inline">\(c = \sqrt{2\pi/e} \approx 1{,}52\)</span>.</p>
+<ol start="2" type="a">
+<li><p>Sabendo que a f.d.a. da Cauchy é <span class="math inline">\(G(x) = \frac{1}{2} + \frac{1}{\pi}\arctan(x)\)</span>, mostre que <span class="math inline">\(G^{-1}(u) = \tan\!\left(\pi(u - 1/2)\right)\)</span> e escreva o pseudo-algoritmo completo (inversão para a proposta, rejeição para o alvo).</p></li>
+<li><p>Implemente e gere <span class="math inline">\(B = 5000\)</span> valores. Compare o histograma com a densidade da normal e a taxa de aceitação com <span class="math inline">\(1/c\)</span>.</p></li>
+<li><p>Troque os papéis: alvo Cauchy, proposta <span class="math inline">\(N(0,1)\)</span>. Mostre que a razão <span class="math inline">\(f(x)/g(x)\)</span> é ilimitada e que, portanto, não existe <span class="math inline">\(c\)</span> válido. Faça um gráfico dessa razão para <span class="math inline">\(x \in [0, 6]\)</span> para visualizar o problema.</p></li>
+<li><p>Compare a eficiência do item (c) com a do Exemplo 2 do capítulo. Qual das duas propostas se ajusta melhor à normal?</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 7</strong></span>. Nos exemplos do capítulo conseguimos maximizar <span class="math inline">\(f/g\)</span> no papel. Aqui não. Considere a densidade conhecida a menos de constante</p>
+<p><span class="math display">\[
+f^*(x) = e^{-x^2/2}\left(\sin^2(6x) + 3x^2\cos^2(x) + 1\right), \quad x \in \mathbb{R},
+\]</span></p>
+<p>e use como proposta uma <span class="math inline">\(N(0, 2^2)\)</span>, isto é, uma normal de média <span class="math inline">\(0\)</span> e desvio padrão <span class="math inline">\(2\)</span>.</p>
+<ol type="a">
+<li><p>Faça um gráfico de <span class="math inline">\(f^*\)</span> no intervalo <span class="math inline">\([-6, 6]\)</span>. Quantos modos ela tem? Convença-se de que inverter a f.d.a. aqui está fora de questão.</p></li>
+<li><p>Escreva a razão <span class="math inline">\(r(x) = f^*(x)/g(x)\)</span> e mostre que ela é limitada. (Dica: compare o expoente <span class="math inline">\(-x^2/2\)</span> da alvo com o <span class="math inline">\(-x^2/8\)</span> da proposta.)</p></li>
+<li><p>Calcule <span class="math inline">\(r(x)\)</span> em uma grade fina de <span class="math inline">\([-10, 10]\)</span> e tome <span class="math inline">\(c'\)</span> como o máximo observado. Confirme o resultado com <code>optimize</code> (R) ou <code>scipy.optimize.minimize_scalar</code> (Python).</p></li>
+<li><p>Implemente o método e gere <span class="math inline">\(B = 5000\)</span> valores. Sobreponha ao histograma a curva <span class="math inline">\(f^*\)</span> <strong>reescalada</strong> de modo a integrar <span class="math inline">\(1\)</span> (você pode obter a constante por integração numérica, com <code>integrate</code> em R ou <code>scipy.integrate.quad</code> em Python).</p></li>
+<li><p>Qual a taxa de aceitação observada? Explique por que a <span class="math inline">\(N(0,1)\)</span> <strong>não</strong> serviria como proposta aqui.</p></li>
+<li><p>(Desafio) Se a grade do item (c) fosse grosseira, <span class="math inline">\(c'\)</span> poderia ficar <strong>abaixo</strong> do máximo verdadeiro. O que aconteceria com a distribuição gerada? (Compare com o Exercício 7(d) do capítulo anterior.)</p></li>
+</ol>
+<p><span style="color:#2C92B2;"><strong>Exercício 8</strong></span>. (Desafio) Este exercício formaliza a leitura geométrica do método. Seja <span class="math inline">\(f\)</span> uma densidade e</p>
+<p><span class="math display">\[
+A = \{(x, v) \in \mathbb{R}^2 : 0 \leq v \leq f(x)\}
+\]</span></p>
+<p>a região sob o seu gráfico, que tem área <span class="math inline">\(\int f(x)\, dx = 1\)</span>.</p>
+<ol type="a">
+<li><p>Suponha que <span class="math inline">\((X, V)\)</span> seja um ponto sorteado uniformemente em <span class="math inline">\(A\)</span>. Mostre que a densidade marginal de <span class="math inline">\(X\)</span> é <span class="math inline">\(f\)</span>. (Dica: a densidade conjunta de <span class="math inline">\((X,V)\)</span> é constante e igual a <span class="math inline">\(1\)</span> em <span class="math inline">\(A\)</span>; integre em <span class="math inline">\(v\)</span>.)</p></li>
+<li><p>No algoritmo do capítulo, seja <span class="math inline">\(Y\)</span> o candidato e <span class="math inline">\(V = U \cdot c\, g(Y)\)</span>. Mostre que <span class="math inline">\((Y, V)\)</span> é uniforme na região sob <span class="math inline">\(c\,g\)</span>.</p></li>
+<li><p>Conclua que, condicionado ao aceite, o par <span class="math inline">\((Y, V)\)</span> é uniforme em <span class="math inline">\(A\)</span> e que, portanto, o valor devolvido tem densidade <span class="math inline">\(f\)</span> — uma demonstração alternativa da parte (i) da proposição.</p></li>
+<li><p>Interprete <span class="math inline">\(1/c\)</span> como razão entre as áreas de <span class="math inline">\(A\)</span> e da região sob <span class="math inline">\(c\,g\)</span>.</p></li>
+<li><p>Volte ao Exemplo 2 e considere a proposta <span class="math inline">\(\text{Exp}(\lambda)\)</span>, com <span class="math inline">\(\lambda &gt; 0\)</span> qualquer. Mostre que</p></li>
+</ol>
+<p><span class="math display">\[
+c(\lambda) = \sqrt{\frac{2}{\pi}}\, \frac{e^{\lambda^2/2}}{\lambda},
+\]</span></p>
+<p>e que essa função é minimizada em <span class="math inline">\(\lambda = 1\)</span> — ou seja, a escolha feita no capítulo é a melhor possível dentro da família exponencial. Faça o gráfico de <span class="math inline">\(c(\lambda)\)</span> para confirmar.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./5_discrete_rejection.html" class="pagination-link" aria-label="Método da Rejeição para Variáveis Discretas">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Método da Rejeição para Variáveis Discretas</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./7_transf.html" class="pagination-link" aria-label="Transformações e Misturas">
+        <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Transformações e Misturas</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
