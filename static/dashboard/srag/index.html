@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Nowcast semanal de casos de SRAG no Brasil com Google Trends e sazonalidade.">
+  <title>Nowcast de SRAG no Brasil</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Vigilância epidemiológica experimental</p>
+      <h1>Nowcast semanal de SRAG no Brasil</h1>
+      <p class="lede">Estimativas das semanas recentes ainda sujeitas a atraso de notificação, combinando buscas por <em>gripe</em>, <em>sintomas gripe</em> e <em>tosse</em> com a sazonalidade anual.</p>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="status-dot"></span>
+      <span id="update-status">Carregando atualização…</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="controls" aria-label="Seleção geográfica">
+      <label for="state-select">Localidade</label>
+      <select id="state-select"></select>
+      <button id="retry-button" type="button" hidden>Tentar novamente</button>
+    </section>
+
+    <section id="error-panel" class="error-panel" hidden role="alert"></section>
+
+    <section id="dashboard" hidden>
+      <div class="headline">
+        <div>
+          <p id="selected-kicker" class="eyebrow">Brasil</p>
+          <h2 id="selected-title">Brasil</h2>
+          <p id="selected-period" class="muted"></p>
+        </div>
+        <p id="interpretation" class="interpretation"></p>
+      </div>
+
+      <div class="cards">
+        <article class="card">
+          <span class="card-label">Nowcast</span>
+          <strong id="nowcast-value">—</strong>
+          <small id="interval-value">—</small>
+        </article>
+        <article class="card">
+          <span class="card-label">Notificado até agora</span>
+          <strong id="observed-value">—</strong>
+          <small>valor ainda provisório</small>
+        </article>
+        <article class="card">
+          <span class="card-label">Variação sobre 52 semanas antes</span>
+          <strong id="change-value">—</strong>
+          <small id="seasonal-value">—</small>
+        </article>
+        <article class="card">
+          <span class="card-label">WAPE no backtest</span>
+          <strong id="wape-value">—</strong>
+          <small id="correlation-value">—</small>
+        </article>
+      </div>
+
+      <section class="panel chart-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Série semanal</p>
+            <h3>Casos observados e nowcast</h3>
+          </div>
+          <p class="muted">A faixa mostra um intervalo empírico de 80%.</p>
+        </div>
+        <div id="series-chart" class="chart" aria-label="Gráfico temporal de casos de SRAG"></div>
+      </section>
+
+      <div class="two-column">
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Panorama nacional</p>
+              <h3>Variação por UF</h3>
+            </div>
+            <p class="muted">Nowcast versus a mesma semana do ano anterior.</p>
+          </div>
+          <div id="state-map" class="map" aria-label="Mapa das variações estaduais"></div>
+        </section>
+
+        <section class="panel table-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Comparação</p>
+              <h3>Estados</h3>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>UF</th>
+                  <th>Nowcast</th>
+                  <th>Variação</th>
+                </tr>
+              </thead>
+              <tbody id="state-table"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <section class="method">
+        <h3>Como interpretar</h3>
+        <p>Este é um <strong>nowcast</strong>: ele estima a incidência de semanas que já ocorreram, mas cujas notificações ainda não estão consolidadas. Não é uma previsão de semanas futuras. Cada modelo estadual usa 104 semanas consolidadas e combina 50% de LASSO com 50% do número observado 52 semanas antes.</p>
+        <p>O agregado Brasil é a soma dos 27 nowcasts estaduais. Os índices do Google Trends são normalizados separadamente em cada UF e não devem ser comparados diretamente entre estados. As estimativas são experimentais e não substituem os dados oficiais do Ministério da Saúde.</p>
+        <p class="sources">Fontes: SIVEP-Gripe / Ministério da Saúde e Google Trends. <a href="https://github.com/rizbicki/website/tree/main/automation/srag_nowcast" target="_blank" rel="noopener">Código e metodologia no GitHub</a>.</p>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
