@@ -1,12 +1,15 @@
 <div class="dashboard-frame-wrap">
   <iframe
     class="dashboard-frame"
-    src="{{ .Get "src" }}"
+    data-dashboard-src="{{ .Get "src" }}"
     title="{{ .Get "title" }}"
     loading="eager"
     scrolling="no"
     referrerpolicy="strict-origin-when-cross-origin"
   ></iframe>
+  <noscript>
+    <p><a href="{{ .Get "src" }}">Abrir o dashboard de SRAG</a></p>
+  </noscript>
   <script>
   (function () {
     var frame = document.currentScript.parentElement.querySelector(".dashboard-frame");
@@ -20,6 +23,22 @@
         frame.style.height = Math.max(800, Math.min(5000, data.height + 8)) + "px";
       }
     });
+    fetch(frame.dataset.dashboardSrc, { cache: "no-cache" })
+      .then(function (response) {
+        if (!response.ok) throw new Error("Dashboard unavailable");
+        return response.text();
+      })
+      .then(function (html) {
+        frame.srcdoc = html;
+      })
+      .catch(function () {
+        frame.srcdoc =
+          '<!doctype html><html lang="pt-BR"><meta charset="utf-8">' +
+          '<style>body{font:18px system-ui;padding:2rem;color:#17212b}</style>' +
+          '<p>Não foi possível carregar o painel.</p>' +
+          '<p><a href="' + frame.dataset.dashboardSrc + '" target="_top">' +
+          'Abrir o dashboard diretamente</a></p></html>';
+      });
   }());
   </script>
 </div>

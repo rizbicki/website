@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var DATA_ROOT = "./data/";
+  var DATA_ROOT = "/dashboard/srag/data/";
   var summary = null;
   var geojson = null;
   var currentUf = "BR";
@@ -17,7 +17,7 @@
         type: "srag-dashboard-height",
         height: Math.ceil(document.documentElement.scrollHeight)
       },
-      window.location.origin
+      "*"
     );
   }
 
@@ -280,7 +280,7 @@
     try {
       var responses = await Promise.all([
         fetch(DATA_ROOT + "summary.json", { cache: "no-cache" }),
-        fetch("./br_states.geojson", { cache: "force-cache" })
+        fetch("/dashboard/srag/br_states.geojson", { cache: "force-cache" })
       ]);
       if (!responses[0].ok || !responses[1].ok) {
         throw new Error("Arquivos principais do dashboard indisponíveis.");
