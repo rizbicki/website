@@ -645,6 +645,19 @@ def metrics(actual: pd.Series, predicted: pd.Series) -> dict[str, float | None]:
     }
 
 
+def rolling_change(values: list[float | None], window: int) -> float | None:
+    if len(values) < 2 * window:
+        return None
+    recent = values[-window:]
+    prior = values[-2 * window : -window]
+    if any(v is None for v in recent) or any(v is None for v in prior):
+        return None
+    prior_sum = sum(prior)
+    if prior_sum <= 0:
+        return None
+    return 100 * (sum(recent) / prior_sum - 1)
+
+
 def backtest_fixed_alpha(
     train: pd.DataFrame, alpha: float
 ) -> tuple[pd.DataFrame, dict[str, dict[str, float | None]], tuple[float, float]]:
@@ -787,6 +800,12 @@ def build_state_payload(
         if latest["seasonal_naive"] > 0
         else None
     )
+    best_estimate = [
+        row["nowcast"] if row["nowcast"] is not None else row["observed"]
+        for row in rows
+    ]
+    change_2w = rolling_change(best_estimate, 2)
+    change_4w = rolling_change(best_estimate, 4)
     payload: dict[str, object] = {
         "schema_version": SCHEMA_VERSION,
         "uf": uf,
@@ -810,6 +829,8 @@ def build_state_payload(
             "lower80": number(latest["lower80"]),
             "upper80": number(latest["upper80"]),
             "change_vs_seasonal_percent": number(change),
+            "change_vs_prior_2w_percent": number(change_2w),
+            "change_vs_prior_4w_percent": number(change_4w),
             "reporting_lag_days": number(
                 latest["reporting_lag_days_at_snapshot"], digits=0
             ),
@@ -830,6 +851,9 @@ def build_brazil_payload(
         frame["uf"] = uf
         state_series.append(frame)
     combined = pd.concat(state_series, ignore_index=True)
+    combined["best_estimate"] = combined["nowcast"].where(
+        combined["nowcast"].notna(), combined["observed"]
+    )
     for week, group in combined.groupby("week", sort=True):
         nowcast_values = group["nowcast"].dropna()
         rows.append(
@@ -859,6 +883,11 @@ def build_brazil_payload(
                 "upper80": (
                     number(group["upper80"].sum())
                     if group["upper80"].notna().all()
+                    else None
+                ),
+                "best_estimate": (
+                    number(group["best_estimate"].sum())
+                    if group["best_estimate"].notna().all()
                     else None
                 ),
                 "provisional": bool(group["provisional"].any()),
@@ -894,9 +923,14 @@ def build_brazil_payload(
         if latest["seasonal"]
         else None
     )
+    best_estimate = [row["best_estimate"] for row in rows]
+    change_2w = rolling_change(best_estimate, 2)
+    change_4w = rolling_change(best_estimate, 4)
     latest = {
         **latest,
         "change_vs_seasonal_percent": number(change),
+        "change_vs_prior_2w_percent": number(change_2w),
+        "change_vs_prior_4w_percent": number(change_4w),
     }
     cutoffs = [payload["training"]["cutoff"] for payload in state_payloads.values()]
     starts = [payload["training"]["start"] for payload in state_payloads.values()]

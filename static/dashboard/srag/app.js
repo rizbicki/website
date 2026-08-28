@@ -116,7 +116,6 @@
 
   function renderCards(payload) {
     var latest = payload.latest;
-    var ensemble = payload.backtest.ensemble;
     document.getElementById("selected-kicker").textContent =
       payload.uf === "BR" ? "Agregado das 27 UFs" : payload.uf;
     document.getElementById("selected-title").textContent = payload.name;
@@ -127,18 +126,14 @@
     document.getElementById("interval-value").textContent =
       "80%: " + formatCount(latest.lower80) + "–" + formatCount(latest.upper80);
     document.getElementById("observed-value").textContent = formatCount(latest.observed);
-    document.getElementById("change-value").textContent =
-      formatPercent(latest.change_vs_seasonal_percent);
-    document.getElementById("change-value").className =
-      latest.change_vs_seasonal_percent >= 0 ? "positive" : "negative";
-    document.getElementById("seasonal-value").textContent =
-      "52 semanas antes: " + formatCount(latest.seasonal);
-    document.getElementById("wape-value").textContent =
-      formatPercent(ensemble.wape_percent);
-    document.getElementById("correlation-value").textContent =
-      "correlação: " + (ensemble.correlation === null ? "—" :
-        new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 })
-          .format(ensemble.correlation));
+    document.getElementById("change-2w-value").textContent =
+      formatPercent(latest.change_vs_prior_2w_percent);
+    document.getElementById("change-2w-value").className =
+      latest.change_vs_prior_2w_percent >= 0 ? "positive" : "negative";
+    document.getElementById("change-4w-value").textContent =
+      formatPercent(latest.change_vs_prior_4w_percent);
+    document.getElementById("change-4w-value").className =
+      latest.change_vs_prior_4w_percent >= 0 ? "positive" : "negative";
     document.getElementById("interpretation").textContent =
       "O valor observado até agora é " + formatCount(latest.observed) +
       "; o modelo estima " + formatCount(latest.nowcast) +
