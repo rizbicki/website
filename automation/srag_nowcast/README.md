@@ -1,67 +1,71 @@
 # SRAG nowcast dashboard
 
-This directory contains the production pipeline used by the SRAG dashboard at
-`/srag-nowcast/`.
+Production wiring for the dashboard at `/srag-nowcast/`. **The model, the data
+ingestion and the evaluation are not here** — they live in the private
+[`rizbicki/gripe`](https://github.com/rizbicki/gripe) repository, which this
+directory installs at a pinned tag and calls.
+
+## Promotion and rollback
+
+`requirements.txt` pins one tag of `gripe`. That pin is the only mechanism by
+which a model reaches the site:
+
+1. Develop and evaluate in `gripe`, against its frozen protocol.
+2. Tag a release there.
+3. Bump the tag in `requirements.txt` here.
+4. Rolling back is reverting that one line.
+
+Testing a model never touches this repository, and the dashboard can never be
+running something that was not tagged.
 
 ## What it estimates
 
-For each Brazilian state, the model uses the same-week Google Trends values for
-`gripe`, `sintomas gripe`, and `tosse`. A LASSO fitted on the latest 104
-consolidated weeks is averaged with a seasonal lag-52 estimate. The result is a
-same-week **nowcast**, not a forecast for an unobserved future week.
-
-The Brazil estimate is the sum of the 27 state estimates. The 80% bands are
-empirical, based on time-series out-of-fold residuals. The nationwide band is
-the sum of the state bands and should be treated as approximate.
+Per state, a nowcast of same-week SRAG notifications from same-week Google
+Trends for `gripe`, `sintomas gripe` and `tosse`. The Brazil estimate is the sum
+of the 27 state estimates; the nationwide band is the sum of the state bands and
+should be treated as approximate. It is a same-week **nowcast**, not a forecast
+of an unobserved future week.
 
 ## Production schedule
 
-The GitHub Actions workflow at
 `.github/workflows/update-srag-nowcast.yml` collects Google Trends in small
-daily batches from Monday through Saturday. Each state is checkpointed
-immediately in the Actions cache. On Saturday, after all 27 checkpoints are
-available, the workflow downloads or reuses the SIVEP-Gripe files, rebuilds the
-models, validates the complete JSON bundle, and commits it. Netlify then
-deploys the new site from the commit.
+daily batches Monday through Saturday, checkpointing each state in the Actions
+cache. On Saturday it rebuilds the models, validates the complete JSON bundle
+and commits it; Netlify deploys from the commit.
 
-A failed build never replaces the last validated dashboard data. The workflow
-also opens or updates a GitHub issue when an automated run fails.
+A failed build never replaces the last validated dashboard data, and the
+workflow opens or updates a GitHub issue when an automated run fails.
+
+### Access to the private package
+
+The build installs `gripe` over SSH using a read-only deploy key. The private
+key is the `GRIPE_DEPLOY_KEY` Actions secret in this repository; the matching
+public key is registered as a read-only deploy key on `rizbicki/gripe`. Without
+that secret the build fails fast rather than publishing stale or partial data.
+
+### Trends vintages
+
+Google Trends is sampled and renormalised per request, so checkpoints cannot be
+reproduced by refetching. Every publishing run uploads the checkpoints behind it
+as a 90-day artifact, and the `archive-trends` dispatch exports the current
+cache on demand. The durable archive lives in `gripe` under
+`data/trends_archive/<date>/`.
 
 ## Local commands
 
-Install dependencies:
-
 ```bash
 python -m pip install -r automation/srag_nowcast/requirements.txt
-```
 
-Collect selected Trends checkpoints:
-
-```bash
-python automation/srag_nowcast/update_dashboard.py \
-  --collect-trends-only \
-  --ufs SP RJ PE \
+gripe --collect-trends-only --ufs SP RJ PE \
   --trends-cache-dir automation/srag_nowcast/.cache/google_trends
-```
 
-Build all states from checkpoints:
-
-```bash
-python automation/srag_nowcast/update_dashboard.py \
-  --from-trends-cache \
+gripe --from-trends-cache \
   --trends-cache-dir automation/srag_nowcast/.cache/google_trends \
   --cache-dir automation/srag_nowcast/.cache/sivep_gripe \
   --output-dir static/dashboard/srag/data
+
+gripe --validate-output --output-dir static/dashboard/srag/data
 ```
 
-Validate the published bundle:
-
-```bash
-python automation/srag_nowcast/update_dashboard.py \
-  --validate-output \
-  --output-dir static/dashboard/srag/data
-```
-
-The Trends values are normalized 0–100 separately for each three-term state
-request. They are not search counts and must not be compared directly between
-states. Google Trends is sampled, so repeated extractions may differ slightly.
+Trends values are normalized 0–100 separately for each three-term state request.
+They are not search counts and must not be compared directly between states.

@@ -1,6 +1,4 @@
-numpy>=1.26,<3
-pandas>=2.2,<4
-pyarrow>=15,<24
-requests>=2.31,<3
-scikit-learn>=1.4,<2
-trendspy==0.1.6
+# The model, ingestion and evaluation live in the private gripe repository.
+# Pinning a tag is the promotion mechanism: a new model reaches the site only
+# when this line is bumped, and rolling back is reverting this line.
+gripe @ git+ssh://git@github.com/rizbicki/gripe.git@v0.1.0
