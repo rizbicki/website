@@ -12,7 +12,10 @@
   </noscript>
   <script>
   (function () {
-    var frame = document.currentScript.parentElement.querySelector(".dashboard-frame");
+    var wrap = document.currentScript.parentElement;
+    var frame = wrap.querySelector(".dashboard-frame");
+    var wideContainer = wrap.closest(".article-container");
+    if (wideContainer) wideContainer.classList.add("dashboard-wide-container");
     window.addEventListener("message", function (event) {
       var data = event.data || {};
       if (
@@ -43,6 +46,14 @@
   </script>
 </div>
 <style>
+.article-container.dashboard-wide-container {
+  max-width: min(1600px, 96vw);
+}
+.article-container.dashboard-wide-container > .article-style > p {
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+}
 .dashboard-frame-wrap {
   width: 100%;
 }
