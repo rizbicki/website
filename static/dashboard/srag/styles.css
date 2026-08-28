@@ -90,8 +90,9 @@ main {
 
 .controls {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.5rem 0.7rem;
   margin-bottom: 1.2rem;
 }
 

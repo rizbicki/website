@@ -645,22 +645,20 @@ def metrics(actual: pd.Series, predicted: pd.Series) -> dict[str, float | None]:
     }
 
 
-def rolling_change(values: list[float | None], window: int) -> float | None:
-    if len(values) < 2 * window:
-        return None
-    recent = values[-window:]
-    prior = values[-2 * window : -window]
-    if any(v is None for v in recent) or any(v is None for v in prior):
-        return None
-    prior_sum = sum(prior)
-    if prior_sum <= 0:
-        return None
-    return 100 * (sum(recent) / prior_sum - 1)
+MODEL_COLUMNS = {
+    "ensemble": "ensemble",
+    "lasso": "lasso",
+    "seasonal": "seasonal_naive",
+}
 
 
 def backtest_fixed_alpha(
     train: pd.DataFrame, alpha: float
-) -> tuple[pd.DataFrame, dict[str, dict[str, float | None]], tuple[float, float]]:
+) -> tuple[
+    pd.DataFrame,
+    dict[str, dict[str, float | None]],
+    dict[str, tuple[float, float]],
+]:
     pieces: list[pd.DataFrame] = []
     splitter = TimeSeriesSplit(n_splits=5)
     for fit_index, test_index in splitter.split(train):
@@ -681,17 +679,16 @@ def backtest_fixed_alpha(
     backtest = pd.concat(pieces, ignore_index=True)
     if len(backtest) < 20:
         raise RuntimeError("Not enough out-of-fold weeks for uncertainty calibration")
-    residual = backtest["srag_cases"] - backtest["ensemble"]
-    interval = (
-        float(residual.quantile(0.10)),
-        float(residual.quantile(0.90)),
-    )
-    score = {
-        "lasso": metrics(backtest["srag_cases"], backtest["lasso"]),
-        "seasonal": metrics(backtest["srag_cases"], backtest["seasonal_naive"]),
-        "ensemble": metrics(backtest["srag_cases"], backtest["ensemble"]),
-    }
-    return backtest, score, interval
+    intervals: dict[str, tuple[float, float]] = {}
+    score: dict[str, dict[str, float | None]] = {}
+    for name, column in MODEL_COLUMNS.items():
+        residual = backtest["srag_cases"] - backtest[column]
+        intervals[name] = (
+            float(residual.quantile(0.10)),
+            float(residual.quantile(0.90)),
+        )
+        score[name] = metrics(backtest["srag_cases"], backtest[column])
+    return backtest, score, intervals
 
 
 def prepare_state_frame(
@@ -751,12 +748,16 @@ def build_state_payload(
         SEASONAL_WEIGHT * target["lasso"]
         + (1 - SEASONAL_WEIGHT) * target["seasonal_naive"]
     )
-    backtest, score, residual_interval = backtest_fixed_alpha(train, alpha)
-    target["lower80"] = np.clip(
-        target["ensemble"] + residual_interval[0], 0, None
+    backtest, score, intervals = backtest_fixed_alpha(train, alpha)
+    target["lower80"] = np.clip(target["ensemble"] + intervals["ensemble"][0], 0, None)
+    target["upper80"] = np.clip(target["ensemble"] + intervals["ensemble"][1], 0, None)
+    target["lasso_lower80"] = np.clip(target["lasso"] + intervals["lasso"][0], 0, None)
+    target["lasso_upper80"] = np.clip(target["lasso"] + intervals["lasso"][1], 0, None)
+    target["seasonal_lower80"] = np.clip(
+        target["seasonal_naive"] + intervals["seasonal"][0], 0, None
     )
-    target["upper80"] = np.clip(
-        target["ensemble"] + residual_interval[1], 0, None
+    target["seasonal_upper80"] = np.clip(
+        target["seasonal_naive"] + intervals["seasonal"][1], 0, None
     )
 
     target_by_week = target.set_index("week_start")
@@ -783,6 +784,26 @@ def build_state_payload(
                 "upper80": (
                     number(production["upper80"]) if production is not None else None
                 ),
+                "lasso_lower80": (
+                    number(production["lasso_lower80"])
+                    if production is not None
+                    else None
+                ),
+                "lasso_upper80": (
+                    number(production["lasso_upper80"])
+                    if production is not None
+                    else None
+                ),
+                "seasonal_lower80": (
+                    number(production["seasonal_lower80"])
+                    if production is not None
+                    else None
+                ),
+                "seasonal_upper80": (
+                    number(production["seasonal_upper80"])
+                    if production is not None
+                    else None
+                ),
                 "provisional": bool(
                     row.reporting_lag_days_at_snapshot < PROVISIONAL_LAG_DAYS
                     or bool_value(row.is_partial_week)
@@ -800,12 +821,6 @@ def build_state_payload(
         if latest["seasonal_naive"] > 0
         else None
     )
-    best_estimate = [
-        row["nowcast"] if row["nowcast"] is not None else row["observed"]
-        for row in rows
-    ]
-    change_2w = rolling_change(best_estimate, 2)
-    change_4w = rolling_change(best_estimate, 4)
     payload: dict[str, object] = {
         "schema_version": SCHEMA_VERSION,
         "uf": uf,
@@ -828,9 +843,11 @@ def build_state_payload(
             "nowcast": number(latest["ensemble"]),
             "lower80": number(latest["lower80"]),
             "upper80": number(latest["upper80"]),
+            "lasso_lower80": number(latest["lasso_lower80"]),
+            "lasso_upper80": number(latest["lasso_upper80"]),
+            "seasonal_lower80": number(latest["seasonal_lower80"]),
+            "seasonal_upper80": number(latest["seasonal_upper80"]),
             "change_vs_seasonal_percent": number(change),
-            "change_vs_prior_2w_percent": number(change_2w),
-            "change_vs_prior_4w_percent": number(change_4w),
             "reporting_lag_days": number(
                 latest["reporting_lag_days_at_snapshot"], digits=0
             ),
@@ -851,9 +868,6 @@ def build_brazil_payload(
         frame["uf"] = uf
         state_series.append(frame)
     combined = pd.concat(state_series, ignore_index=True)
-    combined["best_estimate"] = combined["nowcast"].where(
-        combined["nowcast"].notna(), combined["observed"]
-    )
     for week, group in combined.groupby("week", sort=True):
         nowcast_values = group["nowcast"].dropna()
         rows.append(
@@ -885,9 +899,24 @@ def build_brazil_payload(
                     if group["upper80"].notna().all()
                     else None
                 ),
-                "best_estimate": (
-                    number(group["best_estimate"].sum())
-                    if group["best_estimate"].notna().all()
+                "lasso_lower80": (
+                    number(group["lasso_lower80"].sum())
+                    if group["lasso_lower80"].notna().all()
+                    else None
+                ),
+                "lasso_upper80": (
+                    number(group["lasso_upper80"].sum())
+                    if group["lasso_upper80"].notna().all()
+                    else None
+                ),
+                "seasonal_lower80": (
+                    number(group["seasonal_lower80"].sum())
+                    if group["seasonal_lower80"].notna().all()
+                    else None
+                ),
+                "seasonal_upper80": (
+                    number(group["seasonal_upper80"].sum())
+                    if group["seasonal_upper80"].notna().all()
                     else None
                 ),
                 "provisional": bool(group["provisional"].any()),
@@ -923,14 +952,9 @@ def build_brazil_payload(
         if latest["seasonal"]
         else None
     )
-    best_estimate = [row["best_estimate"] for row in rows]
-    change_2w = rolling_change(best_estimate, 2)
-    change_4w = rolling_change(best_estimate, 4)
     latest = {
         **latest,
         "change_vs_seasonal_percent": number(change),
-        "change_vs_prior_2w_percent": number(change_2w),
-        "change_vs_prior_4w_percent": number(change_4w),
     }
     cutoffs = [payload["training"]["cutoff"] for payload in state_payloads.values()]
     starts = [payload["training"]["start"] for payload in state_payloads.values()]

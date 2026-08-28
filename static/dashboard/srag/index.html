@@ -26,6 +26,12 @@
     <section class="controls" aria-label="Seleção geográfica">
       <label for="state-select">Localidade</label>
       <select id="state-select"></select>
+      <label for="model-select">Modelo</label>
+      <select id="model-select">
+        <option value="ensemble">Agregado (LASSO + sazonal)</option>
+        <option value="seasonal">Sazonal (ano anterior)</option>
+        <option value="lasso">Trends (Google Trends)</option>
+      </select>
       <button id="retry-button" type="button" hidden>Tentar novamente</button>
     </section>
 
@@ -43,7 +49,7 @@
 
       <div class="cards">
         <article class="card">
-          <span class="card-label">Nowcast</span>
+          <span class="card-label" id="nowcast-label">Nowcast</span>
           <strong id="nowcast-value">—</strong>
           <small id="interval-value">—</small>
         </article>

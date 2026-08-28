@@ -5,9 +5,27 @@
   var summary = null;
   var geojson = null;
   var currentUf = "BR";
+  var currentModel = "ensemble";
+  var currentPayload = null;
   var stateCache = new Map();
 
+  var MODELS = {
+    ensemble: {
+      value: "nowcast", lower: "lower80", upper: "upper80",
+      seriesLabel: "Nowcast", cardLabel: "Nowcast"
+    },
+    seasonal: {
+      value: "seasonal", lower: "seasonal_lower80", upper: "seasonal_upper80",
+      seriesLabel: "Sazonal", cardLabel: "Sazonal (ano anterior)"
+    },
+    lasso: {
+      value: "lasso", lower: "lasso_lower80", upper: "lasso_upper80",
+      seriesLabel: "Trends", cardLabel: "Trends (Google Trends)"
+    }
+  };
+
   var select = document.getElementById("state-select");
+  var modelSelect = document.getElementById("model-select");
   var dashboard = document.getElementById("dashboard");
   var errorPanel = document.getElementById("error-panel");
   var retryButton = document.getElementById("retry-button");
@@ -29,6 +47,30 @@
   function formatCount(value) {
     if (value === null || value === undefined) return "—";
     return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 }).format(value);
+  }
+
+  function rollingChange(values, window) {
+    if (values.length < 2 * window) return null;
+    var recent = values.slice(values.length - window);
+    var prior = values.slice(values.length - 2 * window, values.length - window);
+    if (recent.some(function (v) { return v === null || v === undefined; })) return null;
+    if (prior.some(function (v) { return v === null || v === undefined; })) return null;
+    var sum = function (list) { return list.reduce(function (a, b) { return a + b; }, 0); };
+    var priorSum = sum(prior);
+    if (priorSum <= 0) return null;
+    return 100 * (sum(recent) / priorSum - 1);
+  }
+
+  function modelChangeMetrics(rows, modelKey) {
+    var field = MODELS[modelKey].value;
+    var series = rows.map(function (row) {
+      var v = row[field];
+      return v === null || v === undefined ? row.observed : v;
+    });
+    return {
+      change2w: rollingChange(series, 2),
+      change4w: rollingChange(series, 4)
+    };
   }
 
   function formatPercent(value) {
@@ -116,32 +158,39 @@
 
   function renderCards(payload) {
     var latest = payload.latest;
+    var model = MODELS[currentModel];
+    var estimate = latest[model.value];
+    var lower = latest[model.lower];
+    var upper = latest[model.upper];
+    var changes = modelChangeMetrics(payload.series, currentModel);
     document.getElementById("selected-kicker").textContent =
       payload.uf === "BR" ? "Agregado das 27 UFs" : payload.uf;
     document.getElementById("selected-title").textContent = payload.name;
     document.getElementById("selected-period").textContent =
       "Semana iniciada em " + formatDate(latest.week) +
       " · corte de treino em " + formatDate(payload.training.cutoff);
-    document.getElementById("nowcast-value").textContent = formatCount(latest.nowcast);
+    document.getElementById("nowcast-label").textContent = model.cardLabel;
+    document.getElementById("nowcast-value").textContent = formatCount(estimate);
     document.getElementById("interval-value").textContent =
-      "80%: " + formatCount(latest.lower80) + "–" + formatCount(latest.upper80);
+      "80%: " + formatCount(lower) + "–" + formatCount(upper);
     document.getElementById("observed-value").textContent = formatCount(latest.observed);
     document.getElementById("change-2w-value").textContent =
-      formatPercent(latest.change_vs_prior_2w_percent);
+      formatPercent(changes.change2w);
     document.getElementById("change-2w-value").className =
-      latest.change_vs_prior_2w_percent >= 0 ? "positive" : "negative";
+      changes.change2w >= 0 ? "positive" : "negative";
     document.getElementById("change-4w-value").textContent =
-      formatPercent(latest.change_vs_prior_4w_percent);
+      formatPercent(changes.change4w);
     document.getElementById("change-4w-value").className =
-      latest.change_vs_prior_4w_percent >= 0 ? "positive" : "negative";
+      changes.change4w >= 0 ? "positive" : "negative";
     document.getElementById("interpretation").textContent =
       "O valor observado até agora é " + formatCount(latest.observed) +
-      "; o modelo estima " + formatCount(latest.nowcast) +
-      " casos após compensar o atraso de notificação.";
+      "; o modelo " + model.cardLabel.toLowerCase() + " estima " +
+      formatCount(estimate) + " casos após compensar o atraso de notificação.";
   }
 
   function renderSeries(payload) {
     var rows = payload.series;
+    var model = MODELS[currentModel];
     var x = rows.map(function (row) { return row.week; });
     var stableObserved = rows.map(function (row) {
       return row.provisional ? null : row.observed;
@@ -149,12 +198,9 @@
     var provisionalObserved = rows.map(function (row) {
       return row.provisional ? row.observed : null;
     });
-    var lower = rows.map(function (row) { return row.lower80; });
-    var upper = rows.map(function (row) { return row.upper80; });
-    var nowcast = rows.map(function (row) { return row.nowcast; });
-    var seasonal = rows.map(function (row) {
-      return row.nowcast === null ? null : row.seasonal;
-    });
+    var lower = rows.map(function (row) { return row[model.lower]; });
+    var upper = rows.map(function (row) { return row[model.upper]; });
+    var estimate = rows.map(function (row) { return row[model.value]; });
 
     var traces = [
       {
@@ -178,19 +224,15 @@
         line: { color: "#7b8791", width: 1.5, dash: "dot" },
         marker: { size: 4 },
         name: "Notificado (provisório)"
-      },
-      {
-        x: x, y: seasonal, type: "scatter", mode: "lines",
-        line: { color: "#1768ac", width: 1.5, dash: "dash" },
-        name: "52 semanas antes"
-      },
-      {
-        x: x, y: nowcast, type: "scatter", mode: "lines+markers",
-        line: { color: "#d95f02", width: 3 },
-        marker: { size: 6 },
-        name: "Nowcast"
       }
     ];
+
+    traces.push({
+      x: x, y: estimate, type: "scatter", mode: "lines+markers",
+      line: { color: "#d95f02", width: 3 },
+      marker: { size: 6 },
+      name: model.seriesLabel
+    });
 
     Plotly.react("series-chart", traces, {
       margin: { l: 60, r: 20, t: 20, b: 55 },
@@ -259,6 +301,7 @@
     try {
       currentUf = uf;
       var payload = await loadState(uf);
+      currentPayload = payload;
       renderCards(payload);
       renderSeries(payload);
       renderTable();
@@ -300,6 +343,13 @@
       document.getElementById("update-status").textContent =
         "Atualizado em " + generated + " · SIVEP até " + snapshot;
       select.onchange = function () { render(select.value); };
+      modelSelect.onchange = function () {
+        currentModel = modelSelect.value;
+        if (currentPayload) {
+          renderCards(currentPayload);
+          renderSeries(currentPayload);
+        }
+      };
       retryButton.onclick = initialize;
       await render(currentUf);
     } catch (error) {
