@@ -869,10 +869,21 @@ def build_brazil_payload(
         )
 
     backtest = pd.concat(state_backtests, ignore_index=True)
+    national_backtest = (
+        backtest.groupby("week_start", as_index=False)[
+            ["srag_cases", "lasso", "seasonal_naive", "ensemble"]
+        ]
+        .sum()
+        .sort_values("week_start")
+    )
     score = {
-        "lasso": metrics(backtest["srag_cases"], backtest["lasso"]),
-        "seasonal": metrics(backtest["srag_cases"], backtest["seasonal_naive"]),
-        "ensemble": metrics(backtest["srag_cases"], backtest["ensemble"]),
+        "lasso": metrics(national_backtest["srag_cases"], national_backtest["lasso"]),
+        "seasonal": metrics(
+            national_backtest["srag_cases"], national_backtest["seasonal_naive"]
+        ),
+        "ensemble": metrics(
+            national_backtest["srag_cases"], national_backtest["ensemble"]
+        ),
     }
     latest_rows = [row for row in rows if row["nowcast"] is not None]
     if not latest_rows:
