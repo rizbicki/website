@@ -6,8 +6,22 @@
   var geojson = null;
   var currentUf = "BR";
   var currentModel = "ensemble";
+  var currentUfWindow = "4w";
   var currentPayload = null;
   var stateCache = new Map();
+
+  var UF_WINDOWS = {
+    "2w": {
+      field: "change_2w_percent",
+      description: "Últimas 2 semanas vs. as 2 semanas anteriores.",
+      colorbarTitle: "% vs. 2 sem. antes"
+    },
+    "4w": {
+      field: "change_4w_percent",
+      description: "Últimas 4 semanas vs. as 4 semanas anteriores.",
+      colorbarTitle: "% vs. 4 sem. antes"
+    }
+  };
 
   var MODELS = {
     ensemble: {
@@ -26,6 +40,7 @@
 
   var select = document.getElementById("state-select");
   var modelSelect = document.getElementById("model-select");
+  var ufWindowSelect = document.getElementById("uf-window-select");
   var dashboard = document.getElementById("dashboard");
   var errorPanel = document.getElementById("error-panel");
   var retryButton = document.getElementById("retry-button");
@@ -92,6 +107,11 @@
     }).format(date);
   }
 
+  function updateUfWindowDescription() {
+    document.getElementById("uf-window-description").textContent =
+      UF_WINDOWS[currentUfWindow].description;
+  }
+
   function byUf(uf) {
     if (uf === "BR") return summary.brazil;
     return summary.states.find(function (entry) { return entry.uf === uf; });
@@ -128,26 +148,25 @@
   }
 
   function renderTable() {
+    var field = UF_WINDOWS[currentUfWindow].field;
     var tbody = document.getElementById("state-table");
     tbody.textContent = "";
     summary.states
       .slice()
       .sort(function (a, b) {
-        return (b.latest.change_vs_seasonal_percent || 0) -
-          (a.latest.change_vs_seasonal_percent || 0);
+        return (b.latest[field] || 0) - (a.latest[field] || 0);
       })
       .forEach(function (entry) {
         var row = document.createElement("tr");
         row.dataset.uf = entry.uf;
         if (entry.uf === currentUf) row.classList.add("selected");
-        var changeClass = entry.latest.change_vs_seasonal_percent >= 0 ?
-          "positive" : "negative";
+        var changeClass = entry.latest[field] >= 0 ? "positive" : "negative";
         row.innerHTML =
           "<td><strong>" + entry.uf + "</strong> <span class=\"muted\">" +
           entry.name + "</span></td>" +
           "<td>" + formatCount(entry.latest.nowcast) + "</td>" +
           "<td class=\"" + changeClass + "\">" +
-          formatPercent(entry.latest.change_vs_seasonal_percent) + "</td>";
+          formatPercent(entry.latest[field]) + "</td>";
         row.addEventListener("click", function () {
           select.value = entry.uf;
           render(entry.uf);
@@ -212,7 +231,7 @@
         x: x, y: upper, type: "scatter", mode: "lines",
         line: { color: "rgba(217,95,2,0)" },
         fill: "tonexty", fillcolor: "rgba(217,95,2,0.16)",
-        name: "Intervalo empírico de 80%", hoverinfo: "skip"
+        name: "Intervalo conformal de 80%", hoverinfo: "skip"
       },
       {
         x: x, y: stableObserved, type: "scatter", mode: "lines",
@@ -252,9 +271,11 @@
   }
 
   function renderMap() {
+    var windowConfig = UF_WINDOWS[currentUfWindow];
+    var field = windowConfig.field;
     var locations = summary.states.map(function (entry) { return entry.ibge_code; });
     var values = summary.states.map(function (entry) {
-      return entry.latest.change_vs_seasonal_percent;
+      return entry.latest[field];
     });
     var custom = summary.states.map(function (entry) {
       return [entry.uf, entry.name, entry.latest.nowcast];
@@ -275,7 +296,7 @@
         [0.5, "#f5f5f0"],
         [1, "#b33a3a"]
       ],
-      colorbar: { title: "% vs. ano anterior", thickness: 13 },
+      colorbar: { title: windowConfig.colorbarTitle, thickness: 13 },
       marker: { line: { color: "#ffffff", width: 0.7 } },
       customdata: custom,
       hovertemplate:
@@ -333,7 +354,9 @@
       currentUf = available.indexOf(requested) >= 0 ?
         requested : summary.default_state;
       select.value = currentUf;
+      ufWindowSelect.value = currentUfWindow;
       dashboard.hidden = false;
+      updateUfWindowDescription();
       renderMap();
       renderTable();
       var generated = formatDate(summary.generated_at_utc);
@@ -343,6 +366,12 @@
       document.getElementById("update-status").textContent =
         "Atualizado em " + generated + " · SIVEP até " + snapshot;
       select.onchange = function () { render(select.value); };
+      ufWindowSelect.onchange = function () {
+        currentUfWindow = ufWindowSelect.value;
+        updateUfWindowDescription();
+        renderMap();
+        renderTable();
+      };
       modelSelect.onchange = function () {
         currentModel = modelSelect.value;
         if (currentPayload) {

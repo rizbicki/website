@@ -621,6 +621,30 @@ def choose_alpha(train: pd.DataFrame) -> tuple[Pipeline, float, float]:
     )
 
 
+def rolling_change_percent(values: list[float | None], window: int) -> float | None:
+    if len(values) < 2 * window:
+        return None
+    recent = values[-window:]
+    prior = values[-2 * window : -window]
+    if any(v is None for v in recent) or any(v is None for v in prior):
+        return None
+    prior_sum = sum(prior)
+    if prior_sum <= 0:
+        return None
+    return 100 * (sum(recent) / prior_sum - 1)
+
+
+def recent_change_metrics(rows: list[dict[str, object]]) -> dict[str, float | None]:
+    values = [
+        row["nowcast"] if row["nowcast"] is not None else row["observed"]
+        for row in rows
+    ]
+    return {
+        "change_2w_percent": number(rolling_change_percent(values, 2)),
+        "change_4w_percent": number(rolling_change_percent(values, 4)),
+    }
+
+
 def metrics(actual: pd.Series, predicted: pd.Series) -> dict[str, float | None]:
     actual_values = actual.to_numpy(dtype=float)
     predicted_values = predicted.to_numpy(dtype=float)
@@ -821,6 +845,7 @@ def build_state_payload(
         if latest["seasonal_naive"] > 0
         else None
     )
+    recent_changes = recent_change_metrics(rows)
     payload: dict[str, object] = {
         "schema_version": SCHEMA_VERSION,
         "uf": uf,
@@ -848,6 +873,7 @@ def build_state_payload(
             "seasonal_lower80": number(latest["seasonal_lower80"]),
             "seasonal_upper80": number(latest["seasonal_upper80"]),
             "change_vs_seasonal_percent": number(change),
+            **recent_changes,
             "reporting_lag_days": number(
                 latest["reporting_lag_days_at_snapshot"], digits=0
             ),
@@ -955,6 +981,7 @@ def build_brazil_payload(
     latest = {
         **latest,
         "change_vs_seasonal_percent": number(change),
+        **recent_change_metrics(rows),
     }
     cutoffs = [payload["training"]["cutoff"] for payload in state_payloads.values()]
     starts = [payload["training"]["start"] for payload in state_payloads.values()]
@@ -1134,7 +1161,8 @@ def main() -> int:
                 "training_weeks": TRAIN_WEEKS,
                 "consolidation_lag_days": PROVISIONAL_LAG_DAYS,
                 "interval": (
-                    "Empirical 80% band from time-series out-of-fold residuals. "
+                    "Conformal 80% band: empirical 10th/90th percentile of "
+                    "time-series out-of-fold residuals added to the point forecast. "
                     "The Brazil band is the sum of state bands and is approximate."
                 ),
                 "interpretation": (

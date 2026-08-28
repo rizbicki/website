@@ -79,7 +79,7 @@
             <p class="eyebrow">Série semanal</p>
             <h3>Casos observados e nowcast</h3>
           </div>
-          <p class="muted">A faixa mostra um intervalo empírico de 80%.</p>
+          <p class="muted">A faixa mostra um intervalo conformal de 80%.</p>
         </div>
         <div id="series-chart" class="chart" aria-label="Gráfico temporal de casos de SRAG"></div>
       </section>
@@ -91,8 +91,15 @@
               <p class="eyebrow">Panorama nacional</p>
               <h3>Variação por UF</h3>
             </div>
-            <p class="muted">Nowcast versus a mesma semana do ano anterior.</p>
+            <div class="panel-heading-controls">
+              <label for="uf-window-select">Janela</label>
+              <select id="uf-window-select" class="select-compact">
+                <option value="2w">2 vs. 2 sem. antes</option>
+                <option value="4w" selected>4 vs. 4 sem. antes</option>
+              </select>
+            </div>
           </div>
+          <p class="muted" id="uf-window-description"></p>
           <div id="state-map" class="map" aria-label="Mapa das variações estaduais"></div>
         </section>
 
