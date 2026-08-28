@@ -10,6 +10,7 @@ on:
         type: choice
         options:
           - build
+          - archive-trends
           - auto
           - monday
           - tuesday
@@ -62,7 +63,8 @@ jobs:
             thursday)  ufs="PR PE PI RJ RN"; publish=false ;;
             friday)    ufs="RS RO RR SC SP"; publish=false ;;
             saturday)  ufs="SE TO";          publish=true ;;
-            build)     ufs="";               publish=true ;;
+            build)          ufs=""; publish=true ;;
+            archive-trends) ufs=""; publish=false ;;
             *) echo "Unknown batch: $batch"; exit 1 ;;
           esac
           echo "batch=$batch" >> "$GITHUB_OUTPUT"
@@ -107,6 +109,15 @@ jobs:
         with:
           path: automation/srag_nowcast/.cache/google_trends
           key: google-trends-${{ runner.os }}-${{ github.run_id }}
+
+      - name: Upload the Google Trends checkpoints
+        if: steps.batch.outputs.batch == 'archive-trends'
+        uses: actions/upload-artifact@v4
+        with:
+          name: google-trends-checkpoints
+          path: automation/srag_nowcast/.cache/google_trends
+          retention-days: 90
+          if-no-files-found: error
 
       - name: Build nationwide nowcast
         if: steps.batch.outputs.publish == 'true'
