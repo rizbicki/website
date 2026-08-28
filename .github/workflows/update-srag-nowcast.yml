@@ -1,0 +1,159 @@
+name: Update nationwide SRAG nowcast
+
+on:
+  workflow_dispatch:
+    inputs:
+      batch:
+        description: "Batch to collect, or build from the existing checkpoints"
+        required: true
+        default: build
+        type: choice
+        options:
+          - build
+          - auto
+          - monday
+          - tuesday
+          - wednesday
+          - thursday
+          - friday
+          - saturday
+  schedule:
+    # Small daily batches reduce Google Trends throttling. Saturday publishes.
+    - cron: "27 12 * * 1-6"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: srag-nowcast-production
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check out website
+        uses: actions/checkout@v4
+
+      - name: Select the daily state batch
+        id: batch
+        env:
+          REQUESTED_BATCH: ${{ inputs.batch }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          batch="$REQUESTED_BATCH"
+          if test "$EVENT_NAME" = "schedule" || test "$batch" = "auto"; then
+            case "$(date -u +%u)" in
+              1) batch=monday ;;
+              2) batch=tuesday ;;
+              3) batch=wednesday ;;
+              4) batch=thursday ;;
+              5) batch=friday ;;
+              6) batch=saturday ;;
+              *) echo "Unexpected scheduled weekday"; exit 1 ;;
+            esac
+          fi
+          case "$batch" in
+            monday)    ufs="AC AL AP AM BA"; publish=false ;;
+            tuesday)   ufs="CE DF ES GO MA"; publish=false ;;
+            wednesday) ufs="MT MS MG PA PB"; publish=false ;;
+            thursday)  ufs="PR PE PI RJ RN"; publish=false ;;
+            friday)    ufs="RS RO RR SC SP"; publish=false ;;
+            saturday)  ufs="SE TO";          publish=true ;;
+            build)     ufs="";               publish=true ;;
+            *) echo "Unknown batch: $batch"; exit 1 ;;
+          esac
+          echo "batch=$batch" >> "$GITHUB_OUTPUT"
+          echo "ufs=$ufs" >> "$GITHUB_OUTPUT"
+          echo "publish=$publish" >> "$GITHUB_OUTPUT"
+          echo "Selected $batch: ${ufs:-build only}"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: automation/srag_nowcast/requirements.txt
+
+      - name: Restore Google Trends checkpoints
+        uses: actions/cache/restore@v4
+        with:
+          path: automation/srag_nowcast/.cache/google_trends
+          key: google-trends-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            google-trends-${{ runner.os }}-
+
+      - name: Restore SIVEP-Gripe downloads
+        uses: actions/cache@v4
+        with:
+          path: automation/srag_nowcast/.cache/sivep_gripe
+          key: sivep-gripe-${{ runner.os }}-${{ github.run_number }}
+          restore-keys: |
+            sivep-gripe-${{ runner.os }}-
+
+      - name: Install production dependencies
+        run: python -m pip install -r automation/srag_nowcast/requirements.txt
+
+      - name: Collect the daily Google Trends batch
+        if: steps.batch.outputs.ufs != ''
+        run: |
+          python automation/srag_nowcast/update_dashboard.py             --collect-trends-only             --ufs ${{ steps.batch.outputs.ufs }}             --trends-cache-dir automation/srag_nowcast/.cache/google_trends             --trends-sleep 15
+
+      - name: Save Google Trends checkpoints
+        if: steps.batch.outputs.ufs != '' && success()
+        uses: actions/cache/save@v4
+        with:
+          path: automation/srag_nowcast/.cache/google_trends
+          key: google-trends-${{ runner.os }}-${{ github.run_id }}
+
+      - name: Build nationwide nowcast
+        if: steps.batch.outputs.publish == 'true'
+        run: |
+          python automation/srag_nowcast/update_dashboard.py             --from-trends-cache             --max-trends-age-days 9             --trends-cache-dir automation/srag_nowcast/.cache/google_trends             --cache-dir automation/srag_nowcast/.cache/sivep_gripe             --output-dir static/dashboard/srag/data
+
+      - name: Validate generated bundle
+        if: steps.batch.outputs.publish == 'true'
+        run: |
+          python automation/srag_nowcast/update_dashboard.py             --validate-output             --output-dir static/dashboard/srag/data
+
+      - name: Commit the validated update
+        if: steps.batch.outputs.publish == 'true'
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add static/dashboard/srag/data
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "data: weekly SRAG nowcast update"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Trigger Netlify build hook
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          NETLIFY_BUILD_HOOK: ${{ secrets.NETLIFY_BUILD_HOOK }}
+        run: |
+          if test -n "$NETLIFY_BUILD_HOOK"; then
+            curl --fail --silent --show-error -X POST -d '{}' "$NETLIFY_BUILD_HOOK"
+          else
+            echo "NETLIFY_BUILD_HOOK is not configured; relying on Netlify Git integration."
+          fi
+
+      - name: Report a failed update
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Automated SRAG nowcast update failed"
+          issue=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          body="Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID (batch: ${{ steps.batch.outputs.batch }})"
+          if test -n "$issue"; then
+            gh issue comment "$issue" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi
