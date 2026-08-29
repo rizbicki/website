@@ -14,6 +14,11 @@ The Brazil estimate is the sum of the 27 state estimates. The 80% bands are
 empirical, based on time-series out-of-fold residuals. The nationwide band is
 calibrated from residuals of the summed state nowcasts.
 
+The dashboard can display weekly totals or incidence per 100,000 residents,
+using resident population from the 2022 IBGE Census. Its historical performance
+section reports out-of-fold WAPE, mean bias, empirical 80% interval coverage,
+and the number of evaluated weeks for the selected model and locality.
+
 ## Production schedule
 
 The GitHub Actions workflow at

@@ -6,6 +6,8 @@
   var geojson = null;
   var currentUf = "BR";
   var currentModel = "ensemble";
+  var currentUnit = "count";
+  var currentMapMetric = "change";
   var currentUfWindow = "4w";
   var currentPayload = null;
   var stateCache = new Map();
@@ -40,6 +42,8 @@
 
   var select = document.getElementById("state-select");
   var modelSelect = document.getElementById("model-select");
+  var unitSelect = document.getElementById("unit-select");
+  var mapMetricSelect = document.getElementById("map-metric-select");
   var ufWindowSelect = document.getElementById("uf-window-select");
   var dashboard = document.getElementById("dashboard");
   var errorPanel = document.getElementById("error-panel");
@@ -105,6 +109,46 @@
     return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 }).format(value);
   }
 
+  function scaledValue(value, population) {
+    if (value === null || value === undefined) return null;
+    if (currentUnit === "per100k") {
+      if (!Number.isFinite(population) || population <= 0) return null;
+      return 100000 * value / population;
+    }
+    return value;
+  }
+
+  function formatMeasure(value, population) {
+    var scaled = scaledValue(value, population);
+    if (scaled === null) return "—";
+    if (currentUnit === "per100k") {
+      return new Intl.NumberFormat("pt-BR", {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 2
+      }).format(scaled);
+    }
+    return formatCount(scaled);
+  }
+
+  function formatSignedMeasure(value, population) {
+    var scaled = scaledValue(value, population);
+    if (scaled === null) return "—";
+    return new Intl.NumberFormat("pt-BR", {
+      maximumFractionDigits: currentUnit === "per100k" ? 2 : 0,
+      minimumFractionDigits: currentUnit === "per100k" ? 1 : 0,
+      signDisplay: "exceptZero"
+    }).format(scaled);
+  }
+
+  function unitLabel() {
+    return currentUnit === "per100k" ? "por 100 mil habitantes" : "casos";
+  }
+
+  function axisTitle() {
+    return currentUnit === "per100k" ?
+      "Casos por 100 mil habitantes" : "Casos semanais";
+  }
+
   function rollingChange(values, window) {
     if (values.length < 2 * window) return null;
     var recent = values.slice(values.length - window);
@@ -148,9 +192,14 @@
     }).format(date);
   }
 
-  function updateUfWindowDescription() {
-    document.getElementById("uf-window-description").textContent =
-      UF_WINDOWS[currentUfWindow].description;
+  function updateMapDescription() {
+    var isChange = currentMapMetric === "change";
+    document.getElementById("uf-window-control").hidden = !isChange;
+    document.getElementById("map-title").textContent = isChange ?
+      "Variação por UF" : "Nowcast por UF";
+    document.getElementById("uf-window-description").textContent = isChange ?
+      UF_WINDOWS[currentUfWindow].description :
+      "Estimativa da semana mais recente em " + unitLabel() + ".";
   }
 
   function byUf(uf) {
@@ -190,7 +239,10 @@
 
   function renderTable() {
     var field = UF_WINDOWS[currentUfWindow].field;
+    var model = MODELS[currentModel];
     var tbody = document.getElementById("state-table");
+    document.getElementById("table-nowcast-heading").textContent =
+      model.seriesLabel + (currentUnit === "per100k" ? " / 100 mil" : "");
     tbody.textContent = "";
     summary.states
       .slice()
@@ -205,7 +257,8 @@
         row.innerHTML =
           "<td><strong>" + entry.uf + "</strong> <span class=\"muted\">" +
           entry.name + "</span></td>" +
-          "<td>" + formatCount(entry.latest.nowcast) + "</td>" +
+          "<td>" +
+          formatMeasure(entry.latest[model.value], entry.population) + "</td>" +
           "<td class=\"" + changeClass + "\">" +
           formatPercent(entry.latest[field]) + "</td>";
         row.addEventListener("click", function () {
@@ -230,10 +283,14 @@
       "Semana iniciada em " + formatDate(latest.week) +
       " · corte de treino em " + formatDate(payload.training.cutoff);
     document.getElementById("nowcast-label").textContent = model.cardLabel;
-    document.getElementById("nowcast-value").textContent = formatCount(estimate);
+    document.getElementById("nowcast-value").textContent =
+      formatMeasure(estimate, payload.population);
     document.getElementById("interval-value").textContent =
-      "80%: " + formatCount(lower) + "–" + formatCount(upper);
-    document.getElementById("observed-value").textContent = formatCount(latest.observed);
+      "80%: " + formatMeasure(lower, payload.population) + "–" +
+      formatMeasure(upper, payload.population) +
+      (currentUnit === "per100k" ? " por 100 mil" : "");
+    document.getElementById("observed-value").textContent =
+      formatMeasure(latest.observed, payload.population);
     document.getElementById("change-2w-value").textContent =
       formatPercent(changes.change2w);
     document.getElementById("change-2w-value").className =
@@ -243,24 +300,91 @@
     document.getElementById("change-4w-value").className =
       changes.change4w >= 0 ? "positive" : "negative";
     document.getElementById("interpretation").textContent =
-      "O valor observado até agora é " + formatCount(latest.observed) +
+      "O valor observado até agora é " +
+      formatMeasure(latest.observed, payload.population) +
+      (currentUnit === "per100k" ? " por 100 mil habitantes" : " casos") +
       "; o modelo " + model.cardLabel.toLowerCase() + " estima " +
-      formatCount(estimate) + " casos após compensar o atraso de notificação.";
+      formatMeasure(estimate, payload.population) +
+      (currentUnit === "per100k" ? " por 100 mil habitantes" : " casos") +
+      " após compensar o atraso de notificação.";
+  }
+
+  function renderQuality(payload) {
+    var score = payload.backtest && payload.backtest[currentModel] || {};
+    var model = MODELS[currentModel];
+    document.getElementById("quality-wape").textContent =
+      score.wape_percent === null || score.wape_percent === undefined ?
+        "—" : formatPercent(score.wape_percent).replace("+", "");
+    document.getElementById("quality-bias").textContent =
+      formatSignedMeasure(score.bias, payload.population);
+    document.getElementById("quality-bias-unit").textContent =
+      currentUnit === "per100k" ?
+        "casos por 100 mil por semana" : "casos por semana";
+    document.getElementById("quality-coverage").textContent =
+      score.coverage80_percent === null || score.coverage80_percent === undefined ?
+        "—" : formatPercent(score.coverage80_percent).replace("+", "");
+    document.getElementById("quality-coverage-note").textContent =
+      score.coverage80_percent === null || score.coverage80_percent === undefined ?
+        "disponível após a próxima atualização" : "ideal próximo de 80%";
+    document.getElementById("quality-n").textContent = formatCount(score.n);
+    document.getElementById("quality-description").textContent =
+      "Resultados do modelo " + model.cardLabel.toLowerCase() +
+      " em previsões históricas fora da amostra para " + payload.name +
+      ". O viés indica se o modelo tende a superestimar (+) ou subestimar (−).";
   }
 
   function renderSeries(payload) {
     var rows = payload.series;
     var model = MODELS[currentModel];
+    var population = payload.population;
     var x = rows.map(function (row) { return row.week; });
     var stableObserved = rows.map(function (row) {
-      return row.provisional ? null : row.observed;
+      return row.provisional ? null : scaledValue(row.observed, population);
     });
     var provisionalObserved = rows.map(function (row) {
-      return row.provisional ? row.observed : null;
+      return row.provisional ? scaledValue(row.observed, population) : null;
     });
-    var lower = rows.map(function (row) { return row[model.lower]; });
-    var upper = rows.map(function (row) { return row[model.upper]; });
-    var estimate = rows.map(function (row) { return row[model.value]; });
+    var lower = rows.map(function (row) {
+      return scaledValue(row[model.lower], population);
+    });
+    var upper = rows.map(function (row) {
+      return scaledValue(row[model.upper], population);
+    });
+    var estimate = rows.map(function (row) {
+      return scaledValue(row[model.value], population);
+    });
+    var provisionalIndex = rows.findIndex(function (row) { return row.provisional; });
+    var shapes = [];
+    var annotations = [];
+    if (provisionalIndex >= 0) {
+      var lastDate = new Date(rows[rows.length - 1].week + "T12:00:00");
+      lastDate.setDate(lastDate.getDate() + 7);
+      shapes.push({
+        type: "rect",
+        xref: "x",
+        yref: "paper",
+        x0: rows[provisionalIndex].week,
+        x1: lastDate.toISOString().slice(0, 10),
+        y0: 0,
+        y1: 1,
+        fillcolor: "rgba(96,112,128,0.10)",
+        line: { width: 0 },
+        layer: "below"
+      });
+      annotations.push({
+        xref: "x",
+        yref: "paper",
+        x: rows[provisionalIndex].week,
+        y: 0.98,
+        xanchor: "left",
+        yanchor: "top",
+        text: "Período provisório",
+        showarrow: false,
+        font: { size: 11, color: "#607080" },
+        bgcolor: "rgba(255,255,255,0.78)",
+        borderpad: 3
+      });
+    }
 
     var traces = [
       {
@@ -300,11 +424,13 @@
       plot_bgcolor: "#ffffff",
       hovermode: "x unified",
       legend: { orientation: "h", y: 1.08, x: 0 },
+      shapes: shapes,
+      annotations: annotations,
       xaxis: { gridcolor: "#eef1f3", title: "" },
       yaxis: {
         gridcolor: "#e2e7ea",
         rangemode: "tozero",
-        title: "Casos semanais",
+        title: axisTitle(),
         separatethousands: true
       },
       font: { family: "Inter, sans-serif", color: "#17212b" }
@@ -312,39 +438,67 @@
   }
 
   function renderMap() {
+    var isChange = currentMapMetric === "change";
     var windowConfig = UF_WINDOWS[currentUfWindow];
     var field = windowConfig.field;
+    var model = MODELS[currentModel];
     var locations = summary.states.map(function (entry) { return entry.ibge_code; });
     var values = summary.states.map(function (entry) {
-      return entry.latest[field];
+      return isChange ? entry.latest[field] :
+        scaledValue(entry.latest[model.value], entry.population);
     });
     var custom = summary.states.map(function (entry) {
-      return [entry.uf, entry.name, entry.latest.nowcast];
+      return [
+        entry.uf,
+        entry.name,
+        formatMeasure(entry.latest[model.value], entry.population),
+        formatPercent(entry.latest[field])
+      ];
     });
     var finite = values.filter(function (value) { return Number.isFinite(value); });
-    var bound = Math.max(20, Math.min(100,
-      Math.max.apply(null, finite.map(function (value) { return Math.abs(value); }))));
     var trace = {
       type: "choropleth",
       geojson: geojson,
       featureidkey: "properties.codarea",
       locations: locations,
       z: values,
-      zmin: -bound,
-      zmax: bound,
-      colorscale: [
+      marker: { line: { color: "#ffffff", width: 0.7 } },
+      customdata: custom
+    };
+    if (isChange) {
+      var bound = Math.max(20, Math.min(100,
+        Math.max.apply(null, finite.map(function (value) { return Math.abs(value); }))));
+      trace.zmin = -bound;
+      trace.zmax = bound;
+      trace.colorscale = [
         [0, "#13795b"],
         [0.5, "#f5f5f0"],
         [1, "#b33a3a"]
-      ],
-      colorbar: { title: windowConfig.colorbarTitle, thickness: 13 },
-      marker: { line: { color: "#ffffff", width: 0.7 } },
-      customdata: custom,
-      hovertemplate:
+      ];
+      trace.colorbar = { title: windowConfig.colorbarTitle, thickness: 13 };
+      trace.hovertemplate =
         "<b>%{customdata[1]} (%{customdata[0]})</b><br>" +
-        "Nowcast: %{customdata[2]:,.0f}<br>" +
-        "Variação: %{z:.1f}%<extra></extra>"
-    };
+        model.seriesLabel + ": %{customdata[2]}" +
+        (currentUnit === "per100k" ? " por 100 mil" : " casos") + "<br>" +
+        "Variação: %{customdata[3]}<extra></extra>";
+    } else {
+      trace.zmin = 0;
+      trace.zmax = finite.length ? Math.max.apply(null, finite) : 1;
+      trace.colorscale = [
+        [0, "#fff7ec"],
+        [0.5, "#fdbb84"],
+        [1, "#b33a3a"]
+      ];
+      trace.colorbar = {
+        title: currentUnit === "per100k" ? "por 100 mil" : "casos",
+        thickness: 13
+      };
+      trace.hovertemplate =
+        "<b>%{customdata[1]} (%{customdata[0]})</b><br>" +
+        model.seriesLabel + ": %{customdata[2]}" +
+        (currentUnit === "per100k" ? " por 100 mil" : " casos") +
+        "<extra></extra>";
+    }
     Plotly.react("state-map", [trace], {
       margin: { l: 0, r: 0, t: 0, b: 0 },
       geo: { fitbounds: "locations", visible: false, bgcolor: "#ffffff" },
@@ -366,6 +520,7 @@
       currentPayload = payload;
       renderCards(payload);
       renderSeries(payload);
+      renderQuality(payload);
       renderTable();
       dashboard.hidden = false;
       errorPanel.hidden = true;
@@ -396,9 +551,11 @@
       currentUf = available.indexOf(requested) >= 0 ?
         requested : summary.default_state;
       select.value = currentUf;
+      unitSelect.value = currentUnit;
+      mapMetricSelect.value = currentMapMetric;
       ufWindowSelect.value = currentUfWindow;
       dashboard.hidden = false;
-      updateUfWindowDescription();
+      updateMapDescription();
       renderMap();
       renderTable();
       var generated = formatDate(summary.generated_at_utc);
@@ -410,15 +567,34 @@
       select.onchange = function () { render(select.value); };
       ufWindowSelect.onchange = function () {
         currentUfWindow = ufWindowSelect.value;
-        updateUfWindowDescription();
+        updateMapDescription();
         renderMap();
         renderTable();
       };
-      modelSelect.onchange = function () {
-        currentModel = modelSelect.value;
+      mapMetricSelect.onchange = function () {
+        currentMapMetric = mapMetricSelect.value;
+        updateMapDescription();
+        renderMap();
+      };
+      unitSelect.onchange = function () {
+        currentUnit = unitSelect.value;
+        updateMapDescription();
+        renderMap();
+        renderTable();
         if (currentPayload) {
           renderCards(currentPayload);
           renderSeries(currentPayload);
+          renderQuality(currentPayload);
+        }
+      };
+      modelSelect.onchange = function () {
+        currentModel = modelSelect.value;
+        renderMap();
+        renderTable();
+        if (currentPayload) {
+          renderCards(currentPayload);
+          renderSeries(currentPayload);
+          renderQuality(currentPayload);
         }
       };
       retryButton.onclick = initialize;

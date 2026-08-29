@@ -62,6 +62,36 @@ STATES = OrderedDict(
         ("TO", ("Tocantins", "17")),
     ]
 )
+POPULATION = {
+    "AC": 830_018,
+    "AL": 3_127_683,
+    "AP": 733_759,
+    "AM": 3_941_613,
+    "BA": 14_141_626,
+    "CE": 8_794_957,
+    "DF": 2_817_381,
+    "ES": 3_833_712,
+    "GO": 7_056_495,
+    "MA": 6_776_699,
+    "MT": 3_658_649,
+    "MS": 2_757_013,
+    "MG": 20_539_989,
+    "PA": 8_120_131,
+    "PB": 3_974_687,
+    "PR": 11_444_380,
+    "PE": 9_058_931,
+    "PI": 3_271_199,
+    "RJ": 16_055_174,
+    "RN": 3_302_729,
+    "RS": 10_882_965,
+    "RO": 1_581_196,
+    "RR": 636_707,
+    "SC": 7_610_361,
+    "SP": 44_411_238,
+    "SE": 2_210_004,
+    "TO": 1_511_460,
+}
+CENSUS_2022_TOTAL = 203_080_756
 TERMS = ["gripe", "sintomas gripe", "tosse"]
 DATASET_URL = "https://dadosabertos.saude.gov.br/dataset/srag-2019-a-2026"
 PROVISIONAL_LAG_DAYS = 42
@@ -712,6 +742,20 @@ def backtest_fixed_alpha(
             float(residual.quantile(0.90)),
         )
         score[name] = metrics(backtest["srag_cases"], backtest[column])
+        lower = np.clip(backtest[column] + intervals[name][0], 0, None)
+        upper = np.clip(backtest[column] + intervals[name][1], 0, None)
+        score[name].update(
+            {
+                "coverage80_percent": number(
+                    100
+                    * np.mean(
+                        (backtest["srag_cases"] >= lower)
+                        & (backtest["srag_cases"] <= upper)
+                    )
+                ),
+                "mean_interval_width": number((upper - lower).mean()),
+            }
+        )
     return backtest, score, intervals
 
 
@@ -851,6 +895,7 @@ def build_state_payload(
         "uf": uf,
         "name": state_name,
         "ibge_code": ibge_code,
+        "population": POPULATION[uf],
         "training": {
             "start": train["week_start"].min().date().isoformat(),
             "cutoff": cutoff.date().isoformat(),
@@ -993,6 +1038,25 @@ def build_brazil_payload(
             national_backtest["srag_cases"], national_backtest["ensemble"]
         ),
     }
+    for name, column in model_columns.items():
+        lower = np.clip(
+            national_backtest[column] + national_intervals[name][0], 0, None
+        )
+        upper = np.clip(
+            national_backtest[column] + national_intervals[name][1], 0, None
+        )
+        score[name].update(
+            {
+                "coverage80_percent": number(
+                    100
+                    * np.mean(
+                        (national_backtest["srag_cases"] >= lower)
+                        & (national_backtest["srag_cases"] <= upper)
+                    )
+                ),
+                "mean_interval_width": number((upper - lower).mean()),
+            }
+        )
     latest_rows = [row for row in rows if row["nowcast"] is not None]
     if not latest_rows:
         raise RuntimeError("No common nationwide nowcast week")
@@ -1014,6 +1078,7 @@ def build_brazil_payload(
         "uf": "BR",
         "name": "Brasil",
         "ibge_code": "BR",
+        "population": CENSUS_2022_TOTAL,
         "training": {
             "start": min(starts),
             "cutoff": min(cutoffs),
@@ -1035,6 +1100,7 @@ def summary_entry(payload: dict[str, object]) -> dict[str, object]:
         "uf": payload["uf"],
         "name": payload["name"],
         "ibge_code": payload["ibge_code"],
+        "population": payload["population"],
         "latest": payload["latest"],
         "backtest": payload["backtest"],
         "training_cutoff": payload["training"]["cutoff"],
@@ -1061,6 +1127,17 @@ def validate_output(output_dir: Path, expected_ufs: list[str] | None = None) -> 
         payload = json.loads(path.read_text(encoding="utf-8"))
         if payload["uf"] != uf:
             raise RuntimeError(f"UF mismatch in {path}")
+        if not isinstance(payload.get("population"), int) or payload["population"] <= 0:
+            raise RuntimeError(f"Invalid population in {path}")
+        for model_name, score in payload["backtest"].items():
+            if "coverage80_percent" not in score or "mean_interval_width" not in score:
+                raise RuntimeError(f"Missing interval metrics for {uf}/{model_name}")
+            coverage80 = score["coverage80_percent"]
+            interval_width = score["mean_interval_width"]
+            if coverage80 is not None and not 0 <= coverage80 <= 100:
+                raise RuntimeError(f"Invalid interval coverage for {uf}/{model_name}")
+            if interval_width is not None and interval_width < 0:
+                raise RuntimeError(f"Invalid interval width for {uf}/{model_name}")
         series = payload["series"]
         if len(series) < TRAIN_WEEKS:
             raise RuntimeError(f"Too few displayed weeks for {uf}")

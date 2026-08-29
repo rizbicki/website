@@ -38,6 +38,11 @@
         <option value="seasonal">Sazonal (ano anterior)</option>
         <option value="lasso">Trends (Google Trends)</option>
       </select>
+      <label for="unit-select">Unidade</label>
+      <select id="unit-select">
+        <option value="count">Casos</option>
+        <option value="per100k">Por 100 mil habitantes</option>
+      </select>
       <button id="retry-button" type="button" hidden>Tentar novamente</button>
     </section>
 
@@ -90,19 +95,59 @@
         <div id="series-chart" class="chart" aria-label="Gráfico temporal de casos de SRAG"></div>
       </section>
 
+      <details class="panel quality-panel">
+        <summary>
+          <span>
+            <span class="eyebrow">Transparência do modelo</span>
+            <span class="summary-title">Desempenho histórico</span>
+          </span>
+          <span class="summary-action">Ver métricas</span>
+        </summary>
+        <p class="muted quality-description" id="quality-description"></p>
+        <div class="quality-grid">
+          <article class="quality-metric">
+            <span>Erro percentual (WAPE)</span>
+            <strong id="quality-wape">—</strong>
+            <small>menor é melhor</small>
+          </article>
+          <article class="quality-metric">
+            <span>Viés médio</span>
+            <strong id="quality-bias">—</strong>
+            <small id="quality-bias-unit">casos por semana</small>
+          </article>
+          <article class="quality-metric">
+            <span>Cobertura do intervalo de 80%</span>
+            <strong id="quality-coverage">—</strong>
+            <small id="quality-coverage-note">ideal próximo de 80%</small>
+          </article>
+          <article class="quality-metric">
+            <span>Semanas avaliadas</span>
+            <strong id="quality-n">—</strong>
+            <small>previsões fora da amostra</small>
+          </article>
+        </div>
+      </details>
+
       <div class="two-column">
         <section class="panel">
           <div class="panel-heading">
             <div>
               <p class="eyebrow">Panorama nacional</p>
-              <h3>Variação por UF</h3>
+              <h3 id="map-title">Variação por UF</h3>
             </div>
             <div class="panel-heading-controls">
-              <label for="uf-window-select">Janela</label>
-              <select id="uf-window-select" class="select-compact">
-                <option value="2w">2 vs. 2 sem. antes</option>
-                <option value="4w" selected>4 vs. 4 sem. antes</option>
+              <label for="map-metric-select">Métrica</label>
+              <select id="map-metric-select" class="select-compact">
+                <option value="change">Variação recente</option>
+                <option value="nowcast">Nowcast</option>
               </select>
+              <span id="uf-window-control" class="inline-control">
+                <label for="uf-window-select">Janela</label>
+                <select id="uf-window-select" class="select-compact">
+                  <option value="2w">2 vs. 2 sem. antes</option>
+                  <option value="4w" selected>4 vs. 4 sem. antes</option>
+                </select>
+              </span>
             </div>
           </div>
           <p class="muted" id="uf-window-description"></p>
@@ -121,7 +166,7 @@
               <thead>
                 <tr>
                   <th>UF</th>
-                  <th>Nowcast</th>
+                  <th id="table-nowcast-heading">Nowcast</th>
                   <th>Variação</th>
                 </tr>
               </thead>
@@ -138,6 +183,7 @@
         <h2>Metodologia</h2>
         <p>O modelo é estimado separadamente para cada uma das 27 unidades federativas. Para cada estado, um LASSO é treinado nas 104 semanas mais recentes já consolidadas, usando como preditores os índices semanais do Google Trends para os termos <em>gripe</em>, <em>sintomas gripe</em> e <em>tosse</em> na própria semana. A estimativa final é a média entre esse LASSO e um método sazonal ingênuo: o valor observado de SRAG na mesma semana do ano anterior (52 semanas antes).</p>
         <p>O agregado Brasil é a soma das 27 estimativas estaduais — não é um modelo treinado separadamente para o país. As faixas de 80% são conformais: usam os percentis 10 e 90 dos resíduos fora da amostra (out-of-fold) de cada modelo. A faixa do Brasil é calibrada a partir dos resíduos da soma das estimativas estaduais, e não da soma das faixas estaduais.</p>
+        <p>As taxas por 100 mil habitantes usam a população residente do Censo Demográfico 2022 do IBGE. As métricas de desempenho histórico usam as mesmas previsões fora da amostra que calibram os modelos.</p>
         <p>Este é um <strong>nowcast</strong>, não uma previsão: ele estima semanas que já ocorreram, mas cuja notificação ainda está incompleta por atraso no sistema de vigilância. Um caso só entra como "consolidado" depois de um número mínimo de dias desde o início dos sintomas; semanas mais recentes do que isso aparecem como provisórias no gráfico.</p>
 
         <h3>Atualização</h3>
@@ -148,7 +194,7 @@
 
         <h3>Limitações</h3>
         <p>Os índices do Google Trends são normalizados de 0 a 100 separadamente para cada estado e não devem ser comparados diretamente entre UFs. A amostragem do Trends pode variar levemente entre extrações. As estimativas são experimentais e não substituem os dados oficiais do Ministério da Saúde.</p>
-        <p class="sources">Fontes: SIVEP-Gripe / Ministério da Saúde e Google Trends.</p>
+        <p class="sources">Fontes: SIVEP-Gripe / Ministério da Saúde, Google Trends e Censo Demográfico 2022 / IBGE.</p>
       </section>
     </section>
   </main>
