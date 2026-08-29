@@ -6,7 +6,6 @@
   var geojson = null;
   var currentUf = "BR";
   var currentModel = "ensemble";
-  var currentUnit = "count";
   var currentMapMetric = "change";
   var currentUfWindow = "4w";
   var currentPayload = null;
@@ -42,7 +41,6 @@
 
   var select = document.getElementById("state-select");
   var modelSelect = document.getElementById("model-select");
-  var unitSelect = document.getElementById("unit-select");
   var mapMetricSelect = document.getElementById("map-metric-select");
   var ufWindowSelect = document.getElementById("uf-window-select");
   var dashboard = document.getElementById("dashboard");
@@ -109,44 +107,26 @@
     return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 }).format(value);
   }
 
-  function scaledValue(value, population) {
+  function per100k(value, population) {
     if (value === null || value === undefined) return null;
-    if (currentUnit === "per100k") {
-      if (!Number.isFinite(population) || population <= 0) return null;
-      return 100000 * value / population;
-    }
-    return value;
+    if (!Number.isFinite(population) || population <= 0) return null;
+    return 100000 * value / population;
   }
 
-  function formatMeasure(value, population) {
-    var scaled = scaledValue(value, population);
-    if (scaled === null) return "—";
-    if (currentUnit === "per100k") {
-      return new Intl.NumberFormat("pt-BR", {
-        minimumFractionDigits: 1,
-        maximumFractionDigits: 2
-      }).format(scaled);
-    }
-    return formatCount(scaled);
-  }
-
-  function formatSignedMeasure(value, population) {
-    var scaled = scaledValue(value, population);
-    if (scaled === null) return "—";
+  function formatRate(value) {
+    if (value === null || value === undefined) return "—";
     return new Intl.NumberFormat("pt-BR", {
-      maximumFractionDigits: currentUnit === "per100k" ? 2 : 0,
-      minimumFractionDigits: currentUnit === "per100k" ? 1 : 0,
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 2
+    }).format(value);
+  }
+
+  function formatSignedCount(value) {
+    if (value === null || value === undefined) return "—";
+    return new Intl.NumberFormat("pt-BR", {
+      maximumFractionDigits: 0,
       signDisplay: "exceptZero"
-    }).format(scaled);
-  }
-
-  function unitLabel() {
-    return currentUnit === "per100k" ? "por 100 mil habitantes" : "casos";
-  }
-
-  function axisTitle() {
-    return currentUnit === "per100k" ?
-      "Casos por 100 mil habitantes" : "Casos semanais";
+    }).format(value);
   }
 
   function rollingChange(values, window) {
@@ -199,7 +179,7 @@
       "Variação por UF" : "Nowcast por UF";
     document.getElementById("uf-window-description").textContent = isChange ?
       UF_WINDOWS[currentUfWindow].description :
-      "Estimativa da semana mais recente em " + unitLabel() + ".";
+      "Estimativa da semana mais recente em casos por 100 mil habitantes.";
   }
 
   function byUf(uf) {
@@ -242,7 +222,7 @@
     var model = MODELS[currentModel];
     var tbody = document.getElementById("state-table");
     document.getElementById("table-nowcast-heading").textContent =
-      model.seriesLabel + (currentUnit === "per100k" ? " / 100 mil" : "");
+      model.seriesLabel;
     tbody.textContent = "";
     summary.states
       .slice()
@@ -258,7 +238,7 @@
           "<td><strong>" + entry.uf + "</strong> <span class=\"muted\">" +
           entry.name + "</span></td>" +
           "<td>" +
-          formatMeasure(entry.latest[model.value], entry.population) + "</td>" +
+          formatCount(entry.latest[model.value]) + "</td>" +
           "<td class=\"" + changeClass + "\">" +
           formatPercent(entry.latest[field]) + "</td>";
         row.addEventListener("click", function () {
@@ -284,13 +264,11 @@
       " · corte de treino em " + formatDate(payload.training.cutoff);
     document.getElementById("nowcast-label").textContent = model.cardLabel;
     document.getElementById("nowcast-value").textContent =
-      formatMeasure(estimate, payload.population);
+      formatCount(estimate);
     document.getElementById("interval-value").textContent =
-      "80%: " + formatMeasure(lower, payload.population) + "–" +
-      formatMeasure(upper, payload.population) +
-      (currentUnit === "per100k" ? " por 100 mil" : "");
+      "80%: " + formatCount(lower) + "–" + formatCount(upper);
     document.getElementById("observed-value").textContent =
-      formatMeasure(latest.observed, payload.population);
+      formatCount(latest.observed);
     document.getElementById("change-2w-value").textContent =
       formatPercent(changes.change2w);
     document.getElementById("change-2w-value").className =
@@ -301,11 +279,9 @@
       changes.change4w >= 0 ? "positive" : "negative";
     document.getElementById("interpretation").textContent =
       "O valor observado até agora é " +
-      formatMeasure(latest.observed, payload.population) +
-      (currentUnit === "per100k" ? " por 100 mil habitantes" : " casos") +
+      formatCount(latest.observed) + " casos" +
       "; o modelo " + model.cardLabel.toLowerCase() + " estima " +
-      formatMeasure(estimate, payload.population) +
-      (currentUnit === "per100k" ? " por 100 mil habitantes" : " casos") +
+      formatCount(estimate) + " casos" +
       " após compensar o atraso de notificação.";
   }
 
@@ -316,10 +292,9 @@
       score.wape_percent === null || score.wape_percent === undefined ?
         "—" : formatPercent(score.wape_percent).replace("+", "");
     document.getElementById("quality-bias").textContent =
-      formatSignedMeasure(score.bias, payload.population);
+      formatSignedCount(score.bias);
     document.getElementById("quality-bias-unit").textContent =
-      currentUnit === "per100k" ?
-        "casos por 100 mil por semana" : "casos por semana";
+      "casos por semana";
     document.getElementById("quality-coverage").textContent =
       score.coverage80_percent === null || score.coverage80_percent === undefined ?
         "—" : formatPercent(score.coverage80_percent).replace("+", "");
@@ -336,23 +311,16 @@
   function renderSeries(payload) {
     var rows = payload.series;
     var model = MODELS[currentModel];
-    var population = payload.population;
     var x = rows.map(function (row) { return row.week; });
     var stableObserved = rows.map(function (row) {
-      return row.provisional ? null : scaledValue(row.observed, population);
+      return row.provisional ? null : row.observed;
     });
     var provisionalObserved = rows.map(function (row) {
-      return row.provisional ? scaledValue(row.observed, population) : null;
+      return row.provisional ? row.observed : null;
     });
-    var lower = rows.map(function (row) {
-      return scaledValue(row[model.lower], population);
-    });
-    var upper = rows.map(function (row) {
-      return scaledValue(row[model.upper], population);
-    });
-    var estimate = rows.map(function (row) {
-      return scaledValue(row[model.value], population);
-    });
+    var lower = rows.map(function (row) { return row[model.lower]; });
+    var upper = rows.map(function (row) { return row[model.upper]; });
+    var estimate = rows.map(function (row) { return row[model.value]; });
     var provisionalIndex = rows.findIndex(function (row) { return row.provisional; });
     var shapes = [];
     var annotations = [];
@@ -430,7 +398,7 @@
       yaxis: {
         gridcolor: "#e2e7ea",
         rangemode: "tozero",
-        title: axisTitle(),
+        title: "Casos semanais",
         separatethousands: true
       },
       font: { family: "Inter, sans-serif", color: "#17212b" }
@@ -445,13 +413,15 @@
     var locations = summary.states.map(function (entry) { return entry.ibge_code; });
     var values = summary.states.map(function (entry) {
       return isChange ? entry.latest[field] :
-        scaledValue(entry.latest[model.value], entry.population);
+        per100k(entry.latest[model.value], entry.population);
     });
     var custom = summary.states.map(function (entry) {
+      var rate = per100k(entry.latest[model.value], entry.population);
       return [
         entry.uf,
         entry.name,
-        formatMeasure(entry.latest[model.value], entry.population),
+        formatCount(entry.latest[model.value]),
+        formatRate(rate),
         formatPercent(entry.latest[field])
       ];
     });
@@ -478,9 +448,8 @@
       trace.colorbar = { title: windowConfig.colorbarTitle, thickness: 13 };
       trace.hovertemplate =
         "<b>%{customdata[1]} (%{customdata[0]})</b><br>" +
-        model.seriesLabel + ": %{customdata[2]}" +
-        (currentUnit === "per100k" ? " por 100 mil" : " casos") + "<br>" +
-        "Variação: %{customdata[3]}<extra></extra>";
+        model.seriesLabel + ": %{customdata[2]} casos<br>" +
+        "Variação: %{customdata[4]}<extra></extra>";
     } else {
       trace.zmin = 0;
       trace.zmax = finite.length ? Math.max.apply(null, finite) : 1;
@@ -490,13 +459,12 @@
         [1, "#b33a3a"]
       ];
       trace.colorbar = {
-        title: currentUnit === "per100k" ? "por 100 mil" : "casos",
+        title: "casos por 100 mil",
         thickness: 13
       };
       trace.hovertemplate =
         "<b>%{customdata[1]} (%{customdata[0]})</b><br>" +
-        model.seriesLabel + ": %{customdata[2]}" +
-        (currentUnit === "per100k" ? " por 100 mil" : " casos") +
+        model.seriesLabel + ": %{customdata[3]} por 100 mil habitantes" +
         "<extra></extra>";
     }
     Plotly.react("state-map", [trace], {
@@ -551,7 +519,6 @@
       currentUf = available.indexOf(requested) >= 0 ?
         requested : summary.default_state;
       select.value = currentUf;
-      unitSelect.value = currentUnit;
       mapMetricSelect.value = currentMapMetric;
       ufWindowSelect.value = currentUfWindow;
       dashboard.hidden = false;
@@ -575,17 +542,6 @@
         currentMapMetric = mapMetricSelect.value;
         updateMapDescription();
         renderMap();
-      };
-      unitSelect.onchange = function () {
-        currentUnit = unitSelect.value;
-        updateMapDescription();
-        renderMap();
-        renderTable();
-        if (currentPayload) {
-          renderCards(currentPayload);
-          renderSeries(currentPayload);
-          renderQuality(currentPayload);
-        }
       };
       modelSelect.onchange = function () {
         currentModel = modelSelect.value;
