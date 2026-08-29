@@ -339,7 +339,7 @@
     try {
       var responses = await Promise.all([
         fetch(DATA_ROOT + "summary.json", { cache: "no-cache" }),
-        fetch("/dashboard/srag/br_states.geojson", { cache: "force-cache" })
+        fetch("/dashboard/srag/br_states.geojson", { cache: "no-cache" })
       ]);
       if (!responses[0].ok || !responses[1].ok) {
         throw new Error("Arquivos principais do dashboard indisponíveis.");
