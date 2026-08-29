@@ -259,6 +259,11 @@
     document.getElementById("selected-kicker").textContent =
       payload.uf === "BR" ? "Agregado das 27 UFs" : payload.uf;
     document.getElementById("selected-title").textContent = payload.name;
+    document.getElementById("series-title").textContent =
+      "Série semanal — " + payload.name;
+    document.getElementById("series-chart").setAttribute(
+      "aria-label", "Gráfico temporal de casos de SRAG em " + payload.name
+    );
     document.getElementById("selected-period").textContent =
       "Semana iniciada em " + formatDate(latest.week) +
       " · corte de treino em " + formatDate(payload.training.cutoff);
