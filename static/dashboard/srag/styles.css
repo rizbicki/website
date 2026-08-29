@@ -88,6 +88,29 @@ main {
   padding: 1.4rem clamp(0.8rem, 3vw, 2.5rem) 3rem;
 }
 
+.tabs {
+  display: flex;
+  gap: 0.3rem;
+  margin-bottom: 1.2rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.tab-button {
+  min-height: auto;
+  padding: 0.65rem 1rem;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  font-weight: 750;
+}
+
+.tab-button.active {
+  color: var(--ink);
+  border-bottom-color: var(--orange);
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;
@@ -292,9 +315,28 @@ tbody tr.selected { background: #e4f0f7; }
   padding: 1.2rem 1.4rem;
 }
 
-.method h3 { margin-top: 0; }
+.method h2 { margin: 0 0 0.3rem; }
+.method h3 { margin: 1.4rem 0 0.4rem; }
 .method p { max-width: 1100px; }
 .sources { color: var(--muted); font-size: 0.88rem; }
+
+.method-technical {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.35rem 1.2rem;
+  max-width: 500px;
+  margin: 0 0 0.5rem;
+}
+
+.method-technical dt {
+  color: var(--muted);
+  font-weight: 750;
+}
+
+.method-technical dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
 
 @media (max-width: 950px) {
   .hero,

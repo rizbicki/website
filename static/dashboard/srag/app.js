@@ -44,6 +44,47 @@
   var dashboard = document.getElementById("dashboard");
   var errorPanel = document.getElementById("error-panel");
   var retryButton = document.getElementById("retry-button");
+  var tabs = {
+    nowcast: {
+      button: document.getElementById("tab-nowcast"),
+      panel: document.getElementById("panel-nowcast")
+    },
+    methodology: {
+      button: document.getElementById("tab-methodology"),
+      panel: document.getElementById("panel-methodology")
+    }
+  };
+
+  function switchTab(name) {
+    Object.keys(tabs).forEach(function (key) {
+      var active = key === name;
+      tabs[key].button.classList.toggle("active", active);
+      tabs[key].button.setAttribute("aria-selected", String(active));
+      tabs[key].panel.hidden = !active;
+    });
+  }
+
+  tabs.nowcast.button.addEventListener("click", function () { switchTab("nowcast"); });
+  tabs.methodology.button.addEventListener("click", function () { switchTab("methodology"); });
+
+  function renderMethodology(summaryData) {
+    var list = document.getElementById("method-technical");
+    var entries = [
+      ["Semanas de treino", String(summaryData.model.training_weeks)],
+      ["Atraso mínimo para consolidação", summaryData.model.consolidation_lag_days + " dias"],
+      ["Atualização mais recente", formatDate(summaryData.generated_at_utc)],
+      ["Dados do SIVEP até", formatDate(summaryData.sources.srag.latest_source_snapshot_date)]
+    ];
+    list.textContent = "";
+    entries.forEach(function (entry) {
+      var dt = document.createElement("dt");
+      dt.textContent = entry[0];
+      var dd = document.createElement("dd");
+      dd.textContent = entry[1];
+      list.appendChild(dt);
+      list.appendChild(dd);
+    });
+  }
   function reportHeight() {
     window.parent.postMessage(
       {
@@ -346,6 +387,7 @@
       }
       summary = await responses[0].json();
       geojson = await responses[1].json();
+      renderMethodology(summary);
       populateSelect();
       var requested = window.location.hash.replace("#", "").toUpperCase();
       var available = ["BR"].concat(summary.states.map(function (entry) {
