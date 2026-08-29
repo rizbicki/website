@@ -15,6 +15,11 @@ The Brazil estimate is the sum of the 27 state estimates. The 80% bands are
 empirical, based on time-series out-of-fold residuals. The nationwide band is
 calibrated from residuals of the summed state nowcasts.
 
+The dashboard also displays the reporting-delay nowcasts and 80% credible
+intervals published by **InfoGripe — MAVE (PROCC/Fiocruz and EMap/FGV) and
+GT-Influenza/Ministry of Health**. These values are imported from the official
+public repository; the InfoGripe Brazil estimate is not a sum made by this site.
+
 The nowcast map displays incidence per 100,000 residents, using resident
 population from the 2022 IBGE Census. All other count displays remain absolute;
 the recent-change map remains a percentage. The historical performance section
@@ -27,9 +32,12 @@ The GitHub Actions workflow at
 `.github/workflows/update-srag-nowcast.yml` collects Google Trends in small
 daily batches from Monday through Saturday. Each state is checkpointed
 immediately in the Actions cache. On Saturday, after all 27 checkpoints are
-available, the workflow downloads or reuses the SIVEP-Gripe files, rebuilds the
-models, validates the complete JSON bundle, and commits it. Netlify then
-deploys the new site from the commit.
+available, the workflow downloads or reuses the SIVEP-Gripe files, fetches the
+current official InfoGripe CSV, rebuilds the local models, validates the complete
+JSON bundle, and commits it. The build requires BR plus all 27 UFs, a complete
+80% interval on the latest InfoGripe week, and a source no more than 21 days old.
+Each weekly data commit therefore preserves the InfoGripe values displayed that
+week. Netlify then deploys the new site from the commit.
 
 A failed build never replaces the last validated dashboard data. The workflow
 also opens or updates a GitHub issue when an automated run fails.

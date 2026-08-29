@@ -122,7 +122,7 @@ jobs:
       - name: Build nationwide nowcast
         if: steps.batch.outputs.publish == 'true'
         run: |
-          python automation/srag_nowcast/update_dashboard.py             --from-trends-cache             --max-trends-age-days 9             --trends-cache-dir automation/srag_nowcast/.cache/google_trends             --cache-dir automation/srag_nowcast/.cache/sivep_gripe             --output-dir static/dashboard/srag/data
+          python automation/srag_nowcast/update_dashboard.py             --from-trends-cache             --max-trends-age-days 9             --max-infogripe-age-days 21             --trends-cache-dir automation/srag_nowcast/.cache/google_trends             --cache-dir automation/srag_nowcast/.cache/sivep_gripe             --output-dir static/dashboard/srag/data
 
       - name: Validate generated bundle
         if: steps.batch.outputs.publish == 'true'

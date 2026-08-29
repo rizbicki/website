@@ -36,6 +36,11 @@
     lasso: {
       value: "lasso", lower: "lasso_lower80", upper: "lasso_upper80",
       seriesLabel: "Trends", cardLabel: "Trends (Google Trends)"
+    },
+    infogripe: {
+      value: "infogripe", lower: "infogripe_lower80", upper: "infogripe_upper80",
+      seriesLabel: "InfoGripe", cardLabel: "InfoGripe (Fiocruz)",
+      observed: "infogripe_reported", intervalLabel: "Intervalo de credibilidade de 80%"
     }
   };
 
@@ -75,7 +80,8 @@
       ["Semanas de treino", String(summaryData.model.training_weeks)],
       ["Atraso mínimo para consolidação", summaryData.model.consolidation_lag_days + " dias"],
       ["Atualização mais recente", formatDate(summaryData.generated_at_utc)],
-      ["Dados do SIVEP até", formatDate(summaryData.sources.srag.latest_source_snapshot_date)]
+      ["Dados do SIVEP até", formatDate(summaryData.sources.srag.latest_source_snapshot_date)],
+      ["Nowcast InfoGripe até", formatDate(summaryData.sources.infogripe.latest_week)]
     ];
     list.textContent = "";
     entries.forEach(function (entry) {
@@ -143,14 +149,38 @@
 
   function modelChangeMetrics(rows, modelKey) {
     var field = MODELS[modelKey].value;
-    var series = rows.map(function (row) {
-      var v = row[field];
-      return v === null || v === undefined ? row.observed : v;
-    });
+    var series;
+    if (modelKey === "infogripe") {
+      series = rows.map(function (row) {
+        return row[field];
+      }).filter(function (value) {
+        return value !== null && value !== undefined;
+      });
+    } else {
+      series = rows.map(function (row) {
+        var v = row[field];
+        return v === null || v === undefined ? row.observed : v;
+      });
+    }
     return {
       change2w: rollingChange(series, 2),
       change4w: rollingChange(series, 4)
     };
+  }
+
+  function latestForModel(payload, modelKey) {
+    if (modelKey !== "infogripe") return payload.latest;
+    var field = MODELS[modelKey].value;
+    for (var i = payload.series.length - 1; i >= 0; i -= 1) {
+      if (payload.series[i][field] !== null && payload.series[i][field] !== undefined) {
+        return payload.series[i];
+      }
+    }
+    return payload.latest;
+  }
+
+  function summaryChangeField(modelKey, baseField) {
+    return modelKey === "infogripe" ? "infogripe_" + baseField : baseField;
   }
 
   function formatPercent(value) {
@@ -218,7 +248,8 @@
   }
 
   function renderTable() {
-    var field = UF_WINDOWS[currentUfWindow].field;
+    var field = summaryChangeField(
+      currentModel, UF_WINDOWS[currentUfWindow].field);
     var model = MODELS[currentModel];
     var tbody = document.getElementById("state-table");
     document.getElementById("table-nowcast-heading").textContent =
@@ -250,30 +281,44 @@
   }
 
   function renderCards(payload) {
-    var latest = payload.latest;
     var model = MODELS[currentModel];
+    var latest = latestForModel(payload, currentModel);
     var estimate = latest[model.value];
     var lower = latest[model.lower];
+    var observed = latest[model.observed || "observed"];
     var upper = latest[model.upper];
     var changes = modelChangeMetrics(payload.series, currentModel);
     document.getElementById("selected-kicker").textContent =
-      payload.uf === "BR" ? "Agregado das 27 UFs" : payload.uf;
+      payload.uf === "BR" ?
+        (currentModel === "infogripe" ? "Estimativa nacional do InfoGripe" :
+          "Agregado das 27 UFs") : payload.uf;
     document.getElementById("selected-title").textContent = payload.name;
     document.getElementById("series-title").textContent =
       "Série semanal — " + payload.name;
     document.getElementById("series-chart").setAttribute(
       "aria-label", "Gráfico temporal de casos de SRAG em " + payload.name
     );
-    document.getElementById("selected-period").textContent =
-      "Semana iniciada em " + formatDate(latest.week) +
-      " · corte de treino em " + formatDate(payload.training.cutoff);
+    var period = "Semana iniciada em " + formatDate(latest.week);
+    if (currentModel === "infogripe") {
+      period += " · série oficial coletada em " +
+        formatDate(summary.sources.infogripe.retrieved_at_utc);
+    } else {
+      period += " · corte de treino em " + formatDate(payload.training.cutoff);
+    }
+    document.getElementById("selected-period").textContent = period;
     document.getElementById("nowcast-label").textContent = model.cardLabel;
     document.getElementById("nowcast-value").textContent =
       formatCount(estimate);
     document.getElementById("interval-value").textContent =
       "80%: " + formatCount(lower) + "–" + formatCount(upper);
+    document.getElementById("observed-label").textContent =
+      currentModel === "infogripe" ?
+        "Notificado na base do InfoGripe" : "Notificado até agora";
     document.getElementById("observed-value").textContent =
-      formatCount(latest.observed);
+      formatCount(observed);
+    document.getElementById("observed-note").textContent =
+      currentModel === "infogripe" ?
+        "valor informado na publicação oficial" : "valor ainda provisório";
     document.getElementById("change-2w-value").textContent =
       formatPercent(changes.change2w);
     document.getElementById("change-2w-value").className =
@@ -284,7 +329,7 @@
       changes.change4w >= 0 ? "positive" : "negative";
     document.getElementById("interpretation").textContent =
       "O valor observado até agora é " +
-      formatCount(latest.observed) + " casos" +
+      formatCount(observed) + " casos" +
       "; o modelo " + model.cardLabel.toLowerCase() + " estima " +
       formatCount(estimate) + " casos" +
       " após compensar o atraso de notificação.";
@@ -304,13 +349,15 @@
       score.coverage80_percent === null || score.coverage80_percent === undefined ?
         "—" : formatPercent(score.coverage80_percent).replace("+", "");
     document.getElementById("quality-coverage-note").textContent =
-      score.coverage80_percent === null || score.coverage80_percent === undefined ?
+      score.note ? "requer vintages semanais arquivados" :
+        score.coverage80_percent === null || score.coverage80_percent === undefined ?
         "disponível após a próxima atualização" : "ideal próximo de 80%";
     document.getElementById("quality-n").textContent = formatCount(score.n);
     document.getElementById("quality-description").textContent =
-      "Resultados do modelo " + model.cardLabel.toLowerCase() +
-      " em previsões históricas fora da amostra para " + payload.name +
-      ". O viés indica se o modelo tende a superestimar (+) ou subestimar (−).";
+      score.note ||
+        ("Resultados do modelo " + model.cardLabel.toLowerCase() +
+        " em previsões históricas fora da amostra para " + payload.name +
+        ". O viés indica se o modelo tende a superestimar (+) ou subestimar (−).");
   }
 
   function renderSeries(payload) {
@@ -369,7 +416,7 @@
         x: x, y: upper, type: "scatter", mode: "lines",
         line: { color: "rgba(217,95,2,0)" },
         fill: "tonexty", fillcolor: "rgba(217,95,2,0.16)",
-        name: "Intervalo conformal de 80%", hoverinfo: "skip"
+        name: model.intervalLabel || "Intervalo conformal de 80%", hoverinfo: "skip"
       },
       {
         x: x, y: stableObserved, type: "scatter", mode: "lines",
@@ -413,7 +460,7 @@
   function renderMap() {
     var isChange = currentMapMetric === "change";
     var windowConfig = UF_WINDOWS[currentUfWindow];
-    var field = windowConfig.field;
+    var field = summaryChangeField(currentModel, windowConfig.field);
     var model = MODELS[currentModel];
     var locations = summary.states.map(function (entry) { return entry.ibge_code; });
     var values = summary.states.map(function (entry) {
@@ -535,7 +582,8 @@
         summary.sources.srag.latest_source_snapshot_date
       );
       document.getElementById("update-status").textContent =
-        "Atualizado em " + generated + " · SIVEP até " + snapshot;
+        "Atualizado em " + generated + " · SIVEP até " + snapshot +
+        " · InfoGripe até " + formatDate(summary.sources.infogripe.latest_week);
       select.onchange = function () { render(select.value); };
       ufWindowSelect.onchange = function () {
         currentUfWindow = ufWindowSelect.value;

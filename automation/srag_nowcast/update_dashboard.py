@@ -30,6 +30,10 @@ from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
+from infogripe import load_infogripe_nowcasts
+from infogripe_payload import attach_infogripe_payload
+from infogripe_validation import validate_infogripe_output
+
 
 STATES = OrderedDict(
     [
@@ -98,8 +102,17 @@ PROVISIONAL_LAG_DAYS = 42
 TRAIN_WEEKS = 104
 SEASONAL_WEIGHT = 0.5
 SEASONAL_HALFWIDTH = 2
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 USER_AGENT = "rafaelizbicki-srag-nowcast/1.0"
+INFOGRIPE_NOWCAST_URL = (
+    "https://raw.githubusercontent.com/infogripe/Boletim_InfoGripe/main/"
+    "Dados/InfoGripe/"
+    "estados_e_pais_serie_estimativas_tendencia_sem_filtro_febre.csv"
+)
+INFOGRIPE_CREDIT = (
+    "InfoGripe — MAVE (PROCC/Fiocruz e EMap/FGV) e "
+    "GT-Influenza/Ministério da Saúde"
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -130,6 +143,17 @@ def parse_args() -> argparse.Namespace:
         help="Build all models from previously collected UF checkpoints.",
     )
     parser.add_argument("--max-trends-age-days", type=float, default=9.0)
+    parser.add_argument(
+        "--infogripe-url",
+        default=INFOGRIPE_NOWCAST_URL,
+        help="Official current-view InfoGripe state/Brazil nowcast CSV.",
+    )
+    parser.add_argument(
+        "--infogripe-file",
+        type=Path,
+        help="Read an already downloaded InfoGripe CSV instead of fetching it.",
+    )
+    parser.add_argument("--max-infogripe-age-days", type=float, default=21.0)
     parser.add_argument("--timeframe", default="today 5-y")
     parser.add_argument("--ufs", nargs="+", default=list(STATES))
     parser.add_argument("--trends-sleep", type=float, default=8.0)
@@ -1130,6 +1154,7 @@ def validate_output(output_dir: Path, expected_ufs: list[str] | None = None) -> 
         raise RuntimeError(f"Unexpected UF list: {ufs}")
     if len(set(ufs)) != len(ufs):
         raise RuntimeError("Duplicate UFs in dashboard summary")
+    validate_infogripe_output(output_dir, summary, ufs)
     for uf in ["BR", *ufs]:
         path = output_dir / "states" / f"{uf}.json"
         payload = json.loads(path.read_text(encoding="utf-8"))
@@ -1242,6 +1267,20 @@ def main() -> int:
             ufs, start, end, args.cache_dir, args.max_retries
         )
 
+    infogripe, infogripe_meta = load_infogripe_nowcasts(
+        source_url=args.infogripe_url,
+        source_file=args.infogripe_file,
+        max_retries=args.max_retries,
+        max_age_days=args.max_infogripe_age_days,
+        expected_ufs=["BR", *ufs],
+        user_agent=USER_AGENT,
+        credit=INFOGRIPE_CREDIT,
+    )
+    print(
+        f"InfoGripe: {len(infogripe):,} rows through "
+        f"{infogripe_meta['latest_week']}", flush=True
+    )
+
     state_payloads: dict[str, dict[str, object]] = {}
     backtests: list[pd.DataFrame] = []
     for index, uf in enumerate(ufs, start=1):
@@ -1249,10 +1288,12 @@ def main() -> int:
         payload, backtest = build_state_payload(
             uf, trends[uf], srag[uf], args.keep_weeks
         )
+        attach_infogripe_payload(payload, infogripe)
         state_payloads[uf] = payload
         backtests.append(backtest)
 
     brazil = build_brazil_payload(state_payloads, backtests)
+    attach_infogripe_payload(brazil, infogripe)
     output_parent = args.output_dir.parent
     output_parent.mkdir(parents=True, exist_ok=True)
     staging = Path(
@@ -1285,6 +1326,7 @@ def main() -> int:
             "sources": {
                 "google_trends": trends_meta,
                 "srag": srag_meta,
+                "infogripe": infogripe_meta,
             },
             "default_state": "BR",
             "brazil": summary_entry(brazil),
