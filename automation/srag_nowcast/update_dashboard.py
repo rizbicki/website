@@ -3,7 +3,7 @@
 
 The production model is state-specific. It trains on the latest 104 consolidated
 weeks, uses same-week Google Trends for gripe, sintomas gripe, and tosse, and
-combines a LASSO estimate with the observed value from 52 weeks earlier.
+combines a LASSO estimate with a smoothed annual baseline at 52 +/- 2 weeks.
 """
 
 from __future__ import annotations
@@ -97,6 +97,7 @@ DATASET_URL = "https://dadosabertos.saude.gov.br/dataset/srag-2019-a-2026"
 PROVISIONAL_LAG_DAYS = 42
 TRAIN_WEEKS = 104
 SEASONAL_WEIGHT = 0.5
+SEASONAL_HALFWIDTH = 2
 SCHEMA_VERSION = 1
 USER_AGENT = "rafaelizbicki-srag-nowcast/1.0"
 
@@ -781,9 +782,16 @@ def prepare_state_frame(
     ]
     data = features.merge(srag[target_columns], on="week_start", how="inner")
     data = data.sort_values("week_start").reset_index(drop=True)
-    data["seasonal_week"] = data["week_start"] - pd.Timedelta(weeks=52)
     seasonal = data.set_index("week_start")["srag_cases"]
-    data["seasonal_naive"] = data["seasonal_week"].map(seasonal)
+    seasonal_values = []
+    for shift in range(-SEASONAL_HALFWIDTH, SEASONAL_HALFWIDTH + 1):
+        seasonal_week = data["week_start"] - pd.Timedelta(
+            weeks=52 - shift
+        )
+        seasonal_values.append(seasonal_week.map(seasonal))
+    data["seasonal_naive"] = pd.concat(seasonal_values, axis=1).mean(
+        axis=1, skipna=True
+    )
     return data
 
 
@@ -808,7 +816,7 @@ def build_state_payload(
     if target.empty:
         raise RuntimeError(f"{uf}: no recent week available for nowcasting")
     if target["seasonal_naive"].isna().any():
-        raise RuntimeError(f"{uf}: missing 52-week seasonal baseline")
+        raise RuntimeError(f"{uf}: missing smoothed annual baseline")
 
     fitted, alpha, cv_mae = choose_alpha(train)
     target["lasso"] = np.clip(fitted.predict(target[TERMS]), 0, None)
@@ -1261,7 +1269,7 @@ def main() -> int:
             "generated_at_utc": now_utc().isoformat(),
             "terms": TERMS,
             "model": {
-                "name": "50% LASSO + 50% seasonal lag-52 nowcast",
+                "name": "50% LASSO + 50% smoothed annual nowcast",
                 "training_weeks": TRAIN_WEEKS,
                 "consolidation_lag_days": PROVISIONAL_LAG_DAYS,
                 "interval": (

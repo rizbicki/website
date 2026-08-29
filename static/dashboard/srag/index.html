@@ -7,7 +7,7 @@
   <title>Nowcast de SRAG no Brasil</title>
   <link rel="stylesheet" href="/dashboard/srag/styles.css">
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
-  <script src="/dashboard/srag/app.js" defer></script>
+  <script src="/dashboard/srag/app.js?v=20260829" defer></script>
 </head>
 <body>
   <header class="hero">
@@ -35,7 +35,7 @@
       <label for="model-select">Modelo</label>
       <select id="model-select">
         <option value="ensemble">Agregado (LASSO + sazonal)</option>
-        <option value="seasonal">Sazonal (ano anterior)</option>
+        <option value="seasonal">Sazonal (ano anterior suavizado)</option>
         <option value="lasso">Trends (Google Trends)</option>
       </select>
       <button id="retry-button" type="button" hidden>Tentar novamente</button>
@@ -176,7 +176,7 @@
     <section id="panel-methodology" role="tabpanel" aria-labelledby="tab-methodology" hidden>
       <section class="method">
         <h2>Metodologia</h2>
-        <p>O modelo é estimado separadamente para cada uma das 27 unidades federativas. Para cada estado, um LASSO é treinado nas 104 semanas mais recentes já consolidadas, usando como preditores os índices semanais do Google Trends para os termos <em>gripe</em>, <em>sintomas gripe</em> e <em>tosse</em> na própria semana. A estimativa final é a média entre esse LASSO e um método sazonal ingênuo: o valor observado de SRAG na mesma semana do ano anterior (52 semanas antes).</p>
+        <p>O modelo é estimado separadamente para cada uma das 27 unidades federativas. Para cada estado, um LASSO é treinado nas 104 semanas mais recentes já consolidadas, usando como preditores os índices semanais do Google Trends para os termos <em>gripe</em>, <em>sintomas gripe</em> e <em>tosse</em> na própria semana. A estimativa final é a média entre esse LASSO e um componente sazonal suavizado: a média dos valores observados de SRAG entre 50 e 54 semanas antes.</p>
         <p>O agregado Brasil é a soma das 27 estimativas estaduais — não é um modelo treinado separadamente para o país. As faixas de 80% são conformais: usam os percentis 10 e 90 dos resíduos fora da amostra (out-of-fold) de cada modelo. A faixa do Brasil é calibrada a partir dos resíduos da soma das estimativas estaduais, e não da soma das faixas estaduais.</p>
         <p>No mapa de nowcast, as estimativas são apresentadas em casos por 100 mil habitantes, usando a população residente do Censo Demográfico 2022 do IBGE. Os demais valores são contagens absolutas; o mapa de variação mostra percentuais. As métricas de desempenho histórico usam as mesmas previsões fora da amostra que calibram os modelos.</p>
         <p>Este é um <strong>nowcast</strong>, não uma previsão: ele estima semanas que já ocorreram, mas cuja notificação ainda está incompleta por atraso no sistema de vigilância. Um caso só entra como "consolidado" depois de um número mínimo de dias desde o início dos sintomas; semanas mais recentes do que isso aparecem como provisórias no gráfico.</p>

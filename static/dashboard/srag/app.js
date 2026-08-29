@@ -31,7 +31,7 @@
     },
     seasonal: {
       value: "seasonal", lower: "seasonal_lower80", upper: "seasonal_upper80",
-      seriesLabel: "Sazonal", cardLabel: "Sazonal (ano anterior)"
+      seriesLabel: "Sazonal", cardLabel: "Sazonal (ano anterior suavizado)"
     },
     lasso: {
       value: "lasso", lower: "lasso_lower80", upper: "lasso_upper80",

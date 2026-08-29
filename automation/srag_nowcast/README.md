@@ -7,8 +7,9 @@ This directory contains the production pipeline used by the SRAG dashboard at
 
 For each Brazilian state, the model uses the same-week Google Trends values for
 `gripe`, `sintomas gripe`, and `tosse`. A LASSO fitted on the latest 104
-consolidated weeks is averaged with a seasonal lag-52 estimate. The result is a
-same-week **nowcast**, not a forecast for an unobserved future week.
+consolidated weeks is averaged with the mean observed at lag 52 +/- 2 weeks.
+The result is a same-week **nowcast**, not a forecast for an unobserved future
+week.
 
 The Brazil estimate is the sum of the 27 state estimates. The 80% bands are
 empirical, based on time-series out-of-fold residuals. The nationwide band is
