@@ -887,6 +887,49 @@ def build_brazil_payload(
     state_payloads: dict[str, dict[str, object]],
     state_backtests: list[pd.DataFrame],
 ) -> dict[str, object]:
+    backtest_pieces: list[pd.DataFrame] = []
+    backtest_columns = [
+        "week_start",
+        "srag_cases",
+        "lasso",
+        "seasonal_naive",
+        "ensemble",
+    ]
+    for state_index, state_backtest in enumerate(state_backtests):
+        if state_backtest["week_start"].duplicated().any():
+            raise RuntimeError("Duplicate state backtest week")
+        piece = state_backtest[backtest_columns].copy()
+        piece["state_index"] = state_index
+        backtest_pieces.append(piece)
+    backtest = pd.concat(backtest_pieces, ignore_index=True)
+    state_count = len(state_backtests)
+    complete_weeks = (
+        backtest.groupby("week_start")["state_index"].nunique().eq(state_count)
+    )
+    complete_weeks = complete_weeks.index[complete_weeks]
+    national_backtest = (
+        backtest.loc[backtest["week_start"].isin(complete_weeks)]
+        .groupby("week_start", as_index=False)[backtest_columns[1:]]
+        .sum(min_count=state_count)
+        .dropna()
+        .sort_values("week_start")
+    )
+    if national_backtest.empty:
+        raise RuntimeError("No common nationwide backtest week")
+
+    model_columns = {
+        "lasso": "lasso",
+        "seasonal": "seasonal_naive",
+        "ensemble": "ensemble",
+    }
+    national_intervals: dict[str, tuple[float, float]] = {}
+    for name, column in model_columns.items():
+        residual = national_backtest["srag_cases"] - national_backtest[column]
+        national_intervals[name] = (
+            float(residual.quantile(0.10)),
+            float(residual.quantile(0.90)),
+        )
+
     rows: list[dict[str, object]] = []
     state_series = []
     for uf, payload in state_payloads.items():
@@ -896,54 +939,43 @@ def build_brazil_payload(
     combined = pd.concat(state_series, ignore_index=True)
     for week, group in combined.groupby("week", sort=True):
         nowcast_values = group["nowcast"].dropna()
+        all_states_nowcast = len(nowcast_values) == len(state_payloads)
+        lasso = group["lasso"].sum() if all_states_nowcast else None
+        nowcast = group["nowcast"].sum() if all_states_nowcast else None
+        seasonal = (
+            group["seasonal"].sum() if group["seasonal"].notna().all() else None
+        )
+
+        def interval_bound(
+            point: float | None,
+            state_bound: str,
+            model: str,
+            bound_index: int,
+        ) -> float | int | None:
+            if point is None or not group[state_bound].notna().all():
+                return None
+            return number(max(point + national_intervals[model][bound_index], 0))
+
         rows.append(
             {
                 "week": week,
                 "observed": number(group["observed"].sum()),
-                "seasonal": (
-                    number(group["seasonal"].sum())
-                    if group["seasonal"].notna().all()
-                    else None
+                "seasonal": number(seasonal),
+                "lasso": number(lasso),
+                "nowcast": number(nowcast),
+                "lower80": interval_bound(nowcast, "lower80", "ensemble", 0),
+                "upper80": interval_bound(nowcast, "upper80", "ensemble", 1),
+                "lasso_lower80": interval_bound(
+                    lasso, "lasso_lower80", "lasso", 0
                 ),
-                "lasso": (
-                    number(group["lasso"].sum())
-                    if len(nowcast_values) == len(state_payloads)
-                    else None
+                "lasso_upper80": interval_bound(
+                    lasso, "lasso_upper80", "lasso", 1
                 ),
-                "nowcast": (
-                    number(group["nowcast"].sum())
-                    if len(nowcast_values) == len(state_payloads)
-                    else None
+                "seasonal_lower80": interval_bound(
+                    seasonal, "seasonal_lower80", "seasonal", 0
                 ),
-                "lower80": (
-                    number(group["lower80"].sum())
-                    if group["lower80"].notna().all()
-                    else None
-                ),
-                "upper80": (
-                    number(group["upper80"].sum())
-                    if group["upper80"].notna().all()
-                    else None
-                ),
-                "lasso_lower80": (
-                    number(group["lasso_lower80"].sum())
-                    if group["lasso_lower80"].notna().all()
-                    else None
-                ),
-                "lasso_upper80": (
-                    number(group["lasso_upper80"].sum())
-                    if group["lasso_upper80"].notna().all()
-                    else None
-                ),
-                "seasonal_lower80": (
-                    number(group["seasonal_lower80"].sum())
-                    if group["seasonal_lower80"].notna().all()
-                    else None
-                ),
-                "seasonal_upper80": (
-                    number(group["seasonal_upper80"].sum())
-                    if group["seasonal_upper80"].notna().all()
-                    else None
+                "seasonal_upper80": interval_bound(
+                    seasonal, "seasonal_upper80", "seasonal", 1
                 ),
                 "provisional": bool(group["provisional"].any()),
                 "reporting_lag_days": number(
@@ -952,14 +984,6 @@ def build_brazil_payload(
             }
         )
 
-    backtest = pd.concat(state_backtests, ignore_index=True)
-    national_backtest = (
-        backtest.groupby("week_start", as_index=False)[
-            ["srag_cases", "lasso", "seasonal_naive", "ensemble"]
-        ]
-        .sum()
-        .sort_values("week_start")
-    )
     score = {
         "lasso": metrics(national_backtest["srag_cases"], national_backtest["lasso"]),
         "seasonal": metrics(
@@ -995,7 +1019,10 @@ def build_brazil_payload(
             "cutoff": min(cutoffs),
             "weeks": TRAIN_WEEKS,
             "terms": TERMS,
-            "note": "The Brazil point estimate is the sum of the 27 state nowcasts.",
+            "note": (
+                "The Brazil point estimate is the sum of the state nowcasts; "
+                "its interval is calibrated from their summed out-of-fold residuals."
+            ),
         },
         "backtest": score,
         "latest": latest,
@@ -1163,7 +1190,7 @@ def main() -> int:
                 "interval": (
                     "Conformal 80% band: empirical 10th/90th percentile of "
                     "time-series out-of-fold residuals added to the point forecast. "
-                    "The Brazil band is the sum of state bands and is approximate."
+                    "The Brazil band uses residuals of the summed state nowcasts."
                 ),
                 "interpretation": (
                     "Same-week nowcast after Google Trends is observed; "

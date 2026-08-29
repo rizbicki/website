@@ -12,7 +12,7 @@ same-week **nowcast**, not a forecast for an unobserved future week.
 
 The Brazil estimate is the sum of the 27 state estimates. The 80% bands are
 empirical, based on time-series out-of-fold residuals. The nationwide band is
-the sum of the state bands and should be treated as approximate.
+calibrated from residuals of the summed state nowcasts.
 
 ## Production schedule
 
