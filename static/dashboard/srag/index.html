@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Nowcast semanal de casos de SRAG no Brasil com Google Trends e sazonalidade.">
   <title>Nowcast de SRAG no Brasil</title>
-  <link rel="stylesheet" href="/dashboard/srag/styles.css">
+  <link rel="stylesheet" href="/dashboard/srag/styles.css?v=20260830-infogripe-scaled">
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
-  <script src="/dashboard/srag/app.js?v=20260829-state-title" defer></script>
+  <script src="/dashboard/srag/app.js?v=20260830-infogripe-band" defer></script>
 </head>
 <body>
   <header class="hero">
@@ -35,6 +35,7 @@
       <label for="model-select">Modelo</label>
       <select id="model-select">
         <option value="ensemble">Agregado (LASSO + sazonal)</option>
+        <option value="combined">Combinado experimental (+ InfoGripe)</option>
         <option value="seasonal">Sazonal (ano anterior suavizado)</option>
         <option value="lasso">Trends (Google Trends)</option>
       </select>
@@ -42,6 +43,16 @@
     </section>
 
     <section id="error-panel" class="error-panel" hidden role="alert"></section>
+    <aside id="model-note" class="model-note" hidden>
+      <strong>Modo experimental.</strong>
+      A série do InfoGripe é primeiro ajustada da sua definição sintomática para o
+      alvo de todos os casos de SRAG do painel, usando a razão das 13 semanas
+      consolidadas mais recentes. Depois, a estimativa combina com pesos iguais o
+      InfoGripe ajustado e o modelo de Trends + sazonalidade. A faixa laranja mostra
+      o intervalo de 80% do InfoGripe, a faixa roxa representa os quantis da mistura
+      e a faixa cinza externa mostra o envelope dos dois intervalos. O peso
+      de 50% ainda não foi escolhido por desempenho histórico.
+    </aside>
 
     <section id="dashboard" hidden>
       <div class="headline">
@@ -85,7 +96,7 @@
             <p id="series-title" class="eyebrow">Série semanal</p>
             <h3>Casos observados e nowcast</h3>
           </div>
-          <p class="muted">A faixa mostra um intervalo conformal de 80%.</p>
+          <p class="muted" id="interval-description">A faixa mostra um intervalo conformal de 80%.</p>
         </div>
         <div id="series-chart" class="chart" aria-label="Gráfico temporal de casos de SRAG"></div>
       </section>
@@ -178,6 +189,8 @@
         <h2>Metodologia</h2>
         <p>O modelo é estimado separadamente para cada uma das 27 unidades federativas. Para cada estado, um LASSO é treinado nas 104 semanas mais recentes já consolidadas, usando como preditores os índices semanais do Google Trends para os termos <em>gripe</em>, <em>sintomas gripe</em> e <em>tosse</em> na própria semana. A estimativa final é a média entre esse LASSO e um componente sazonal suavizado: a média dos valores observados de SRAG entre 50 e 54 semanas antes.</p>
         <p>O agregado Brasil é a soma das 27 estimativas estaduais — não é um modelo treinado separadamente para o país. As faixas de 80% são conformais: usam os percentis 10 e 90 dos resíduos fora da amostra (out-of-fold) de cada modelo. A faixa do Brasil é calibrada a partir dos resíduos da soma das estimativas estaduais, e não da soma das faixas estaduais.</p>
+        <p>O modo <strong>Combinado experimental</strong> acrescenta o nowcast publicado pelo InfoGripe. Como essa série usa uma definição sintomática mais restrita, ela é multiplicada, em cada UF, pela razão entre todos os registros de SRAG e os registros que satisfazem esse filtro nas 13 semanas consolidadas mais recentes (com pelo menos 8 semanas disponíveis). Assim, os dois componentes passam a estimar o mesmo alvo antes da combinação. Cada previsão é reconstruída como uma distribuição assimétrica na escala <code>log1p</code>, compatível com seu ponto e seus limites de 80%. As duas distribuições são misturadas com pesos iguais. O ponto exibido é a média 50/50; a faixa laranja mostra os limites de 80% publicados pelo InfoGripe após o mesmo ajuste de escala; a faixa roxa contém os quantis 10 e 90 da mistura e tende a se abrir quando os modelos discordam. A faixa cinza é apenas o envelope conservador dos dois intervalos.</p>
+        <p>Esse intervalo combinado <strong>ainda não é calibrado historicamente</strong>. O arquivo público do InfoGripe é uma visão corrente: previsões antigas são revistas conforme chegam notificações. Por isso estamos acumulando snapshots semanais imutáveis antes de estimar o peso <em>w</em> ou reportar cobertura e erro do modo combinado. Para o Brasil, a mistura compara o nosso agregado estadual à série Brasil ajustada independentemente pelo InfoGripe; seu ponto não precisa coincidir com a soma das misturas estaduais.</p>
         <p>No mapa de nowcast, as estimativas são apresentadas em casos por 100 mil habitantes, usando a população residente do Censo Demográfico 2022 do IBGE. Os demais valores são contagens absolutas; o mapa de variação mostra percentuais. As métricas de desempenho histórico usam as mesmas previsões fora da amostra que calibram os modelos.</p>
         <p>Este é um <strong>nowcast</strong>, não uma previsão: ele estima semanas que já ocorreram, mas cuja notificação ainda está incompleta por atraso no sistema de vigilância. Um caso só entra como "consolidado" depois de um número mínimo de dias desde o início dos sintomas; semanas mais recentes do que isso aparecem como provisórias no gráfico.</p>
 
@@ -189,7 +202,7 @@
 
         <h3>Limitações</h3>
         <p>Os índices do Google Trends são normalizados de 0 a 100 separadamente para cada estado e não devem ser comparados diretamente entre UFs. A amostragem do Trends pode variar levemente entre extrações. As estimativas são experimentais e não substituem os dados oficiais do Ministério da Saúde.</p>
-        <p class="sources">Fontes: SIVEP-Gripe / Ministério da Saúde, Google Trends e Censo Demográfico 2022 / IBGE.</p>
+        <p class="sources">Fontes: SIVEP-Gripe / Ministério da Saúde, Google Trends, InfoGripe / Fiocruz e Censo Demográfico 2022 / IBGE.</p>
       </section>
     </section>
   </main>

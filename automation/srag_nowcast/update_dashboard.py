@@ -18,8 +18,10 @@ import sys
 import tempfile
 import time
 from collections import OrderedDict
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
+from io import StringIO
 from pathlib import Path
+from statistics import NormalDist
 
 import numpy as np
 import pandas as pd
@@ -100,6 +102,21 @@ SEASONAL_WEIGHT = 0.5
 SEASONAL_HALFWIDTH = 2
 SCHEMA_VERSION = 1
 USER_AGENT = "rafaelizbicki-srag-nowcast/1.0"
+INFOGRIPE_NOWCAST_URL = (
+    "https://raw.githubusercontent.com/infogripe/Boletim_InfoGripe/main/"
+    "Dados/InfoGripe/"
+    "estados_e_pais_serie_estimativas_tendencia_sem_filtro_febre.csv"
+)
+INFOGRIPE_FILTER_COLUMNS = [
+    "TOSSE", "GARGANTA", "DISPNEIA", "SATURACAO", "DESC_RESP",
+    "HOSPITAL", "EVOLUCAO",
+]
+MIXTURE_LOCAL_WEIGHT = 0.5
+MIXTURE_TAIL = 0.10
+INFOGRIPE_SCALE_WEEKS = 13
+INFOGRIPE_MIN_SCALE_WEEKS = 8
+NORMAL = NormalDist()
+Z90 = NORMAL.inv_cdf(0.90)
 
 
 def parse_args() -> argparse.Namespace:
@@ -144,6 +161,21 @@ def parse_args() -> argparse.Namespace:
         "--validate-output",
         action="store_true",
         help="Only validate an existing output directory.",
+    )
+    parser.add_argument(
+        "--infogripe-file",
+        type=Path,
+        help="Use a pinned InfoGripe CSV instead of fetching its current view.",
+    )
+    parser.add_argument(
+        "--skip-infogripe",
+        action="store_true",
+        help="Build without the experimental InfoGripe mixture.",
+    )
+    parser.add_argument(
+        "--pin-local-sivep",
+        action="store_true",
+        help="Use only cached SIVEP Parquets and skip online discovery.",
     )
     return parser.parse_args()
 
@@ -199,6 +231,178 @@ def retry_get(url: str, max_retries: int, stream: bool = False) -> requests.Resp
             time.sleep(delay)
     assert last_error is not None
     raise last_error
+
+
+def epiweek_start(year: int, week: int) -> pd.Timestamp:
+    """Return the Sunday starting a Brazilian/MMWR epidemiological week."""
+    jan_fourth = date(int(year), 1, 4)
+    first_sunday = jan_fourth - timedelta(days=(jan_fourth.weekday() + 1) % 7)
+    next_jan_fourth = date(int(year) + 1, 1, 4)
+    next_first = next_jan_fourth - timedelta(
+        days=(next_jan_fourth.weekday() + 1) % 7
+    )
+    result = first_sunday + timedelta(weeks=int(week) - 1)
+    if int(week) < 1 or result >= next_first:
+        raise ValueError(f"Invalid epidemiological year/week: {year}/{week}")
+    return pd.Timestamp(result)
+
+
+def normalise_infogripe(raw: pd.DataFrame) -> pd.DataFrame:
+    required = {
+        "IC80I",
+        "IC80S",
+        "Casos semanais reportados até a última atualização",
+        "casos estimados",
+        "Semana epidemiológica",
+        "Ano epidemiológico",
+        "DS_UF_SIGLA",
+        "escala",
+    }
+    missing = sorted(required - set(raw.columns))
+    if missing:
+        raise RuntimeError(f"InfoGripe CSV lacks columns: {missing}")
+    frame = raw.loc[raw["escala"].astype(str).str.strip().eq("casos")].copy()
+    frame["uf"] = frame["DS_UF_SIGLA"].astype(str).str.strip().str.upper()
+    frame = frame.loc[frame["uf"].isin(set(STATES) | {"BR"})].copy()
+    frame["week_start"] = [
+        epiweek_start(year, week)
+        for year, week in zip(
+            frame["Ano epidemiológico"], frame["Semana epidemiológica"]
+        )
+    ]
+    frame = frame.rename(
+        columns={
+            "Casos semanais reportados até a última atualização": "reported",
+            "casos estimados": "mean",
+            "IC80I": "lower80",
+            "IC80S": "upper80",
+        }
+    )[["uf", "week_start", "reported", "mean", "lower80", "upper80"]]
+    for column in ["reported", "mean", "lower80", "upper80"]:
+        frame[column] = pd.to_numeric(frame[column], errors="coerce")
+    if frame[["uf", "week_start"]].duplicated().any():
+        raise RuntimeError("Duplicate UF + week in InfoGripe CSV")
+    if frame["mean"].isna().any() or (frame["mean"] < 0).any():
+        raise RuntimeError("InfoGripe CSV has invalid point estimates")
+    complete = frame[["lower80", "upper80"]].notna().all(axis=1)
+    invalid = (
+        (frame.loc[complete, "lower80"] < 0)
+        | (frame.loc[complete, "lower80"] > frame.loc[complete, "mean"])
+        | (frame.loc[complete, "mean"] > frame.loc[complete, "upper80"])
+    )
+    if invalid.any():
+        raise RuntimeError("InfoGripe CSV has invalid 80% intervals")
+    return frame.sort_values(["uf", "week_start"]).reset_index(drop=True)
+
+
+def load_infogripe(
+    path: Path | None, max_retries: int
+) -> tuple[pd.DataFrame, dict[str, object]]:
+    retrieved_at = now_utc().isoformat()
+    source_name = "InfoGripe (MAVE/Fiocruz and GT-Influenza/MS)"
+    if path is None:
+        response = retry_get(INFOGRIPE_NOWCAST_URL, max_retries)
+        raw = pd.read_csv(StringIO(response.text), sep=";", decimal=",")
+        source_url = INFOGRIPE_NOWCAST_URL
+    else:
+        comma = pd.read_csv(path)
+        normalized = ["uf", "week_start", "reported", "mean", "lower80", "upper80"]
+        if set(normalized).issubset(comma.columns):
+            frame = comma[normalized].copy()
+            frame["week_start"] = pd.to_datetime(frame["week_start"]).astype("datetime64[s]")
+            frame["uf"] = frame["uf"].astype(str).str.upper()
+            complete = frame[["lower80", "upper80"]].notna().all(axis=1)
+            invalid = (
+                frame["mean"].isna()
+                | (frame["mean"] < 0)
+                | (complete & (frame["lower80"] < 0))
+                | (complete & (frame["lower80"] > frame["mean"]))
+                | (complete & (frame["mean"] > frame["upper80"]))
+            )
+            if invalid.any() or frame[["uf", "week_start"]].duplicated().any():
+                raise RuntimeError("Archived InfoGripe CSV has invalid predictions")
+            frame = frame.sort_values(["uf", "week_start"]).reset_index(drop=True)
+            raw = None
+        else:
+            raw = pd.read_csv(path, sep=";", decimal=",")
+        manifest_path = path.parent / "manifest.json"
+        if manifest_path.exists():
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            source_name = str(manifest.get("source", source_name))
+            source_url = manifest.get("source_url")
+            retrieved_at = str(manifest.get("retrieved_at_utc", retrieved_at))
+        else:
+            source_url = None
+    if raw is not None:
+        frame = normalise_infogripe(raw)
+    return frame, {
+        "source": source_name,
+        "url": source_url,
+        "retrieved_at_utc": retrieved_at,
+        "rows": len(frame),
+        "first_week": frame["week_start"].min().date().isoformat(),
+        "last_week": frame["week_start"].max().date().isoformat(),
+        "note": (
+            "Current-view estimates are revised in place; dated weekly snapshots "
+            "are archived separately before weights are learned."
+        ),
+    }
+
+
+def component_cdf(
+    value: float, mean: float, lower80: float, upper80: float
+) -> float:
+    if value < 0:
+        return 0.0
+    log_value = math.log1p(value)
+    log_center = math.log1p(mean)
+    if value < mean:
+        scale = max((log_center - math.log1p(lower80)) / Z90, 1e-12)
+    else:
+        scale = max((math.log1p(upper80) - log_center) / Z90, 1e-12)
+    return NORMAL.cdf((log_value - log_center) / scale)
+
+
+def mixture_quantile(
+    probability: float,
+    local: tuple[float, float, float],
+    official: tuple[float, float, float],
+) -> float:
+    def cdf(value: float) -> float:
+        return MIXTURE_LOCAL_WEIGHT * component_cdf(value, *local) + (
+            1 - MIXTURE_LOCAL_WEIGHT
+        ) * component_cdf(value, *official)
+
+    if cdf(0) >= probability:
+        return 0.0
+    low = 0.0
+    high = max(local[0], local[2], official[0], official[2], 1.0)
+    while cdf(high) < probability:
+        high = 2 * high + 1
+    for _ in range(80):
+        middle = (low + high) / 2
+        if cdf(middle) < probability:
+            low = middle
+        else:
+            high = middle
+    return (low + high) / 2
+
+
+def mix_predictions(
+    local: tuple[float, float, float],
+    official: tuple[float, float, float],
+) -> dict[str, float]:
+    for mean, lower, upper in (local, official):
+        if not 0 <= lower <= mean <= upper:
+            raise RuntimeError("Invalid component interval for predictive mixture")
+    return {
+        "mean": MIXTURE_LOCAL_WEIGHT * local[0]
+        + (1 - MIXTURE_LOCAL_WEIGHT) * official[0],
+        "lower80": mixture_quantile(MIXTURE_TAIL, local, official),
+        "upper80": mixture_quantile(1 - MIXTURE_TAIL, local, official),
+        "envelope_lower": min(local[1], official[1]),
+        "envelope_upper": max(local[2], official[2]),
+    }
 
 
 def trend_cache_paths(cache_dir: Path, uf: str) -> tuple[Path, Path]:
@@ -355,7 +559,7 @@ def fetch_trends(
                 )
                 if "is_partial" not in frame:
                     frame["is_partial"] = False
-                frame["week_start"] = pd.to_datetime(frame["week_start"])
+                frame["week_start"] = pd.to_datetime(frame["week_start"]).astype("datetime64[s]")
                 missing = sorted(set(TERMS) - set(frame.columns))
                 if missing:
                     raise RuntimeError(
@@ -544,18 +748,66 @@ def common_complete_period(
     return start, end
 
 
+def local_srag_resources(cache_dir: Path) -> dict[int, dict[str, object]]:
+    """Reconstruct immutable resource records from cached SIVEP Parquets."""
+    resources: dict[int, dict[str, object]] = {}
+    for path in sorted(cache_dir.glob("srag_*_*.parquet")):
+        match = re.fullmatch(r"srag_(20\d{2})_(\d{4}-\d{2}-\d{2})", path.stem)
+        if not match:
+            continue
+        year = int(match.group(1))
+        snapshot = date.fromisoformat(match.group(2))
+        resources[year] = {
+            "name": (
+                f"{year}-SRAG hospitalizado "
+                f"{snapshot.strftime('%d/%m/%Y')} PARQUET"
+            ),
+            "url": path.resolve().as_uri(),
+        }
+    if not resources:
+        raise RuntimeError(f"No cached SIVEP Parquet files in {cache_dir}")
+    return resources
+
+
+def infogripe_case_mask(records: pd.DataFrame) -> pd.Series:
+    """Select the symptom-filtered case definition used by InfoGripe."""
+    missing = sorted(set(INFOGRIPE_FILTER_COLUMNS) - set(records.columns))
+    if missing:
+        raise RuntimeError(f"SIVEP data lacks InfoGripe filter columns: {missing}")
+    coded = records[INFOGRIPE_FILTER_COLUMNS].astype("string")
+    upper_respiratory = coded["TOSSE"].eq("1") | coded["GARGANTA"].eq("1")
+    severe_respiratory = (
+        coded["DISPNEIA"].eq("1")
+        | coded["SATURACAO"].eq("1")
+        | coded["DESC_RESP"].eq("1")
+    )
+    hospitalized_or_dead = coded["HOSPITAL"].eq("1") | coded["EVOLUCAO"].isin(
+        ["2", "3"]
+    )
+    return (
+        upper_respiratory & severe_respiratory & hospitalized_or_dead
+    ).fillna(False)
+
+
 def fetch_srag_all(
     ufs: list[str],
     start: pd.Timestamp,
     end: pd.Timestamp,
     cache_dir: Path,
     max_retries: int,
+    resources: dict[int, dict[str, object]] | None = None,
 ) -> tuple[dict[str, pd.DataFrame], dict[str, object]]:
     years = list(range(start.year, end.year + 1))
-    resources = discover_srag_resources(years, max_retries)
+    if resources is None:
+        resources = discover_srag_resources(years, max_retries)
+    missing = sorted(set(years) - set(resources))
+    if missing:
+        raise RuntimeError(f"No SRAG resource for years: {missing}")
     frames: list[pd.DataFrame] = []
     resource_metadata: list[dict[str, object]] = []
-    columns = ["NU_NOTIFIC", "DT_SIN_PRI", "SG_UF"]
+    columns = [
+        "NU_NOTIFIC", "DT_SIN_PRI", "SG_UF", *INFOGRIPE_FILTER_COLUMNS
+    ]
 
     for year in years:
         resource = resources[year]
@@ -596,8 +848,10 @@ def fetch_srag_all(
     records["week_start"] = onset - pd.to_timedelta(
         (onset.dt.dayofweek + 1) % 7, unit="D"
     )
-    grouped = (
-        records.groupby(["SG_UF", "week_start"]).size().rename("srag_cases")
+    records["infogripe_filtered"] = infogripe_case_mask(records)
+    grouped = records.groupby(["SG_UF", "week_start"]).agg(
+        srag_cases=("NU_NOTIFIC", "size"),
+        infogripe_filtered_cases=("infogripe_filtered", "sum"),
     )
     calendar = pd.MultiIndex.from_product(
         [ufs, pd.date_range(start, end, freq="7D")],
@@ -623,6 +877,11 @@ def fetch_srag_all(
         "url": DATASET_URL,
         "retrieved_at_utc": now_utc().isoformat(),
         "latest_source_snapshot_date": latest_snapshot.isoformat(),
+        "infogripe_filter": (
+            "(TOSSE = 1 or GARGANTA = 1) and "
+            "(DISPNEIA = 1 or SATURACAO = 1 or DESC_RESP = 1) and "
+            "(HOSPITAL = 1 or EVOLUCAO in {2, 3})"
+        ),
         "resources": resource_metadata,
     }
     return by_state, metadata
@@ -777,6 +1036,7 @@ def prepare_state_frame(
     target_columns = [
         "week_start",
         "srag_cases",
+        "infogripe_filtered_cases",
         "reporting_lag_days_at_snapshot",
         "is_partial_week",
     ]
@@ -793,6 +1053,144 @@ def prepare_state_frame(
         axis=1, skipna=True
     )
     return data
+
+
+UNSCORED_MIXTURE = {
+    "n": None,
+    "mae": None,
+    "rmse": None,
+    "wape_percent": None,
+    "bias": None,
+    "correlation": None,
+    "coverage80_percent": None,
+    "mean_interval_width": None,
+    "note": (
+        "Not yet backtested: dated InfoGripe vintages are being accumulated "
+        "before the 50/50 weight and interval coverage are evaluated."
+    ),
+}
+
+
+def estimate_infogripe_total_scale(
+    rows: list[dict[str, object]],
+    window_weeks: int = INFOGRIPE_SCALE_WEEKS,
+    min_weeks: int = INFOGRIPE_MIN_SCALE_WEEKS,
+) -> float:
+    """Map the symptom-filtered InfoGripe series to the dashboard target."""
+    if window_weeks < 1 or min_weeks < 1 or min_weeks > window_weeks:
+        raise ValueError("Invalid InfoGripe scale window")
+    overlap = pd.DataFrame(
+        {
+            "week": [row["week"] for row in rows],
+            "total": [row["observed"] for row in rows],
+            "filtered": [
+                row.get("infogripe_filtered_observed") for row in rows
+            ],
+            "provisional": [row["provisional"] for row in rows],
+        }
+    )
+    overlap["week"] = pd.to_datetime(overlap["week"])
+    overlap["total"] = pd.to_numeric(overlap["total"], errors="coerce")
+    overlap["filtered"] = pd.to_numeric(overlap["filtered"], errors="coerce")
+    overlap = overlap.loc[
+        ~overlap["provisional"].map(bool_value)
+        & overlap["total"].notna()
+        & overlap["filtered"].notna()
+        & overlap["total"].ge(0)
+        & overlap["filtered"].ge(0)
+    ].sort_values("week")
+    overlap = overlap.tail(window_weeks)
+    if len(overlap) < min_weeks:
+        raise RuntimeError(
+            "InfoGripe scale has fewer than "
+            f"{min_weeks} consolidated SIVEP weeks"
+        )
+    denominator = float(overlap["filtered"].sum())
+    if denominator <= 0:
+        raise RuntimeError("InfoGripe scale has no filtered cases in its window")
+    scale = float(overlap["total"].sum()) / denominator
+    if not np.isfinite(scale) or scale <= 0:
+        raise RuntimeError("InfoGripe scale is not positive and finite")
+    return scale
+
+
+def attach_infogripe_mixture(
+    payload: dict[str, object], published: pd.DataFrame
+) -> None:
+    uf = str(payload["uf"])
+    official = published.loc[published["uf"].eq(uf)].copy()
+    official["week"] = pd.to_datetime(official["week_start"]).dt.date.astype(str)
+    if official["week"].duplicated().any():
+        raise RuntimeError(f"{uf}: duplicate InfoGripe week")
+    total_scale = estimate_infogripe_total_scale(payload["series"])
+    by_week = official.set_index("week")
+    fields = [
+        "infogripe_reported_raw",
+        "infogripe_reported",
+        "infogripe",
+        "infogripe_lower80",
+        "infogripe_upper80",
+        "combined",
+        "combined_lower80",
+        "combined_upper80",
+        "combined_envelope_lower",
+        "combined_envelope_upper",
+    ]
+    for row in payload["series"]:
+        for field in fields:
+            row[field] = None
+        if row["nowcast"] is None or row["week"] not in by_week.index:
+            continue
+        source = by_week.loc[row["week"]]
+        if pd.isna(source[["mean", "lower80", "upper80"]]).any():
+            continue
+        local = (float(row["nowcast"]), float(row["lower80"]), float(row["upper80"]))
+        info = (
+            total_scale * float(source["mean"]),
+            total_scale * float(source["lower80"]),
+            total_scale * float(source["upper80"]),
+        )
+        mixed = mix_predictions(local, info)
+        row.update(
+            {
+                "infogripe_reported_raw": number(source.get("reported")),
+                "infogripe_reported": number(
+                    total_scale * float(source["reported"])
+                ),
+                "infogripe": number(info[0]),
+                "infogripe_lower80": number(info[1]),
+                "infogripe_upper80": number(info[2]),
+                "combined": number(mixed["mean"]),
+                "combined_lower80": number(mixed["lower80"]),
+                "combined_upper80": number(mixed["upper80"]),
+                "combined_envelope_lower": number(mixed["envelope_lower"]),
+                "combined_envelope_upper": number(mixed["envelope_upper"]),
+            }
+        )
+    latest_row = next(
+        row for row in payload["series"] if row["week"] == payload["latest"]["week"]
+    )
+    payload["latest"].update({field: latest_row[field] for field in fields})
+    if payload["latest"]["combined"] is None:
+        raise RuntimeError(
+            f"{uf}: InfoGripe has no complete nowcast for the dashboard's latest week"
+        )
+    payload["backtest"]["combined"] = dict(UNSCORED_MIXTURE)
+    payload["mixture"] = {
+        "local_weight": MIXTURE_LOCAL_WEIGHT,
+        "infogripe_weight": 1 - MIXTURE_LOCAL_WEIGHT,
+        "infogripe_total_scale": number(total_scale),
+        "scale_window_weeks": INFOGRIPE_SCALE_WEEKS,
+        "source_case_definition": (
+            "(cough or sore throat) and (dyspnea or oxygen saturation below "
+            "95% or respiratory distress) and (hospitalization or death)"
+        ),
+        "target_case_definition": "all dashboard SIVEP-Gripe records",
+        "scale": "log1p",
+        "interval": "central 80% quantiles of the linear predictive pool",
+        "envelope": "minimum lower and maximum upper component bounds",
+        "status": "experimental_unscored",
+    }
 
 
 def build_state_payload(
@@ -849,6 +1247,9 @@ def build_state_payload(
             {
                 "week": row.week_start.date().isoformat(),
                 "observed": number(row.srag_cases),
+                "infogripe_filtered_observed": number(
+                    row.infogripe_filtered_cases
+                ),
                 "seasonal": number(row.seasonal_naive),
                 "lasso": number(production["lasso"]) if production is not None else None,
                 "nowcast": (
@@ -916,6 +1317,9 @@ def build_state_payload(
         "latest": {
             "week": latest["week_start"].date().isoformat(),
             "observed": number(latest["srag_cases"]),
+            "infogripe_filtered_observed": number(
+                latest["infogripe_filtered_cases"]
+            ),
             "lasso": number(latest["lasso"]),
             "seasonal": number(latest["seasonal_naive"]),
             "nowcast": number(latest["ensemble"]),
@@ -1013,6 +1417,9 @@ def build_brazil_payload(
             {
                 "week": week,
                 "observed": number(group["observed"].sum()),
+                "infogripe_filtered_observed": number(
+                    group["infogripe_filtered_observed"].sum()
+                ),
                 "seasonal": number(seasonal),
                 "lasso": number(lasso),
                 "nowcast": number(nowcast),
@@ -1162,6 +1569,25 @@ def validate_output(output_dir: Path, expected_ufs: list[str] | None = None) -> 
             "week"
         ]:
             raise RuntimeError(f"Latest week mismatch for {uf}")
+        if "infogripe" in summary.get("sources", {}):
+            combined = latest.get("combined")
+            combined_lower = latest.get("combined_lower80")
+            combined_upper = latest.get("combined_upper80")
+            envelope_lower = latest.get("combined_envelope_lower")
+            envelope_upper = latest.get("combined_envelope_upper")
+            if None in (
+                combined,
+                combined_lower,
+                combined_upper,
+                envelope_lower,
+                envelope_upper,
+            ):
+                raise RuntimeError(f"Missing latest InfoGripe mixture for {uf}")
+            if not (
+                0 <= envelope_lower <= combined_lower <= combined <= combined_upper
+                <= envelope_upper
+            ):
+                raise RuntimeError(f"Invalid latest InfoGripe mixture for {uf}")
 
 
 def publish_staged(staging: Path, output_dir: Path) -> None:
@@ -1239,7 +1665,23 @@ def main() -> int:
         start, end = common_complete_period(trends)
         print(f"Common complete Trends period: {start.date()} to {end.date()}")
         srag, srag_meta = fetch_srag_all(
-            ufs, start, end, args.cache_dir, args.max_retries
+            ufs,
+            start,
+            end,
+            args.cache_dir,
+            args.max_retries,
+            resources=(
+                local_srag_resources(args.cache_dir)
+                if args.pin_local_sivep
+                else None
+            ),
+        )
+
+    infogripe = None
+    infogripe_meta = None
+    if not args.skip_infogripe:
+        infogripe, infogripe_meta = load_infogripe(
+            args.infogripe_file, args.max_retries
         )
 
     state_payloads: dict[str, dict[str, object]] = {}
@@ -1253,6 +1695,10 @@ def main() -> int:
         backtests.append(backtest)
 
     brazil = build_brazil_payload(state_payloads, backtests)
+    if infogripe is not None:
+        for uf in ufs:
+            attach_infogripe_mixture(state_payloads[uf], infogripe)
+        attach_infogripe_mixture(brazil, infogripe)
     output_parent = args.output_dir.parent
     output_parent.mkdir(parents=True, exist_ok=True)
     staging = Path(
@@ -1285,6 +1731,11 @@ def main() -> int:
             "sources": {
                 "google_trends": trends_meta,
                 "srag": srag_meta,
+                **(
+                    {"infogripe": infogripe_meta}
+                    if infogripe is not None
+                    else {}
+                ),
             },
             "default_state": "BR",
             "brazil": summary_entry(brazil),

@@ -15,6 +15,16 @@ The Brazil estimate is the sum of the 27 state estimates. The 80% bands are
 empirical, based on time-series out-of-fold residuals. The nationwide band is
 calibrated from residuals of the summed state nowcasts.
 
+The dashboard also exposes an experimental 50/50 predictive mixture with the
+published InfoGripe nowcast. Before mixing, the symptom-filtered InfoGripe
+series is mapped to the dashboard all-SRAG target using the ratio of total to
+filter-matching SIVEP cases over the latest 13 consolidated weeks (minimum 8). Its purple band is the central 80% interval of a
+linear pool reconstructed on the `log1p` scale; a gray outer band is the
+conservative envelope of the two component intervals. This mixture is not yet
+historically calibrated, so its performance cards remain blank. Weekly,
+immutable InfoGripe snapshots are accumulated in `rizbicki/gripe` before the
+weight is learned against later consolidated SIVEP outcomes.
+
 The nowcast map displays incidence per 100,000 residents, using resident
 population from the 2022 IBGE Census. All other count displays remain absolute;
 the recent-change map remains a percentage. The historical performance section
@@ -28,8 +38,8 @@ The GitHub Actions workflow at
 daily batches from Monday through Saturday. Each state is checkpointed
 immediately in the Actions cache. On Saturday, after all 27 checkpoints are
 available, the workflow downloads or reuses the SIVEP-Gripe files, rebuilds the
-models, validates the complete JSON bundle, and commits it. Netlify then
-deploys the new site from the commit.
+models, fetches the current InfoGripe view, validates the complete JSON bundle,
+and commits it. Netlify then deploys the new site from the commit.
 
 A failed build never replaces the last validated dashboard data. The workflow
 also opens or updates a GitHub issue when an automated run fails.

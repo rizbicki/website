@@ -140,6 +140,19 @@ button {
   cursor: pointer;
 }
 
+.model-note {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  color: #4b2b65;
+  background: #f7f0fb;
+  border: 1px solid #d9c0e8;
+  border-left: 4px solid #7b2cbf;
+  border-radius: 8px;
+  line-height: 1.45;
+}
+
+.model-note strong { color: #5d1d82; }
+
 .error-panel {
   padding: 1rem;
   color: #7b2020;
