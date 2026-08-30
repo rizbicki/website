@@ -4,7 +4,6 @@ import pandas as pd
 
 from infogripe_mixture import (
     attach_infogripe_mixture,
-    estimate_infogripe_total_scale,
     mix_predictions,
 )
 
@@ -22,12 +21,13 @@ class InfoGripeMixtureTests(unittest.TestCase):
         self.assertEqual(mixed["envelope_lower"], 555)
         self.assertEqual(mixed["envelope_upper"], 1698.8)
 
-    def test_scales_point_interval_and_reported_count_to_total_srag(self):
+    def test_keeps_infogripe_on_the_filtered_srag_target(self):
         weeks = pd.date_range("2025-10-12", periods=14, freq="7D")
         history = [
             {
                 "week": week.date().isoformat(),
-                "observed": 20,
+                "observed": 10,
+                "observed_total": 20,
                 "infogripe_filtered_observed": 10,
                 "nowcast": None,
                 "provisional": False,
@@ -36,7 +36,8 @@ class InfoGripeMixtureTests(unittest.TestCase):
         ]
         latest = {
             "week": weeks[-1].date().isoformat(),
-            "observed": 5,
+            "observed": 1,
+            "observed_total": 5,
             "infogripe_filtered_observed": 1,
             "nowcast": 100,
             "lower80": 80,
@@ -67,33 +68,17 @@ class InfoGripeMixtureTests(unittest.TestCase):
         self.assertEqual(result["infogripe_raw"], 40)
         self.assertEqual(result["infogripe_raw_lower80"], 30)
         self.assertEqual(result["infogripe_raw_upper80"], 50)
-        self.assertEqual(result["infogripe_reported"], 20)
-        self.assertEqual(result["infogripe"], 80)
-        self.assertEqual(result["infogripe_lower80"], 60)
-        self.assertEqual(result["infogripe_upper80"], 100)
-        self.assertEqual(result["combined"], 90)
+        self.assertEqual(result["infogripe_reported"], 10)
+        self.assertEqual(result["infogripe"], 40)
+        self.assertEqual(result["infogripe_lower80"], 30)
+        self.assertEqual(result["infogripe_upper80"], 50)
+        self.assertEqual(result["combined"], 70)
         self.assertEqual(payload["series"][0]["infogripe_raw"], 10)
-        self.assertEqual(payload["series"][0]["infogripe"], 20)
+        self.assertEqual(payload["series"][0]["infogripe"], 10)
         self.assertIsNone(payload["series"][0]["combined"])
-        self.assertEqual(payload["mixture"]["infogripe_total_scale"], 2)
-        self.assertEqual(payload["mixture"]["scale_window_weeks"], 13)
+        self.assertEqual(payload["mixture"]["infogripe_target_scale"], 1)
         self.assertIn("infogripe", payload["backtest"])
         self.assertIn("combined", payload["backtest"])
-
-    def test_scale_requires_enough_consolidated_weeks(self):
-        rows = [
-            {
-                "week": week.date().isoformat(),
-                "observed": 20,
-                "infogripe_filtered_observed": 10,
-                "provisional": False,
-            }
-            for week in pd.date_range("2026-01-04", periods=7, freq="7D")
-        ]
-
-        with self.assertRaisesRegex(RuntimeError, "fewer than 8"):
-            estimate_infogripe_total_scale(rows)
-
 
 if __name__ == "__main__":
     unittest.main()

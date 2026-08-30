@@ -9,7 +9,11 @@ For each Brazilian state, the model uses the same-week Google Trends values for
 `gripe`, `sintomas gripe`, and `tosse`. A LASSO fitted on the latest 104
 consolidated weeks is averaged with the mean observed at lag 52 +/- 2 weeks.
 The result is a same-week **nowcast**, not a forecast for an unobserved future
-week.
+week. Its response is the weekly number of SIVEP-Gripe records satisfying the
+InfoGripe-compatible filter: cough or sore throat; dyspnea, oxygen saturation
+below 95%, or respiratory distress; and hospitalization or death. The total
+unfiltered count is retained in the JSON as `observed_total` for auditing, but
+is not the model target.
 
 The Brazil estimate is the sum of the 27 state estimates. The 80% bands are
 empirical, based on time-series out-of-fold residuals. The nationwide band is
@@ -20,12 +24,12 @@ intervals published by **InfoGripe — MAVE (PROCC/Fiocruz and EMap/FGV) and
 GT-Influenza/Ministry of Health**. These values are imported from the official
 public repository; the InfoGripe Brazil estimate is not a sum made by this site.
 
-The experimental combined mode first maps the symptom-filtered InfoGripe series
-to the dashboard all-SRAG target using the total-to-filtered SIVEP ratio over
-the latest 13 consolidated weeks (minimum 8). It then forms a 50/50 linear
-predictive pool on the `log1p` scale. The orange band is the harmonized
-InfoGripe 80% interval, the purple band is the pool's central 80% interval, and
-the gray band is the conservative envelope of both component intervals.
+The local model and InfoGripe therefore share the same filtered SRAG target; no
+total-to-filtered scaling is applied. The experimental combined mode forms a
+50/50 linear predictive pool on the `log1p` scale. The orange band is the
+official InfoGripe 80% interval, the purple band is the pool's central 80%
+interval, and the gray band is the conservative envelope of both component
+intervals.
 The weight and combined coverage remain unscored until enough immutable weekly
 vintages have accumulated in `rizbicki/gripe`.
 

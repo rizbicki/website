@@ -305,7 +305,7 @@
     document.getElementById("series-title").textContent =
       "Série semanal — " + payload.name;
     document.getElementById("series-chart").setAttribute(
-      "aria-label", "Gráfico temporal de casos de SRAG em " + payload.name
+      "aria-label", "Gráfico temporal de casos de SRAG filtrados em " + payload.name
     );
     var period = "Semana iniciada em " + formatDate(latest.week);
     if (isInfo) {
@@ -321,7 +321,7 @@
       "Faixa 80% da mistura: " + formatCount(lower) + "–" + formatCount(upper) :
       "80%: " + formatCount(lower) + "–" + formatCount(upper);
     document.getElementById("observed-label").textContent =
-      isInfo ? "Notificado na base do InfoGripe" : "Notificado até agora";
+      isInfo ? "Notificado na base do InfoGripe" : "SRAG filtrado notificado";
     document.getElementById("observed-value").textContent = formatCount(observed);
     document.getElementById("observed-note").textContent =
       isInfo ? "valor informado na publicação oficial" : "valor ainda provisório";
@@ -335,12 +335,12 @@
       changes.change4w >= 0 ? "positive" : "negative";
     document.getElementById("model-note").hidden = !isCombined;
     document.getElementById("interval-description").textContent = isCombined ?
-      "Laranja: faixa de 80% do InfoGripe ajustado. Roxo: quantis 10–90% da mistura. " +
+      "Laranja: faixa de 80% do InfoGripe. Roxo: quantis 10–90% da mistura. " +
       "Cinza: envelope conservador dos dois modelos." :
       "A faixa mostra o intervalo de 80% publicado por cada modelo.";
     document.getElementById("interpretation").textContent = isCombined ?
       "O modelo local estima " + formatCount(latest.nowcast) +
-      " casos e o InfoGripe ajustado estima " +
+      " casos e o InfoGripe estima " +
       formatCount(latest.infogripe) +
       "; a combinação 50/50 resulta em " + formatCount(estimate) +
       ". O peso ainda é experimental." :
@@ -428,7 +428,7 @@
           x: x, y: rows.map(function (row) { return row.infogripe_upper80; }),
           type: "scatter", mode: "lines", line: { color: "rgba(230,126,34,0)" },
           fill: "tonexty", fillcolor: "rgba(230,126,34,0.18)",
-          name: "InfoGripe ajustado: faixa de 80%", hoverinfo: "skip"
+          name: "InfoGripe: faixa de 80%", hoverinfo: "skip"
         },
         {
           x: x, y: rows.map(function (row) { return row.combined_lower80; }),
@@ -481,7 +481,7 @@
           x: x, y: rows.map(function (row) { return row.infogripe; }),
           type: "scatter", mode: "lines+markers",
           line: { color: "#e67e22", width: 2, dash: "dash" },
-          marker: { size: 4 }, name: "InfoGripe ajustado"
+          marker: { size: 4 }, name: "InfoGripe"
         },
         {
           x: x, y: rows.map(function (row) { return row.combined; }),

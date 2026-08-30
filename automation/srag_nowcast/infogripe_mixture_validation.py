@@ -1,4 +1,4 @@
-"""Production bundle checks for the harmonized InfoGripe mixture."""
+"""Production bundle checks for the same-target InfoGripe mixture."""
 
 from __future__ import annotations
 
@@ -102,9 +102,11 @@ def validate_infogripe_output(
                     f"Missing {model} evaluation limitation for {uf}"
                 )
         mixture = payload.get("mixture", {})
-        scale = mixture.get("infogripe_total_scale")
+        scale = mixture.get("infogripe_target_scale")
         if not _nonnegative_number(scale) or scale <= 0:
             raise RuntimeError(f"Invalid InfoGripe target scale for {uf}")
+        if abs(scale - 1) > 1e-12:
+            raise RuntimeError(f"InfoGripe target scale must equal one for {uf}")
         local_weight = mixture.get("local_weight")
         infogripe_weight = mixture.get("infogripe_weight")
         if (

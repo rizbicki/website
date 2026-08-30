@@ -13,8 +13,6 @@ LOCAL_WEIGHT = 0.50
 TAIL = (1 - CENTRAL_INTERVAL) / 2
 Z90 = NormalDist().inv_cdf(1 - TAIL)
 NORMAL = NormalDist()
-SCALE_WINDOW_WEEKS = 13
-MIN_SCALE_WEEKS = 8
 FIELDS = (
     "infogripe_reported_raw",
     "infogripe_raw",
@@ -135,54 +133,11 @@ def mix_predictions(
     }
 
 
-def estimate_infogripe_total_scale(
-    rows: list[dict[str, object]],
-    window_weeks: int = SCALE_WINDOW_WEEKS,
-    min_weeks: int = MIN_SCALE_WEEKS,
-) -> float:
-    """Map the symptom-filtered InfoGripe series to all dashboard SRAG cases."""
-    if window_weeks < 1 or min_weeks < 1 or min_weeks > window_weeks:
-        raise ValueError("Invalid InfoGripe scale window")
-    overlap = pd.DataFrame(
-        {
-            "week": [row["week"] for row in rows],
-            "total": [row["observed"] for row in rows],
-            "filtered": [
-                row.get("infogripe_filtered_observed") for row in rows
-            ],
-            "provisional": [row["provisional"] for row in rows],
-        }
-    )
-    overlap["week"] = pd.to_datetime(overlap["week"])
-    overlap["total"] = pd.to_numeric(overlap["total"], errors="coerce")
-    overlap["filtered"] = pd.to_numeric(overlap["filtered"], errors="coerce")
-    overlap = overlap.loc[
-        ~overlap["provisional"].astype(bool)
-        & overlap["total"].notna()
-        & overlap["filtered"].notna()
-        & overlap["total"].ge(0)
-        & overlap["filtered"].ge(0)
-    ].sort_values("week")
-    overlap = overlap.tail(window_weeks)
-    if len(overlap) < min_weeks:
-        raise RuntimeError(
-            "InfoGripe scale has fewer than "
-            f"{min_weeks} consolidated SIVEP weeks"
-        )
-    denominator = float(overlap["filtered"].sum())
-    if denominator <= 0:
-        raise RuntimeError("InfoGripe scale has no filtered cases in its window")
-    scale = float(overlap["total"].sum()) / denominator
-    if not math.isfinite(scale) or scale <= 0:
-        raise RuntimeError("InfoGripe scale is not positive and finite")
-    return scale
-
-
 def attach_infogripe_mixture(
     payload: dict[str, object],
     published: pd.DataFrame,
 ) -> None:
-    """Attach scaled InfoGripe estimates and the experimental 50/50 mixture."""
+    """Attach same-target InfoGripe estimates and the experimental mixture."""
     uf = str(payload["uf"])
     official = published.loc[published["uf"].eq(uf)].copy()
     if official.empty:
@@ -201,7 +156,7 @@ def attach_infogripe_mixture(
             f"does not match dashboard latest week {latest_week}"
         )
 
-    total_scale = estimate_infogripe_total_scale(payload["series"])
+    target_scale = 1.0
     by_week = official.set_index("week")
     for row in payload["series"]:
         row.update({field: None for field in FIELDS})
@@ -213,9 +168,9 @@ def attach_infogripe_mixture(
 
         reported_raw = _number(source.get("reported"))
         info = (
-            total_scale * float(source["mean"]),
-            total_scale * float(source["lower80"]),
-            total_scale * float(source["upper80"]),
+            target_scale * float(source["mean"]),
+            target_scale * float(source["lower80"]),
+            target_scale * float(source["upper80"]),
         )
         row.update(
             {
@@ -224,7 +179,7 @@ def attach_infogripe_mixture(
                 "infogripe_raw_lower80": _number(source["lower80"]),
                 "infogripe_raw_upper80": _number(source["upper80"]),
                 "infogripe_reported": (
-                    _number(total_scale * reported_raw)
+                    _number(target_scale * reported_raw)
                     if reported_raw is not None
                     else None
                 ),
@@ -305,13 +260,12 @@ def attach_infogripe_mixture(
     payload["mixture"] = {
         "local_weight": LOCAL_WEIGHT,
         "infogripe_weight": 1 - LOCAL_WEIGHT,
-        "infogripe_total_scale": _number(total_scale),
-        "scale_window_weeks": SCALE_WINDOW_WEEKS,
+        "infogripe_target_scale": _number(target_scale),
         "source_case_definition": (
             "(cough or sore throat) and (dyspnea or oxygen saturation below "
             "95% or respiratory distress) and (hospitalization or death)"
         ),
-        "target_case_definition": "all dashboard SIVEP-Gripe records",
+        "target_case_definition": "InfoGripe-compatible filtered SRAG cases",
         "scale": "log1p",
         "interval": "central 80% quantiles of the linear predictive pool",
         "envelope": "minimum lower and maximum upper component bounds",

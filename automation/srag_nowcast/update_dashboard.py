@@ -692,6 +692,7 @@ def fetch_srag_all(
         "url": DATASET_URL,
         "retrieved_at_utc": now_utc().isoformat(),
         "latest_source_snapshot_date": latest_snapshot.isoformat(),
+        "model_target": "SRAG records satisfying infogripe_filter",
         "infogripe_filter": (
             "(TOSSE = 1 or GARGANTA = 1) and "
             "(DISPNEIA = 1 or SATURACAO = 1 or DESC_RESP = 1) and "
@@ -848,8 +849,12 @@ def prepare_state_frame(
     ).reset_index()
     if features[TERMS].isna().any().any():
         raise RuntimeError("Missing term-week values in Google Trends")
+    srag = srag.copy()
+    srag["srag_total_cases"] = srag["srag_cases"]
+    srag["srag_cases"] = srag["infogripe_filtered_cases"]
     target_columns = [
         "week_start",
+        "srag_total_cases",
         "srag_cases",
         "infogripe_filtered_cases",
         "reporting_lag_days_at_snapshot",
@@ -924,6 +929,7 @@ def build_state_payload(
             {
                 "week": row.week_start.date().isoformat(),
                 "observed": number(row.srag_cases),
+                "observed_total": number(row.srag_total_cases),
                 "infogripe_filtered_observed": number(row.infogripe_filtered_cases),
                 "seasonal": number(row.seasonal_naive),
                 "lasso": number(production["lasso"]) if production is not None else None,
@@ -992,6 +998,7 @@ def build_state_payload(
         "latest": {
             "week": latest["week_start"].date().isoformat(),
             "observed": number(latest["srag_cases"]),
+            "observed_total": number(latest["srag_total_cases"]),
             "infogripe_filtered_observed": number(latest["infogripe_filtered_cases"]),
             "lasso": number(latest["lasso"]),
             "seasonal": number(latest["seasonal_naive"]),
@@ -1090,6 +1097,7 @@ def build_brazil_payload(
             {
                 "week": week,
                 "observed": number(group["observed"].sum()),
+                "observed_total": number(group["observed_total"].sum()),
                 "infogripe_filtered_observed": number(group["infogripe_filtered_observed"].sum()),
                 "seasonal": number(seasonal),
                 "lasso": number(lasso),
@@ -1226,6 +1234,14 @@ def validate_output(output_dir: Path, expected_ufs: list[str] | None = None) -> 
             if interval_width is not None and interval_width < 0:
                 raise RuntimeError(f"Invalid interval width for {uf}/{model_name}")
         series = payload["series"]
+        for row in series:
+            observed = row.get("observed")
+            filtered = row.get("infogripe_filtered_observed")
+            total = row.get("observed_total")
+            if observed != filtered:
+                raise RuntimeError(f"Filtered target mismatch for {uf}")
+            if not isinstance(total, (int, float)) or not 0 <= observed <= total:
+                raise RuntimeError(f"Invalid total/filtered counts for {uf}")
         if len(series) < TRAIN_WEEKS:
             raise RuntimeError(f"Too few displayed weeks for {uf}")
         weeks = pd.to_datetime([row["week"] for row in series])
@@ -1366,6 +1382,7 @@ def main() -> int:
             "terms": TERMS,
             "model": {
                 "name": "50% LASSO + 50% smoothed annual nowcast",
+                "target": "InfoGripe-compatible symptom-filtered SRAG cases",
                 "training_weeks": TRAIN_WEEKS,
                 "consolidation_lag_days": PROVISIONAL_LAG_DAYS,
                 "interval": (
