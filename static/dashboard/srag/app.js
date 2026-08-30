@@ -37,6 +37,10 @@
       value: "lasso", lower: "lasso_lower80", upper: "lasso_upper80",
       seriesLabel: "Trends", cardLabel: "Trends (Google Trends)"
     },
+    combined: {
+      value: "combined", lower: "combined_lower80", upper: "combined_upper80",
+      seriesLabel: "Combinado 50/50", cardLabel: "Combinado experimental"
+    },
     infogripe: {
       value: "infogripe", lower: "infogripe_lower80", upper: "infogripe_upper80",
       seriesLabel: "InfoGripe", cardLabel: "InfoGripe (Fiocruz)",
@@ -180,7 +184,9 @@
   }
 
   function summaryChangeField(modelKey, baseField) {
-    return modelKey === "infogripe" ? "infogripe_" + baseField : baseField;
+    if (modelKey === "infogripe") return "infogripe_" + baseField;
+    if (modelKey === "combined") return "combined_" + baseField;
+    return baseField;
   }
 
   function formatPercent(value) {
@@ -285,12 +291,15 @@
     var latest = latestForModel(payload, currentModel);
     var estimate = latest[model.value];
     var lower = latest[model.lower];
-    var observed = latest[model.observed || "observed"];
     var upper = latest[model.upper];
+    var isInfo = currentModel === "infogripe";
+    var isCombined = currentModel === "combined";
+    var observed = latest[model.observed || "observed"];
     var changes = modelChangeMetrics(payload.series, currentModel);
     document.getElementById("selected-kicker").textContent =
       payload.uf === "BR" ?
-        (currentModel === "infogripe" ? "Estimativa nacional do InfoGripe" :
+        (isInfo ? "Estimativa nacional do InfoGripe" :
+          isCombined ? "Mistura de duas estimativas nacionais" :
           "Agregado das 27 UFs") : payload.uf;
     document.getElementById("selected-title").textContent = payload.name;
     document.getElementById("series-title").textContent =
@@ -299,7 +308,7 @@
       "aria-label", "Gráfico temporal de casos de SRAG em " + payload.name
     );
     var period = "Semana iniciada em " + formatDate(latest.week);
-    if (currentModel === "infogripe") {
+    if (isInfo) {
       period += " · série oficial coletada em " +
         formatDate(summary.sources.infogripe.retrieved_at_utc);
     } else {
@@ -307,18 +316,15 @@
     }
     document.getElementById("selected-period").textContent = period;
     document.getElementById("nowcast-label").textContent = model.cardLabel;
-    document.getElementById("nowcast-value").textContent =
-      formatCount(estimate);
-    document.getElementById("interval-value").textContent =
+    document.getElementById("nowcast-value").textContent = formatCount(estimate);
+    document.getElementById("interval-value").textContent = isCombined ?
+      "Faixa 80% da mistura: " + formatCount(lower) + "–" + formatCount(upper) :
       "80%: " + formatCount(lower) + "–" + formatCount(upper);
     document.getElementById("observed-label").textContent =
-      currentModel === "infogripe" ?
-        "Notificado na base do InfoGripe" : "Notificado até agora";
-    document.getElementById("observed-value").textContent =
-      formatCount(observed);
+      isInfo ? "Notificado na base do InfoGripe" : "Notificado até agora";
+    document.getElementById("observed-value").textContent = formatCount(observed);
     document.getElementById("observed-note").textContent =
-      currentModel === "infogripe" ?
-        "valor informado na publicação oficial" : "valor ainda provisório";
+      isInfo ? "valor informado na publicação oficial" : "valor ainda provisório";
     document.getElementById("change-2w-value").textContent =
       formatPercent(changes.change2w);
     document.getElementById("change-2w-value").className =
@@ -327,12 +333,19 @@
       formatPercent(changes.change4w);
     document.getElementById("change-4w-value").className =
       changes.change4w >= 0 ? "positive" : "negative";
-    document.getElementById("interpretation").textContent =
-      "O valor observado até agora é " +
-      formatCount(observed) + " casos" +
+    document.getElementById("model-note").hidden = !isCombined;
+    document.getElementById("interval-description").textContent = isCombined ?
+      "Roxo: quantis 10–90% da mistura. Cinza: envelope conservador dos dois modelos." :
+      "A faixa mostra o intervalo de 80% publicado por cada modelo.";
+    document.getElementById("interpretation").textContent = isCombined ?
+      "O modelo local estima " + formatCount(latest.nowcast) +
+      " casos e o InfoGripe ajustado estima " +
+      formatCount(latest.infogripe_adjusted) +
+      "; a combinação 50/50 resulta em " + formatCount(estimate) +
+      ". O peso ainda é experimental." :
+      "O valor observado até agora é " + formatCount(observed) + " casos" +
       "; o modelo " + model.cardLabel.toLowerCase() + " estima " +
-      formatCount(estimate) + " casos" +
-      " após compensar o atraso de notificação.";
+      formatCount(estimate) + " casos após compensar o atraso de notificação.";
   }
 
   function renderQuality(payload) {
@@ -370,9 +383,6 @@
     var provisionalObserved = rows.map(function (row) {
       return row.provisional ? row.observed : null;
     });
-    var lower = rows.map(function (row) { return row[model.lower]; });
-    var upper = rows.map(function (row) { return row[model.upper]; });
-    var estimate = rows.map(function (row) { return row[model.value]; });
     var provisionalIndex = rows.findIndex(function (row) { return row.provisional; });
     var shapes = [];
     var annotations = [];
@@ -380,78 +390,113 @@
       var lastDate = new Date(rows[rows.length - 1].week + "T12:00:00");
       lastDate.setDate(lastDate.getDate() + 7);
       shapes.push({
-        type: "rect",
-        xref: "x",
-        yref: "paper",
+        type: "rect", xref: "x", yref: "paper",
         x0: rows[provisionalIndex].week,
         x1: lastDate.toISOString().slice(0, 10),
-        y0: 0,
-        y1: 1,
-        fillcolor: "rgba(96,112,128,0.10)",
-        line: { width: 0 },
-        layer: "below"
+        y0: 0, y1: 1, fillcolor: "rgba(96,112,128,0.10)",
+        line: { width: 0 }, layer: "below"
       });
       annotations.push({
-        xref: "x",
-        yref: "paper",
-        x: rows[provisionalIndex].week,
-        y: 0.98,
-        xanchor: "left",
-        yanchor: "top",
-        text: "Período provisório",
-        showarrow: false,
-        font: { size: 11, color: "#607080" },
-        bgcolor: "rgba(255,255,255,0.78)",
-        borderpad: 3
+        xref: "x", yref: "paper", x: rows[provisionalIndex].week, y: 0.98,
+        xanchor: "left", yanchor: "top", text: "Período provisório",
+        showarrow: false, font: { size: 11, color: "#607080" },
+        bgcolor: "rgba(255,255,255,0.78)", borderpad: 3
       });
     }
 
-    var traces = [
-      {
-        x: x, y: lower, type: "scatter", mode: "lines",
-        line: { color: "rgba(217,95,2,0)" },
-        hoverinfo: "skip", showlegend: false
-      },
-      {
-        x: x, y: upper, type: "scatter", mode: "lines",
-        line: { color: "rgba(217,95,2,0)" },
-        fill: "tonexty", fillcolor: "rgba(217,95,2,0.16)",
-        name: model.intervalLabel || "Intervalo conformal de 80%", hoverinfo: "skip"
-      },
+    var traces = [];
+    if (currentModel === "combined") {
+      traces.push(
+        {
+          x: x, y: rows.map(function (row) { return row.combined_envelope_lower; }),
+          type: "scatter", mode: "lines", line: { color: "rgba(80,80,80,0)" },
+          hoverinfo: "skip", showlegend: false
+        },
+        {
+          x: x, y: rows.map(function (row) { return row.combined_envelope_upper; }),
+          type: "scatter", mode: "lines", line: { color: "rgba(80,80,80,0)" },
+          fill: "tonexty", fillcolor: "rgba(80,80,80,0.12)",
+          name: "Envelope dos modelos", hoverinfo: "skip"
+        },
+        {
+          x: x, y: rows.map(function (row) { return row.combined_lower80; }),
+          type: "scatter", mode: "lines", line: { color: "rgba(123,44,191,0)" },
+          hoverinfo: "skip", showlegend: false
+        },
+        {
+          x: x, y: rows.map(function (row) { return row.combined_upper80; }),
+          type: "scatter", mode: "lines", line: { color: "rgba(123,44,191,0)" },
+          fill: "tonexty", fillcolor: "rgba(123,44,191,0.20)",
+          name: "Mistura: faixa de 80%", hoverinfo: "skip"
+        }
+      );
+    } else {
+      traces.push(
+        {
+          x: x, y: rows.map(function (row) { return row[model.lower]; }),
+          type: "scatter", mode: "lines", line: { color: "rgba(217,95,2,0)" },
+          hoverinfo: "skip", showlegend: false
+        },
+        {
+          x: x, y: rows.map(function (row) { return row[model.upper]; }),
+          type: "scatter", mode: "lines", line: { color: "rgba(217,95,2,0)" },
+          fill: "tonexty", fillcolor: "rgba(217,95,2,0.16)",
+          name: model.intervalLabel || "Intervalo conformal de 80%",
+          hoverinfo: "skip"
+        }
+      );
+    }
+    traces.push(
       {
         x: x, y: stableObserved, type: "scatter", mode: "lines",
-        line: { color: "#17212b", width: 2.2 },
-        name: "SRAG consolidado"
+        line: { color: "#17212b", width: 2.2 }, name: "SRAG consolidado"
       },
       {
         x: x, y: provisionalObserved, type: "scatter", mode: "lines+markers",
         line: { color: "#7b8791", width: 1.5, dash: "dot" },
-        marker: { size: 4 },
-        name: "Notificado (provisório)"
+        marker: { size: 4 }, name: "Notificado (provisório)"
       }
-    ];
-
-    traces.push({
-      x: x, y: estimate, type: "scatter", mode: "lines+markers",
-      line: { color: "#d95f02", width: 3 },
-      marker: { size: 6 },
-      name: model.seriesLabel
-    });
+    );
+    if (currentModel === "combined") {
+      traces.push(
+        {
+          x: x, y: rows.map(function (row) { return row.nowcast; }),
+          type: "scatter", mode: "lines+markers",
+          line: { color: "#1769aa", width: 2, dash: "dash" },
+          marker: { size: 4 }, name: "Trends + sazonal"
+        },
+        {
+          x: x, y: rows.map(function (row) { return row.infogripe_adjusted; }),
+          type: "scatter", mode: "lines+markers",
+          line: { color: "#e67e22", width: 2, dash: "dash" },
+          marker: { size: 4 }, name: "InfoGripe ajustado"
+        },
+        {
+          x: x, y: rows.map(function (row) { return row.combined; }),
+          type: "scatter", mode: "lines+markers",
+          line: { color: "#7b2cbf", width: 3 },
+          marker: { size: 6 }, name: "Combinado 50/50"
+        }
+      );
+    } else {
+      traces.push({
+        x: x, y: rows.map(function (row) { return row[model.value]; }),
+        type: "scatter", mode: "lines+markers",
+        line: { color: "#d95f02", width: 3 },
+        marker: { size: 6 }, name: model.seriesLabel
+      });
+    }
 
     Plotly.react("series-chart", traces, {
       margin: { l: 60, r: 20, t: 20, b: 55 },
-      paper_bgcolor: "#ffffff",
-      plot_bgcolor: "#ffffff",
+      paper_bgcolor: "#ffffff", plot_bgcolor: "#ffffff",
       hovermode: "x unified",
       legend: { orientation: "h", y: 1.08, x: 0 },
-      shapes: shapes,
-      annotations: annotations,
+      shapes: shapes, annotations: annotations,
       xaxis: { gridcolor: "#eef1f3", title: "" },
       yaxis: {
-        gridcolor: "#e2e7ea",
-        rangemode: "tozero",
-        title: "Casos semanais",
-        separatethousands: true
+        gridcolor: "#e2e7ea", rangemode: "tozero",
+        title: "Casos semanais", separatethousands: true
       },
       font: { family: "Inter, sans-serif", color: "#17212b" }
     }, { responsive: true, displaylogo: false });

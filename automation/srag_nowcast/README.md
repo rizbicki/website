@@ -20,6 +20,15 @@ intervals published by **InfoGripe — MAVE (PROCC/Fiocruz and EMap/FGV) and
 GT-Influenza/Ministry of Health**. These values are imported from the official
 public repository; the InfoGripe Brazil estimate is not a sum made by this site.
 
+The experimental combined mode first maps the symptom-filtered InfoGripe series
+to the dashboard all-SRAG target using the total-to-filtered SIVEP ratio over
+the latest 13 consolidated weeks (minimum 8). It then forms a 50/50 linear
+predictive pool on the `log1p` scale. The orange band is the harmonized
+InfoGripe 80% interval, the purple band is the pool's central 80% interval, and
+the gray band is the conservative envelope of both component intervals.
+The weight and combined coverage remain unscored until enough immutable weekly
+vintages have accumulated in `rizbicki/gripe`.
+
 The nowcast map displays incidence per 100,000 residents, using resident
 population from the 2022 IBGE Census. All other count displays remain absolute;
 the recent-change map remains a percentage. The historical performance section

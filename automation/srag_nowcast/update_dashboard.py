@@ -31,8 +31,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from infogripe import load_infogripe_nowcasts
-from infogripe_payload import attach_infogripe_payload
-from infogripe_validation import validate_infogripe_output
+from infogripe_mixture import attach_infogripe_mixture
+from infogripe_mixture_validation import validate_infogripe_output
 
 
 STATES = OrderedDict(
@@ -113,6 +113,10 @@ INFOGRIPE_CREDIT = (
     "InfoGripe — MAVE (PROCC/Fiocruz e EMap/FGV) e "
     "GT-Influenza/Ministério da Saúde"
 )
+INFOGRIPE_FILTER_COLUMNS = [
+    "TOSSE", "GARGANTA", "DISPNEIA", "SATURACAO", "DESC_RESP",
+    "HOSPITAL", "EVOLUCAO",
+]
 
 
 def parse_args() -> argparse.Namespace:
@@ -168,6 +172,10 @@ def parse_args() -> argparse.Namespace:
         "--validate-output",
         action="store_true",
         help="Only validate an existing output directory.",
+    )
+    parser.add_argument(
+        "--pin-local-sivep", action="store_true",
+        help="Use only cached SIVEP Parquets and skip online discovery.",
     )
     return parser.parse_args()
 
@@ -568,18 +576,53 @@ def common_complete_period(
     return start, end
 
 
+def local_srag_resources(cache_dir: Path) -> dict[int, dict[str, object]]:
+    resources: dict[int, dict[str, object]] = {}
+    for path in sorted(cache_dir.glob("srag_*_*.parquet")):
+        match = re.fullmatch(r"srag_(20\d{2})_(\d{4}-\d{2}-\d{2})", path.stem)
+        if not match:
+            continue
+        year = int(match.group(1))
+        snapshot = date.fromisoformat(match.group(2))
+        resources[year] = {
+            "name": f"{year}-SRAG hospitalizado {snapshot.strftime('%d/%m/%Y')} PARQUET",
+            "url": path.resolve().as_uri(),
+            "metadata_url": DATASET_URL,
+        }
+    if not resources:
+        raise RuntimeError(f"No cached SIVEP Parquet files in {cache_dir}")
+    return resources
+
+
+def infogripe_case_mask(records: pd.DataFrame) -> pd.Series:
+    """Select the symptom-filtered case definition used by InfoGripe."""
+    missing = sorted(set(INFOGRIPE_FILTER_COLUMNS) - set(records.columns))
+    if missing:
+        raise RuntimeError(f"SIVEP data lacks InfoGripe filter columns: {missing}")
+    coded = records[INFOGRIPE_FILTER_COLUMNS].astype("string")
+    upper = coded["TOSSE"].eq("1") | coded["GARGANTA"].eq("1")
+    severe = (coded["DISPNEIA"].eq("1") | coded["SATURACAO"].eq("1") | coded["DESC_RESP"].eq("1"))
+    admitted = coded["HOSPITAL"].eq("1") | coded["EVOLUCAO"].isin(["2", "3"])
+    return (upper & severe & admitted).fillna(False)
+
+
 def fetch_srag_all(
     ufs: list[str],
     start: pd.Timestamp,
     end: pd.Timestamp,
     cache_dir: Path,
     max_retries: int,
+    resources: dict[int, dict[str, object]] | None = None,
 ) -> tuple[dict[str, pd.DataFrame], dict[str, object]]:
     years = list(range(start.year, end.year + 1))
-    resources = discover_srag_resources(years, max_retries)
+    if resources is None:
+        resources = discover_srag_resources(years, max_retries)
+    missing = sorted(set(years) - set(resources))
+    if missing:
+        raise RuntimeError(f"No SRAG resource for years: {missing}")
     frames: list[pd.DataFrame] = []
     resource_metadata: list[dict[str, object]] = []
-    columns = ["NU_NOTIFIC", "DT_SIN_PRI", "SG_UF"]
+    columns = ["NU_NOTIFIC", "DT_SIN_PRI", "SG_UF", *INFOGRIPE_FILTER_COLUMNS]
 
     for year in years:
         resource = resources[year]
@@ -601,7 +644,7 @@ def fetch_srag_all(
             {
                 "year": year,
                 "name": resource["name"],
-                "url": resource["url"],
+                "url": resource.get("metadata_url", resource["url"]),
                 "snapshot_date": snap.isoformat() if snap else None,
                 "national_rows": parquet.metadata.num_rows,
                 "selected_rows": len(frame),
@@ -620,8 +663,10 @@ def fetch_srag_all(
     records["week_start"] = onset - pd.to_timedelta(
         (onset.dt.dayofweek + 1) % 7, unit="D"
     )
-    grouped = (
-        records.groupby(["SG_UF", "week_start"]).size().rename("srag_cases")
+    records["infogripe_filtered"] = infogripe_case_mask(records)
+    grouped = records.groupby(["SG_UF", "week_start"]).agg(
+        srag_cases=("NU_NOTIFIC", "size"),
+        infogripe_filtered_cases=("infogripe_filtered", "sum"),
     )
     calendar = pd.MultiIndex.from_product(
         [ufs, pd.date_range(start, end, freq="7D")],
@@ -647,6 +692,11 @@ def fetch_srag_all(
         "url": DATASET_URL,
         "retrieved_at_utc": now_utc().isoformat(),
         "latest_source_snapshot_date": latest_snapshot.isoformat(),
+        "infogripe_filter": (
+            "(TOSSE = 1 or GARGANTA = 1) and "
+            "(DISPNEIA = 1 or SATURACAO = 1 or DESC_RESP = 1) and "
+            "(HOSPITAL = 1 or EVOLUCAO in {2, 3})"
+        ),
         "resources": resource_metadata,
     }
     return by_state, metadata
@@ -801,6 +851,7 @@ def prepare_state_frame(
     target_columns = [
         "week_start",
         "srag_cases",
+        "infogripe_filtered_cases",
         "reporting_lag_days_at_snapshot",
         "is_partial_week",
     ]
@@ -873,6 +924,7 @@ def build_state_payload(
             {
                 "week": row.week_start.date().isoformat(),
                 "observed": number(row.srag_cases),
+                "infogripe_filtered_observed": number(row.infogripe_filtered_cases),
                 "seasonal": number(row.seasonal_naive),
                 "lasso": number(production["lasso"]) if production is not None else None,
                 "nowcast": (
@@ -940,6 +992,7 @@ def build_state_payload(
         "latest": {
             "week": latest["week_start"].date().isoformat(),
             "observed": number(latest["srag_cases"]),
+            "infogripe_filtered_observed": number(latest["infogripe_filtered_cases"]),
             "lasso": number(latest["lasso"]),
             "seasonal": number(latest["seasonal_naive"]),
             "nowcast": number(latest["ensemble"]),
@@ -1037,6 +1090,7 @@ def build_brazil_payload(
             {
                 "week": week,
                 "observed": number(group["observed"].sum()),
+                "infogripe_filtered_observed": number(group["infogripe_filtered_observed"].sum()),
                 "seasonal": number(seasonal),
                 "lasso": number(lasso),
                 "nowcast": number(nowcast),
@@ -1264,7 +1318,8 @@ def main() -> int:
         start, end = common_complete_period(trends)
         print(f"Common complete Trends period: {start.date()} to {end.date()}")
         srag, srag_meta = fetch_srag_all(
-            ufs, start, end, args.cache_dir, args.max_retries
+            ufs, start, end, args.cache_dir, args.max_retries,
+            resources=local_srag_resources(args.cache_dir) if args.pin_local_sivep else None,
         )
 
     infogripe, infogripe_meta = load_infogripe_nowcasts(
@@ -1288,12 +1343,12 @@ def main() -> int:
         payload, backtest = build_state_payload(
             uf, trends[uf], srag[uf], args.keep_weeks
         )
-        attach_infogripe_payload(payload, infogripe)
+        attach_infogripe_mixture(payload, infogripe)
         state_payloads[uf] = payload
         backtests.append(backtest)
 
     brazil = build_brazil_payload(state_payloads, backtests)
-    attach_infogripe_payload(brazil, infogripe)
+    attach_infogripe_mixture(brazil, infogripe)
     output_parent = args.output_dir.parent
     output_parent.mkdir(parents=True, exist_ok=True)
     staging = Path(

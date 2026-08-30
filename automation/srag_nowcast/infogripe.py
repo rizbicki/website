@@ -116,15 +116,27 @@ def load_infogripe_nowcasts(
     credit: str,
 ) -> tuple[pd.DataFrame, dict[str, object]]:
     """Load the current series and reject stale or incomplete publications."""
+    normalized = {"uf", "week_start", "reported", "mean", "lower80", "upper80"}
     if source_file is None:
         raw = pd.read_csv(
             StringIO(_download_text(source_url, max_retries, user_agent)),
-            sep=";",
-            decimal=",",
+            sep=";", decimal=",",
         )
+        frame = normalise_infogripe(raw, expected_ufs)
     else:
-        raw = pd.read_csv(source_file, sep=";", decimal=",")
-    frame = normalise_infogripe(raw, expected_ufs)
+        candidate = pd.read_csv(source_file)
+        if normalized.issubset(candidate.columns):
+            frame = candidate[list(normalized)].copy()
+            frame["uf"] = frame["uf"].astype(str).str.upper()
+            frame["week_start"] = pd.to_datetime(frame["week_start"])
+            if set(frame["uf"]) != set(expected_ufs):
+                raise RuntimeError("Archived InfoGripe CSV has invalid geographies")
+            if frame[["uf", "week_start"]].duplicated().any():
+                raise RuntimeError("Archived InfoGripe CSV has duplicate weeks")
+            frame = frame.sort_values(["uf", "week_start"]).reset_index(drop=True)
+        else:
+            raw = pd.read_csv(source_file, sep=";", decimal=",")
+            frame = normalise_infogripe(raw, expected_ufs)
 
     latest_by_uf = frame.groupby("uf")["week_start"].max()
     if latest_by_uf.nunique() != 1:

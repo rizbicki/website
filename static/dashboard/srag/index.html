@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Nowcast semanal de SRAG com Google Trends, sazonalidade e estimativas oficiais do InfoGripe.">
   <title>Nowcast de SRAG no Brasil</title>
-  <link rel="stylesheet" href="/dashboard/srag/styles.css">
+  <link rel="stylesheet" href="/dashboard/srag/styles.css?v=20260830-infogripe-harmonized">
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
-  <script src="/dashboard/srag/app.js?v=20260829-infogripe-state-title" defer></script>
+  <script src="/dashboard/srag/app.js?v=20260830-infogripe-harmonized" defer></script>
 </head>
 <body>
   <header class="hero">
@@ -35,6 +35,7 @@
       <label for="model-select">Modelo</label>
       <select id="model-select">
         <option value="ensemble">Agregado (LASSO + sazonal)</option>
+        <option value="combined">Combinado experimental (+ InfoGripe)</option>
         <option value="infogripe">InfoGripe (Fiocruz)</option>
         <option value="seasonal">Sazonal (ano anterior suavizado)</option>
         <option value="lasso">Trends (Google Trends)</option>
@@ -43,6 +44,13 @@
     </section>
 
     <section id="error-panel" class="error-panel" hidden role="alert"></section>
+    <aside id="model-note" class="model-note" hidden>
+      <strong>Modo experimental.</strong>
+      A série do InfoGripe é ajustada da sua definição sintomática para o alvo de
+      todos os casos de SRAG usando a razão das 13 semanas consolidadas mais
+      recentes. Depois ela é combinada 50/50 com Trends + sazonalidade. A faixa
+      roxa mostra os quantis da mistura e a cinza, o envelope dos modelos.
+    </aside>
 
     <section id="dashboard" hidden>
       <div class="headline">
@@ -86,7 +94,7 @@
             <p id="series-title" class="eyebrow">Série semanal</p>
             <h3>Casos observados e nowcast</h3>
           </div>
-          <p class="muted">A faixa mostra o intervalo de 80% publicado por cada modelo.</p>
+          <p class="muted" id="interval-description">A faixa mostra o intervalo de 80% publicado por cada modelo.</p>
         </div>
         <div id="series-chart" class="chart" aria-label="Gráfico temporal de casos de SRAG"></div>
       </section>
@@ -178,8 +186,10 @@
       <section class="method">
         <h2>Metodologia</h2>
         <p>O modelo é estimado separadamente para cada uma das 27 unidades federativas. Para cada estado, um LASSO é treinado nas 104 semanas mais recentes já consolidadas, usando como preditores os índices semanais do Google Trends para os termos <em>gripe</em>, <em>sintomas gripe</em> e <em>tosse</em> na própria semana. A estimativa final é a média entre esse LASSO e um componente sazonal suavizado: a média dos valores observados de SRAG entre 50 e 54 semanas antes.</p>
-        <p>Como comparador adicional, o site publica a série do <strong>InfoGripe</strong>, que corrige o atraso entre a semana de início dos sintomas e a entrada das notificações no sistema. Os pontos e intervalos de credibilidade de 80% são importados da publicação oficial, sem reestimação pelo site. Crédito: InfoGripe — MAVE (PROCC/Fiocruz e EMap/FGV) e GT-Influenza/Ministério da Saúde.</p>
+        <p>Como comparador adicional, o site publica a série bruta do <strong>InfoGripe</strong>, que corrige o atraso entre o início dos sintomas e a entrada das notificações. Seus pontos e intervalos de credibilidade de 80% são importados sem reestimação. Crédito: InfoGripe — MAVE (PROCC/Fiocruz e EMap/FGV) e GT-Influenza/Ministério da Saúde.</p>
+        <p>O modo <strong>Combinado experimental</strong> primeiro harmoniza os alvos. A série publicada pelo InfoGripe usa uma definição sintomática mais restrita; por isso ela é multiplicada, em cada UF, pela razão entre todos os registros de SRAG e os registros que satisfazem esse filtro nas 13 semanas consolidadas mais recentes (mínimo de 8). Em seguida, as distribuições do InfoGripe ajustado e de Trends + sazonalidade são reconstruídas na escala <code>log1p</code> e misturadas com pesos iguais. A faixa roxa contém os quantis 10 e 90 da mistura; a faixa cinza é o envelope conservador dos dois intervalos.</p>
         <p>Para os modelos locais, o agregado Brasil é a soma das 27 estimativas estaduais; para o InfoGripe, é usada a estimativa nacional publicada pela própria equipe. As faixas locais de 80% são conformais, enquanto a faixa do InfoGripe é o intervalo de credibilidade oficial.</p>
+        <p>O peso de 50% e o intervalo combinado ainda não foram calibrados historicamente. Como o arquivo público revisa previsões antigas, estamos acumulando vintages semanais imutáveis antes de estimar o peso <em>w</em> e medir erro e cobertura.</p>
         <p>No mapa de nowcast, as estimativas são apresentadas em casos por 100 mil habitantes, usando a população residente do Censo Demográfico 2022 do IBGE. Os demais valores são contagens absolutas; o mapa de variação mostra percentuais. As métricas históricas fora da amostra ainda não são exibidas para o InfoGripe porque o arquivo público revisa valores passados; o histórico semanal começa a ser preservado pelos commits deste site.</p>
         <p>Este é um <strong>nowcast</strong>, não uma previsão: ele estima semanas que já ocorreram, mas cuja notificação ainda está incompleta por atraso no sistema de vigilância. Um caso só entra como "consolidado" depois de um número mínimo de dias desde o início dos sintomas; semanas mais recentes do que isso aparecem como provisórias no gráfico.</p>
 
