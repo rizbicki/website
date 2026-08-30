@@ -205,24 +205,18 @@ def attach_infogripe_mixture(
     by_week = official.set_index("week")
     for row in payload["series"]:
         row.update({field: None for field in FIELDS})
-        if row.get("nowcast") is None or row["week"] not in by_week.index:
+        if row["week"] not in by_week.index:
             continue
         source = by_week.loc[row["week"]]
         if pd.isna(source[["mean", "lower80", "upper80"]]).any():
             continue
 
-        local = (
-            float(row["nowcast"]),
-            float(row["lower80"]),
-            float(row["upper80"]),
-        )
+        reported_raw = _number(source.get("reported"))
         info = (
             total_scale * float(source["mean"]),
             total_scale * float(source["lower80"]),
             total_scale * float(source["upper80"]),
         )
-        mixed = mix_predictions(local, info)
-        reported_raw = _number(source.get("reported"))
         row.update(
             {
                 "infogripe_reported_raw": reported_raw,
@@ -237,6 +231,19 @@ def attach_infogripe_mixture(
                 "infogripe": _number(info[0]),
                 "infogripe_lower80": _number(info[1]),
                 "infogripe_upper80": _number(info[2]),
+            }
+        )
+        if row.get("nowcast") is None:
+            continue
+
+        local = (
+            float(row["nowcast"]),
+            float(row["lower80"]),
+            float(row["upper80"]),
+        )
+        mixed = mix_predictions(local, info)
+        row.update(
+            {
                 "combined": _number(mixed["mean"]),
                 "combined_lower80": _number(mixed["lower80"]),
                 "combined_upper80": _number(mixed["upper80"]),

@@ -335,7 +335,8 @@
       changes.change4w >= 0 ? "positive" : "negative";
     document.getElementById("model-note").hidden = !isCombined;
     document.getElementById("interval-description").textContent = isCombined ?
-      "Roxo: quantis 10–90% da mistura. Cinza: envelope conservador dos dois modelos." :
+      "Laranja: faixa de 80% do InfoGripe ajustado. Roxo: quantis 10–90% da mistura. " +
+      "Cinza: envelope conservador dos dois modelos." :
       "A faixa mostra o intervalo de 80% publicado por cada modelo.";
     document.getElementById("interpretation").textContent = isCombined ?
       "O modelo local estima " + formatCount(latest.nowcast) +
@@ -417,6 +418,17 @@
           type: "scatter", mode: "lines", line: { color: "rgba(80,80,80,0)" },
           fill: "tonexty", fillcolor: "rgba(80,80,80,0.12)",
           name: "Envelope dos modelos", hoverinfo: "skip"
+        },
+        {
+          x: x, y: rows.map(function (row) { return row.infogripe_lower80; }),
+          type: "scatter", mode: "lines", line: { color: "rgba(230,126,34,0)" },
+          hoverinfo: "skip", showlegend: false
+        },
+        {
+          x: x, y: rows.map(function (row) { return row.infogripe_upper80; }),
+          type: "scatter", mode: "lines", line: { color: "rgba(230,126,34,0)" },
+          fill: "tonexty", fillcolor: "rgba(230,126,34,0.18)",
+          name: "InfoGripe ajustado: faixa de 80%", hoverinfo: "skip"
         },
         {
           x: x, y: rows.map(function (row) { return row.combined_lower80; }),
