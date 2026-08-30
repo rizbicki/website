@@ -42,9 +42,9 @@
       seriesLabel: "Combinado 50/50", cardLabel: "Combinado experimental"
     },
     infogripe: {
-      value: "infogripe", lower: "infogripe_lower80", upper: "infogripe_upper80",
+      value: "infogripe_raw", lower: "infogripe_raw_lower80", upper: "infogripe_raw_upper80",
       seriesLabel: "InfoGripe", cardLabel: "InfoGripe (Fiocruz)",
-      observed: "infogripe_reported", intervalLabel: "Intervalo de credibilidade de 80%"
+      observed: "infogripe_reported_raw", intervalLabel: "Intervalo de credibilidade de 80%"
     }
   };
 
@@ -184,7 +184,7 @@
   }
 
   function summaryChangeField(modelKey, baseField) {
-    if (modelKey === "infogripe") return "infogripe_" + baseField;
+    if (modelKey === "infogripe") return "infogripe_raw_" + baseField;
     if (modelKey === "combined") return "combined_" + baseField;
     return baseField;
   }
@@ -340,7 +340,7 @@
     document.getElementById("interpretation").textContent = isCombined ?
       "O modelo local estima " + formatCount(latest.nowcast) +
       " casos e o InfoGripe ajustado estima " +
-      formatCount(latest.infogripe_adjusted) +
+      formatCount(latest.infogripe) +
       "; a combinação 50/50 resulta em " + formatCount(estimate) +
       ". O peso ainda é experimental." :
       "O valor observado até agora é " + formatCount(observed) + " casos" +
@@ -466,7 +466,7 @@
           marker: { size: 4 }, name: "Trends + sazonal"
         },
         {
-          x: x, y: rows.map(function (row) { return row.infogripe_adjusted; }),
+          x: x, y: rows.map(function (row) { return row.infogripe; }),
           type: "scatter", mode: "lines+markers",
           line: { color: "#e67e22", width: 2, dash: "dash" },
           marker: { size: 4 }, name: "InfoGripe ajustado"

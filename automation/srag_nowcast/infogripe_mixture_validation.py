@@ -47,6 +47,9 @@ def validate_infogripe_output(
 
         fields = [
             "infogripe_reported_raw",
+            "infogripe_raw",
+            "infogripe_raw_lower80",
+            "infogripe_raw_upper80",
             "infogripe_reported",
             "infogripe",
             "infogripe_lower80",
@@ -59,6 +62,12 @@ def validate_infogripe_output(
         ]
         if any(not _nonnegative_number(latest.get(field)) for field in fields):
             raise RuntimeError(f"Invalid latest InfoGripe values for {uf}")
+        if not (
+            latest["infogripe_raw_lower80"]
+            <= latest["infogripe_raw"]
+            <= latest["infogripe_raw_upper80"]
+        ):
+            raise RuntimeError(f"Inverted raw InfoGripe interval for {uf}")
         if not (
             latest["infogripe_lower80"]
             <= latest["infogripe"]
@@ -86,9 +95,12 @@ def validate_infogripe_output(
         ):
             raise RuntimeError(f"InfoGripe latest/series mismatch for {uf}")
 
-        score = payload.get("backtest", {}).get("combined")
-        if not isinstance(score, dict) or score.get("note") is None:
-            raise RuntimeError(f"Missing combined evaluation limitation for {uf}")
+        for model in ["infogripe", "combined"]:
+            score = payload.get("backtest", {}).get(model)
+            if not isinstance(score, dict) or score.get("note") is None:
+                raise RuntimeError(
+                    f"Missing {model} evaluation limitation for {uf}"
+                )
         mixture = payload.get("mixture", {})
         scale = mixture.get("infogripe_total_scale")
         if not _nonnegative_number(scale) or scale <= 0:

@@ -64,6 +64,9 @@ class InfoGripeMixtureTests(unittest.TestCase):
 
         result = payload["latest"]
         self.assertEqual(result["infogripe_reported_raw"], 10)
+        self.assertEqual(result["infogripe_raw"], 40)
+        self.assertEqual(result["infogripe_raw_lower80"], 30)
+        self.assertEqual(result["infogripe_raw_upper80"], 50)
         self.assertEqual(result["infogripe_reported"], 20)
         self.assertEqual(result["infogripe"], 80)
         self.assertEqual(result["infogripe_lower80"], 60)
@@ -71,6 +74,7 @@ class InfoGripeMixtureTests(unittest.TestCase):
         self.assertEqual(result["combined"], 90)
         self.assertEqual(payload["mixture"]["infogripe_total_scale"], 2)
         self.assertEqual(payload["mixture"]["scale_window_weeks"], 13)
+        self.assertIn("infogripe", payload["backtest"])
         self.assertIn("combined", payload["backtest"])
 
     def test_scale_requires_enough_consolidated_weeks(self):
