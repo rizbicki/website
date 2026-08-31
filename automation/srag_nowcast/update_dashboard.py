@@ -365,7 +365,7 @@ def fetch_trends(
                 client = Trends(
                     language="pt-BR",
                     tzs=180,
-                    request_delay=4.0,
+                    request_delay=8.0,
                     max_retries=3,
                 )
                 wide = client.interest_over_time(
