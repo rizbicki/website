@@ -15,9 +15,11 @@ below 95%, or respiratory distress; and hospitalization or death. The total
 unfiltered count is retained in the JSON as `observed_total` for auditing, but
 is not the model target.
 
-The Brazil estimate is the sum of the 27 state estimates. The 80% bands are
-empirical, based on time-series out-of-fold residuals. The nationwide band is
-calibrated from residuals of the summed state nowcasts.
+The Brazil estimate is the sum of the 27 state estimates. Published state bands
+use residuals wholly preceding the current target. Historical metrics use
+independent outer rolling origins: tuning and calibration see only preceding
+weeks. National coverage is prequential, using only summed residuals from
+earlier origins.
 
 The dashboard also displays the reporting-delay nowcasts and 80% credible
 intervals published by **InfoGripe — MAVE (PROCC/Fiocruz and EMap/FGV) and
@@ -41,8 +43,8 @@ components are available; one source never truncates the other.
 The nowcast map displays incidence per 100,000 residents, using resident
 population from the 2022 IBGE Census. All other count displays remain absolute;
 the recent-change map remains a percentage. The historical performance section
-reports out-of-fold WAPE, mean bias, empirical 80% interval coverage, and the
-number of evaluated weeks for the selected model and locality.
+reports rolling-origin WAPE, mean bias, empirical 80% interval coverage, and the
+number of evaluated origins for the selected model and locality.
 
 ## Production schedule
 
@@ -62,11 +64,10 @@ also opens or updates a GitHub issue when an automated run fails.
 
 ## Publishing runbook
 
-The production source of truth is currently this repository: the workflow runs
-`automation/srag_nowcast/update_dashboard.py`. A change committed only to
-`rizbicki/gripe` does **not** reach the live dashboard. Until the package
-migration described below is enabled, any production pipeline fix must also be
-ported to this script.
+The source of truth for ingestion, modeling, evaluation, payload generation,
+and validation is the versioned `rizbicki/gripe` package. This repository pins
+one immutable package tag in `requirements.txt`; the workflow invokes its
+`gripe` CLI directly.
 
 ### Manual hotfix
 
@@ -80,16 +81,16 @@ ported to this script.
    git -C ../website worktree add -b deploy-srag-<slug> "$deploy_dir" origin/main
    ```
 
-2. Make the smallest corresponding change in
-   `automation/srag_nowcast/update_dashboard.py` and update this README when
-   the published interpretation changes.
+2. Implement and test the change in `rizbicki/gripe`, publish a tagged release,
+   then update only the pinned tag here. Update this README when the published
+   interpretation changes.
 3. Generate the bundle from a complete set of all 27 Trends checkpoints and the
    intended SIVEP cache, then validate it before copying anything into
    `static/`.
 
    ```bash
-   python automation/srag_nowcast/update_dashboard.py --from-trends-cache --trends-cache-dir "$TRENDS_CACHE" --cache-dir "$SIVEP_CACHE" --output-dir /tmp/srag-bundle
-   python automation/srag_nowcast/update_dashboard.py --validate-output --output-dir /tmp/srag-bundle
+   gripe --from-trends-cache --trends-cache-dir "$TRENDS_CACHE" --cache-dir "$SIVEP_CACHE" --output-dir /tmp/srag-bundle
+   gripe --validate-output --output-dir /tmp/srag-bundle
    ```
 
 4. Audit the JSON semantically. In particular, reject local `file://` source
@@ -113,10 +114,7 @@ ported to this script.
 Netlify deploys commits from `main`. For rollback, use `git revert <commit>`
 and push the revert; do not rewrite shared history.
 
-### Planned tag-based promotion
-
-The branch `flip-to-gripe-package` replaces the duplicated script with a
-pinned `gripe` release. Once that migration is merged, promotion becomes:
+### Tag-based promotion
 
 1. test and merge `gripe`;
 2. bump its package version, create and push an annotated `vX.Y.Z` tag;
@@ -140,7 +138,7 @@ python -m pip install -r automation/srag_nowcast/requirements.txt
 Collect selected Trends checkpoints:
 
 ```bash
-python automation/srag_nowcast/update_dashboard.py \
+gripe \
   --collect-trends-only \
   --ufs SP RJ PE \
   --trends-cache-dir automation/srag_nowcast/.cache/google_trends
@@ -149,7 +147,7 @@ python automation/srag_nowcast/update_dashboard.py \
 Build all states from checkpoints:
 
 ```bash
-python automation/srag_nowcast/update_dashboard.py \
+gripe \
   --from-trends-cache \
   --trends-cache-dir automation/srag_nowcast/.cache/google_trends \
   --cache-dir automation/srag_nowcast/.cache/sivep_gripe \
@@ -159,7 +157,7 @@ python automation/srag_nowcast/update_dashboard.py \
 Validate the published bundle:
 
 ```bash
-python automation/srag_nowcast/update_dashboard.py \
+gripe \
   --validate-output \
   --output-dir static/dashboard/srag/data
 ```
