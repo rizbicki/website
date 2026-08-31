@@ -27,7 +27,7 @@
   var MODELS = {
     ensemble: {
       value: "nowcast", lower: "lower80", upper: "upper80",
-      seriesLabel: "Nowcast", cardLabel: "Nowcast"
+      seriesLabel: "Nowcast", cardLabel: "Agregado (LASSO + sazonal)"
     },
     seasonal: {
       value: "seasonal", lower: "seasonal_lower80", upper: "seasonal_upper80",
@@ -356,6 +356,13 @@
   function renderQuality(payload) {
     var score = payload.backtest && payload.backtest[currentModel] || {};
     var model = MODELS[currentModel];
+    var unavailable = score.coverage80_percent === null ||
+      score.coverage80_percent === undefined;
+    var pointOrigins = score.n;
+    var coverageOrigins = score.coverage_evaluation_origins ||
+      score.evaluation_origins || score.n;
+    document.getElementById("quality-title").textContent =
+      "Desempenho — " + model.cardLabel + " · " + payload.name;
     document.getElementById("quality-wape").textContent =
       score.wape_percent === null || score.wape_percent === undefined ?
         "—" : formatPercent(score.wape_percent).replace("+", "");
@@ -364,18 +371,24 @@
     document.getElementById("quality-bias-unit").textContent =
       "casos por semana";
     document.getElementById("quality-coverage").textContent =
-      score.coverage80_percent === null || score.coverage80_percent === undefined ?
+      unavailable ?
         "—" : formatPercent(score.coverage80_percent).replace("+", "");
     document.getElementById("quality-coverage-note").textContent =
-      score.note ? "requer vintages semanais arquivados" :
-        score.coverage80_percent === null || score.coverage80_percent === undefined ?
-        "disponível após a próxima atualização" : "ideal próximo de 80%";
-    document.getElementById("quality-n").textContent = formatCount(score.n);
+      unavailable ? "não avaliada: requer vintages arquivados" :
+        "calculada em " + formatCount(coverageOrigins) +
+        " origens; referência nominal 80%";
+    document.getElementById("quality-n").textContent = formatCount(pointOrigins);
+    document.getElementById("quality-n-note").textContent = unavailable ?
+      "ainda sem avaliação histórica" : "usadas para WAPE e viés";
     document.getElementById("quality-description").textContent =
-      score.note ||
-        ("Resultados do modelo " + model.cardLabel.toLowerCase() +
-        " em previsões históricas fora da amostra para " + payload.name +
-        ". O viés indica se o modelo tende a superestimar (+) ou subestimar (−).");
+      unavailable ?
+        ("Modelo selecionado: " + model.cardLabel + " · Localidade: " +
+        payload.name + ". Ainda não há métricas históricas válidas porque " +
+        "as previsões publicadas precisam ser preservadas em vintages semanais.") :
+        ("Modelo avaliado: " + model.cardLabel + " · Localidade: " +
+        payload.name + ". WAPE e viés usam " + formatCount(pointOrigins) +
+        " origens rolling-origin fora da amostra; a cobertura usa " +
+        formatCount(coverageOrigins) + " origens.");
   }
 
   function renderSeries(payload) {
