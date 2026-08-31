@@ -151,17 +151,22 @@
     return 100 * (sum(recent) / priorSum - 1);
   }
 
-  function modelChangeMetrics(rows, modelKey) {
+  function modelChangeMetrics(payload, modelKey) {
+    var rows = payload.series;
     var field = MODELS[modelKey].value;
+    var latest = latestForModel(payload, modelKey);
+    var eligible = rows.filter(function (row) {
+      return row.week <= latest.week;
+    });
     var series;
     if (modelKey === "infogripe") {
-      series = rows.map(function (row) {
+      series = eligible.map(function (row) {
         return row[field];
       }).filter(function (value) {
         return value !== null && value !== undefined;
       });
     } else {
-      series = rows.map(function (row) {
+      series = eligible.map(function (row) {
         var v = row[field];
         return v === null || v === undefined ? row.observed : v;
       });
@@ -173,7 +178,6 @@
   }
 
   function latestForModel(payload, modelKey) {
-    if (modelKey !== "infogripe") return payload.latest;
     var field = MODELS[modelKey].value;
     for (var i = payload.series.length - 1; i >= 0; i -= 1) {
       if (payload.series[i][field] !== null && payload.series[i][field] !== undefined) {
@@ -295,7 +299,7 @@
     var isInfo = currentModel === "infogripe";
     var isCombined = currentModel === "combined";
     var observed = latest[model.observed || "observed"];
-    var changes = modelChangeMetrics(payload.series, currentModel);
+    var changes = modelChangeMetrics(payload, currentModel);
     document.getElementById("selected-kicker").textContent =
       payload.uf === "BR" ?
         (isInfo ? "Estimativa nacional do InfoGripe" :

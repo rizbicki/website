@@ -576,6 +576,33 @@ def common_complete_period(
     return start, end
 
 
+def available_complete_period(
+    trends: dict[str, pd.DataFrame],
+) -> tuple[pd.Timestamp, pd.Timestamp]:
+    """Return the full span covered by any complete state Trends series.
+
+    Individual state series remain weekly and gap-free, but a shorter state no
+    longer truncates every other state. The span is used only to load enough
+    SIVEP data; each state model still stops at its own final Trends week.
+    """
+    starts: list[pd.Timestamp] = []
+    ends: list[pd.Timestamp] = []
+    for uf, frame in trends.items():
+        complete = pd.to_datetime(
+            frame.loc[~frame["is_partial"].map(bool_value), "week_start"]
+        ).drop_duplicates()
+        if complete.empty:
+            raise RuntimeError(f"No complete Google Trends week for {uf}")
+        start = pd.Timestamp(complete.min())
+        end = pd.Timestamp(complete.max())
+        expected = set(pd.date_range(start, end, freq="7D"))
+        if not expected.issubset(set(complete)):
+            raise RuntimeError(f"Google Trends weeks are not complete for {uf}")
+        starts.append(start)
+        ends.append(end)
+    return min(starts), max(ends)
+
+
 def local_srag_resources(cache_dir: Path) -> dict[int, dict[str, object]]:
     resources: dict[int, dict[str, object]] = {}
     for path in sorted(cache_dir.glob("srag_*_*.parquet")):
@@ -1238,6 +1265,8 @@ def validate_output(output_dir: Path, expected_ufs: list[str] | None = None) -> 
             observed = row.get("observed")
             filtered = row.get("infogripe_filtered_observed")
             total = row.get("observed_total")
+            if observed is None and filtered is None and total is None:
+                continue
             if observed != filtered:
                 raise RuntimeError(f"Filtered target mismatch for {uf}")
             if not isinstance(total, (int, float)) or not 0 <= observed <= total:
@@ -1331,8 +1360,8 @@ def main() -> int:
                 args.max_retries,
                 args.trends_cache_dir,
             )
-        start, end = common_complete_period(trends)
-        print(f"Common complete Trends period: {start.date()} to {end.date()}")
+        start, end = available_complete_period(trends)
+        print(f"Available complete Trends span: {start.date()} to {end.date()}")
         srag, srag_meta = fetch_srag_all(
             ufs, start, end, args.cache_dir, args.max_retries,
             resources=local_srag_resources(args.cache_dir) if args.pin_local_sivep else None,
@@ -1359,11 +1388,12 @@ def main() -> int:
         payload, backtest = build_state_payload(
             uf, trends[uf], srag[uf], args.keep_weeks
         )
-        attach_infogripe_mixture(payload, infogripe)
         state_payloads[uf] = payload
         backtests.append(backtest)
 
     brazil = build_brazil_payload(state_payloads, backtests)
+    for payload in state_payloads.values():
+        attach_infogripe_mixture(payload, infogripe)
     attach_infogripe_mixture(brazil, infogripe)
     output_parent = args.output_dir.parent
     output_parent.mkdir(parents=True, exist_ok=True)

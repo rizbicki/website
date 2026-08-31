@@ -148,13 +148,39 @@ def attach_infogripe_mixture(
     if official["week"].duplicated().any():
         raise RuntimeError(f"{uf}: duplicate InfoGripe week")
 
-    latest_week = str(payload["latest"]["week"])
+    official = official.dropna(subset=["mean", "lower80", "upper80"])
+    if official.empty:
+        raise RuntimeError(f"{uf}: InfoGripe has no complete 80% nowcast")
     source_latest_week = official["week"].max()
-    if latest_week != source_latest_week:
-        raise RuntimeError(
-            f"{uf}: InfoGripe latest week {source_latest_week} "
-            f"does not match dashboard latest week {latest_week}"
-        )
+
+    series = payload["series"]
+    first_week = pd.Timestamp(series[0]["week"])
+    last_week = max(
+        pd.Timestamp(series[-1]["week"]),
+        pd.Timestamp(source_latest_week),
+    )
+    row_by_week = {row["week"]: row for row in series}
+    for week in pd.date_range(first_week, last_week, freq="7D"):
+        key = week.date().isoformat()
+        if key not in row_by_week:
+            row_by_week[key] = {
+                "week": key,
+                "observed": None,
+                "observed_total": None,
+                "infogripe_filtered_observed": None,
+                "seasonal": None,
+                "lasso": None,
+                "nowcast": None,
+                "lower80": None,
+                "upper80": None,
+                "lasso_lower80": None,
+                "lasso_upper80": None,
+                "seasonal_lower80": None,
+                "seasonal_upper80": None,
+                "provisional": True,
+                "reporting_lag_days": None,
+            }
+    payload["series"] = [row_by_week[week] for week in sorted(row_by_week)]
 
     target_scale = 1.0
     by_week = official.set_index("week")
@@ -211,31 +237,41 @@ def attach_infogripe_mixture(
             }
         )
 
-    latest_row = next(
-        row for row in payload["series"] if row["week"] == latest_week
+    infogripe_rows = [
+        row for row in payload["series"] if row["infogripe_raw"] is not None
+    ]
+    combined_rows = [
+        row for row in payload["series"] if row["combined"] is not None
+    ]
+    latest_info = infogripe_rows[-1]
+    payload["latest"].update(
+        {field: latest_info[field] for field in FIELDS[:8]}
     )
-    payload["latest"].update({field: latest_row[field] for field in FIELDS})
-    payload["latest"]["infogripe_week"] = latest_week
-    if payload["latest"]["combined"] is None:
-        raise RuntimeError(
-            f"{uf}: InfoGripe has no complete nowcast for "
-            "the dashboard's latest week"
+    payload["latest"]["infogripe_week"] = latest_info["week"]
+    if combined_rows:
+        latest_combined = combined_rows[-1]
+        payload["latest"].update(
+            {field: latest_combined[field] for field in FIELDS[8:]}
         )
+        payload["latest"]["combined_week"] = latest_combined["week"]
+    else:
+        payload["latest"].update({field: None for field in FIELDS[8:]})
+        payload["latest"]["combined_week"] = None
 
     raw_values = [
         float(row["infogripe_raw"])
         for row in payload["series"]
-        if row["infogripe_raw"] is not None and row["week"] <= latest_week
+        if row["infogripe_raw"] is not None
     ]
     values = [
         float(row["infogripe"])
         for row in payload["series"]
-        if row["infogripe"] is not None and row["week"] <= latest_week
+        if row["infogripe"] is not None
     ]
     combined_values = [
         float(row["combined"])
         for row in payload["series"]
-        if row["combined"] is not None and row["week"] <= latest_week
+        if row["combined"] is not None
     ]
     payload["latest"]["infogripe_raw_change_2w_percent"] = _number(
         _rolling_change(raw_values, 2)

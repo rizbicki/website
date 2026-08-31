@@ -33,6 +33,11 @@ intervals.
 The weight and combined coverage remain unscored until enough immutable weekly
 vintages have accumulated in `rizbicki/gripe`.
 
+Each component is displayed through its own latest available week. A state can
+therefore show a newer Trends nowcast while InfoGripe remains on an earlier
+week, or vice versa. The combined model stops at the latest week where both
+components are available; one source never truncates the other.
+
 The nowcast map displays incidence per 100,000 residents, using resident
 population from the 2022 IBGE Census. All other count displays remain absolute;
 the recent-change map remains a percentage. The historical performance section

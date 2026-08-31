@@ -54,11 +54,6 @@ def validate_infogripe_output(
             "infogripe",
             "infogripe_lower80",
             "infogripe_upper80",
-            "combined",
-            "combined_lower80",
-            "combined_upper80",
-            "combined_envelope_lower",
-            "combined_envelope_upper",
         ]
         if any(not _nonnegative_number(latest.get(field)) for field in fields):
             raise RuntimeError(f"Invalid latest InfoGripe values for {uf}")
@@ -74,14 +69,23 @@ def validate_infogripe_output(
             <= latest["infogripe_upper80"]
         ):
             raise RuntimeError(f"Inverted InfoGripe interval for {uf}")
-        if not (
-            latest["combined_envelope_lower"]
-            <= latest["combined_lower80"]
-            <= latest["combined"]
-            <= latest["combined_upper80"]
-            <= latest["combined_envelope_upper"]
-        ):
-            raise RuntimeError(f"Invalid combined InfoGripe interval for {uf}")
+        combined_fields = [
+            "combined",
+            "combined_lower80",
+            "combined_upper80",
+            "combined_envelope_lower",
+            "combined_envelope_upper",
+        ]
+        if latest.get("combined_week") is not None:
+            if any(
+                not _nonnegative_number(latest.get(field))
+                for field in combined_fields
+            ) or not (
+                latest["combined_envelope_lower"] <= latest["combined_lower80"]
+                <= latest["combined"] <= latest["combined_upper80"]
+                <= latest["combined_envelope_upper"]
+            ):
+                raise RuntimeError(f"Invalid combined InfoGripe interval for {uf}")
 
         matching = [
             row
@@ -91,9 +95,24 @@ def validate_infogripe_output(
         if (
             len(matching) != 1
             or matching[0].get("infogripe") != latest["infogripe"]
-            or matching[0].get("combined") != latest["combined"]
         ):
             raise RuntimeError(f"InfoGripe latest/series mismatch for {uf}")
+
+        if latest.get("combined_week") is not None:
+            matching_combined = [
+                row
+                for row in payload.get("series", [])
+                if row.get("week") == latest["combined_week"]
+            ]
+            if (
+                len(matching_combined) != 1
+                or matching_combined[0].get("combined") != latest["combined"]
+            ):
+                raise RuntimeError(f"Combined latest/series mismatch for {uf}")
+        elif any(latest.get(field) is not None for field in combined_fields):
+            raise RuntimeError(
+                f"Combined values without an available combined week for {uf}"
+            )
 
         for model in ["infogripe", "combined"]:
             score = payload.get("backtest", {}).get(model)

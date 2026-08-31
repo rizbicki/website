@@ -80,5 +80,86 @@ class InfoGripeMixtureTests(unittest.TestCase):
         self.assertIn("infogripe", payload["backtest"])
         self.assertIn("combined", payload["backtest"])
 
+    def test_infogripe_can_extend_beyond_trends(self):
+        local = {
+            "week": "2026-01-12",
+            "observed": 50,
+            "observed_total": 60,
+            "infogripe_filtered_observed": 50,
+            "nowcast": 100,
+            "lower80": 80,
+            "upper80": 120,
+        }
+        payload = {
+            "uf": "SP",
+            "series": [local],
+            "latest": {"week": local["week"]},
+            "backtest": {},
+        }
+        published = pd.DataFrame(
+            {
+                "uf": ["SP", "SP"],
+                "week_start": ["2026-01-12", "2026-01-19"],
+                "reported": [40, 20],
+                "mean": [80, 70],
+                "lower80": [60, 45],
+                "upper80": [110, 105],
+            }
+        )
+
+        attach_infogripe_mixture(payload, published)
+
+        self.assertEqual(payload["latest"]["week"], "2026-01-12")
+        self.assertEqual(payload["latest"]["infogripe_week"], "2026-01-19")
+        self.assertEqual(payload["latest"]["combined_week"], "2026-01-12")
+        tail = payload["series"][-1]
+        self.assertEqual(tail["week"], "2026-01-19")
+        self.assertIsNone(tail["nowcast"])
+        self.assertEqual(tail["infogripe_raw"], 70)
+        self.assertIsNone(tail["combined"])
+
+    def test_trends_can_extend_beyond_infogripe(self):
+        local = {
+            "week": "2026-01-12",
+            "observed": 50,
+            "observed_total": 60,
+            "infogripe_filtered_observed": 50,
+            "nowcast": 100,
+            "lower80": 80,
+            "upper80": 120,
+        }
+        later = {
+            **local,
+            "week": "2026-01-19",
+            "nowcast": 120,
+            "lower80": 90,
+            "upper80": 150,
+        }
+        payload = {
+            "uf": "SP",
+            "series": [local, later],
+            "latest": {"week": later["week"]},
+            "backtest": {},
+        }
+        published = pd.DataFrame(
+            {
+                "uf": ["SP"],
+                "week_start": ["2026-01-12"],
+                "reported": [40],
+                "mean": [80],
+                "lower80": [60],
+                "upper80": [110],
+            }
+        )
+
+        attach_infogripe_mixture(payload, published)
+
+        self.assertEqual(payload["latest"]["week"], "2026-01-19")
+        self.assertEqual(payload["latest"]["infogripe_week"], "2026-01-12")
+        self.assertEqual(payload["latest"]["combined_week"], "2026-01-12")
+        self.assertEqual(payload["series"][-1]["nowcast"], 120)
+        self.assertIsNone(payload["series"][-1]["infogripe_raw"])
+        self.assertIsNone(payload["series"][-1]["combined"])
+
 if __name__ == "__main__":
     unittest.main()
