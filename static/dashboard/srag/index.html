@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Nowcast semanal de SRAG com Google Trends, sazonalidade e estimativas oficiais do InfoGripe.">
   <title>Nowcast de SRAG no Brasil</title>
-  <link rel="stylesheet" href="/dashboard/srag/styles.css?v=20260830-infogripe-harmonized">
+  <link rel="stylesheet" href="/dashboard/srag/styles.css?v=20260901-performance-tab">
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
-  <script src="/dashboard/srag/app.js?v=20260831-independent-periods" defer></script>
+  <script src="/dashboard/srag/app.js?v=20260901-performance-tab" defer></script>
 </head>
 <body>
   <header class="hero">
@@ -25,6 +25,7 @@
   <main>
     <nav class="tabs" aria-label="Seções do painel">
       <button type="button" class="tab-button active" id="tab-nowcast" role="tab" aria-selected="true" aria-controls="panel-nowcast">Nowcast</button>
+      <button type="button" class="tab-button" id="tab-performance" role="tab" aria-selected="false" aria-controls="panel-performance">Desempenho</button>
       <button type="button" class="tab-button" id="tab-methodology" role="tab" aria-selected="false" aria-controls="panel-methodology">Metodologia</button>
     </nav>
 
@@ -98,48 +99,6 @@
         <div id="series-chart" class="chart" aria-label="Gráfico temporal de casos de SRAG"></div>
       </section>
 
-      <details class="panel quality-panel">
-        <summary>
-          <span>
-            <span class="eyebrow">Transparência do modelo</span>
-            <span class="summary-title" id="quality-title">Desempenho histórico</span>
-          </span>
-          <span class="summary-action">Ver métricas</span>
-        </summary>
-        <p class="muted quality-description" id="quality-description"></p>
-        <div class="quality-grid">
-          <article class="quality-metric">
-            <span>Erro percentual (WAPE)</span>
-            <strong id="quality-wape">—</strong>
-            <small>menor é melhor</small>
-          </article>
-          <article class="quality-metric">
-            <span>Viés médio</span>
-            <strong id="quality-bias">—</strong>
-            <small id="quality-bias-unit">casos por semana</small>
-          </article>
-          <article class="quality-metric">
-            <span>Cobertura do intervalo de 80%</span>
-            <strong id="quality-coverage">—</strong>
-            <small id="quality-coverage-note">ideal próximo de 80%</small>
-          </article>
-          <article class="quality-metric">
-            <span>Origens das métricas pontuais</span>
-            <strong id="quality-n">—</strong>
-            <small id="quality-n-note">previsões fora da amostra</small>
-          </article>
-        </div>
-        <div class="metric-definitions">
-          <strong>Como interpretar as métricas</strong>
-          <ul>
-            <li><strong>WAPE</strong>: soma dos erros absolutos dividida pela soma dos valores observados, em percentual. Mede o tamanho do erro; menor é melhor.</li>
-            <li><strong>Viés médio</strong>: média de estimativa menos observado, em casos por semana. Positivo indica superestimação; negativo indica subestimação.</li>
-            <li><strong>Cobertura de 80%</strong>: percentual de origens em que o valor observado ficou entre os limites inferior e superior. A referência nominal é 80%.</li>
-            <li><strong>Origem fora da amostra</strong>: semana-alvo que não foi usada para ajustar, selecionar ou calibrar o modelo que a estimou.</li>
-          </ul>
-        </div>
-      </details>
-
       <div class="two-column">
         <section class="panel">
           <div class="panel-heading">
@@ -188,6 +147,50 @@
         </section>
       </div>
     </section>
+    </section>
+
+    <section id="panel-performance" role="tabpanel" aria-labelledby="tab-performance" hidden>
+      <section class="controls" aria-label="Seleção geográfica para métricas">
+        <label for="performance-state-select">Localidade</label>
+        <select id="performance-state-select"></select>
+      </section>
+      <section class="panel performance-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Avaliação histórica</p>
+            <h2 id="performance-title">Desempenho dos modelos</h2>
+          </div>
+        </div>
+        <p class="muted" id="performance-description"></p>
+        <div class="table-wrap performance-table-wrap">
+          <table class="performance-table">
+            <thead>
+              <tr>
+                <th>Modelo</th>
+                <th>Origens</th>
+                <th>MAE</th>
+                <th>RMSE</th>
+                <th>WAPE</th>
+                <th>Viés</th>
+                <th>Correlação</th>
+                <th>Cobertura 80%</th>
+                <th>Largura média 80%</th>
+              </tr>
+            </thead>
+            <tbody id="performance-table"></tbody>
+          </table>
+        </div>
+        <div class="metric-definitions">
+          <strong>Como interpretar as métricas</strong>
+          <ul>
+            <li><strong>MAE</strong> e <strong>RMSE</strong> medem o erro em casos por semana; menor é melhor. O RMSE dá mais peso a erros grandes.</li>
+            <li><strong>WAPE</strong> é a soma dos erros absolutos dividida pela soma dos valores observados, em percentual; menor é melhor.</li>
+            <li><strong>Viés</strong> é a média de estimativa menos observado, em casos por semana. Positivo indica superestimação; negativo, subestimação.</li>
+            <li><strong>Cobertura de 80%</strong> é a proporção de origens em que o observado ficou dentro do intervalo; a referência nominal é 80%. A largura mostra o tamanho médio desse intervalo.</li>
+            <li><strong>Origem fora da amostra</strong> é uma semana-alvo que não foi usada para ajustar, selecionar ou calibrar o modelo que a estimou.</li>
+          </ul>
+        </div>
+      </section>
     </section>
 
     <section id="panel-methodology" role="tabpanel" aria-labelledby="tab-methodology" hidden>

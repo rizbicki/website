@@ -6,6 +6,7 @@
   var geojson = null;
   var currentUf = "BR";
   var currentModel = "ensemble";
+  var currentPerformanceUf = "BR";
   var currentMapMetric = "change";
   var currentUfWindow = "4w";
   var currentPayload = null;
@@ -49,6 +50,7 @@
   };
 
   var select = document.getElementById("state-select");
+  var performanceSelect = document.getElementById("performance-state-select");
   var modelSelect = document.getElementById("model-select");
   var mapMetricSelect = document.getElementById("map-metric-select");
   var ufWindowSelect = document.getElementById("uf-window-select");
@@ -59,6 +61,10 @@
     nowcast: {
       button: document.getElementById("tab-nowcast"),
       panel: document.getElementById("panel-nowcast")
+    },
+    performance: {
+      button: document.getElementById("tab-performance"),
+      panel: document.getElementById("panel-performance")
     },
     methodology: {
       button: document.getElementById("tab-methodology"),
@@ -76,6 +82,7 @@
   }
 
   tabs.nowcast.button.addEventListener("click", function () { switchTab("nowcast"); });
+  tabs.performance.button.addEventListener("click", function () { switchTab("performance"); });
   tabs.methodology.button.addEventListener("click", function () { switchTab("methodology"); });
 
   function renderMethodology(summaryData) {
@@ -246,14 +253,14 @@
     dashboard.hidden = true;
   }
 
-  function populateSelect() {
-    select.textContent = "";
+  function populateStateSelect(element) {
+    element.textContent = "";
     var choices = [summary.brazil].concat(summary.states);
     choices.forEach(function (entry) {
       var option = document.createElement("option");
       option.value = entry.uf;
       option.textContent = entry.uf === "BR" ? "Brasil" : entry.name + " (" + entry.uf + ")";
-      select.appendChild(option);
+      element.appendChild(option);
     });
   }
 
@@ -353,42 +360,50 @@
       formatCount(estimate) + " casos após compensar o atraso de notificação.";
   }
 
-  function renderQuality(payload) {
-    var score = payload.backtest && payload.backtest[currentModel] || {};
-    var model = MODELS[currentModel];
-    var unavailable = score.coverage80_percent === null ||
-      score.coverage80_percent === undefined;
-    var pointOrigins = score.n;
-    var coverageOrigins = score.coverage_evaluation_origins ||
-      score.evaluation_origins || score.n;
-    document.getElementById("quality-title").textContent =
-      "Desempenho — " + model.cardLabel + " · " + payload.name;
-    document.getElementById("quality-wape").textContent =
-      score.wape_percent === null || score.wape_percent === undefined ?
-        "—" : formatPercent(score.wape_percent).replace("+", "");
-    document.getElementById("quality-bias").textContent =
-      formatSignedCount(score.bias);
-    document.getElementById("quality-bias-unit").textContent =
-      "casos por semana";
-    document.getElementById("quality-coverage").textContent =
-      unavailable ?
-        "—" : formatPercent(score.coverage80_percent).replace("+", "");
-    document.getElementById("quality-coverage-note").textContent =
-      unavailable ? "não avaliada: requer vintages arquivados" :
-        "calculada em " + formatCount(coverageOrigins) +
-        " origens; referência nominal 80%";
-    document.getElementById("quality-n").textContent = formatCount(pointOrigins);
-    document.getElementById("quality-n-note").textContent = unavailable ?
-      "ainda sem avaliação histórica" : "usadas para WAPE e viés";
-    document.getElementById("quality-description").textContent =
-      unavailable ?
-        ("Modelo selecionado: " + model.cardLabel + " · Localidade: " +
-        payload.name + ". Ainda não há métricas históricas válidas porque " +
-        "as previsões publicadas precisam ser preservadas em vintages semanais.") :
-        ("Modelo avaliado: " + model.cardLabel + " · Localidade: " +
-        payload.name + ". WAPE e viés usam " + formatCount(pointOrigins) +
-        " origens rolling-origin fora da amostra; a cobertura usa " +
-        formatCount(coverageOrigins) + " origens.");
+  function metricCell(value, formatter) {
+    var cell = document.createElement("td");
+    cell.textContent = value === null || value === undefined ? "—" : formatter(value);
+    return cell;
+  }
+
+  function renderPerformance(payload) {
+    var table = document.getElementById("performance-table");
+    table.textContent = "";
+    document.getElementById("performance-title").textContent =
+      "Desempenho dos modelos — " + payload.name;
+    document.getElementById("performance-description").textContent =
+      "Métricas fora da amostra, calculadas nas mesmas origens rolling-origin " +
+      "para todos os modelos locais. Os modelos sem histórico de previsões " +
+      "imutáveis permanecem marcados como não avaliados.";
+    Object.keys(MODELS).forEach(function (modelKey) {
+      var model = MODELS[modelKey];
+      var score = payload.backtest && payload.backtest[modelKey] || {};
+      var row = document.createElement("tr");
+      var name = document.createElement("td");
+      name.textContent = model.cardLabel;
+      row.appendChild(name);
+      row.appendChild(metricCell(score.n, formatCount));
+      row.appendChild(metricCell(score.mae, formatCount));
+      row.appendChild(metricCell(score.rmse, formatCount));
+      row.appendChild(metricCell(score.wape_percent, function (value) {
+        return formatPercent(value).replace("+", "");
+      }));
+      row.appendChild(metricCell(score.bias, formatSignedCount));
+      row.appendChild(metricCell(score.correlation, function (value) {
+        return new Intl.NumberFormat("pt-BR", {
+          minimumFractionDigits: 2, maximumFractionDigits: 3
+        }).format(value);
+      }));
+      row.appendChild(metricCell(score.coverage80_percent, function (value) {
+        return formatPercent(value).replace("+", "");
+      }));
+      row.appendChild(metricCell(score.mean_interval_width, formatCount));
+      if (score.n === null || score.n === undefined) {
+        row.classList.add("not-evaluated");
+        row.title = score.note || "Métricas históricas ainda não disponíveis.";
+      }
+      table.appendChild(row);
+    });
   }
 
   function renderSeries(payload) {
@@ -614,7 +629,6 @@
       currentPayload = payload;
       renderCards(payload);
       renderSeries(payload);
-      renderQuality(payload);
       renderTable();
       dashboard.hidden = false;
       errorPanel.hidden = true;
@@ -637,7 +651,8 @@
       summary = await responses[0].json();
       geojson = await responses[1].json();
       renderMethodology(summary);
-      populateSelect();
+      populateStateSelect(select);
+      populateStateSelect(performanceSelect);
       var requested = window.location.hash.replace("#", "").toUpperCase();
       var available = ["BR"].concat(summary.states.map(function (entry) {
         return entry.uf;
@@ -645,6 +660,8 @@
       currentUf = available.indexOf(requested) >= 0 ?
         requested : summary.default_state;
       select.value = currentUf;
+      currentPerformanceUf = currentUf;
+      performanceSelect.value = currentPerformanceUf;
       mapMetricSelect.value = currentMapMetric;
       ufWindowSelect.value = currentUfWindow;
       dashboard.hidden = false;
@@ -659,6 +676,14 @@
         "Atualizado em " + generated + " · SIVEP até " + snapshot +
         " · InfoGripe até " + formatDate(summary.sources.infogripe.latest_week);
       select.onchange = function () { render(select.value); };
+      performanceSelect.onchange = async function () {
+        currentPerformanceUf = performanceSelect.value;
+        try {
+          renderPerformance(await loadState(currentPerformanceUf));
+        } catch (error) {
+          showError(error);
+        }
+      };
       ufWindowSelect.onchange = function () {
         currentUfWindow = ufWindowSelect.value;
         updateMapDescription();
@@ -677,11 +702,11 @@
         if (currentPayload) {
           renderCards(currentPayload);
           renderSeries(currentPayload);
-          renderQuality(currentPayload);
         }
       };
       retryButton.onclick = initialize;
       await render(currentUf);
+      renderPerformance(await loadState(currentPerformanceUf));
     } catch (error) {
       showError(error);
     }
