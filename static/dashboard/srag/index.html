@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Nowcast semanal de casos de SRAG no Brasil com Google Trends e sazonalidade.">
+  <meta name="description" content="Nowcast semanal de SRAG com Google Trends, sazonalidade e estimativas oficiais do InfoGripe.">
   <title>Nowcast de SRAG no Brasil</title>
-  <link rel="stylesheet" href="/dashboard/srag/styles.css?v=20260830-infogripe-scaled">
+  <link rel="stylesheet" href="/dashboard/srag/styles.css?v=20260901-horizon-chart">
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
-  <script src="/dashboard/srag/app.js?v=20260830-infogripe-band" defer></script>
+  <script src="/dashboard/srag/app.js?v=20260901-horizon-chart" defer></script>
 </head>
 <body>
   <header class="hero">
     <div>
       <p class="eyebrow">Vigilância epidemiológica experimental</p>
       <h1>Nowcast semanal de SRAG no Brasil</h1>
-      <p class="lede">Estimativas das semanas recentes ainda sujeitas a atraso de notificação, combinando buscas por <em>gripe</em>, <em>sintomas gripe</em> e <em>tosse</em> com a sazonalidade anual.</p>
+      <p class="lede">Nowcast de casos de SRAG com a definição sintomática do InfoGripe, comparando buscas no Google, sazonalidade anual e a estimativa oficial.</p>
     </div>
     <div class="status" aria-live="polite">
       <span class="status-dot"></span>
@@ -25,6 +25,7 @@
   <main>
     <nav class="tabs" aria-label="Seções do painel">
       <button type="button" class="tab-button active" id="tab-nowcast" role="tab" aria-selected="true" aria-controls="panel-nowcast">Nowcast</button>
+      <button type="button" class="tab-button" id="tab-performance" role="tab" aria-selected="false" aria-controls="panel-performance">Desempenho</button>
       <button type="button" class="tab-button" id="tab-methodology" role="tab" aria-selected="false" aria-controls="panel-methodology">Metodologia</button>
     </nav>
 
@@ -36,6 +37,7 @@
       <select id="model-select">
         <option value="ensemble">Agregado (LASSO + sazonal)</option>
         <option value="combined">Combinado experimental (+ InfoGripe)</option>
+        <option value="infogripe">InfoGripe (Fiocruz)</option>
         <option value="seasonal">Sazonal (ano anterior suavizado)</option>
         <option value="lasso">Trends (Google Trends)</option>
       </select>
@@ -45,13 +47,9 @@
     <section id="error-panel" class="error-panel" hidden role="alert"></section>
     <aside id="model-note" class="model-note" hidden>
       <strong>Modo experimental.</strong>
-      A série do InfoGripe é primeiro ajustada da sua definição sintomática para o
-      alvo de todos os casos de SRAG do painel, usando a razão das 13 semanas
-      consolidadas mais recentes. Depois, a estimativa combina com pesos iguais o
-      InfoGripe ajustado e o modelo de Trends + sazonalidade. A faixa laranja mostra
-      o intervalo de 80% do InfoGripe, a faixa roxa representa os quantis da mistura
-      e a faixa cinza externa mostra o envelope dos dois intervalos. O peso
-      de 50% ainda não foi escolhido por desempenho histórico.
+      O modelo local e o InfoGripe estimam a mesma definição filtrada de SRAG, sem
+      fator de escala. Eles são combinados 50/50; laranja mostra o intervalo do
+      InfoGripe, roxo os quantis da mistura e cinza o envelope dos modelos.
     </aside>
 
     <section id="dashboard" hidden>
@@ -71,9 +69,9 @@
           <small id="interval-value">—</small>
         </article>
         <article class="card">
-          <span class="card-label">Notificado até agora</span>
+          <span class="card-label" id="observed-label">Notificado até agora</span>
           <strong id="observed-value">—</strong>
-          <small>valor ainda provisório</small>
+          <small id="observed-note">valor ainda provisório</small>
         </article>
         <article class="card card-split">
           <span class="card-label">Variação recente da estimativa</span>
@@ -94,58 +92,12 @@
         <div class="panel-heading">
           <div>
             <p id="series-title" class="eyebrow">Série semanal</p>
-            <h3>Casos observados e nowcast</h3>
+            <h3>Casos de SRAG filtrados: observados e nowcast</h3>
           </div>
-          <p class="muted" id="interval-description">A faixa mostra um intervalo conformal de 80%.</p>
+          <p class="muted" id="interval-description">A faixa mostra o intervalo de 80% publicado por cada modelo.</p>
         </div>
         <div id="series-chart" class="chart" aria-label="Gráfico temporal de casos de SRAG"></div>
       </section>
-
-      <details class="panel quality-panel">
-        <summary>
-          <span>
-            <span class="eyebrow">Transparência do modelo</span>
-            <span class="summary-title">Desempenho histórico</span>
-          </span>
-          <span class="summary-action">Ver métricas</span>
-        </summary>
-        <p class="muted quality-description" id="quality-description"></p>
-        <div class="quality-controls">
-          <label for="quality-horizon-select">Horizonte avaliado</label>
-          <select id="quality-horizon-select" class="select-compact">
-            <option value="all">Todas as 7 semanas (agregado)</option>
-            <option value="1">1ª semana (H+1)</option>
-            <option value="2">2ª semana (H+2)</option>
-            <option value="3">3ª semana (H+3)</option>
-            <option value="4">4ª semana (H+4)</option>
-            <option value="5">5ª semana (H+5)</option>
-            <option value="6">6ª semana (H+6)</option>
-            <option value="7">7ª semana (H+7)</option>
-          </select>
-        </div>
-        <div class="quality-grid">
-          <article class="quality-metric">
-            <span>Erro percentual (WAPE)</span>
-            <strong id="quality-wape">—</strong>
-            <small>menor é melhor</small>
-          </article>
-          <article class="quality-metric">
-            <span>Viés médio</span>
-            <strong id="quality-bias">—</strong>
-            <small id="quality-bias-unit">casos por semana</small>
-          </article>
-          <article class="quality-metric">
-            <span>Cobertura do intervalo de 80%</span>
-            <strong id="quality-coverage">—</strong>
-            <small id="quality-coverage-note">ideal próximo de 80%</small>
-          </article>
-          <article class="quality-metric">
-            <span>Previsões avaliadas</span>
-            <strong id="quality-n">—</strong>
-            <small>previsões fora da amostra</small>
-          </article>
-        </div>
-      </details>
 
       <div class="two-column">
         <section class="panel">
@@ -197,25 +149,96 @@
     </section>
     </section>
 
+    <section id="panel-performance" role="tabpanel" aria-labelledby="tab-performance" hidden>
+      <section class="controls" aria-label="Seleção geográfica para métricas">
+        <label for="performance-state-select">Localidade</label>
+        <select id="performance-state-select"></select>
+        <label for="performance-horizon-select">Horizonte da tabela</label>
+        <select id="performance-horizon-select">
+          <option value="all">Todas as 7 semanas (agregado)</option>
+          <option value="1">1ª semana (H+1)</option>
+          <option value="2">2ª semana (H+2)</option>
+          <option value="3">3ª semana (H+3)</option>
+          <option value="4">4ª semana (H+4)</option>
+          <option value="5">5ª semana (H+5)</option>
+          <option value="6">6ª semana (H+6)</option>
+          <option value="7">7ª semana (H+7)</option>
+        </select>
+        <label for="performance-metric-select">Métrica do gráfico</label>
+        <select id="performance-metric-select">
+          <option value="wape_percent">WAPE</option>
+          <option value="mae">MAE</option>
+          <option value="rmse">RMSE</option>
+          <option value="bias">Viés</option>
+          <option value="correlation">Correlação</option>
+          <option value="coverage80_percent">Cobertura 80%</option>
+          <option value="mean_interval_width">Largura média 80%</option>
+        </select>
+      </section>
+      <section class="panel performance-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Avaliação histórica</p>
+            <h2 id="performance-title">Desempenho dos modelos</h2>
+          </div>
+        </div>
+        <p class="muted" id="performance-description"></p>
+        <section class="performance-chart-section">
+          <h3 id="performance-chart-title">WAPE por horizonte</h3>
+          <div id="performance-chart" class="performance-chart" aria-label="Gráfico das métricas por horizonte de nowcast"></div>
+        </section>
+        <div class="table-wrap performance-table-wrap">
+          <table class="performance-table">
+            <thead>
+              <tr>
+                <th>Modelo</th>
+                <th id="performance-n-heading">Previsões</th>
+                <th>MAE</th>
+                <th>RMSE</th>
+                <th>WAPE</th>
+                <th>Viés</th>
+                <th>Correlação</th>
+                <th>Cobertura 80%</th>
+                <th>Largura média 80%</th>
+              </tr>
+            </thead>
+            <tbody id="performance-table"></tbody>
+          </table>
+        </div>
+        <div class="metric-definitions">
+          <strong>Como interpretar as métricas</strong>
+          <ul>
+            <li><strong>MAE</strong> e <strong>RMSE</strong> medem o erro em casos por semana; menor é melhor. O RMSE dá mais peso a erros grandes.</li>
+            <li><strong>WAPE</strong> é a soma dos erros absolutos dividida pela soma dos valores observados, em percentual; menor é melhor.</li>
+            <li><strong>Viés</strong> é a média de estimativa menos observado, em casos por semana. Positivo indica superestimação; negativo, subestimação.</li>
+            <li><strong>Cobertura de 80%</strong> é a proporção de origens em que o observado ficou dentro do intervalo; a referência nominal é 80%. A largura mostra o tamanho médio desse intervalo.</li>
+            <li><strong>Horizonte</strong> indica quantas semanas após o ajuste a estimativa foi feita. A visão agregada reúne todos os pares origem–horizonte.</li>
+            <li><strong>Origem fora da amostra</strong> é um ponto de ajuste cujo alvo não foi usado para selecionar, ajustar ou calibrar o modelo.</li>
+          </ul>
+        </div>
+      </section>
+    </section>
+
     <section id="panel-methodology" role="tabpanel" aria-labelledby="tab-methodology" hidden>
       <section class="method">
         <h2>Metodologia</h2>
-        <p>O modelo é estimado separadamente para cada uma das 27 unidades federativas. Para cada estado, um LASSO é treinado nas 104 semanas mais recentes já consolidadas, usando como preditores os índices semanais do Google Trends para os termos <em>gripe</em>, <em>sintomas gripe</em> e <em>tosse</em> na própria semana. A estimativa final é a média entre esse LASSO e um componente sazonal suavizado: a média dos valores observados de SRAG entre 50 e 54 semanas antes.</p>
-        <p>O agregado Brasil é a soma das 27 estimativas estaduais — não é um modelo treinado separadamente para o país. As faixas de 80% são conformais: usam os percentis 10 e 90 dos resíduos fora da amostra (out-of-fold) de cada modelo. A faixa do Brasil é calibrada a partir dos resíduos da soma das estimativas estaduais, e não da soma das faixas estaduais.</p>
-        <p>O modo <strong>Combinado experimental</strong> acrescenta o nowcast publicado pelo InfoGripe. Como essa série usa uma definição sintomática mais restrita, ela é multiplicada, em cada UF, pela razão entre todos os registros de SRAG e os registros que satisfazem esse filtro nas 13 semanas consolidadas mais recentes (com pelo menos 8 semanas disponíveis). Assim, os dois componentes passam a estimar o mesmo alvo antes da combinação. Cada previsão é reconstruída como uma distribuição assimétrica na escala <code>log1p</code>, compatível com seu ponto e seus limites de 80%. As duas distribuições são misturadas com pesos iguais. O ponto exibido é a média 50/50; a faixa laranja mostra os limites de 80% publicados pelo InfoGripe após o mesmo ajuste de escala; a faixa roxa contém os quantis 10 e 90 da mistura e tende a se abrir quando os modelos discordam. A faixa cinza é apenas o envelope conservador dos dois intervalos.</p>
-        <p>Esse intervalo combinado <strong>ainda não é calibrado historicamente</strong>. O arquivo público do InfoGripe é uma visão corrente: previsões antigas são revistas conforme chegam notificações. Por isso estamos acumulando snapshots semanais imutáveis antes de estimar o peso <em>w</em> ou reportar cobertura e erro do modo combinado. Para o Brasil, a mistura compara o nosso agregado estadual à série Brasil ajustada independentemente pelo InfoGripe; seu ponto não precisa coincidir com a soma das misturas estaduais.</p>
-        <p>No mapa de nowcast, as estimativas são apresentadas em casos por 100 mil habitantes, usando a população residente do Censo Demográfico 2022 do IBGE. Os demais valores são contagens absolutas; o mapa de variação mostra percentuais. As métricas de desempenho histórico usam previsões fora da amostra e podem ser vistas separadamente para cada uma das sete semanas após o ajuste, além da visão agregada.</p>
+        <p>O modelo é estimado separadamente para cada uma das 27 unidades federativas. O alvo é o número de registros do SIVEP-Gripe que satisfazem a mesma definição sintomática usada pelo InfoGripe: (tosse ou dor de garganta), (dispneia, saturação abaixo de 95% ou desconforto respiratório) e (hospitalização ou óbito). Um LASSO é treinado nas 104 semanas consolidadas mais recentes com os índices do Google Trends para <em>gripe</em>, <em>sintomas gripe</em> e <em>tosse</em>; sua estimativa é combinada com a média do mesmo alvo filtrado entre 50 e 54 semanas antes.</p>
+        <p>Como o modelo local e o <strong>InfoGripe</strong> agora estimam o mesmo alvo filtrado, os pontos e intervalos de credibilidade de 80% publicados pelo InfoGripe entram diretamente, sem fator de escala. Crédito: InfoGripe — MAVE (PROCC/Fiocruz e EMap/FGV) e GT-Influenza/Ministério da Saúde.</p>
+        <p>No modo <strong>Combinado experimental</strong>, as distribuições do InfoGripe e de Trends + sazonalidade são reconstruídas na escala <code>log1p</code> e misturadas com pesos iguais. A faixa laranja mostra os limites de 80% do InfoGripe; a faixa roxa contém os quantis 10 e 90 da mistura; a faixa cinza é o envelope conservador dos dois intervalos.</p>
+        <p>Para os modelos locais, o agregado Brasil é a soma das 27 estimativas estaduais; para o InfoGripe, é usada a estimativa nacional publicada pela própria equipe. As faixas locais de 80% usam resíduos de semanas anteriores ao alvo atual; a faixa do InfoGripe é o intervalo de credibilidade oficial. As métricas históricas locais usam origens <em>rolling-origin</em> externas: em cada origem, seleção, ajuste e calibração veem somente as semanas anteriores, e o mesmo ajuste é avaliado separadamente em H+1 até H+7. Para o Brasil, a cobertura é <em>prequential</em> e cada intervalo avaliado usa apenas resíduos nacionais já observados em origens anteriores.</p>
+        <p>O peso de 50% e o intervalo combinado ainda não foram calibrados historicamente. Como o arquivo público revisa previsões antigas, estamos acumulando vintages semanais imutáveis antes de estimar o peso <em>w</em> e medir erro e cobertura.</p>
+        <p>No mapa de nowcast, as estimativas são apresentadas em casos por 100 mil habitantes, usando a população residente do Censo Demográfico 2022 do IBGE. Os demais valores são contagens absolutas; o mapa de variação mostra percentuais. As métricas históricas fora da amostra ainda não são exibidas para o InfoGripe porque o arquivo público revisa valores passados; o histórico semanal começa a ser preservado pelos commits deste site.</p>
         <p>Este é um <strong>nowcast</strong>, não uma previsão: ele estima semanas que já ocorreram, mas cuja notificação ainda está incompleta por atraso no sistema de vigilância. Um caso só entra como "consolidado" depois de um número mínimo de dias desde o início dos sintomas; semanas mais recentes do que isso aparecem como provisórias no gráfico.</p>
 
         <h3>Atualização</h3>
-        <p>Os índices do Google Trends são coletados diariamente, em lotes pequenos por estado, de segunda a sábado. Aos sábados, com os 27 estados disponíveis, o pipeline baixa os arquivos do SIVEP-Gripe, retreina os modelos e publica um novo pacote de dados. Uma atualização com falha nunca substitui os últimos dados válidos.</p>
+        <p>Os índices do Google Trends são coletados diariamente, em lotes pequenos por estado, de segunda a sábado. Aos sábados, o pipeline baixa os arquivos do SIVEP-Gripe e a série oficial corrente do InfoGripe, retreina os modelos locais, valida as 28 geografias e publica um novo pacote. Se o InfoGripe estiver incompleto ou com mais de 21 dias, a atualização falha e não substitui os últimos dados válidos.</p>
 
         <h3>Parâmetros da execução mais recente</h3>
         <dl id="method-technical" class="method-technical"></dl>
 
         <h3>Limitações</h3>
         <p>Os índices do Google Trends são normalizados de 0 a 100 separadamente para cada estado e não devem ser comparados diretamente entre UFs. A amostragem do Trends pode variar levemente entre extrações. As estimativas são experimentais e não substituem os dados oficiais do Ministério da Saúde.</p>
-        <p class="sources">Fontes: SIVEP-Gripe / Ministério da Saúde, Google Trends, InfoGripe / Fiocruz e Censo Demográfico 2022 / IBGE.</p>
+        <p class="sources">Fontes: SIVEP-Gripe / Ministério da Saúde, Google Trends, Censo Demográfico 2022 / IBGE e <a href="https://github.com/infogripe/Boletim_InfoGripe" target="_blank" rel="noopener noreferrer">InfoGripe — MAVE (PROCC/Fiocruz e EMap/FGV) e GT-Influenza/MS</a>.</p>
       </section>
     </section>
   </main>

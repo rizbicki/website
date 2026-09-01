@@ -6,8 +6,10 @@
   var geojson = null;
   var currentUf = "BR";
   var currentModel = "ensemble";
+  var currentPerformanceUf = "BR";
+  var currentPerformanceHorizon = "all";
+  var currentPerformanceMetric = "wape_percent";
   var currentMapMetric = "change";
-  var currentQualityHorizon = "all";
   var currentUfWindow = "4w";
   var currentPayload = null;
   var stateCache = new Map();
@@ -25,14 +27,20 @@
     }
   };
 
+  var PERFORMANCE_METRICS = {
+    wape_percent: { label: "WAPE", axis: "%" },
+    mae: { label: "MAE", axis: "casos por semana" },
+    rmse: { label: "RMSE", axis: "casos por semana" },
+    bias: { label: "Viés", axis: "casos por semana", reference: 0 },
+    correlation: { label: "Correlação", axis: "correlação" },
+    coverage80_percent: { label: "Cobertura 80%", axis: "%", reference: 80 },
+    mean_interval_width: { label: "Largura média 80%", axis: "casos por semana" }
+  };
+
   var MODELS = {
     ensemble: {
       value: "nowcast", lower: "lower80", upper: "upper80",
-      seriesLabel: "Nowcast", cardLabel: "Nowcast"
-    },
-    combined: {
-      value: "combined", lower: "combined_lower80", upper: "combined_upper80",
-      seriesLabel: "Combinado", cardLabel: "Combinado experimental"
+      seriesLabel: "Nowcast", cardLabel: "Agregado (LASSO + sazonal)"
     },
     seasonal: {
       value: "seasonal", lower: "seasonal_lower80", upper: "seasonal_upper80",
@@ -41,14 +49,25 @@
     lasso: {
       value: "lasso", lower: "lasso_lower80", upper: "lasso_upper80",
       seriesLabel: "Trends", cardLabel: "Trends (Google Trends)"
+    },
+    combined: {
+      value: "combined", lower: "combined_lower80", upper: "combined_upper80",
+      seriesLabel: "Combinado 50/50", cardLabel: "Combinado experimental"
+    },
+    infogripe: {
+      value: "infogripe_raw", lower: "infogripe_raw_lower80", upper: "infogripe_raw_upper80",
+      seriesLabel: "InfoGripe", cardLabel: "InfoGripe (Fiocruz)",
+      observed: "infogripe_reported_raw", intervalLabel: "Intervalo de credibilidade de 80%"
     }
   };
 
   var select = document.getElementById("state-select");
+  var performanceSelect = document.getElementById("performance-state-select");
+  var performanceHorizonSelect = document.getElementById("performance-horizon-select");
+  var performanceMetricSelect = document.getElementById("performance-metric-select");
   var modelSelect = document.getElementById("model-select");
   var mapMetricSelect = document.getElementById("map-metric-select");
   var ufWindowSelect = document.getElementById("uf-window-select");
-  var qualityHorizonSelect = document.getElementById("quality-horizon-select");
   var dashboard = document.getElementById("dashboard");
   var errorPanel = document.getElementById("error-panel");
   var retryButton = document.getElementById("retry-button");
@@ -56,6 +75,10 @@
     nowcast: {
       button: document.getElementById("tab-nowcast"),
       panel: document.getElementById("panel-nowcast")
+    },
+    performance: {
+      button: document.getElementById("tab-performance"),
+      panel: document.getElementById("panel-performance")
     },
     methodology: {
       button: document.getElementById("tab-methodology"),
@@ -73,24 +96,25 @@
   }
 
   tabs.nowcast.button.addEventListener("click", function () { switchTab("nowcast"); });
+  tabs.performance.button.addEventListener("click", function () {
+    switchTab("performance");
+    setTimeout(function () { Plotly.Plots.resize("performance-chart"); }, 0);
+  });
   tabs.methodology.button.addEventListener("click", function () { switchTab("methodology"); });
 
   function renderMethodology(summaryData) {
     var list = document.getElementById("method-technical");
     var entries = [
       ["Semanas de treino", String(summaryData.model.training_weeks)],
-      ["Horizontes avaliados", "H+1 a H+" + (summaryData.model.evaluation_horizon_weeks || 7)],
-      ["Intervalo entre ajustes no backtest", (summaryData.model.evaluation_origin_step_weeks || 4) + " semanas"],
+      ["Horizontes avaliados", "H+1 a H+" +
+        (summaryData.brazil.backtest.ensemble.max_horizon_weeks || 7)],
+      ["Intervalo entre ajustes no backtest",
+        (summaryData.brazil.backtest.ensemble.origin_step_weeks || 4) + " semanas"],
       ["Atraso mínimo para consolidação", summaryData.model.consolidation_lag_days + " dias"],
       ["Atualização mais recente", formatDate(summaryData.generated_at_utc)],
-      ["Dados do SIVEP até", formatDate(summaryData.sources.srag.latest_source_snapshot_date)]
+      ["Dados do SIVEP até", formatDate(summaryData.sources.srag.latest_source_snapshot_date)],
+      ["Nowcast InfoGripe até", formatDate(summaryData.sources.infogripe.latest_week)]
     ];
-    if (summaryData.sources.infogripe) {
-      entries.push([
-        "InfoGripe consultado em",
-        formatDate(summaryData.sources.infogripe.retrieved_at_utc)
-      ]);
-    }
     list.textContent = "";
     entries.forEach(function (entry) {
       var dt = document.createElement("dt");
@@ -155,16 +179,46 @@
     return 100 * (sum(recent) / priorSum - 1);
   }
 
-  function modelChangeMetrics(rows, modelKey) {
+  function modelChangeMetrics(payload, modelKey) {
+    var rows = payload.series;
     var field = MODELS[modelKey].value;
-    var series = rows.map(function (row) {
-      var v = row[field];
-      return v === null || v === undefined ? row.observed : v;
+    var latest = latestForModel(payload, modelKey);
+    var eligible = rows.filter(function (row) {
+      return row.week <= latest.week;
     });
+    var series;
+    if (modelKey === "infogripe") {
+      series = eligible.map(function (row) {
+        return row[field];
+      }).filter(function (value) {
+        return value !== null && value !== undefined;
+      });
+    } else {
+      series = eligible.map(function (row) {
+        var v = row[field];
+        return v === null || v === undefined ? row.observed : v;
+      });
+    }
     return {
       change2w: rollingChange(series, 2),
       change4w: rollingChange(series, 4)
     };
+  }
+
+  function latestForModel(payload, modelKey) {
+    var field = MODELS[modelKey].value;
+    for (var i = payload.series.length - 1; i >= 0; i -= 1) {
+      if (payload.series[i][field] !== null && payload.series[i][field] !== undefined) {
+        return payload.series[i];
+      }
+    }
+    return payload.latest;
+  }
+
+  function summaryChangeField(modelKey, baseField) {
+    if (modelKey === "infogripe") return "infogripe_raw_" + baseField;
+    if (modelKey === "combined") return "combined_" + baseField;
+    return baseField;
   }
 
   function formatPercent(value) {
@@ -220,19 +274,20 @@
     dashboard.hidden = true;
   }
 
-  function populateSelect() {
-    select.textContent = "";
+  function populateStateSelect(element) {
+    element.textContent = "";
     var choices = [summary.brazil].concat(summary.states);
     choices.forEach(function (entry) {
       var option = document.createElement("option");
       option.value = entry.uf;
       option.textContent = entry.uf === "BR" ? "Brasil" : entry.name + " (" + entry.uf + ")";
-      select.appendChild(option);
+      element.appendChild(option);
     });
   }
 
   function renderTable() {
-    var field = UF_WINDOWS[currentUfWindow].field;
+    var field = summaryChangeField(
+      currentModel, UF_WINDOWS[currentUfWindow].field);
     var model = MODELS[currentModel];
     var tbody = document.getElementById("state-table");
     document.getElementById("table-nowcast-heading").textContent =
@@ -264,33 +319,44 @@
   }
 
   function renderCards(payload) {
-    var latest = payload.latest;
     var model = MODELS[currentModel];
+    var latest = latestForModel(payload, currentModel);
     var estimate = latest[model.value];
     var lower = latest[model.lower];
     var upper = latest[model.upper];
-    var changes = modelChangeMetrics(payload.series, currentModel);
-    var combined = currentModel === "combined";
+    var isInfo = currentModel === "infogripe";
+    var isCombined = currentModel === "combined";
+    var observed = latest[model.observed || "observed"];
+    var changes = modelChangeMetrics(payload, currentModel);
     document.getElementById("selected-kicker").textContent =
       payload.uf === "BR" ?
-        (combined ? "Mistura de duas estimativas nacionais" : "Agregado das 27 UFs") :
-        payload.uf;
+        (isInfo ? "Estimativa nacional do InfoGripe" :
+          isCombined ? "Mistura de duas estimativas nacionais" :
+          "Agregado das 27 UFs") : payload.uf;
     document.getElementById("selected-title").textContent = payload.name;
     document.getElementById("series-title").textContent =
       "Série semanal — " + payload.name;
     document.getElementById("series-chart").setAttribute(
-      "aria-label", "Gráfico temporal de casos de SRAG em " + payload.name
+      "aria-label", "Gráfico temporal de casos de SRAG filtrados em " + payload.name
     );
-    document.getElementById("selected-period").textContent =
-      "Semana iniciada em " + formatDate(latest.week) +
-      " · corte de treino em " + formatDate(payload.training.cutoff);
+    var period = "Semana iniciada em " + formatDate(latest.week);
+    if (isInfo) {
+      period += " · série oficial coletada em " +
+        formatDate(summary.sources.infogripe.retrieved_at_utc);
+    } else {
+      period += " · corte de treino em " + formatDate(payload.training.cutoff);
+    }
+    document.getElementById("selected-period").textContent = period;
     document.getElementById("nowcast-label").textContent = model.cardLabel;
     document.getElementById("nowcast-value").textContent = formatCount(estimate);
-    document.getElementById("interval-value").textContent = combined ?
+    document.getElementById("interval-value").textContent = isCombined ?
       "Faixa 80% da mistura: " + formatCount(lower) + "–" + formatCount(upper) :
       "80%: " + formatCount(lower) + "–" + formatCount(upper);
-    document.getElementById("observed-value").textContent =
-      formatCount(latest.observed);
+    document.getElementById("observed-label").textContent =
+      isInfo ? "Notificado na base do InfoGripe" : "SRAG filtrado notificado";
+    document.getElementById("observed-value").textContent = formatCount(observed);
+    document.getElementById("observed-note").textContent =
+      isInfo ? "valor informado na publicação oficial" : "valor ainda provisório";
     document.getElementById("change-2w-value").textContent =
       formatPercent(changes.change2w);
     document.getElementById("change-2w-value").className =
@@ -299,54 +365,133 @@
       formatPercent(changes.change4w);
     document.getElementById("change-4w-value").className =
       changes.change4w >= 0 ? "positive" : "negative";
-    document.getElementById("model-note").hidden = !combined;
-    document.getElementById("interval-description").textContent = combined ?
+    document.getElementById("model-note").hidden = !isCombined;
+    document.getElementById("interval-description").textContent = isCombined ?
       "Laranja: faixa de 80% do InfoGripe. Roxo: quantis 10–90% da mistura. " +
       "Cinza: envelope conservador dos dois modelos." :
-      "A faixa mostra um intervalo conformal de 80%.";
-    document.getElementById("interpretation").textContent = combined ?
+      "A faixa mostra o intervalo de 80% publicado por cada modelo.";
+    document.getElementById("interpretation").textContent = isCombined ?
       "O modelo local estima " + formatCount(latest.nowcast) +
-      " casos e o InfoGripe ajustado estima " + formatCount(latest.infogripe) +
+      " casos e o InfoGripe estima " +
+      formatCount(latest.infogripe) +
       "; a combinação 50/50 resulta em " + formatCount(estimate) +
       ". O peso ainda é experimental." :
-      "O valor observado até agora é " + formatCount(latest.observed) + " casos" +
+      "O valor observado até agora é " + formatCount(observed) + " casos" +
       "; o modelo " + model.cardLabel.toLowerCase() + " estima " +
       formatCount(estimate) + " casos após compensar o atraso de notificação.";
   }
 
-  function renderQuality(payload) {
-    var aggregate = payload.backtest && payload.backtest[currentModel] || {};
-    var horizons = aggregate.by_horizon || {};
-    var hasHorizons = Object.keys(horizons).length > 0;
-    var score = currentQualityHorizon === "all" ?
-      aggregate : (horizons[currentQualityHorizon] || {});
-    var model = MODELS[currentModel];
-    var unscored = currentModel === "combined";
-    qualityHorizonSelect.disabled = unscored || !hasHorizons;
-    document.getElementById("quality-wape").textContent =
-      score.wape_percent === null || score.wape_percent === undefined ?
-        "—" : formatPercent(score.wape_percent).replace("+", "");
-    document.getElementById("quality-bias").textContent = formatSignedCount(score.bias);
-    document.getElementById("quality-bias-unit").textContent = "casos por semana";
-    document.getElementById("quality-coverage").textContent =
-      score.coverage80_percent === null || score.coverage80_percent === undefined ?
-        "—" : formatPercent(score.coverage80_percent).replace("+", "");
-    document.getElementById("quality-coverage-note").textContent = unscored ?
-      "aguardando vintages semanais" :
-      (score.coverage80_percent === null || score.coverage80_percent === undefined ?
-        "disponível após a próxima atualização" : "ideal próximo de 80%");
-    document.getElementById("quality-n").textContent = formatCount(score.n);
-    var horizonDescription = currentQualityHorizon === "all" ?
-      " agregando as sete semanas após cada ajuste" :
-      " para a " + currentQualityHorizon + "ª semana após cada ajuste";
-    document.getElementById("quality-description").textContent = unscored ?
-      "Ainda não há avaliação histórica honesta para a mistura. Os forecasts do " +
-      "InfoGripe estão sendo arquivados semanalmente e só serão comparados com " +
-      "dados SIVEP consolidados posteriores." :
-      "Resultados do modelo " + model.cardLabel.toLowerCase() +
-      " em previsões históricas fora da amostra para " + payload.name +
-      horizonDescription + ". O viés indica se o modelo tende a " +
-      "superestimar (+) ou subestimar (−).";
+  function metricCell(value, formatter) {
+    var cell = document.createElement("td");
+    cell.textContent = value === null || value === undefined ? "—" : formatter(value);
+    return cell;
+  }
+
+  function renderPerformanceChart(payload) {
+    var metric = PERFORMANCE_METRICS[currentPerformanceMetric];
+    var horizons = [1, 2, 3, 4, 5, 6, 7];
+    var colors = { ensemble: "#6f2dbd", lasso: "#1877a8", seasonal: "#d97706" };
+    var traces = ["ensemble", "lasso", "seasonal"].map(function (modelKey) {
+      var score = payload.backtest && payload.backtest[modelKey] || {};
+      var byHorizon = score.by_horizon || {};
+      return {
+        type: "scatter",
+        mode: "lines+markers",
+        name: MODELS[modelKey].cardLabel,
+        x: horizons,
+        y: horizons.map(function (horizon) {
+          var row = byHorizon[String(horizon)] || {};
+          var value = row[currentPerformanceMetric];
+          return value === null || value === undefined ? null : value;
+        }),
+        line: { color: colors[modelKey], width: 2.5 },
+        marker: { color: colors[modelKey], size: 7 },
+        connectgaps: false,
+        hovertemplate: "<b>%{fullData.name}</b><br>H+%{x}: %{y:.2f}<extra></extra>"
+      };
+    }).filter(function (trace) {
+      return trace.y.some(function (value) { return value !== null; });
+    });
+    var shapes = [];
+    if (metric.reference !== undefined) {
+      shapes.push({
+        type: "line", xref: "paper", x0: 0, x1: 1,
+        yref: "y", y0: metric.reference, y1: metric.reference,
+        line: { color: "#7a8793", width: 1.5, dash: "dash" }
+      });
+    }
+    document.getElementById("performance-chart-title").textContent =
+      metric.label + " por horizonte — " + payload.name;
+    document.getElementById("performance-chart").setAttribute(
+      "aria-label", metric.label + " por horizonte de nowcast em " + payload.name
+    );
+    Plotly.react("performance-chart", traces, {
+      margin: { l: 65, r: 20, t: 20, b: 55 },
+      paper_bgcolor: "#ffffff",
+      plot_bgcolor: "#ffffff",
+      font: { family: "Inter, sans-serif", color: "#17212b" },
+      hovermode: "x unified",
+      legend: { orientation: "h", y: 1.12, x: 0 },
+      xaxis: {
+        title: "Semana após o ajuste",
+        tickmode: "array",
+        tickvals: horizons,
+        ticktext: horizons.map(function (horizon) { return "H+" + horizon; }),
+        gridcolor: "#e2e8ee"
+      },
+      yaxis: { title: metric.axis, gridcolor: "#e2e8ee", zeroline: false },
+      shapes: shapes
+    }, { responsive: true, displaylogo: false });
+  }
+
+  function renderPerformance(payload) {
+    var table = document.getElementById("performance-table");
+    var horizonLabel = currentPerformanceHorizon === "all" ?
+      "todas as sete semanas após cada ajuste" :
+      "H+" + currentPerformanceHorizon;
+    table.textContent = "";
+    document.getElementById("performance-title").textContent =
+      "Desempenho dos modelos — " + payload.name;
+    document.getElementById("performance-n-heading").textContent =
+      currentPerformanceHorizon === "all" ? "Previsões" : "Origens";
+    document.getElementById("performance-description").textContent =
+      "Métricas fora da amostra para " + horizonLabel +
+      ", calculadas nas mesmas origens rolling-origin para todos os modelos " +
+      "locais. Os modelos sem histórico de previsões imutáveis permanecem " +
+      "marcados como não avaliados.";
+    Object.keys(MODELS).forEach(function (modelKey) {
+      var model = MODELS[modelKey];
+      var aggregate = payload.backtest && payload.backtest[modelKey] || {};
+      var score = currentPerformanceHorizon === "all" ? aggregate :
+        (aggregate.by_horizon &&
+          aggregate.by_horizon[currentPerformanceHorizon] || {});
+      var row = document.createElement("tr");
+      var name = document.createElement("td");
+      name.textContent = model.cardLabel;
+      row.appendChild(name);
+      row.appendChild(metricCell(score.n, formatCount));
+      row.appendChild(metricCell(score.mae, formatCount));
+      row.appendChild(metricCell(score.rmse, formatCount));
+      row.appendChild(metricCell(score.wape_percent, function (value) {
+        return formatPercent(value).replace("+", "");
+      }));
+      row.appendChild(metricCell(score.bias, formatSignedCount));
+      row.appendChild(metricCell(score.correlation, function (value) {
+        return new Intl.NumberFormat("pt-BR", {
+          minimumFractionDigits: 2, maximumFractionDigits: 3
+        }).format(value);
+      }));
+      row.appendChild(metricCell(score.coverage80_percent, function (value) {
+        return formatPercent(value).replace("+", "");
+      }));
+      row.appendChild(metricCell(score.mean_interval_width, formatCount));
+      if (score.n === null || score.n === undefined) {
+        row.classList.add("not-evaluated");
+        row.title = aggregate.note || "Métricas históricas ainda não disponíveis.";
+      }
+      table.appendChild(row);
+    });
+    renderPerformanceChart(payload);
   }
 
   function renderSeries(payload) {
@@ -369,8 +514,7 @@
         type: "rect", xref: "x", yref: "paper",
         x0: rows[provisionalIndex].week,
         x1: lastDate.toISOString().slice(0, 10),
-        y0: 0, y1: 1,
-        fillcolor: "rgba(96,112,128,0.10)",
+        y0: 0, y1: 1, fillcolor: "rgba(96,112,128,0.10)",
         line: { width: 0 }, layer: "below"
       });
       annotations.push({
@@ -386,13 +530,13 @@
       traces.push(
         {
           x: x, y: rows.map(function (row) { return row.combined_envelope_lower; }),
-          type: "scatter", mode: "lines", line: { color: "rgba(90,100,110,0)" },
+          type: "scatter", mode: "lines", line: { color: "rgba(80,80,80,0)" },
           hoverinfo: "skip", showlegend: false
         },
         {
           x: x, y: rows.map(function (row) { return row.combined_envelope_upper; }),
-          type: "scatter", mode: "lines", line: { color: "rgba(90,100,110,0)" },
-          fill: "tonexty", fillcolor: "rgba(90,100,110,0.13)",
+          type: "scatter", mode: "lines", line: { color: "rgba(80,80,80,0)" },
+          fill: "tonexty", fillcolor: "rgba(80,80,80,0.12)",
           name: "Envelope dos modelos", hoverinfo: "skip"
         },
         {
@@ -404,7 +548,7 @@
           x: x, y: rows.map(function (row) { return row.infogripe_upper80; }),
           type: "scatter", mode: "lines", line: { color: "rgba(230,126,34,0)" },
           fill: "tonexty", fillcolor: "rgba(230,126,34,0.18)",
-          name: "Faixa 80% do InfoGripe", hoverinfo: "skip"
+          name: "InfoGripe: faixa de 80%", hoverinfo: "skip"
         },
         {
           x: x, y: rows.map(function (row) { return row.combined_lower80; }),
@@ -414,8 +558,8 @@
         {
           x: x, y: rows.map(function (row) { return row.combined_upper80; }),
           type: "scatter", mode: "lines", line: { color: "rgba(123,44,191,0)" },
-          fill: "tonexty", fillcolor: "rgba(123,44,191,0.23)",
-          name: "Faixa 80% da mistura", hoverinfo: "skip"
+          fill: "tonexty", fillcolor: "rgba(123,44,191,0.20)",
+          name: "Mistura: faixa de 80%", hoverinfo: "skip"
         }
       );
     } else {
@@ -429,11 +573,11 @@
           x: x, y: rows.map(function (row) { return row[model.upper]; }),
           type: "scatter", mode: "lines", line: { color: "rgba(217,95,2,0)" },
           fill: "tonexty", fillcolor: "rgba(217,95,2,0.16)",
-          name: "Intervalo conformal de 80%", hoverinfo: "skip"
+          name: model.intervalLabel || "Intervalo conformal de 80%",
+          hoverinfo: "skip"
         }
       );
     }
-
     traces.push(
       {
         x: x, y: stableObserved, type: "scatter", mode: "lines",
@@ -457,7 +601,7 @@
           x: x, y: rows.map(function (row) { return row.infogripe; }),
           type: "scatter", mode: "lines+markers",
           line: { color: "#e67e22", width: 2, dash: "dash" },
-          marker: { size: 4 }, name: "InfoGripe ajustado"
+          marker: { size: 4 }, name: "InfoGripe"
         },
         {
           x: x, y: rows.map(function (row) { return row.combined; }),
@@ -478,7 +622,8 @@
     Plotly.react("series-chart", traces, {
       margin: { l: 60, r: 20, t: 20, b: 55 },
       paper_bgcolor: "#ffffff", plot_bgcolor: "#ffffff",
-      hovermode: "x unified", legend: { orientation: "h", y: 1.08, x: 0 },
+      hovermode: "x unified",
+      legend: { orientation: "h", y: 1.08, x: 0 },
       shapes: shapes, annotations: annotations,
       xaxis: { gridcolor: "#eef1f3", title: "" },
       yaxis: {
@@ -492,7 +637,7 @@
   function renderMap() {
     var isChange = currentMapMetric === "change";
     var windowConfig = UF_WINDOWS[currentUfWindow];
-    var field = windowConfig.field;
+    var field = summaryChangeField(currentModel, windowConfig.field);
     var model = MODELS[currentModel];
     var locations = summary.states.map(function (entry) { return entry.ibge_code; });
     var values = summary.states.map(function (entry) {
@@ -572,7 +717,6 @@
       currentPayload = payload;
       renderCards(payload);
       renderSeries(payload);
-      renderQuality(payload);
       renderTable();
       dashboard.hidden = false;
       errorPanel.hidden = true;
@@ -595,7 +739,8 @@
       summary = await responses[0].json();
       geojson = await responses[1].json();
       renderMethodology(summary);
-      populateSelect();
+      populateStateSelect(select);
+      populateStateSelect(performanceSelect);
       var requested = window.location.hash.replace("#", "").toUpperCase();
       var available = ["BR"].concat(summary.states.map(function (entry) {
         return entry.uf;
@@ -603,6 +748,8 @@
       currentUf = available.indexOf(requested) >= 0 ?
         requested : summary.default_state;
       select.value = currentUf;
+      currentPerformanceUf = currentUf;
+      performanceSelect.value = currentPerformanceUf;
       mapMetricSelect.value = currentMapMetric;
       ufWindowSelect.value = currentUfWindow;
       dashboard.hidden = false;
@@ -614,8 +761,33 @@
         summary.sources.srag.latest_source_snapshot_date
       );
       document.getElementById("update-status").textContent =
-        "Atualizado em " + generated + " · SIVEP até " + snapshot;
+        "Atualizado em " + generated + " · SIVEP até " + snapshot +
+        " · InfoGripe até " + formatDate(summary.sources.infogripe.latest_week);
       select.onchange = function () { render(select.value); };
+      performanceSelect.onchange = async function () {
+        currentPerformanceUf = performanceSelect.value;
+        try {
+          renderPerformance(await loadState(currentPerformanceUf));
+        } catch (error) {
+          showError(error);
+        }
+      };
+      performanceHorizonSelect.onchange = async function () {
+        currentPerformanceHorizon = performanceHorizonSelect.value;
+        try {
+          renderPerformance(await loadState(currentPerformanceUf));
+        } catch (error) {
+          showError(error);
+        }
+      };
+      performanceMetricSelect.onchange = async function () {
+        currentPerformanceMetric = performanceMetricSelect.value;
+        try {
+          renderPerformanceChart(await loadState(currentPerformanceUf));
+        } catch (error) {
+          showError(error);
+        }
+      };
       ufWindowSelect.onchange = function () {
         currentUfWindow = ufWindowSelect.value;
         updateMapDescription();
@@ -627,10 +799,6 @@
         updateMapDescription();
         renderMap();
       };
-      qualityHorizonSelect.onchange = function () {
-        currentQualityHorizon = qualityHorizonSelect.value;
-        if (currentPayload) renderQuality(currentPayload);
-      };
       modelSelect.onchange = function () {
         currentModel = modelSelect.value;
         renderMap();
@@ -638,11 +806,11 @@
         if (currentPayload) {
           renderCards(currentPayload);
           renderSeries(currentPayload);
-          renderQuality(currentPayload);
         }
       };
       retryButton.onclick = initialize;
       await render(currentUf);
+      renderPerformance(await loadState(currentPerformanceUf));
     } catch (error) {
       showError(error);
     }

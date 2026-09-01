@@ -287,89 +287,31 @@ button {
 .chart { width: 100%; height: 480px; }
 .map { width: 100%; height: 500px; }
 
-.quality-panel { margin-top: 1rem; }
-
-.quality-panel summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  cursor: pointer;
-  list-style: none;
-}
-
-.quality-panel summary::-webkit-details-marker { display: none; }
-
-.summary-title {
-  display: block;
-  margin-top: 0.05rem;
-  font-size: 1.2rem;
-  font-weight: 750;
-}
-
-.summary-action {
-  flex: 0 0 auto;
-  color: var(--blue);
-  font-size: 0.88rem;
-  font-weight: 700;
-}
-
-.summary-action::after {
-  display: inline-block;
-  margin-left: 0.35rem;
-  content: "▾";
-  transition: transform 0.15s ease;
-}
-
-.quality-panel[open] .summary-action::after { transform: rotate(180deg); }
-
-.quality-description { max-width: 900px; margin-top: 0.9rem; }
-
-.quality-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  margin-top: 0.9rem;
-}
-
-.quality-controls label {
+.metric-definitions {
+  max-width: 950px;
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
   color: var(--muted);
   font-size: 0.88rem;
-  font-weight: 700;
 }
 
-.quality-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin-top: 0.9rem;
+.metric-definitions > strong { color: var(--ink); }
+
+.metric-definitions ul {
+  margin: 0.55rem 0 0;
+  padding-left: 1.2rem;
 }
 
-.quality-metric {
-  padding: 0.9rem;
-  background: var(--wash);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-}
+.metric-definitions li + li { margin-top: 0.35rem; }
 
-.quality-metric > span {
-  display: block;
-  min-height: 2.8em;
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 750;
-  letter-spacing: 0.035em;
-  text-transform: uppercase;
-}
-
-.quality-metric strong {
-  display: block;
-  margin: 0.2rem 0 0.05rem;
-  font-size: clamp(1.3rem, 2.3vw, 1.85rem);
-  font-variant-numeric: tabular-nums;
-}
-
-.quality-metric small { color: var(--muted); }
+.performance-panel { margin-top: 1rem; }
+.performance-chart-section { margin: 1rem 0 1.25rem; }
+.performance-chart-section h3 { margin: 0 0 0.35rem; font-size: 1rem; }
+.performance-chart { width: 100%; height: 410px; }
+.performance-table-wrap { max-height: none; }
+.performance-table { min-width: 980px; }
+.performance-table .not-evaluated { color: var(--muted); background: #fafbfc; }
 
 .two-column {
   display: grid;
@@ -448,7 +390,6 @@ tbody tr.selected { background: #e4f0f7; }
   .hero,
   .headline { align-items: flex-start; flex-direction: column; }
   .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .quality-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .two-column { grid-template-columns: 1fr; }
   .table-panel { max-height: none; }
 }
@@ -458,10 +399,8 @@ tbody tr.selected { background: #e4f0f7; }
   main { padding-left: 0.55rem; padding-right: 0.55rem; }
   .controls { align-items: stretch; flex-direction: column; }
   select { width: 100%; }
-  .inline-control,
-  .quality-controls { align-items: stretch; flex-direction: column; width: 100%; }
+  .inline-control { align-items: stretch; flex-direction: column; width: 100%; }
   .cards { grid-template-columns: 1fr; }
-  .quality-grid { grid-template-columns: 1fr; }
   .chart { height: 410px; }
   .map { height: 420px; }
   .panel { padding: 0.65rem; }
