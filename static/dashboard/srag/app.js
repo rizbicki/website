@@ -7,6 +7,7 @@
   var currentUf = "BR";
   var currentModel = "ensemble";
   var currentPerformanceUf = "BR";
+  var currentPerformanceHorizon = "all";
   var currentMapMetric = "change";
   var currentUfWindow = "4w";
   var currentPayload = null;
@@ -51,6 +52,7 @@
 
   var select = document.getElementById("state-select");
   var performanceSelect = document.getElementById("performance-state-select");
+  var performanceHorizonSelect = document.getElementById("performance-horizon-select");
   var modelSelect = document.getElementById("model-select");
   var mapMetricSelect = document.getElementById("map-metric-select");
   var ufWindowSelect = document.getElementById("uf-window-select");
@@ -89,6 +91,10 @@
     var list = document.getElementById("method-technical");
     var entries = [
       ["Semanas de treino", String(summaryData.model.training_weeks)],
+      ["Horizontes avaliados", "H+1 a H+" +
+        (summaryData.brazil.backtest.ensemble.max_horizon_weeks || 7)],
+      ["Intervalo entre ajustes no backtest",
+        (summaryData.brazil.backtest.ensemble.origin_step_weeks || 4) + " semanas"],
       ["Atraso mínimo para consolidação", summaryData.model.consolidation_lag_days + " dias"],
       ["Atualização mais recente", formatDate(summaryData.generated_at_utc)],
       ["Dados do SIVEP até", formatDate(summaryData.sources.srag.latest_source_snapshot_date)],
@@ -368,16 +374,25 @@
 
   function renderPerformance(payload) {
     var table = document.getElementById("performance-table");
+    var horizonLabel = currentPerformanceHorizon === "all" ?
+      "todas as sete semanas após cada ajuste" :
+      "H+" + currentPerformanceHorizon;
     table.textContent = "";
     document.getElementById("performance-title").textContent =
       "Desempenho dos modelos — " + payload.name;
+    document.getElementById("performance-n-heading").textContent =
+      currentPerformanceHorizon === "all" ? "Previsões" : "Origens";
     document.getElementById("performance-description").textContent =
-      "Métricas fora da amostra, calculadas nas mesmas origens rolling-origin " +
-      "para todos os modelos locais. Os modelos sem histórico de previsões " +
-      "imutáveis permanecem marcados como não avaliados.";
+      "Métricas fora da amostra para " + horizonLabel +
+      ", calculadas nas mesmas origens rolling-origin para todos os modelos " +
+      "locais. Os modelos sem histórico de previsões imutáveis permanecem " +
+      "marcados como não avaliados.";
     Object.keys(MODELS).forEach(function (modelKey) {
       var model = MODELS[modelKey];
-      var score = payload.backtest && payload.backtest[modelKey] || {};
+      var aggregate = payload.backtest && payload.backtest[modelKey] || {};
+      var score = currentPerformanceHorizon === "all" ? aggregate :
+        (aggregate.by_horizon &&
+          aggregate.by_horizon[currentPerformanceHorizon] || {});
       var row = document.createElement("tr");
       var name = document.createElement("td");
       name.textContent = model.cardLabel;
@@ -400,7 +415,7 @@
       row.appendChild(metricCell(score.mean_interval_width, formatCount));
       if (score.n === null || score.n === undefined) {
         row.classList.add("not-evaluated");
-        row.title = score.note || "Métricas históricas ainda não disponíveis.";
+        row.title = aggregate.note || "Métricas históricas ainda não disponíveis.";
       }
       table.appendChild(row);
     });
@@ -678,6 +693,14 @@
       select.onchange = function () { render(select.value); };
       performanceSelect.onchange = async function () {
         currentPerformanceUf = performanceSelect.value;
+        try {
+          renderPerformance(await loadState(currentPerformanceUf));
+        } catch (error) {
+          showError(error);
+        }
+      };
+      performanceHorizonSelect.onchange = async function () {
+        currentPerformanceHorizon = performanceHorizonSelect.value;
         try {
           renderPerformance(await loadState(currentPerformanceUf));
         } catch (error) {
