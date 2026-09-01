@@ -95,13 +95,35 @@ jobs:
           restore-keys: |
             sivep-gripe-${{ runner.os }}-
 
+      - name: Authorise the private gripe package
+        env:
+          GRIPE_DEPLOY_KEY: ${{ secrets.GRIPE_DEPLOY_KEY }}
+        run: |
+          if test -z "$GRIPE_DEPLOY_KEY"; then
+            echo "GRIPE_DEPLOY_KEY is not configured; cannot install gripe." >&2
+            exit 1
+          fi
+          mkdir -p ~/.ssh
+          umask 077
+          printf '%s\n' "$GRIPE_DEPLOY_KEY" > ~/.ssh/gripe
+          ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null
+          echo "GIT_SSH_COMMAND=ssh -i ~/.ssh/gripe -o IdentitiesOnly=yes" >> "$GITHUB_ENV"
+
       - name: Install production dependencies
         run: python -m pip install -r automation/srag_nowcast/requirements.txt
+
+      - name: Verify the installed production contract
+        run: |
+          python -m pip show gripe | sed -n '1,3p'
+          python -c 'from gripe.config import SCHEMA_VERSION; assert SCHEMA_VERSION == 2'
 
       - name: Collect the daily Google Trends batch
         if: steps.batch.outputs.ufs != ''
         run: |
-          python automation/srag_nowcast/update_dashboard.py             --collect-trends-only             --ufs ${{ steps.batch.outputs.ufs }}             --trends-cache-dir automation/srag_nowcast/.cache/google_trends             --trends-sleep 15
+          gripe --collect-trends-only \
+            --ufs ${{ steps.batch.outputs.ufs }} \
+            --trends-cache-dir automation/srag_nowcast/.cache/google_trends \
+            --trends-sleep 15
 
       - name: Save Google Trends checkpoints
         if: steps.batch.outputs.ufs != '' && success()
@@ -122,12 +144,18 @@ jobs:
       - name: Build nationwide nowcast
         if: steps.batch.outputs.publish == 'true'
         run: |
-          python automation/srag_nowcast/update_dashboard.py             --from-trends-cache             --max-trends-age-days 9             --trends-cache-dir automation/srag_nowcast/.cache/google_trends             --cache-dir automation/srag_nowcast/.cache/sivep_gripe             --output-dir static/dashboard/srag/data
+          gripe --from-trends-cache \
+            --max-trends-age-days 9 \
+            --max-infogripe-age-days 21 \
+            --trends-cache-dir automation/srag_nowcast/.cache/google_trends \
+            --cache-dir automation/srag_nowcast/.cache/sivep_gripe \
+            --output-dir static/dashboard/srag/data
 
       - name: Validate generated bundle
         if: steps.batch.outputs.publish == 'true'
         run: |
-          python automation/srag_nowcast/update_dashboard.py             --validate-output             --output-dir static/dashboard/srag/data
+          gripe --validate-output \
+            --output-dir static/dashboard/srag/data
 
       - name: Commit the validated update
         if: steps.batch.outputs.publish == 'true'
