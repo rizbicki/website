@@ -27,9 +27,11 @@ weight is learned against later consolidated SIVEP outcomes.
 
 The nowcast map displays incidence per 100,000 residents, using resident
 population from the 2022 IBGE Census. All other count displays remain absolute;
-the recent-change map remains a percentage. The historical performance section
-reports out-of-fold WAPE, mean bias, empirical 80% interval coverage, and the
-number of evaluated weeks for the selected model and locality.
+the recent-change map remains a percentage. The historical performance section reports rolling-origin WAPE, mean bias,
+empirical 80% interval coverage, and the number of evaluated predictions for
+the selected model and locality. Metrics can be viewed separately for weeks
+H+1 through H+7 after each refit or pooled across all seven horizons. Every
+refit retains the preceding 104-week training window.
 
 ## Production schedule
 

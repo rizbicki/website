@@ -99,6 +99,8 @@ DATASET_URL = "https://dadosabertos.saude.gov.br/dataset/srag-2019-a-2026"
 PROVISIONAL_LAG_DAYS = 42
 TRAIN_WEEKS = 104
 SEASONAL_WEIGHT = 0.5
+BACKTEST_ORIGIN_STEP = 4
+BACKTEST_HORIZON_WEEKS = 7
 SEASONAL_HALFWIDTH = 2
 SCHEMA_VERSION = 1
 USER_AGENT = "rafaelizbicki-srag-nowcast/1.0"
@@ -1019,6 +1021,91 @@ def backtest_fixed_alpha(
     return backtest, score, intervals
 
 
+def rolling_origin_backtest(
+    history: pd.DataFrame,
+    train_weeks: int = TRAIN_WEEKS,
+    origin_step: int = BACKTEST_ORIGIN_STEP,
+    horizon_weeks: int = BACKTEST_HORIZON_WEEKS,
+) -> tuple[pd.DataFrame, dict[str, dict[str, object]]]:
+    """Score each of the seven production horizons at independent origins."""
+    ordered = history.sort_values("week_start").reset_index(drop=True).copy()
+    if len(ordered) <= train_weeks:
+        raise RuntimeError(
+            f"Need more than {train_weeks} consolidated weeks for backtesting"
+        )
+    if origin_step < 1 or horizon_weeks < 1:
+        raise ValueError("Backtest spacing and horizon must be positive")
+
+    pieces: list[pd.DataFrame] = []
+    for origin_index in range(train_weeks, len(ordered), origin_step):
+        window = ordered.iloc[origin_index - train_weeks : origin_index].copy()
+        target = ordered.iloc[
+            origin_index : min(origin_index + horizon_weeks, len(ordered))
+        ].copy()
+        target["horizon_week"] = np.arange(1, len(target) + 1)
+        fitted, alpha, _ = choose_alpha(window)
+        _, _, intervals = backtest_fixed_alpha(window, alpha)
+        target["lasso"] = np.clip(fitted.predict(target[TERMS]), 0, None)
+        target = target.loc[target["seasonal_naive"].notna()].copy()
+        if target.empty:
+            continue
+        target["ensemble"] = (
+            SEASONAL_WEIGHT * target["lasso"]
+            + (1 - SEASONAL_WEIGHT) * target["seasonal_naive"]
+        )
+        for name, column in MODEL_COLUMNS.items():
+            low, high = intervals[name]
+            target[f"{column}_lower80"] = np.clip(target[column] + low, 0, None)
+            target[f"{column}_upper80"] = np.clip(target[column] + high, 0, None)
+        target["origin"] = ordered.iloc[origin_index]["week_start"]
+        target["train_start"] = window["week_start"].min()
+        target["train_end"] = window["week_start"].max()
+        pieces.append(target)
+
+    if not pieces:
+        raise RuntimeError("No valid rolling-origin predictions were produced")
+    backtest = pd.concat(pieces, ignore_index=True)
+
+    def score_frame(frame: pd.DataFrame, column: str) -> dict[str, object]:
+        lower = frame[f"{column}_lower80"]
+        upper = frame[f"{column}_upper80"]
+        values: dict[str, object] = metrics(frame["srag_cases"], frame[column])
+        values.update(
+            {
+                "coverage80_percent": number(
+                    100
+                    * np.mean(
+                        (frame["srag_cases"] >= lower)
+                        & (frame["srag_cases"] <= upper)
+                    )
+                ),
+                "mean_interval_width": number((upper - lower).mean()),
+            }
+        )
+        return values
+
+    score: dict[str, dict[str, object]] = {}
+    for name, column in MODEL_COLUMNS.items():
+        score[name] = score_frame(backtest, column)
+        score[name]["by_horizon"] = {
+            str(horizon): score_frame(frame, column)
+            for horizon, frame in backtest.groupby("horizon_week", sort=True)
+        }
+        score[name].update(
+            {
+                "evaluation_origins": int(backtest["origin"].nunique()),
+                "evaluation_predictions": int(len(backtest)),
+                "origin_step_weeks": int(origin_step),
+                "max_horizon_weeks": int(horizon_weeks),
+                "note": (
+                    "Rolling-origin evaluation with a 104-week training window. "
+                    "Aggregate metrics pool all origin-horizon predictions."
+                ),
+            }
+        )
+    return backtest, score
+
+
 def prepare_state_frame(
     trends: pd.DataFrame, srag: pd.DataFrame
 ) -> pd.DataFrame:
@@ -1207,7 +1294,10 @@ def build_state_payload(
     if reliable.sum() < TRAIN_WEEKS:
         raise RuntimeError(f"{uf}: fewer than {TRAIN_WEEKS} consolidated weeks")
     cutoff = data.loc[reliable, "week_start"].max()
-    train = data.loc[reliable & data["week_start"].le(cutoff)].tail(TRAIN_WEEKS)
+    reliable_history = data.loc[
+        reliable & data["week_start"].le(cutoff)
+    ].copy()
+    train = reliable_history.tail(TRAIN_WEEKS)
     if len(train) != TRAIN_WEEKS:
         raise RuntimeError(f"{uf}: incomplete training window")
     target = data.loc[data["week_start"].gt(cutoff)].copy()
@@ -1222,7 +1312,8 @@ def build_state_payload(
         SEASONAL_WEIGHT * target["lasso"]
         + (1 - SEASONAL_WEIGHT) * target["seasonal_naive"]
     )
-    backtest, score, intervals = backtest_fixed_alpha(train, alpha)
+    _, _, intervals = backtest_fixed_alpha(train, alpha)
+    backtest, score = rolling_origin_backtest(reliable_history, TRAIN_WEEKS)
     target["lower80"] = np.clip(target["ensemble"] + intervals["ensemble"][0], 0, None)
     target["upper80"] = np.clip(target["ensemble"] + intervals["ensemble"][1], 0, None)
     target["lasso_lower80"] = np.clip(target["lasso"] + intervals["lasso"][0], 0, None)
@@ -1345,34 +1436,38 @@ def build_brazil_payload(
     state_backtests: list[pd.DataFrame],
 ) -> dict[str, object]:
     backtest_pieces: list[pd.DataFrame] = []
-    backtest_columns = [
-        "week_start",
+    identity_columns = ["origin", "horizon_week", "week_start"]
+    value_columns = [
         "srag_cases",
         "lasso",
         "seasonal_naive",
         "ensemble",
     ]
     for state_index, state_backtest in enumerate(state_backtests):
-        if state_backtest["week_start"].duplicated().any():
-            raise RuntimeError("Duplicate state backtest week")
-        piece = state_backtest[backtest_columns].copy()
+        if state_backtest.duplicated(["origin", "horizon_week"]).any():
+            raise RuntimeError("Duplicate state backtest origin/horizon")
+        piece = state_backtest[identity_columns + value_columns].copy()
         piece["state_index"] = state_index
         backtest_pieces.append(piece)
     backtest = pd.concat(backtest_pieces, ignore_index=True)
     state_count = len(state_backtests)
-    complete_weeks = (
-        backtest.groupby("week_start")["state_index"].nunique().eq(state_count)
+    complete = (
+        backtest.groupby(identity_columns)["state_index"]
+        .nunique()
+        .eq(state_count)
+        .rename("complete")
+        .reset_index()
     )
-    complete_weeks = complete_weeks.index[complete_weeks]
     national_backtest = (
-        backtest.loc[backtest["week_start"].isin(complete_weeks)]
-        .groupby("week_start", as_index=False)[backtest_columns[1:]]
+        backtest.merge(complete.loc[complete["complete"]], on=identity_columns)
+        .groupby(identity_columns, as_index=False)[value_columns]
         .sum(min_count=state_count)
         .dropna()
-        .sort_values("week_start")
+        .sort_values(identity_columns)
+        .reset_index(drop=True)
     )
     if national_backtest.empty:
-        raise RuntimeError("No common nationwide backtest week")
+        raise RuntimeError("No common nationwide backtest prediction")
 
     model_columns = {
         "lasso": "lasso",
@@ -1444,32 +1539,65 @@ def build_brazil_payload(
             }
         )
 
-    score = {
-        "lasso": metrics(national_backtest["srag_cases"], national_backtest["lasso"]),
-        "seasonal": metrics(
-            national_backtest["srag_cases"], national_backtest["seasonal_naive"]
-        ),
-        "ensemble": metrics(
-            national_backtest["srag_cases"], national_backtest["ensemble"]
-        ),
-    }
-    for name, column in model_columns.items():
-        lower = np.clip(
-            national_backtest[column] + national_intervals[name][0], 0, None
-        )
-        upper = np.clip(
-            national_backtest[column] + national_intervals[name][1], 0, None
-        )
-        score[name].update(
+    origins = pd.Index(sorted(national_backtest["origin"].unique()))
+    calibration_origin_count = min(20, max(1, len(origins) // 2))
+    evaluation_origins = set(origins[calibration_origin_count:])
+
+    def national_score(frame: pd.DataFrame, column: str) -> dict[str, object]:
+        values: dict[str, object] = metrics(frame["srag_cases"], frame[column])
+        actual: list[float] = []
+        lower: list[float] = []
+        upper: list[float] = []
+        all_residual = national_backtest["srag_cases"] - national_backtest[column]
+        for row in frame.sort_values(identity_columns).itertuples(index=False):
+            if row.origin not in evaluation_origins:
+                continue
+            prior = all_residual.loc[national_backtest["week_start"].lt(row.origin)]
+            if prior.empty:
+                continue
+            point = float(getattr(row, column))
+            actual.append(float(row.srag_cases))
+            lower.append(max(point + float(prior.quantile(0.10)), 0))
+            upper.append(max(point + float(prior.quantile(0.90)), 0))
+        if not actual:
+            raise RuntimeError("Not enough nationwide origins for interval evaluation")
+        values.update(
             {
                 "coverage80_percent": number(
                     100
                     * np.mean(
-                        (national_backtest["srag_cases"] >= lower)
-                        & (national_backtest["srag_cases"] <= upper)
+                        (np.asarray(actual) >= np.asarray(lower))
+                        & (np.asarray(actual) <= np.asarray(upper))
                     )
                 ),
-                "mean_interval_width": number((upper - lower).mean()),
+                "mean_interval_width": number(
+                    (np.asarray(upper) - np.asarray(lower)).mean()
+                ),
+                "coverage_evaluation_predictions": len(actual),
+            }
+        )
+        return values
+
+    score: dict[str, dict[str, object]] = {}
+    for name, column in model_columns.items():
+        score[name] = national_score(national_backtest, column)
+        score[name]["by_horizon"] = {
+            str(horizon): national_score(frame, column)
+            for horizon, frame in national_backtest.groupby("horizon_week", sort=True)
+        }
+        score[name].update(
+            {
+                "evaluation_origins": int(national_backtest["origin"].nunique()),
+                "evaluation_predictions": int(len(national_backtest)),
+                "origin_step_weeks": BACKTEST_ORIGIN_STEP,
+                "max_horizon_weeks": BACKTEST_HORIZON_WEEKS,
+                "coverage_calibration_origins": int(calibration_origin_count),
+                "coverage_evaluation_origins": int(len(evaluation_origins)),
+                "note": (
+                    "Point metrics pool all rolling-origin horizons. Coverage is "
+                    "prequential: every interval uses only national residuals "
+                    "whose target week precedes that prediction's origin."
+                ),
             }
         )
     latest_rows = [row for row in rows if row["nowcast"] is not None]
@@ -1501,7 +1629,8 @@ def build_brazil_payload(
             "terms": TERMS,
             "note": (
                 "The Brazil point estimate is the sum of the state nowcasts; "
-                "its interval is calibrated from their summed out-of-fold residuals."
+                "its interval is calibrated from summed independent rolling-origin "
+                "residuals."
             ),
         },
         "backtest": score,
@@ -1553,6 +1682,28 @@ def validate_output(output_dir: Path, expected_ufs: list[str] | None = None) -> 
                 raise RuntimeError(f"Invalid interval coverage for {uf}/{model_name}")
             if interval_width is not None and interval_width < 0:
                 raise RuntimeError(f"Invalid interval width for {uf}/{model_name}")
+            by_horizon = score.get("by_horizon")
+            if score.get("n") is not None:
+                expected_horizons = {
+                    str(horizon) for horizon in range(1, BACKTEST_HORIZON_WEEKS + 1)
+                }
+                if not isinstance(by_horizon, dict) or set(by_horizon) != expected_horizons:
+                    raise RuntimeError(f"Invalid horizons for {uf}/{model_name}")
+                for horizon, horizon_score in by_horizon.items():
+                    horizon_coverage = horizon_score.get("coverage80_percent")
+                    horizon_width = horizon_score.get("mean_interval_width")
+                    if not isinstance(horizon_score.get("n"), int) or horizon_score["n"] < 1:
+                        raise RuntimeError(
+                            f"Empty horizon {horizon} for {uf}/{model_name}"
+                        )
+                    if horizon_coverage is not None and not 0 <= horizon_coverage <= 100:
+                        raise RuntimeError(
+                            f"Invalid horizon coverage for {uf}/{model_name}/{horizon}"
+                        )
+                    if horizon_width is not None and horizon_width < 0:
+                        raise RuntimeError(
+                            f"Invalid horizon width for {uf}/{model_name}/{horizon}"
+                        )
         series = payload["series"]
         if len(series) < TRAIN_WEEKS:
             raise RuntimeError(f"Too few displayed weeks for {uf}")

@@ -110,6 +110,19 @@
           <span class="summary-action">Ver métricas</span>
         </summary>
         <p class="muted quality-description" id="quality-description"></p>
+        <div class="quality-controls">
+          <label for="quality-horizon-select">Horizonte avaliado</label>
+          <select id="quality-horizon-select" class="select-compact">
+            <option value="all">Todas as 7 semanas (agregado)</option>
+            <option value="1">1ª semana (H+1)</option>
+            <option value="2">2ª semana (H+2)</option>
+            <option value="3">3ª semana (H+3)</option>
+            <option value="4">4ª semana (H+4)</option>
+            <option value="5">5ª semana (H+5)</option>
+            <option value="6">6ª semana (H+6)</option>
+            <option value="7">7ª semana (H+7)</option>
+          </select>
+        </div>
         <div class="quality-grid">
           <article class="quality-metric">
             <span>Erro percentual (WAPE)</span>
@@ -127,7 +140,7 @@
             <small id="quality-coverage-note">ideal próximo de 80%</small>
           </article>
           <article class="quality-metric">
-            <span>Semanas avaliadas</span>
+            <span>Previsões avaliadas</span>
             <strong id="quality-n">—</strong>
             <small>previsões fora da amostra</small>
           </article>
@@ -191,7 +204,7 @@
         <p>O agregado Brasil é a soma das 27 estimativas estaduais — não é um modelo treinado separadamente para o país. As faixas de 80% são conformais: usam os percentis 10 e 90 dos resíduos fora da amostra (out-of-fold) de cada modelo. A faixa do Brasil é calibrada a partir dos resíduos da soma das estimativas estaduais, e não da soma das faixas estaduais.</p>
         <p>O modo <strong>Combinado experimental</strong> acrescenta o nowcast publicado pelo InfoGripe. Como essa série usa uma definição sintomática mais restrita, ela é multiplicada, em cada UF, pela razão entre todos os registros de SRAG e os registros que satisfazem esse filtro nas 13 semanas consolidadas mais recentes (com pelo menos 8 semanas disponíveis). Assim, os dois componentes passam a estimar o mesmo alvo antes da combinação. Cada previsão é reconstruída como uma distribuição assimétrica na escala <code>log1p</code>, compatível com seu ponto e seus limites de 80%. As duas distribuições são misturadas com pesos iguais. O ponto exibido é a média 50/50; a faixa laranja mostra os limites de 80% publicados pelo InfoGripe após o mesmo ajuste de escala; a faixa roxa contém os quantis 10 e 90 da mistura e tende a se abrir quando os modelos discordam. A faixa cinza é apenas o envelope conservador dos dois intervalos.</p>
         <p>Esse intervalo combinado <strong>ainda não é calibrado historicamente</strong>. O arquivo público do InfoGripe é uma visão corrente: previsões antigas são revistas conforme chegam notificações. Por isso estamos acumulando snapshots semanais imutáveis antes de estimar o peso <em>w</em> ou reportar cobertura e erro do modo combinado. Para o Brasil, a mistura compara o nosso agregado estadual à série Brasil ajustada independentemente pelo InfoGripe; seu ponto não precisa coincidir com a soma das misturas estaduais.</p>
-        <p>No mapa de nowcast, as estimativas são apresentadas em casos por 100 mil habitantes, usando a população residente do Censo Demográfico 2022 do IBGE. Os demais valores são contagens absolutas; o mapa de variação mostra percentuais. As métricas de desempenho histórico usam as mesmas previsões fora da amostra que calibram os modelos.</p>
+        <p>No mapa de nowcast, as estimativas são apresentadas em casos por 100 mil habitantes, usando a população residente do Censo Demográfico 2022 do IBGE. Os demais valores são contagens absolutas; o mapa de variação mostra percentuais. As métricas de desempenho histórico usam previsões fora da amostra e podem ser vistas separadamente para cada uma das sete semanas após o ajuste, além da visão agregada.</p>
         <p>Este é um <strong>nowcast</strong>, não uma previsão: ele estima semanas que já ocorreram, mas cuja notificação ainda está incompleta por atraso no sistema de vigilância. Um caso só entra como "consolidado" depois de um número mínimo de dias desde o início dos sintomas; semanas mais recentes do que isso aparecem como provisórias no gráfico.</p>
 
         <h3>Atualização</h3>

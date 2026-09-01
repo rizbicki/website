@@ -325,6 +325,19 @@ button {
 
 .quality-description { max-width: 900px; margin-top: 0.9rem; }
 
+.quality-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.9rem;
+}
+
+.quality-controls label {
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
 .quality-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -445,7 +458,8 @@ tbody tr.selected { background: #e4f0f7; }
   main { padding-left: 0.55rem; padding-right: 0.55rem; }
   .controls { align-items: stretch; flex-direction: column; }
   select { width: 100%; }
-  .inline-control { align-items: stretch; flex-direction: column; width: 100%; }
+  .inline-control,
+  .quality-controls { align-items: stretch; flex-direction: column; width: 100%; }
   .cards { grid-template-columns: 1fr; }
   .quality-grid { grid-template-columns: 1fr; }
   .chart { height: 410px; }

@@ -7,6 +7,7 @@
   var currentUf = "BR";
   var currentModel = "ensemble";
   var currentMapMetric = "change";
+  var currentQualityHorizon = "all";
   var currentUfWindow = "4w";
   var currentPayload = null;
   var stateCache = new Map();
@@ -47,6 +48,7 @@
   var modelSelect = document.getElementById("model-select");
   var mapMetricSelect = document.getElementById("map-metric-select");
   var ufWindowSelect = document.getElementById("uf-window-select");
+  var qualityHorizonSelect = document.getElementById("quality-horizon-select");
   var dashboard = document.getElementById("dashboard");
   var errorPanel = document.getElementById("error-panel");
   var retryButton = document.getElementById("retry-button");
@@ -77,6 +79,8 @@
     var list = document.getElementById("method-technical");
     var entries = [
       ["Semanas de treino", String(summaryData.model.training_weeks)],
+      ["Horizontes avaliados", "H+1 a H+" + (summaryData.model.evaluation_horizon_weeks || 7)],
+      ["Intervalo entre ajustes no backtest", (summaryData.model.evaluation_origin_step_weeks || 4) + " semanas"],
       ["Atraso mínimo para consolidação", summaryData.model.consolidation_lag_days + " dias"],
       ["Atualização mais recente", formatDate(summaryData.generated_at_utc)],
       ["Dados do SIVEP até", formatDate(summaryData.sources.srag.latest_source_snapshot_date)]
@@ -311,9 +315,14 @@
   }
 
   function renderQuality(payload) {
-    var score = payload.backtest && payload.backtest[currentModel] || {};
+    var aggregate = payload.backtest && payload.backtest[currentModel] || {};
+    var horizons = aggregate.by_horizon || {};
+    var hasHorizons = Object.keys(horizons).length > 0;
+    var score = currentQualityHorizon === "all" ?
+      aggregate : (horizons[currentQualityHorizon] || {});
     var model = MODELS[currentModel];
     var unscored = currentModel === "combined";
+    qualityHorizonSelect.disabled = unscored || !hasHorizons;
     document.getElementById("quality-wape").textContent =
       score.wape_percent === null || score.wape_percent === undefined ?
         "—" : formatPercent(score.wape_percent).replace("+", "");
@@ -327,13 +336,17 @@
       (score.coverage80_percent === null || score.coverage80_percent === undefined ?
         "disponível após a próxima atualização" : "ideal próximo de 80%");
     document.getElementById("quality-n").textContent = formatCount(score.n);
+    var horizonDescription = currentQualityHorizon === "all" ?
+      " agregando as sete semanas após cada ajuste" :
+      " para a " + currentQualityHorizon + "ª semana após cada ajuste";
     document.getElementById("quality-description").textContent = unscored ?
       "Ainda não há avaliação histórica honesta para a mistura. Os forecasts do " +
       "InfoGripe estão sendo arquivados semanalmente e só serão comparados com " +
       "dados SIVEP consolidados posteriores." :
       "Resultados do modelo " + model.cardLabel.toLowerCase() +
       " em previsões históricas fora da amostra para " + payload.name +
-      ". O viés indica se o modelo tende a superestimar (+) ou subestimar (−).";
+      horizonDescription + ". O viés indica se o modelo tende a " +
+      "superestimar (+) ou subestimar (−).";
   }
 
   function renderSeries(payload) {
@@ -613,6 +626,10 @@
         currentMapMetric = mapMetricSelect.value;
         updateMapDescription();
         renderMap();
+      };
+      qualityHorizonSelect.onchange = function () {
+        currentQualityHorizon = qualityHorizonSelect.value;
+        if (currentPayload) renderQuality(currentPayload);
       };
       modelSelect.onchange = function () {
         currentModel = modelSelect.value;
