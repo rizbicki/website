@@ -287,7 +287,7 @@ window.Quarto = {
   <li><a href="#exemplo-uma-distribuição-sobre-1-2-ldots-10" id="toc-exemplo-uma-distribuição-sobre-1-2-ldots-10" class="nav-link" data-scroll-target="#exemplo-uma-distribuição-sobre-1-2-ldots-10"><span class="header-section-number">5.2</span> Exemplo: uma distribuição sobre <span class="math inline">\(\{1, 2, \ldots, 10\}\)</span></a></li>
   <li><a href="#por-que-o-método-funciona" id="toc-por-que-o-método-funciona" class="nav-link" data-scroll-target="#por-que-o-método-funciona"><span class="header-section-number">5.3</span> Por que o método funciona</a></li>
   <li><a href="#eficiência-e-escolha-da-distribuição-proposta" id="toc-eficiência-e-escolha-da-distribuição-proposta" class="nav-link" data-scroll-target="#eficiência-e-escolha-da-distribuição-proposta"><span class="header-section-number">5.4</span> Eficiência e escolha da distribuição proposta</a></li>
-  <li><a href="#exemplo-um-dado-honesto-a-partir-de-moedas" id="toc-exemplo-um-dado-honesto-a-partir-de-moedas" class="nav-link" data-scroll-target="#exemplo-um-dado-honesto-a-partir-de-moedas"><span class="header-section-number">5.5</span> Exemplo: um dado honesto a partir de moedas</a></li>
+  <li><a href="#exemplo-a-soma-de-dois-dados" id="toc-exemplo-a-soma-de-dois-dados" class="nav-link" data-scroll-target="#exemplo-a-soma-de-dois-dados"><span class="header-section-number">5.5</span> Exemplo: a soma de dois dados</a></li>
   <li><a href="#quando-a-rejeição-é-preferível-à-inversão" id="toc-quando-a-rejeição-é-preferível-à-inversão" class="nav-link" data-scroll-target="#quando-a-rejeição-é-preferível-à-inversão"><span class="header-section-number">5.6</span> Quando a rejeição é preferível à inversão</a></li>
   <li><a href="#exercícios" id="toc-exercícios" class="nav-link" data-scroll-target="#exercícios"><span class="header-section-number">5.7</span> Exercícios</a></li>
   </ul>
@@ -497,7 +497,7 @@ c = \max_j \frac{p_j}{q_j} = 10 \times 0{,}12 = 1{,}2.
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>plt.xticks(valores_j)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>([&lt;matplotlib.axis.XTick object at 0x7ea329127ed0&gt;, &lt;matplotlib.axis.XTick object at 0x7ea3291d4440&gt;, &lt;matplotlib.axis.XTick object at 0x7ea329125950&gt;, &lt;matplotlib.axis.XTick object at 0x7ea3291df250&gt;, &lt;matplotlib.axis.XTick object at 0x7ea3291df9d0&gt;, &lt;matplotlib.axis.XTick object at 0x7ea326734190&gt;, &lt;matplotlib.axis.XTick object at 0x7ea326734910&gt;, &lt;matplotlib.axis.XTick object at 0x7ea326735090&gt;, &lt;matplotlib.axis.XTick object at 0x7ea326735810&gt;, &lt;matplotlib.axis.XTick object at 0x7ea326735f90&gt;], [Text(1, 0, '1'), Text(2, 0, '2'), Text(3, 0, '3'), Text(4, 0, '4'), Text(5, 0, '5'), Text(6, 0, '6'), Text(7, 0, '7'), Text(8, 0, '8'), Text(9, 0, '9'), Text(10, 0, '10')])</code></pre>
+<pre><code>([&lt;matplotlib.axis.XTick object at 0x7f6fce11bed0&gt;, &lt;matplotlib.axis.XTick object at 0x7f6fce1d0440&gt;, &lt;matplotlib.axis.XTick object at 0x7f6fce119950&gt;, &lt;matplotlib.axis.XTick object at 0x7f6fce1d7250&gt;, &lt;matplotlib.axis.XTick object at 0x7f6fce1d79d0&gt;, &lt;matplotlib.axis.XTick object at 0x7f6fcb72c190&gt;, &lt;matplotlib.axis.XTick object at 0x7f6fcb72c910&gt;, &lt;matplotlib.axis.XTick object at 0x7f6fcb72d090&gt;, &lt;matplotlib.axis.XTick object at 0x7f6fcb72d810&gt;, &lt;matplotlib.axis.XTick object at 0x7f6fcb72df90&gt;], [Text(1, 0, '1'), Text(2, 0, '2'), Text(3, 0, '3'), Text(4, 0, '4'), Text(5, 0, '5'), Text(6, 0, '6'), Text(7, 0, '7'), Text(8, 0, '8'), Text(9, 0, '9'), Text(10, 0, '10')])</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
@@ -791,7 +791,7 @@ Frequências dos 1000 valores gerados:</code></pre>
 <span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>plt.xticks(valores_j)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>([&lt;matplotlib.axis.XTick object at 0x7ea2ff40c190&gt;, &lt;matplotlib.axis.XTick object at 0x7ea2ff54f9d0&gt;, &lt;matplotlib.axis.XTick object at 0x7ea2ff54f250&gt;, &lt;matplotlib.axis.XTick object at 0x7ea2ff448190&gt;, &lt;matplotlib.axis.XTick object at 0x7ea2ff448910&gt;, &lt;matplotlib.axis.XTick object at 0x7ea2ff449090&gt;, &lt;matplotlib.axis.XTick object at 0x7ea2ff449810&gt;, &lt;matplotlib.axis.XTick object at 0x7ea2ff449f90&gt;, &lt;matplotlib.axis.XTick object at 0x7ea2ff44a710&gt;, &lt;matplotlib.axis.XTick object at 0x7ea2ff44ae90&gt;], [Text(1, 0, '1'), Text(2, 0, '2'), Text(3, 0, '3'), Text(4, 0, '4'), Text(5, 0, '5'), Text(6, 0, '6'), Text(7, 0, '7'), Text(8, 0, '8'), Text(9, 0, '9'), Text(10, 0, '10')])</code></pre>
+<pre><code>([&lt;matplotlib.axis.XTick object at 0x7f6f9a708190&gt;, &lt;matplotlib.axis.XTick object at 0x7f6f9ab4f9d0&gt;, &lt;matplotlib.axis.XTick object at 0x7f6f9ab4f250&gt;, &lt;matplotlib.axis.XTick object at 0x7f6f9a748190&gt;, &lt;matplotlib.axis.XTick object at 0x7f6f9a748910&gt;, &lt;matplotlib.axis.XTick object at 0x7f6f9a749090&gt;, &lt;matplotlib.axis.XTick object at 0x7f6f9a749810&gt;, &lt;matplotlib.axis.XTick object at 0x7f6f9a749f90&gt;, &lt;matplotlib.axis.XTick object at 0x7f6f9a74a710&gt;, &lt;matplotlib.axis.XTick object at 0x7f6f9a74ae90&gt;], [Text(1, 0, '1'), Text(2, 0, '2'), Text(3, 0, '3'), Text(4, 0, '4'), Text(5, 0, '5'), Text(6, 0, '6'), Text(7, 0, '7'), Text(8, 0, '8'), Text(9, 0, '9'), Text(10, 0, '10')])</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
@@ -906,38 +906,19 @@ c = \max_j \frac{p_j}{q_j} = 100 \times 0{,}12 = 12,
 \]</span></p>
 <p>de modo que apenas <span class="math inline">\(1/12 \approx 8\%\)</span> das propostas seriam aceitas: o mesmo resultado a um custo dez vezes maior. Note ainda que <span class="math inline">\(c\)</span> depende apenas de <span class="math inline">\(p\)</span> e <span class="math inline">\(q\)</span>, e não do tamanho <span class="math inline">\(n\)</span> da amostra que queremos gerar — uma proposta ruim é ruim para sempre.</p>
 </section>
-<section id="exemplo-um-dado-honesto-a-partir-de-moedas" class="level2" data-number="5.5">
-<h2 data-number="5.5" class="anchored" data-anchor-id="exemplo-um-dado-honesto-a-partir-de-moedas"><span class="header-section-number">5.5</span> Exemplo: um dado honesto a partir de moedas</h2>
-<p>No exemplo anterior, e em todos os métodos vistos até aqui, partimos de <span class="math inline">\(U \sim \text{Unif}(0,1)\)</span>. Suponha agora que a única fonte de aleatoriedade disponível seja uma <strong>moeda honesta</strong>: sabemos gerar bits independentes, cada um valendo <span class="math inline">\(0\)</span> ou <span class="math inline">\(1\)</span> com probabilidade <span class="math inline">\(1/2\)</span>. Queremos simular o lançamento de um dado honesto, isto é, <span class="math inline">\(p_j = 1/6\)</span> para <span class="math inline">\(j \in \{1, 2, \ldots, 6\}\)</span>.</p>
-<p>Aqui a inversão não está disponível como a usamos no Capítulo 3: não temos uma uniforme contínua para comparar com a f.d.a. do alvo. A rejeição, por outro lado, resolve o problema com naturalidade. Lendo <strong>três bits</strong> como um número em binário, obtemos <span class="math inline">\(Y\)</span> uniforme em <span class="math inline">\(\{1, 2, \ldots, 8\}\)</span>, ou seja, <span class="math inline">\(q_j = 1/8\)</span> para <span class="math inline">\(j = 1, \ldots, 8\)</span>. Essa proposta cobre o suporte do alvo, e</p>
+<section id="exemplo-a-soma-de-dois-dados" class="level2" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="exemplo-a-soma-de-dois-dados"><span class="header-section-number">5.5</span> Exemplo: a soma de dois dados</h2>
+<p>Considere a v.a. <span class="math inline">\(X\)</span> igual à soma dos resultados de dois dados honestos e independentes, com suporte em <span class="math inline">\(\{2, 3, \ldots, 12\}\)</span>. É fácil derivar a função de probabilidade alvo contando os pares <span class="math inline">\((i, k) \in \{1, \ldots, 6\}^2\)</span> com <span class="math inline">\(i + k = j\)</span>:</p>
 <p><span class="math display">\[
-c = \max_j \frac{p_j}{q_j} = \frac{1/6}{1/8} = \frac{4}{3}.
+p_j = \frac{6 - |j - 7|}{36}, \qquad j = 2, 3, \ldots, 12.
 \]</span></p>
-<p>Como <span class="math inline">\(p_7 = p_8 = 0\)</span>, a probabilidade de aceitação do passo 3 vale</p>
+<p>Vamos gerar amostras de <span class="math inline">\(X\)</span> pelo método da rejeição, usando como proposta <span class="math inline">\(Y\)</span> uniforme em <span class="math inline">\(\{2, 3, \ldots, 12\}\)</span>, ou seja, <span class="math inline">\(q_j = 1/11\)</span> para todo <span class="math inline">\(j\)</span>. A razão <span class="math inline">\(p_j / q_j = 11\, p_j\)</span> é máxima em <span class="math inline">\(j = 7\)</span>, onde <span class="math inline">\(p_7 = 6/36\)</span>, logo</p>
 <p><span class="math display">\[
-\frac{p_j}{c\, q_j} =
-\begin{cases}
-1, &amp; j \in \{1, 2, \ldots, 6\}, \\
-0, &amp; j \in \{7, 8\}.
-\end{cases}
+c = \max_j \frac{p_j}{q_j} = 11 \times \frac{6}{36} = \frac{11}{6} \approx 1{,}83.
 \]</span></p>
-<p>Ela só assume os valores <span class="math inline">\(0\)</span> e <span class="math inline">\(1\)</span>, de modo que o sorteio de <span class="math inline">\(U\)</span> do passo 2 se torna dispensável e o algoritmo se reduz a: <em>leia 3 bits; se o resultado for 7 ou 8, descarte-o e comece de novo</em>. É a mesma estrutura degenerada que aparecerá no Exercício 3, com uma distribuição condicional.</p>
-<p>Pela proposição, aceitamos <span class="math inline">\(1/c = 3/4\)</span> das propostas e gastamos, em média, <span class="math inline">\(c = 4/3\)</span> propostas — isto é, <span class="math inline">\(3 \times 4/3 = 4\)</span> bits — por lançamento do dado. Vale comparar esse custo com o mínimo teórico dado pela entropia da distribuição, <span class="math inline">\(\log_2 6 \approx 2{,}59\)</span> bits: o esquema é simples e razoavelmente econômico, ainda que não seja ótimo.</p>
-<div class="callout callout-style-default callout-warning callout-titled" title="Atenção: reaproveitar as rejeições estraga a distribuição">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Atenção: reaproveitar as rejeições estraga a distribuição
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>É tentador evitar o desperdício mapeando os valores descartados de volta ao suporte, por exemplo <span class="math inline">\(7 \mapsto 1\)</span> e <span class="math inline">\(8 \mapsto 2\)</span>. Isso produz um dado viciado: os valores <span class="math inline">\(1\)</span> e <span class="math inline">\(2\)</span> sairiam com probabilidade <span class="math inline">\(2/8\)</span> cada, e os demais com <span class="math inline">\(1/8\)</span>.</p>
-<p>Esse é exatamente o viés de <code>rand() % 6</code> — e é por isso que os geradores de inteiros uniformes de bibliotecas reais (<code>random.randrange</code> em Python, <code>Random.nextInt</code> em Java, <code>rand.Int31n</code> em Go) implementam, por dentro, um laço de rejeição como o desta seção.</p>
-</div>
-</div>
-<p>O código a seguir implementa o amostrador usando apenas bits, e confere a taxa de aceitação e o custo em bits previstos pela teoria.</p>
+<p>Note que a proposta uniforme trata todos os valores de <span class="math inline">\(2\)</span> a <span class="math inline">\(12\)</span> como igualmente prováveis, enquanto o alvo é bem mais concentrado perto de <span class="math inline">\(7\)</span>; é por isso que <span class="math inline">\(c\)</span> aqui é maior do que no Exemplo anterior, e a taxa de aceitação, <span class="math inline">\(1/c \approx
+55\%\)</span>, é menor.</p>
+<p>O código a seguir implementa o algoritmo e compara a taxa de aceitação e as frequências observadas com os valores teóricos.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Python</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -947,66 +928,80 @@ Atenção: reaproveitar as rejeições estraga a distribuição
 <summary>Mostrar código</summary>
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Nossa única fonte de aleatoriedade: um bit justo (cara ou coroa)</span></span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>gera_bit <span class="ot">&lt;-</span> <span class="cf">function</span>() <span class="fu">sample</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Alvo: uniforme em {1, ..., 6}. Proposta: uniforme em {1, ..., 8}, obtida</span></span>
-<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="co"># lendo 3 bits como um número em binário</span></span>
-<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>p_j <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> <span class="dv">6</span></span>
-<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>q_j <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> <span class="dv">8</span></span>
-<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>cte <span class="ot">&lt;-</span> p_j <span class="sc">/</span> q_j   <span class="co"># c = 4/3</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Parâmetros do problema ---</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>valores_j <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">12</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>p_j <span class="ot">&lt;-</span> (<span class="dv">6</span> <span class="sc">-</span> <span class="fu">abs</span>(valores_j <span class="sc">-</span> <span class="dv">7</span>)) <span class="sc">/</span> <span class="dv">36</span>   <span class="co"># alvo: soma de dois dados</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>q_j <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span> <span class="sc">/</span> <span class="dv">11</span>, <span class="fu">length</span>(valores_j))  <span class="co"># proposta: uniforme em {2, ..., 12}</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>cte <span class="ot">&lt;-</span> <span class="fu">max</span>(p_j <span class="sc">/</span> q_j)                  <span class="co"># c = 11/6</span></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Método da rejeição ---</span></span>
 <span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>n_amostras <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
-<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>amostras <span class="ot">&lt;-</span> <span class="fu">integer</span>(n_amostras)</span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>amostras <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
 <span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>n_propostas <span class="ot">&lt;-</span> <span class="dv">0</span></span>
 <span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(n_amostras)) {</span>
-<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">repeat</span> {</span>
-<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passo 1: três bits formam Y uniforme em {1, ..., 8}</span></span>
-<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> <span class="fu">gera_bit</span>() <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> <span class="fu">gera_bit</span>() <span class="sc">+</span> <span class="fu">gera_bit</span>()</span>
-<span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a>    n_propostas <span class="ot">&lt;-</span> n_propostas <span class="sc">+</span> <span class="dv">1</span></span>
-<span id="cb41-21"><a href="#cb41-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-22"><a href="#cb41-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passos 2 e 3: a probabilidade de aceitação p_y / (c q_y) vale 1 para</span></span>
-<span id="cb41-23"><a href="#cb41-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># y &lt;= 6 e 0 para y = 7 ou 8, então o sorteio de U é dispensável</span></span>
-<span id="cb41-24"><a href="#cb41-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (y <span class="sc">&lt;=</span> <span class="dv">6</span>) <span class="cf">break</span></span>
-<span id="cb41-25"><a href="#cb41-25" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb41-26"><a href="#cb41-26" aria-hidden="true" tabindex="-1"></a>  amostras[i] <span class="ot">&lt;-</span> y</span>
-<span id="cb41-27"><a href="#cb41-27" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb41-28"><a href="#cb41-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-29"><a href="#cb41-29" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Taxa de aceitação observada:"</span>, <span class="fu">round</span>(n_amostras <span class="sc">/</span> n_propostas, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (<span class="fu">length</span>(amostras) <span class="sc">&lt;</span> n_amostras) {</span>
+<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Passo 1: gerar Y da proposta (uniforme discreta em {2, ..., 12})</span></span>
+<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="fu">sample</span>(valores_j, <span class="dv">1</span>)</span>
+<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a>  n_propostas <span class="ot">&lt;-</span> n_propostas <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-21"><a href="#cb41-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Passo 2: gerar U ~ Unif(0,1)</span></span>
+<span id="cb41-22"><a href="#cb41-22" aria-hidden="true" tabindex="-1"></a>  u <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>)</span>
+<span id="cb41-23"><a href="#cb41-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-24"><a href="#cb41-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Passo 3: aceitar y com probabilidade p_y / (c * q_y).</span></span>
+<span id="cb41-25"><a href="#cb41-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># y - 1 é o índice de y no vetor p_j, que começa em j = 2</span></span>
+<span id="cb41-26"><a href="#cb41-26" aria-hidden="true" tabindex="-1"></a>  razao <span class="ot">&lt;-</span> p_j[y <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">/</span> (cte <span class="sc">*</span> q_j[y <span class="sc">-</span> <span class="dv">1</span>])</span>
+<span id="cb41-27"><a href="#cb41-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-28"><a href="#cb41-28" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (u <span class="sc">&lt;=</span> razao) {</span>
+<span id="cb41-29"><a href="#cb41-29" aria-hidden="true" tabindex="-1"></a>    amostras <span class="ot">&lt;-</span> <span class="fu">c</span>(amostras, y)</span>
+<span id="cb41-30"><a href="#cb41-30" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb41-31"><a href="#cb41-31" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb41-32"><a href="#cb41-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-33"><a href="#cb41-33" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Resultados ---</span></span>
+<span id="cb41-34"><a href="#cb41-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-35"><a href="#cb41-35" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Taxa de aceitação observada:"</span>, <span class="fu">round</span>(n_amostras <span class="sc">/</span> n_propostas, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Taxa de aceitação observada: 0.75 </code></pre>
+<pre><code>Taxa de aceitação observada: 0.545 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Taxa de aceitação teórica (1/c):"</span>, <span class="fu">round</span>(<span class="dv">1</span> <span class="sc">/</span> cte, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Taxa de aceitação teórica (1/c):"</span>, <span class="fu">round</span>(<span class="dv">1</span> <span class="sc">/</span> cte, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Taxa de aceitação teórica (1/c): 0.75 </code></pre>
+<pre><code>Taxa de aceitação teórica (1/c): 0.545 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Bits gastos por lançamento:"</span>, <span class="fu">round</span>(<span class="dv">3</span> <span class="sc">*</span> n_propostas <span class="sc">/</span> n_amostras, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>tabela_freq <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="fu">factor</span>(amostras, <span class="at">levels =</span> valores_j))</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>comparacao <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">j =</span> valores_j,</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">freq_relativa =</span> <span class="fu">as.numeric</span>(tabela_freq) <span class="sc">/</span> n_amostras,</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">p_j =</span> p_j</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Frequências dos"</span>, n_amostras, <span class="st">"valores gerados:</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Bits gastos por lançamento: 3.998 </code></pre>
+<pre><code>Frequências dos 5000 valores gerados:</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Frequências relativas (teórico: 1/6 ="</span>, <span class="fu">round</span>(<span class="dv">1</span> <span class="sc">/</span> <span class="dv">6</span>, <span class="dv">3</span>), <span class="st">"):</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(comparacao, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Frequências relativas (teórico: 1/6 = 0.167 ):</code></pre>
-</div>
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">round</span>(<span class="fu">table</span>(amostras) <span class="sc">/</span> n_amostras, <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>amostras
-    1     2     3     4     5     6 
-0.168 0.157 0.169 0.169 0.176 0.162 </code></pre>
+<pre><code>  j freq_relativa        p_j
+  2        0.0272 0.02777778
+  3        0.0576 0.05555556
+  4        0.0820 0.08333333
+  5        0.1140 0.11111111
+  6        0.1400 0.13888889
+  7        0.1576 0.16666667
+  8        0.1424 0.13888889
+  9        0.1094 0.11111111
+ 10        0.0858 0.08333333
+ 11        0.0574 0.05555556
+ 12        0.0266 0.02777778</code></pre>
 </div>
 </div>
 </div>
@@ -1014,77 +1009,83 @@ Atenção: reaproveitar as rejeições estraga a distribuição
 <div class="cell">
 <details class="code-fold">
 <summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
-<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Nossa única fonte de aleatoriedade: um bit justo (cara ou coroa)</span></span>
-<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> gera_bit():</span>
-<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.random.randint(<span class="dv">0</span>, <span class="dv">2</span>)</span>
-<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Alvo: uniforme em {1, ..., 6}. Proposta: uniforme em {1, ..., 8}, obtida</span></span>
-<span id="cb51-13"><a href="#cb51-13" aria-hidden="true" tabindex="-1"></a><span class="co"># lendo 3 bits como um número em binário</span></span>
-<span id="cb51-14"><a href="#cb51-14" aria-hidden="true" tabindex="-1"></a>p_j <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">6</span></span>
-<span id="cb51-15"><a href="#cb51-15" aria-hidden="true" tabindex="-1"></a>q_j <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">8</span></span>
-<span id="cb51-16"><a href="#cb51-16" aria-hidden="true" tabindex="-1"></a>cte <span class="op">=</span> p_j <span class="op">/</span> q_j   <span class="co"># c = 4/3</span></span>
-<span id="cb51-17"><a href="#cb51-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-18"><a href="#cb51-18" aria-hidden="true" tabindex="-1"></a>n_amostras <span class="op">=</span> <span class="dv">5000</span></span>
-<span id="cb51-19"><a href="#cb51-19" aria-hidden="true" tabindex="-1"></a>amostras <span class="op">=</span> []</span>
-<span id="cb51-20"><a href="#cb51-20" aria-hidden="true" tabindex="-1"></a>n_propostas <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb51-21"><a href="#cb51-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-22"><a href="#cb51-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n_amostras):</span>
-<span id="cb51-23"><a href="#cb51-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
-<span id="cb51-24"><a href="#cb51-24" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Passo 1: três bits formam Y uniforme em {1, ..., 8}</span></span>
-<span id="cb51-25"><a href="#cb51-25" aria-hidden="true" tabindex="-1"></a>        y <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> <span class="dv">4</span> <span class="op">*</span> gera_bit() <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> gera_bit() <span class="op">+</span> gera_bit()</span>
-<span id="cb51-26"><a href="#cb51-26" aria-hidden="true" tabindex="-1"></a>        n_propostas <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb51-27"><a href="#cb51-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-28"><a href="#cb51-28" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Passos 2 e 3: a probabilidade de aceitação p_y / (c q_y) vale 1 para</span></span>
-<span id="cb51-29"><a href="#cb51-29" aria-hidden="true" tabindex="-1"></a>        <span class="co"># y &lt;= 6 e 0 para y = 7 ou 8, então o sorteio de U é dispensável</span></span>
-<span id="cb51-30"><a href="#cb51-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> y <span class="op">&lt;=</span> <span class="dv">6</span>:</span>
-<span id="cb51-31"><a href="#cb51-31" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
-<span id="cb51-32"><a href="#cb51-32" aria-hidden="true" tabindex="-1"></a>    amostras.append(y)</span>
-<span id="cb51-33"><a href="#cb51-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-34"><a href="#cb51-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Taxa de aceitação observada:"</span>, <span class="bu">round</span>(n_amostras <span class="op">/</span> n_propostas, <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Parâmetros do problema ---</span></span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>valores_j <span class="op">=</span> np.arange(<span class="dv">2</span>, <span class="dv">13</span>)</span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>p_j <span class="op">=</span> (<span class="dv">6</span> <span class="op">-</span> np.<span class="bu">abs</span>(valores_j <span class="op">-</span> <span class="dv">7</span>)) <span class="op">/</span> <span class="dv">36</span>   <span class="co"># alvo: soma de dois dados</span></span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>q_j <span class="op">=</span> np.full_like(p_j, <span class="dv">1</span> <span class="op">/</span> <span class="dv">11</span>)          <span class="co"># proposta: uniforme em {2, ..., 12}</span></span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>cte <span class="op">=</span> <span class="bu">max</span>(p_j <span class="op">/</span> q_j)                     <span class="co"># c = 11/6</span></span>
+<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Método da rejeição ---</span></span>
+<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a>n_amostras <span class="op">=</span> <span class="dv">5000</span></span>
+<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a>amostras <span class="op">=</span> []</span>
+<span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a>n_propostas <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb49-18"><a href="#cb49-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-19"><a href="#cb49-19" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="bu">len</span>(amostras) <span class="op">&lt;</span> n_amostras:</span>
+<span id="cb49-20"><a href="#cb49-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passo 1: gerar Y da proposta (uniforme discreta em {2, ..., 12})</span></span>
+<span id="cb49-21"><a href="#cb49-21" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> np.random.choice(valores_j)</span>
+<span id="cb49-22"><a href="#cb49-22" aria-hidden="true" tabindex="-1"></a>    n_propostas <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb49-23"><a href="#cb49-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-24"><a href="#cb49-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passo 2: gerar U ~ Unif(0,1)</span></span>
+<span id="cb49-25"><a href="#cb49-25" aria-hidden="true" tabindex="-1"></a>    u <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb49-26"><a href="#cb49-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-27"><a href="#cb49-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Passo 3: aceitar y com probabilidade p_y / (c * q_y).</span></span>
+<span id="cb49-28"><a href="#cb49-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># y - 2 é o índice de y no vetor p_j, que começa em j = 2</span></span>
+<span id="cb49-29"><a href="#cb49-29" aria-hidden="true" tabindex="-1"></a>    razao <span class="op">=</span> p_j[y <span class="op">-</span> <span class="dv">2</span>] <span class="op">/</span> (cte <span class="op">*</span> q_j[y <span class="op">-</span> <span class="dv">2</span>])</span>
+<span id="cb49-30"><a href="#cb49-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-31"><a href="#cb49-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> u <span class="op">&lt;=</span> razao:</span>
+<span id="cb49-32"><a href="#cb49-32" aria-hidden="true" tabindex="-1"></a>        amostras.append(y)</span>
+<span id="cb49-33"><a href="#cb49-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-34"><a href="#cb49-34" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Resultados ---</span></span>
+<span id="cb49-35"><a href="#cb49-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-36"><a href="#cb49-36" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Taxa de aceitação observada:"</span>, <span class="bu">round</span>(n_amostras <span class="op">/</span> n_propostas, <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Taxa de aceitação observada: 0.752</code></pre>
+<pre><code>Taxa de aceitação observada: 0.551</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Taxa de aceitação teórica (1/c):"</span>, <span class="bu">round</span>(<span class="dv">1</span> <span class="op">/</span> cte, <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Taxa de aceitação teórica (1/c):"</span>, <span class="bu">round</span>(<span class="dv">1</span> <span class="op">/</span> cte, <span class="dv">3</span>), <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Taxa de aceitação teórica (1/c): 0.75</code></pre>
+<pre><code>Taxa de aceitação teórica (1/c): 0.545 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Bits gastos por lançamento:"</span>, <span class="bu">round</span>(<span class="dv">3</span> <span class="op">*</span> n_propostas <span class="op">/</span> n_amostras, <span class="dv">3</span>), <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>tabela_freq <span class="op">=</span> pd.Series(amostras).value_counts().reindex(valores_j, fill_value<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>comparacao <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"j"</span>: valores_j,</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"freq_relativa"</span>: tabela_freq.values <span class="op">/</span> n_amostras,</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"p_j"</span>: p_j</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Frequências dos"</span>, n_amostras, <span class="st">"valores gerados:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Bits gastos por lançamento: 3.988 </code></pre>
+<pre><code>Frequências dos 5000 valores gerados:</code></pre>
 </div>
 <details class="code-fold">
 <summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>freq <span class="op">=</span> pd.Series(amostras).value_counts().sort_index() <span class="op">/</span> n_amostras</span>
-<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Frequências relativas (teórico: 1/6 ="</span>, <span class="bu">round</span>(<span class="dv">1</span> <span class="op">/</span> <span class="dv">6</span>, <span class="dv">3</span>), <span class="st">"):"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(comparacao.to_string(index<span class="op">=</span><span class="va">False</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Frequências relativas (teórico: 1/6 = 0.167 ):</code></pre>
-</div>
-<details class="code-fold">
-<summary>Mostrar código</summary>
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(freq.<span class="bu">round</span>(<span class="dv">3</span>).to_string())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>1    0.164
-2    0.174
-3    0.160
-4    0.169
-5    0.168
-6    0.165</code></pre>
+<pre><code> j  freq_relativa      p_j
+ 2         0.0304 0.027778
+ 3         0.0614 0.055556
+ 4         0.0844 0.083333
+ 5         0.1056 0.111111
+ 6         0.1362 0.138889
+ 7         0.1624 0.166667
+ 8         0.1374 0.138889
+ 9         0.1084 0.111111
+10         0.0914 0.083333
+11         0.0570 0.055556
+12         0.0254 0.027778</code></pre>
 </div>
 </div>
 </div>
