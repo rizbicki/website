@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Nowcast semanal de SRAG com Google Trends, sazonalidade e estimativas oficiais do InfoGripe.">
+  <meta name="description" content="Nowcast semanal de SRAG com Google Trends, SIVEP-Gripe parcial e estimativas oficiais do InfoGripe.">
   <title>Nowcast de SRAG no Brasil</title>
-  <link rel="stylesheet" href="/dashboard/srag/styles.css?v=20260901-horizon-chart">
+  <link rel="stylesheet" href="/dashboard/srag/styles.css?v=20260901-partial-sivep">
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
-  <script src="/dashboard/srag/app.js?v=20260901-horizon-chart" defer></script>
+  <script src="/dashboard/srag/app.js?v=20260901-partial-sivep" defer></script>
 </head>
 <body>
   <header class="hero">
     <div>
       <p class="eyebrow">Vigilância epidemiológica experimental</p>
       <h1>Nowcast semanal de SRAG no Brasil</h1>
-      <p class="lede">Nowcast de casos de SRAG com a definição sintomática do InfoGripe, comparando buscas no Google, sazonalidade anual e a estimativa oficial.</p>
+      <p class="lede">Nowcast de casos de SRAG com a definição sintomática do InfoGripe, comparando buscas no Google, notificações parciais do SIVEP-Gripe, sazonalidade anual e a estimativa oficial.</p>
     </div>
     <div class="status" aria-live="polite">
       <span class="status-dot"></span>
@@ -36,6 +36,7 @@
       <label for="model-select">Modelo</label>
       <select id="model-select">
         <option value="ensemble">Agregado (LASSO + sazonal)</option>
+        <option value="partial_sivep">Trends + SIVEP parcial (experimental)</option>
         <option value="combined">Combinado experimental (+ InfoGripe)</option>
         <option value="infogripe">InfoGripe (Fiocruz)</option>
         <option value="seasonal">Sazonal (ano anterior suavizado)</option>
@@ -223,15 +224,17 @@
       <section class="method">
         <h2>Metodologia</h2>
         <p>O modelo é estimado separadamente para cada uma das 27 unidades federativas. O alvo é o número de registros do SIVEP-Gripe que satisfazem a mesma definição sintomática usada pelo InfoGripe: (tosse ou dor de garganta), (dispneia, saturação abaixo de 95% ou desconforto respiratório) e (hospitalização ou óbito). Um LASSO é treinado nas 104 semanas consolidadas mais recentes com os índices do Google Trends para <em>gripe</em>, <em>sintomas gripe</em> e <em>tosse</em>; sua estimativa é combinada com a média do mesmo alvo filtrado entre 50 e 54 semanas antes.</p>
+        <p>O modelo separado <strong>Trends + SIVEP parcial</strong> conta, em cada UF, os registros filtrados digitados até o sábado que encerra a semana-alvo. Essa contagem é dividida pela fração de completude observada nas 52 semanas maduras mais recentes, com defasagem de 12 semanas, e combinada 50/50 com o nowcast de Trends + sazonalidade. Apenas previsões realmente emitidas são mostradas e preservadas; reconstruções históricas por <code>DT_DIGITA</code> não são apresentadas como previsões prospectivas.</p>
         <p>Como o modelo local e o <strong>InfoGripe</strong> agora estimam o mesmo alvo filtrado, os pontos e intervalos de credibilidade de 80% publicados pelo InfoGripe entram diretamente, sem fator de escala. Crédito: InfoGripe — MAVE (PROCC/Fiocruz e EMap/FGV) e GT-Influenza/Ministério da Saúde.</p>
         <p>No modo <strong>Combinado experimental</strong>, as distribuições do InfoGripe e de Trends + sazonalidade são reconstruídas na escala <code>log1p</code> e misturadas com pesos iguais. A faixa laranja mostra os limites de 80% do InfoGripe; a faixa roxa contém os quantis 10 e 90 da mistura; a faixa cinza é o envelope conservador dos dois intervalos.</p>
         <p>Para os modelos locais, o agregado Brasil é a soma das 27 estimativas estaduais; para o InfoGripe, é usada a estimativa nacional publicada pela própria equipe. As faixas locais de 80% usam resíduos de semanas anteriores ao alvo atual; a faixa do InfoGripe é o intervalo de credibilidade oficial. As métricas históricas locais usam origens <em>rolling-origin</em> externas: em cada origem, seleção, ajuste e calibração veem somente as semanas anteriores, e o mesmo ajuste é avaliado separadamente em H+1 até H+7. Para o Brasil, a cobertura é <em>prequential</em> e cada intervalo avaliado usa apenas resíduos nacionais já observados em origens anteriores.</p>
         <p>O peso de 50% e o intervalo combinado ainda não foram calibrados historicamente. Como o arquivo público revisa previsões antigas, estamos acumulando vintages semanais imutáveis antes de estimar o peso <em>w</em> e medir erro e cobertura.</p>
         <p>No mapa de nowcast, as estimativas são apresentadas em casos por 100 mil habitantes, usando a população residente do Censo Demográfico 2022 do IBGE. Os demais valores são contagens absolutas; o mapa de variação mostra percentuais. As métricas históricas fora da amostra ainda não são exibidas para o InfoGripe porque o arquivo público revisa valores passados; o histórico semanal começa a ser preservado pelos commits deste site.</p>
         <p>Este é um <strong>nowcast</strong>, não uma previsão: ele estima semanas que já ocorreram, mas cuja notificação ainda está incompleta por atraso no sistema de vigilância. Um caso só entra como "consolidado" depois de um número mínimo de dias desde o início dos sintomas; semanas mais recentes do que isso aparecem como provisórias no gráfico.</p>
+        <p>Para o híbrido com SIVEP parcial, o intervalo de 80% e as métricas no painel permanecem vazios até que previsões imutáveis completem 84 dias. O arquivo prospectivo preserva semanalmente os pontos e intervalos disponíveis dos seis modelos para Brasil e 27 UFs — no máximo 168 linhas agregadas por semana, sem microdados.</p>
 
         <h3>Atualização</h3>
-        <p>Os índices do Google Trends são coletados diariamente, em lotes pequenos por estado, de segunda a sábado. Aos sábados, o pipeline baixa os arquivos do SIVEP-Gripe e a série oficial corrente do InfoGripe, retreina os modelos locais, valida as 28 geografias e publica um novo pacote. Se o InfoGripe estiver incompleto ou com mais de 21 dias, a atualização falha e não substitui os últimos dados válidos.</p>
+        <p>Os índices do Google Trends são coletados diariamente, em lotes pequenos por estado, de segunda a sábado. Aos sábados, o pipeline baixa os arquivos do SIVEP-Gripe e a série oficial corrente do InfoGripe, retreina os modelos locais, anexa uma nova vintage prospectiva sem sobrescrever previsões anteriores, valida as 28 geografias e publica um novo pacote. Se o InfoGripe estiver incompleto ou com mais de 21 dias, a atualização falha e não substitui os últimos dados válidos.</p>
 
         <h3>Parâmetros da execução mais recente</h3>
         <dl id="method-technical" class="method-technical"></dl>

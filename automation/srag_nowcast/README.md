@@ -40,6 +40,21 @@ therefore show a newer Trends nowcast while InfoGripe remains on an earlier
 week, or vice versa. The combined model stops at the latest week where both
 components are available; one source never truncates the other.
 
+The selector also offers a separate experimental **Trends + partial SIVEP**
+model. It counts only eligible records digitized by the Saturday ending the
+target epidemiological week, divides that count by the UF-specific age-zero
+completeness estimated over 52 mature weeks, and averages the result 50/50 with
+the Trends nowcast. The completion window ends 12 weeks before the target. The
+published point estimate is never lower than the partial count already seen.
+This mode is separate from “Google Trends”; it does not alter that model or its
+historical metrics.
+
+Partial-SIVEP intervals and performance metrics remain unavailable until the
+prospective archive contains resolved predictions. Every weekly build freezes
+the latest point and available interval for all six displayed models in Brazil
+and each UF; after 84 days it attaches the mature aggregate outcome. The CSV
+therefore grows by at most 168 rows per week and contains no SIVEP microdata.
+
 The nowcast map displays incidence per 100,000 residents, using resident
 population from the 2022 IBGE Census. All other count displays remain absolute;
 the recent-change map remains a percentage. The historical performance
@@ -62,7 +77,9 @@ current official InfoGripe CSV, rebuilds the local models, validates the complet
 JSON bundle, and commits it. The build requires BR plus all 27 UFs, a complete
 80% interval on the latest InfoGripe week, and a source no more than 21 days old.
 Each weekly data commit therefore preserves the InfoGripe values displayed that
-week. Netlify then deploys the new site from the commit.
+week. It also preserves the compact prospective all-model archive and resolves
+rows whose targets are at least 84 days old. Netlify then deploys the new site
+from the commit.
 
 A failed build never replaces the last validated dashboard data. The workflow
 also opens or updates a GitHub issue when an automated run fails.
@@ -164,6 +181,15 @@ Validate the published bundle:
 ```bash
 gripe \
   --validate-output \
+  --output-dir static/dashboard/srag/data
+```
+
+Inspect the accumulated real-time partial-SIVEP scores (before the first
+resolution this prints pending counts and empty metrics):
+
+```bash
+gripe \
+  --evaluate-prospective \
   --output-dir static/dashboard/srag/data
 ```
 

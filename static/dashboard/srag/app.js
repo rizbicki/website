@@ -42,6 +42,12 @@
       value: "nowcast", lower: "lower80", upper: "upper80",
       seriesLabel: "Nowcast", cardLabel: "Agregado (LASSO + sazonal)"
     },
+    partial_sivep: {
+      value: "partial_sivep",
+      lower: "partial_sivep_lower80", upper: "partial_sivep_upper80",
+      observed: "partial_sivep_reported", noInterval: true,
+      seriesLabel: "Trends + SIVEP parcial", cardLabel: "Trends + SIVEP parcial"
+    },
     seasonal: {
       value: "seasonal", lower: "seasonal_lower80", upper: "seasonal_upper80",
       seriesLabel: "Sazonal", cardLabel: "Sazonal (ano anterior suavizado)"
@@ -187,7 +193,7 @@
       return row.week <= latest.week;
     });
     var series;
-    if (modelKey === "infogripe") {
+    if (modelKey === "infogripe" || modelKey === "partial_sivep") {
       series = eligible.map(function (row) {
         return row[field];
       }).filter(function (value) {
@@ -218,6 +224,7 @@
   function summaryChangeField(modelKey, baseField) {
     if (modelKey === "infogripe") return "infogripe_raw_" + baseField;
     if (modelKey === "combined") return "combined_" + baseField;
+    if (modelKey === "partial_sivep") return "partial_sivep_" + baseField;
     return baseField;
   }
 
@@ -326,12 +333,14 @@
     var upper = latest[model.upper];
     var isInfo = currentModel === "infogripe";
     var isCombined = currentModel === "combined";
+    var isPartial = currentModel === "partial_sivep";
     var observed = latest[model.observed || "observed"];
     var changes = modelChangeMetrics(payload, currentModel);
     document.getElementById("selected-kicker").textContent =
       payload.uf === "BR" ?
         (isInfo ? "Estimativa nacional do InfoGripe" :
           isCombined ? "Mistura de duas estimativas nacionais" :
+          isPartial ? "Híbrido das 27 UFs com notificações parciais" :
           "Agregado das 27 UFs") : payload.uf;
     document.getElementById("selected-title").textContent = payload.name;
     document.getElementById("series-title").textContent =
@@ -343,20 +352,27 @@
     if (isInfo) {
       period += " · série oficial coletada em " +
         formatDate(summary.sources.infogripe.retrieved_at_utc);
+    } else if (isPartial) {
+      period += " · snapshot SIVEP de " +
+        formatDate(latest.partial_sivep_source_snapshot_date);
     } else {
       period += " · corte de treino em " + formatDate(payload.training.cutoff);
     }
     document.getElementById("selected-period").textContent = period;
     document.getElementById("nowcast-label").textContent = model.cardLabel;
     document.getElementById("nowcast-value").textContent = formatCount(estimate);
-    document.getElementById("interval-value").textContent = isCombined ?
-      "Faixa 80% da mistura: " + formatCount(lower) + "–" + formatCount(upper) :
-      "80%: " + formatCount(lower) + "–" + formatCount(upper);
+    document.getElementById("interval-value").textContent = isPartial ?
+      "Intervalo aguardando calibração prospectiva" :
+      isCombined ?
+        "Faixa 80% da mistura: " + formatCount(lower) + "–" + formatCount(upper) :
+        "80%: " + formatCount(lower) + "–" + formatCount(upper);
     document.getElementById("observed-label").textContent =
-      isInfo ? "Notificado na base do InfoGripe" : "SRAG filtrado notificado";
+      isInfo ? "Notificado na base do InfoGripe" :
+        isPartial ? "Digitado até o fim da semana" : "SRAG filtrado notificado";
     document.getElementById("observed-value").textContent = formatCount(observed);
     document.getElementById("observed-note").textContent =
-      isInfo ? "valor informado na publicação oficial" : "valor ainda provisório";
+      isInfo ? "valor informado na publicação oficial" :
+        isPartial ? "entrada parcial usada pelo modelo" : "valor ainda provisório";
     document.getElementById("change-2w-value").textContent =
       formatPercent(changes.change2w);
     document.getElementById("change-2w-value").className =
@@ -365,20 +381,38 @@
       formatPercent(changes.change4w);
     document.getElementById("change-4w-value").className =
       changes.change4w >= 0 ? "positive" : "negative";
-    document.getElementById("model-note").hidden = !isCombined;
-    document.getElementById("interval-description").textContent = isCombined ?
-      "Laranja: faixa de 80% do InfoGripe. Roxo: quantis 10–90% da mistura. " +
-      "Cinza: envelope conservador dos dois modelos." :
-      "A faixa mostra o intervalo de 80% publicado por cada modelo.";
-    document.getElementById("interpretation").textContent = isCombined ?
-      "O modelo local estima " + formatCount(latest.nowcast) +
-      " casos e o InfoGripe estima " +
-      formatCount(latest.infogripe) +
-      "; a combinação 50/50 resulta em " + formatCount(estimate) +
-      ". O peso ainda é experimental." :
-      "O valor observado até agora é " + formatCount(observed) + " casos" +
-      "; o modelo " + model.cardLabel.toLowerCase() + " estima " +
-      formatCount(estimate) + " casos após compensar o atraso de notificação.";
+    var modelNote = document.getElementById("model-note");
+    modelNote.hidden = !(isCombined || isPartial);
+    if (isPartial) {
+      modelNote.innerHTML = "<strong>Avaliação prospectiva em andamento.</strong> " +
+        "Esta opção é separada do Trends: combina 50% do nowcast por buscas e " +
+        "sazonalidade com 50% da correção das notificações SIVEP digitadas até " +
+        "o sábado. As previsões são preservadas semanalmente e não têm faixa " +
+        "de incerteza até haver vintages maduras suficientes.";
+    } else if (isCombined) {
+      modelNote.innerHTML = "<strong>Modo experimental.</strong> O modelo local " +
+        "e o InfoGripe são combinados 50/50; laranja mostra o intervalo do " +
+        "InfoGripe, roxo os quantis da mistura e cinza o envelope dos modelos.";
+    }
+    document.getElementById("interval-description").textContent = isPartial ?
+      "Somente a estimativa pontual é exibida enquanto acumulamos previsões imutáveis." :
+      isCombined ?
+        "Laranja: faixa de 80% do InfoGripe. Roxo: quantis 10–90% da mistura. " +
+        "Cinza: envelope conservador dos dois modelos." :
+        "A faixa mostra o intervalo de 80% publicado por cada modelo.";
+    document.getElementById("interpretation").textContent = isPartial ?
+      "O modelo por buscas estima " + formatCount(latest.partial_sivep_search) +
+      " casos; a correção do SIVEP parcial estima " +
+      formatCount(latest.partial_sivep_completion) +
+      "; a combinação 50/50 resulta em " + formatCount(estimate) + "." :
+      isCombined ?
+        "O modelo local estima " + formatCount(latest.nowcast) +
+        " casos e o InfoGripe estima " + formatCount(latest.infogripe) +
+        "; a combinação 50/50 resulta em " + formatCount(estimate) +
+        ". O peso ainda é experimental." :
+        "O valor observado até agora é " + formatCount(observed) + " casos" +
+        "; o modelo " + model.cardLabel.toLowerCase() + " estima " +
+        formatCount(estimate) + " casos após compensar o atraso de notificação.";
   }
 
   function metricCell(value, formatter) {
@@ -562,7 +596,7 @@
           name: "Mistura: faixa de 80%", hoverinfo: "skip"
         }
       );
-    } else {
+    } else if (!model.noInterval) {
       traces.push(
         {
           x: x, y: rows.map(function (row) { return row[model.lower]; }),

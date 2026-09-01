@@ -1,3 +1,3 @@
 # Model, ingestion, validation and CLI live in the private gripe repository.
 # Promotion and rollback happen by changing this immutable release tag.
-gripe @ git+ssh://git@github.com/rizbicki/gripe.git@v0.3.0
+gripe @ git+ssh://git@github.com/rizbicki/gripe.git@v0.4.0
