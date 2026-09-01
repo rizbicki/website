@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Nowcast semanal de SRAG com Google Trends, sazonalidade e estimativas oficiais do InfoGripe.">
   <title>Nowcast de SRAG no Brasil</title>
-  <link rel="stylesheet" href="/dashboard/srag/styles.css?v=20260901-horizon-performance">
+  <link rel="stylesheet" href="/dashboard/srag/styles.css?v=20260901-horizon-chart">
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
-  <script src="/dashboard/srag/app.js?v=20260901-horizon-performance" defer></script>
+  <script src="/dashboard/srag/app.js?v=20260901-horizon-chart" defer></script>
 </head>
 <body>
   <header class="hero">
@@ -153,7 +153,7 @@
       <section class="controls" aria-label="Seleção geográfica para métricas">
         <label for="performance-state-select">Localidade</label>
         <select id="performance-state-select"></select>
-        <label for="performance-horizon-select">Horizonte</label>
+        <label for="performance-horizon-select">Horizonte da tabela</label>
         <select id="performance-horizon-select">
           <option value="all">Todas as 7 semanas (agregado)</option>
           <option value="1">1ª semana (H+1)</option>
@@ -164,6 +164,16 @@
           <option value="6">6ª semana (H+6)</option>
           <option value="7">7ª semana (H+7)</option>
         </select>
+        <label for="performance-metric-select">Métrica do gráfico</label>
+        <select id="performance-metric-select">
+          <option value="wape_percent">WAPE</option>
+          <option value="mae">MAE</option>
+          <option value="rmse">RMSE</option>
+          <option value="bias">Viés</option>
+          <option value="correlation">Correlação</option>
+          <option value="coverage80_percent">Cobertura 80%</option>
+          <option value="mean_interval_width">Largura média 80%</option>
+        </select>
       </section>
       <section class="panel performance-panel">
         <div class="panel-heading">
@@ -173,6 +183,10 @@
           </div>
         </div>
         <p class="muted" id="performance-description"></p>
+        <section class="performance-chart-section">
+          <h3 id="performance-chart-title">WAPE por horizonte</h3>
+          <div id="performance-chart" class="performance-chart" aria-label="Gráfico das métricas por horizonte de nowcast"></div>
+        </section>
         <div class="table-wrap performance-table-wrap">
           <table class="performance-table">
             <thead>

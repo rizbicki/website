@@ -8,6 +8,7 @@
   var currentModel = "ensemble";
   var currentPerformanceUf = "BR";
   var currentPerformanceHorizon = "all";
+  var currentPerformanceMetric = "wape_percent";
   var currentMapMetric = "change";
   var currentUfWindow = "4w";
   var currentPayload = null;
@@ -24,6 +25,16 @@
       description: "Últimas 4 semanas vs. as 4 semanas anteriores.",
       colorbarTitle: "% vs. 4 sem. antes"
     }
+  };
+
+  var PERFORMANCE_METRICS = {
+    wape_percent: { label: "WAPE", axis: "%" },
+    mae: { label: "MAE", axis: "casos por semana" },
+    rmse: { label: "RMSE", axis: "casos por semana" },
+    bias: { label: "Viés", axis: "casos por semana", reference: 0 },
+    correlation: { label: "Correlação", axis: "correlação" },
+    coverage80_percent: { label: "Cobertura 80%", axis: "%", reference: 80 },
+    mean_interval_width: { label: "Largura média 80%", axis: "casos por semana" }
   };
 
   var MODELS = {
@@ -53,6 +64,7 @@
   var select = document.getElementById("state-select");
   var performanceSelect = document.getElementById("performance-state-select");
   var performanceHorizonSelect = document.getElementById("performance-horizon-select");
+  var performanceMetricSelect = document.getElementById("performance-metric-select");
   var modelSelect = document.getElementById("model-select");
   var mapMetricSelect = document.getElementById("map-metric-select");
   var ufWindowSelect = document.getElementById("uf-window-select");
@@ -84,7 +96,10 @@
   }
 
   tabs.nowcast.button.addEventListener("click", function () { switchTab("nowcast"); });
-  tabs.performance.button.addEventListener("click", function () { switchTab("performance"); });
+  tabs.performance.button.addEventListener("click", function () {
+    switchTab("performance");
+    setTimeout(function () { Plotly.Plots.resize("performance-chart"); }, 0);
+  });
   tabs.methodology.button.addEventListener("click", function () { switchTab("methodology"); });
 
   function renderMethodology(summaryData) {
@@ -372,6 +387,63 @@
     return cell;
   }
 
+  function renderPerformanceChart(payload) {
+    var metric = PERFORMANCE_METRICS[currentPerformanceMetric];
+    var horizons = [1, 2, 3, 4, 5, 6, 7];
+    var colors = { ensemble: "#6f2dbd", lasso: "#1877a8", seasonal: "#d97706" };
+    var traces = ["ensemble", "lasso", "seasonal"].map(function (modelKey) {
+      var score = payload.backtest && payload.backtest[modelKey] || {};
+      var byHorizon = score.by_horizon || {};
+      return {
+        type: "scatter",
+        mode: "lines+markers",
+        name: MODELS[modelKey].cardLabel,
+        x: horizons,
+        y: horizons.map(function (horizon) {
+          var row = byHorizon[String(horizon)] || {};
+          var value = row[currentPerformanceMetric];
+          return value === null || value === undefined ? null : value;
+        }),
+        line: { color: colors[modelKey], width: 2.5 },
+        marker: { color: colors[modelKey], size: 7 },
+        connectgaps: false,
+        hovertemplate: "<b>%{fullData.name}</b><br>H+%{x}: %{y:.2f}<extra></extra>"
+      };
+    }).filter(function (trace) {
+      return trace.y.some(function (value) { return value !== null; });
+    });
+    var shapes = [];
+    if (metric.reference !== undefined) {
+      shapes.push({
+        type: "line", xref: "paper", x0: 0, x1: 1,
+        yref: "y", y0: metric.reference, y1: metric.reference,
+        line: { color: "#7a8793", width: 1.5, dash: "dash" }
+      });
+    }
+    document.getElementById("performance-chart-title").textContent =
+      metric.label + " por horizonte — " + payload.name;
+    document.getElementById("performance-chart").setAttribute(
+      "aria-label", metric.label + " por horizonte de nowcast em " + payload.name
+    );
+    Plotly.react("performance-chart", traces, {
+      margin: { l: 65, r: 20, t: 20, b: 55 },
+      paper_bgcolor: "#ffffff",
+      plot_bgcolor: "#ffffff",
+      font: { family: "Inter, sans-serif", color: "#17212b" },
+      hovermode: "x unified",
+      legend: { orientation: "h", y: 1.12, x: 0 },
+      xaxis: {
+        title: "Semana após o ajuste",
+        tickmode: "array",
+        tickvals: horizons,
+        ticktext: horizons.map(function (horizon) { return "H+" + horizon; }),
+        gridcolor: "#e2e8ee"
+      },
+      yaxis: { title: metric.axis, gridcolor: "#e2e8ee", zeroline: false },
+      shapes: shapes
+    }, { responsive: true, displaylogo: false });
+  }
+
   function renderPerformance(payload) {
     var table = document.getElementById("performance-table");
     var horizonLabel = currentPerformanceHorizon === "all" ?
@@ -419,6 +491,7 @@
       }
       table.appendChild(row);
     });
+    renderPerformanceChart(payload);
   }
 
   function renderSeries(payload) {
@@ -703,6 +776,14 @@
         currentPerformanceHorizon = performanceHorizonSelect.value;
         try {
           renderPerformance(await loadState(currentPerformanceUf));
+        } catch (error) {
+          showError(error);
+        }
+      };
+      performanceMetricSelect.onchange = async function () {
+        currentPerformanceMetric = performanceMetricSelect.value;
+        try {
+          renderPerformanceChart(await loadState(currentPerformanceUf));
         } catch (error) {
           showError(error);
         }
