@@ -25,7 +25,7 @@ publication : "Philosophical Transactions of the Royal Society A"
 #publication_short : "In *ICMEW*"
 
 # Abstract and optional shortened version.
-abstract : ""
+abstract : "Simulation-based inference (SBI) methods often produce posterior approximations whose credible sets are poorly calibrated, underestimating uncertainty around the true parameters. We introduce CP4SBI, a conformal calibration framework that recalibrates credible sets to achieve local Bayesian coverage. We propose two variants -- one based on regression trees and another on cumulative distribution functions -- that provide finite-sample coverage guarantees under several scoring functions, including highest posterior density, symmetric, and quantile-based scores. Experiments on standard SBI benchmarks show that our approach substantially improves the uncertainty quantification of neural posterior estimators built with normalizing flows and score-diffusion models."
 abstract_short : ""
 
 # Featured image thumbnail (optional)
