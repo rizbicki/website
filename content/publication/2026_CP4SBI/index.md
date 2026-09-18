@@ -3,6 +3,9 @@ title : "CP4SBI: Local Conformal Calibration of Credible Sets in Simulation-Base
 date : 2026-04-01T00:01:01
 draft : false
 
+# Feature this publication? (true/false)
+featured : true
+
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
 authors : [L. M. C. Cabezas, V. S. Santos, T. R. Ramos, P. L. C. Rodrigues,admin]
 

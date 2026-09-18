@@ -6,7 +6,7 @@ authors:
 - Rafael B. Stern
 date: "2019-05-01T00:00:00Z"
 doi: ""
-featured: true
+featured: false
 image:
   caption: ''
   focal_point: ""
