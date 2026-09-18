@@ -16,21 +16,24 @@ weight = 71
 
 +++
 
-PhD
+<details>
+<summary><strong>PhD</strong></summary>
 
+- Matheus Vinicius Barreto de Farias – (current student)
 - Matheus Dorival Leonardo Bombonato Menes  – (current student)
-- Rafael Peçanha Waissman  – (current student)
-- Everton Artuso  – (current student)
-- João Flávio Andrade Silva – (current student)
-- Luben Miguel Cruz Cabezas – (current student)
-- Milene Regina dos Santos – (current student)
-- Gabriel Oliveira - (co-advisor, current student)
+- Everton Artuso – Nonparametric FBST (2022-)
+- Luben Miguel Cruz Cabezas – Regression Trees for Fast and Adaptive Prediction Intervals (2022-)
 - Tiago Mendonça dos Santos - Computationally efficient predictive methods based on random forests (co-advisor, 2019-2024)
 - Gilson Shimizu – Bandas de predição usando densidade condicional estimada e um modelo lda com covariáveis (2017-2021)
 - Marco Henrique de Almeida Inacio – Conditional independence testing, two sample comparison and density estimation using neural networks (2017-2020)
 
-Master
+</details>
 
+<details>
+<summary><strong>Master</strong></summary>
+
+- Vagner Silva Santos – (current student)
+- Verónica Seguro Varela – (co-advisor, current student)
 - Bruna Nogueira Souza (MBA in Data Science 2024-)
 - Marcio Alves Oliveira (MBA in Data Science 2024-)
 - Henrique Hiray (MBA in Data Science 2024-)
@@ -56,15 +59,17 @@ Master
 - Afonso Fernandes Vaz – Improved quantification under domain shift (2016-2018)
 - Marco Henrique de Almeida Inacio – Comparing two populations using Bayesian Fourier series density estimation (2016-2017)
 - Gretta Rossi Ferreira – Estimação de densidades condicionais com aplicações à astronomia (2015-2017)
- 
 
-Undergraduate
+</details>
 
-- Vagner Silva Santos - (current student)
+<details>
+<summary><strong>Undergraduate</strong></summary>
+
+- Otávio Scieve Uliana - (current student)
+- Marcela Jacob Moreira de Souza - (current student)
 - Pietro Grazzioli Golfeto - (current student)
-- Fernanda Waltrs Freitas - (current student)
-- Lucas Sala Bastinni - (current student)
-- Bruno Marcondes Resende - (current student)
+- Bruno Marcondes Resende – Métodos de Aprendizado de Máquina para Detecção de Quasares de Alto Redshift com Mitigação de Viés de Seleção (2024-)
+- Bruno Marcondes Resende - (TCC, current student)
 - Guilherme Pedrilho Soares - Aplicação de Previsão Conforme em Inferência Baseada em Simuladores  - (2023-2024)
 - Guilherme Pedrilho Soares -  Exploring the Present: Predicting Dengue Epidemics in Brazilian States with Google Trends - (2023-2024)
 - Gabriela Soares - Uma abordagem estatística sobre a estimação de redshifts de quasares usando dados do S-PLUS - (2022)
@@ -88,3 +93,5 @@ Undergraduate
 - Paula Ianishi – Técnicas de predição para dados desbalanceados aplicadas ao problema de classificação morfológica de galáxias (2015-2016)
 - Felipe Henrique Mosquetta Oliveira – Tratamento e Classificação de Dados do Twitter sobre Política e Clima (2015)
 - Bruno Roberto Guimarães – Classificação automática de resenhas sobre jogos na Google Play Store (2015)
+
+</details>
