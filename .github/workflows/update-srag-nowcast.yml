@@ -83,7 +83,7 @@ jobs:
         uses: actions/cache/restore@v5
         with:
           path: automation/srag_nowcast/.cache/google_trends
-          key: google-trends-${{ runner.os }}-${{ github.run_id }}
+          key: google-trends-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
             google-trends-${{ runner.os }}-
 
@@ -117,20 +117,35 @@ jobs:
           python -m pip show gripe | sed -n '1,3p'
           python -c 'from gripe.config import SCHEMA_VERSION; assert SCHEMA_VERSION == 3'
 
+      # Google intermittently throttles GitHub runners (HTTP 429). A missed
+      # batch is retried by the catch-up step on the following days, so neither
+      # collection step fails the run; the build's freshness check is the gate.
       - name: Collect the daily Google Trends batch
         if: steps.batch.outputs.ufs != ''
+        continue-on-error: true
         run: |
           gripe --collect-trends-only \
             --ufs ${{ steps.batch.outputs.ufs }} \
             --trends-cache-dir automation/srag_nowcast/.cache/google_trends \
             --trends-sleep 15
 
+      # Every UF is refreshed by its own batch at most seven days apart, so only
+      # a checkpoint whose batch failed or was skipped is older than 168 hours.
+      - name: Catch up checkpoints that missed their day
+        if: steps.batch.outputs.batch != 'archive-trends'
+        continue-on-error: true
+        run: |
+          gripe --collect-trends-only \
+            --trends-fresh-hours 168 \
+            --trends-cache-dir automation/srag_nowcast/.cache/google_trends \
+            --trends-sleep 15
+
       - name: Save Google Trends checkpoints
-        if: steps.batch.outputs.ufs != '' && success()
+        if: steps.batch.outputs.batch != 'archive-trends' && !cancelled()
         uses: actions/cache/save@v5
         with:
           path: automation/srag_nowcast/.cache/google_trends
-          key: google-trends-${{ runner.os }}-${{ github.run_id }}
+          key: google-trends-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Upload the Google Trends checkpoints
         if: steps.batch.outputs.batch == 'archive-trends'

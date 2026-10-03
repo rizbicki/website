@@ -71,8 +71,11 @@ local model.
 The GitHub Actions workflow at
 `.github/workflows/update-srag-nowcast.yml` collects Google Trends in small
 daily batches from Monday through Saturday. Each state is checkpointed
-immediately in the Actions cache. On Saturday, after all 27 checkpoints are
-available, the workflow downloads or reuses the SIVEP-Gripe files, fetches the
+immediately in the Actions cache. Google intermittently throttles GitHub
+runners, so a failed batch does not fail the run: every run also refetches any
+checkpoint older than seven days, which happens only when that state's own
+batch failed or was skipped. On Saturday, once every checkpoint is at most nine
+days old, the workflow downloads or reuses the SIVEP-Gripe files, fetches the
 current official InfoGripe CSV, rebuilds the local models, validates the complete
 JSON bundle, and commits it. The build requires BR plus all 27 UFs, a complete
 80% interval on the latest InfoGripe week, and a source no more than 21 days old.
@@ -82,7 +85,9 @@ rows whose targets are at least 84 days old. Netlify then deploys the new site
 from the commit.
 
 A failed build never replaces the last validated dashboard data. The workflow
-also opens or updates a GitHub issue when an automated run fails.
+also opens or updates a GitHub issue when an automated run fails. A throttled
+collection alone is not reported: it is retried the next day, and only matters
+if it leaves a checkpoint too old for Saturday's build.
 
 ## Publishing runbook
 
