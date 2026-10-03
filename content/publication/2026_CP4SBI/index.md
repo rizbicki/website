@@ -49,8 +49,10 @@ selected : false
 #   Set `tags : []` for no tags, or use the form `tags : ["A Tag", "Another Tag"]` for one or more tags.
 tags : ["Nonparametric Statistics","Machine Learning","Conformal Predictions","Regression Trees","SBI","LFI"]
 
+doi : "10.1098/rsta.2025.0069"
+
 # Links (optional).
-#url_pdf : ""
+url_pdf : "https://royalsocietypublishing.org/rsta/article/384/2327/20250069/483087/CP4SBI-local-conformal-calibration-of-credible"
 url_preprint : "https://arxiv.org/abs/2508.17077"
 #url_code : ""
 #url_dataset : "#"
