@@ -65,10 +65,20 @@ fossem de Lula e fossem retirados, sua vantagem ainda seria de 4.395.798 votos.
 
 ### As mesmas seções já votavam diferente antes da prorrogação
 
-Se a prorrogação tivesse acrescentado votos a Lula, seria de esperar que as seções que fecharam mais tarde
-mudassem mais entre os turnos do que as outras. Não foi o que aconteceu. No 1º turno, as mesmas seções já davam a Lula 44,8% e
-50,8% dos votos dados a ele ou a Flávio, uma diferença de 6,0 pontos. No 2º turno, a diferença foi de 5,9
-pontos. Lula cresceu 2,8 pontos nos dois grupos.
+Se a prorrogação tivesse acrescentado votos a Lula, o crescimento dele do 1º para o 2º turno deveria ser maior
+nas seções que fecharam depois das 17h do que nas demais. Para comparar os dois turnos na mesma base, considero
+só os votos dados a Lula ou a Flávio, sem os outros candidatos do 1º turno, os brancos e os nulos. No 2º turno,
+essa porcentagem coincide com a dos votos válidos. Os grupos são os mesmos nas duas linhas: as seções são
+separadas pelo horário em que fecharam no 2º turno.
+
+| Votos de Lula entre os dados a ele ou a Flávio | Seções que fecharam até 17h00 | Seções que fecharam depois |
+|---|---|---|
+| 1º turno, sem prorrogação | 44,8% | 50,8% |
+| 2º turno | 47,6% | 53,5% |
+| Variação | +2,8 pontos | +2,8 pontos |
+
+As seções que fecharam depois das 17h já votavam mais em Lula no 1º turno, quando não houve prorrogação. Do 1º
+para o 2º turno, a porcentagem de Lula subiu 2,8 pontos percentuais nos dois grupos.[^arredondamento]
 
 A divisão pelo horário de encerramento separa vencedores diferentes em todas as votações. Em 2022, Jair
 Bolsonaro teve 51,1% dos votos válidos nas urnas que fecharam até 17h00, com 1,04 milhão de votos de vantagem;
@@ -257,3 +267,5 @@ entre os votos dados a ele ou a Flávio.*
 [^logs]: Pelos logs, com o fuso de cada município, há 34.050 votos estritamente depois das 17h no Brasil, além
     de 416 no exterior. A tabela do TSE é reproduzida exatamente, estado por estado, contando os votos a partir
     de 17h00min00s e usando um único fuso por estado. A diferença não altera nenhuma conclusão.
+
+[^arredondamento]: Sem arredondar, Lula foi de 44,80% para 47,61% no primeiro grupo e de 50,76% para 53,53% no segundo, aumentos de 2,80 e 2,77 pontos.
