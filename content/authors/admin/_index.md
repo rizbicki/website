@@ -1,5 +1,5 @@
 ---
-bio: "I'm an <strong>Associate Professor</strong> at the Department of Statistics of the <strong>Federal University of São Carlos (UFSCar)</strong>, Brazil. From 2010 to 2014, I was a PhD student in the  <strong>Department of Statistics & Data Science at <a href='http://www.stat.cmu.edu/'>Carnegie Mellon University</a>, USA</strong>. Prior to that, I graduated and received my Master's degree at the <strong>University of São Paulo (USP)</strong>. I am a Research Fellow at CNPq (2017-2027)."
+bio: "I'm an <strong>Associate Professor</strong> at the Department of Statistics of the <strong>Federal University of São Carlos (UFSCar)</strong>, Brazil. From 2010 to 2014, I was a PhD student in the  <strong>Department of Statistics & Data Science at <a href='http://www.stat.cmu.edu/'>Carnegie Mellon University</a>, USA</strong>, where my thesis received the <strong>Umesh K. Gavaskar Memorial Thesis Award</strong>. Prior to that, I graduated and received my Master's degree at the <strong>University of São Paulo (USP)</strong>. I am a Research Fellow at CNPq (2017-2027)."
 education:
   courses:
     - course: PhD in Statistics 
@@ -47,7 +47,7 @@ social:
 title: Rafael Izbicki
 ---
 
-I'm an Associate Professor at the Department of Statistics of the Federal University of São Carlos (UFSCar), Brazil. From 2010 to 2014, I was a PhD student in the  Department of Statistics & Data Science at [Carnegie Mellon University](http://www.stat.cmu.edu/) (CMU) ([PhD thesis](../../IzbickiThesis.pdf)), USA. Prior to that, I graduated and received my Master's degree at the University of São Paulo (USP) ([Master's dissertation](../../DissertacaoIzbicki.pdf)). I am a Research Fellow at CNPq (2017-2027). 
+I'm an Associate Professor at the Department of Statistics of the Federal University of São Carlos (UFSCar), Brazil. From 2010 to 2014, I was a PhD student in the  Department of Statistics & Data Science at [Carnegie Mellon University](http://www.stat.cmu.edu/) (CMU) ([PhD thesis](../../IzbickiThesis.pdf)), USA, where my thesis received the Umesh K. Gavaskar Memorial Thesis Award. Prior to that, I graduated and received my Master's degree at the University of São Paulo (USP) ([Master's dissertation](../../DissertacaoIzbicki.pdf)). I am a Research Fellow at CNPq (2017-2027). 
 
 I am interested in theory, methodology, applications, and foundations of statistics, machine learning and data science.
 I am a member of the following research groups/collaborations:
