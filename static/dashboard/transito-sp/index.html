@@ -23,6 +23,8 @@
       <a href="#municipios">Municípios</a>
       <a href="#locais">Locais<span class="so-largo"> críticos</span></a>
       <a href="#vitimas">Vítimas</a>
+      <a href="#letalidade">Letalidade</a>
+      <a href="#contagens">Contagens</a>
       <a href="#sobre">Sobre<span class="so-largo"> os dados</span></a>
     </nav>
     <div class="busca" data-busca>
@@ -111,6 +113,22 @@
     </div>
     <div class="historias" id="historias"></div>
   </section>
+
+  <section class="secao" id="letalidade">
+    <div class="secao-cab">
+      <h2>O que torna um sinistro mais letal</h2>
+      <p>Mortes a cada 100 sinistros com vítimas, conforme a hora, o tipo de sinistro e o limite de velocidade da via.</p>
+    </div>
+    <div class="historias" id="historias-letalidade"></div>
+  </section>
+
+  <section class="secao" id="contagens">
+    <div class="secao-cab">
+      <h2>Duas contagens das mesmas mortes</h2>
+      <p>O Infosiga e o Sistema de Informações sobre Mortalidade (SIM), do Ministério da Saúde, contam as mortes no trânsito de jeitos diferentes.</p>
+    </div>
+    <div class="historias" id="historias-contagens"></div>
+  </section>
 </div>
 
 <!-- ======================================================== município -->
@@ -120,6 +138,15 @@
     <h1 id="nome-municipio">—</h1>
     <p class="mun-meta" id="mun-meta"></p>
   </section>
+
+  <div class="periodo" role="group" aria-labelledby="periodo-rot">
+    <span id="periodo-rot" class="periodo-rot">Período</span>
+    <label class="so-leitor" for="ano-de">Primeiro ano</label><select id="ano-de"></select>
+    <span>a</span>
+    <label class="so-leitor" for="ano-ate">Último ano</label><select id="ano-ate"></select>
+    <button type="button" class="periodo-todo" id="periodo-todo" hidden>Todos<span class="so-largo"> os anos</span></button>
+    <span class="nota">Para comparar antes e depois de uma intervenção. Muda os números, o mapa, as listas e os gráficos; as taxas e a frota ficam como estão.</span>
+  </div>
 
   <div class="kpis" id="kpis"></div>
 
@@ -131,7 +158,7 @@
   <section class="secao" id="onde">
     <div class="secao-cab">
       <h2>Onde se concentram</h2>
-      <p>Sinistros com vítimas desde <span class="ano-ini">2019</span>. Clique num local da lista ou num número do mapa para ver a imagem do lugar.</p>
+      <p>Sinistros com vítimas <span class="periodo-mun">desde 2019</span>. Clique num local da lista ou num número do mapa para ver a imagem do lugar e os sinistros ano a ano. Para listar só os locais de um bairro, aproxime o mapa dele.</p>
     </div>
     <div class="painel-mapa cartao sem-pad">
       <div class="mapa-col">
@@ -142,7 +169,10 @@
           </div>
           <div class="legenda" id="legenda-municipio"></div>
         </div>
-        <div id="mapa-municipio" class="mapa" role="img" aria-label="Mapa de hexágonos com o número de sinistros e os pontos críticos numerados"></div>
+        <div class="mapa-envelope">
+          <div id="mapa-municipio" class="mapa" role="img" aria-label="Mapa de hexágonos com o número de sinistros e os pontos críticos numerados"></div>
+          <button type="button" class="botao-mapa" id="filtra-area" hidden>Listar os locais desta área</button>
+        </div>
         <p class="nota mapa-nota" id="nota-mapa"></p>
       </div>
       <div class="lista-col">
@@ -150,6 +180,10 @@
           <button type="button" role="tab" data-aba="pontos" class="ativo">Pontos críticos <span class="contagem"></span></button>
           <button type="button" role="tab" data-aba="vias">Vias <span class="contagem"></span></button>
           <button type="button" role="tab" data-aba="trechos">Rodovias <span class="contagem"></span></button>
+        </div>
+        <div class="filtro-area" id="filtro-area" hidden>
+          <span>Só a área marcada no mapa</span>
+          <button type="button" id="limpa-area">Ver o município todo</button>
         </div>
         <p class="nota nota-aba" id="nota-aba"></p>
         <div id="lista-aba" class="lista" role="tabpanel"></div>
@@ -163,7 +197,7 @@
     </div>
     <div class="grade-graficos">
       <figure class="cartao">
-        <figcaption><h3>Quem morre</h3><p>% das mortes desde <span class="ano-ini">2019</span>, por modo de deslocamento da vítima</p></figcaption>
+        <figcaption><h3>Quem morre</h3><p>% das mortes <span class="periodo-mun">desde 2019</span>, por modo de deslocamento da vítima</p></figcaption>
         <div id="graf-quem" class="grafico"></div>
       </figure>
       <figure class="cartao">
@@ -182,6 +216,14 @@
         <div id="serie-mortes" class="grafico"></div>
       </figure>
     </div>
+  </section>
+
+  <section class="secao" id="frota">
+    <div class="secao-cab">
+      <h2>Frota</h2>
+      <p>Veículos registrados no município, comparados com os do estado.</p>
+    </div>
+    <article class="historia cartao" id="historia-frota"></article>
   </section>
 </div>
 </main>
@@ -219,6 +261,18 @@
         <p>Com cuidado. Os sinistros não fatais dependem do registro policial, que varia entre municípios. As mortes são a comparação mais confiável.</p>
       </details>
       <details>
+        <summary>De onde vem o limite de velocidade?</summary>
+        <p>Do OpenStreetMap (etiqueta <i>maxspeed</i>). Cada sinistro com local preciso recebe o limite do trecho mais próximo da mesma via, a até 40 m (100 m nas rodovias, onde a coordenada costuma ser a do km). O limite está registrado em quase todas as rodovias, em parte das avenidas e em poucas ruas locais, por isso só <span id="cobertura-vmax">—</span> dos sinistros com local preciso têm limite conhecido. O limite é o da via hoje, não necessariamente o da data do sinistro.</p>
+      </details>
+      <details>
+        <summary>Como a frota entra nas contas?</summary>
+        <p>A frota é a registrada pela Senatran em dezembro de cada ano, por município e tipo de veículo. Ela inclui veículos que já não circulam e não diz quanto cada um roda, por isso as taxas por veículo comparam frotas, não exposição ao risco. Os automóveis do Infosiga incluem picapes, SUVs e utilitários, e foram comparados com essas categorias somadas na frota. A frota de 2015 só é publicada num formato que o projeto não lê, por isso as séries por frota começam em 2016.</p>
+      </details>
+      <details>
+        <summary>Por que o Ministério da Saúde registra menos mortes?</summary>
+        <p>O SIM parte da declaração de óbito e conta a morte no município onde ela ocorreu (muitas vezes o do hospital), sem limite de tempo depois do sinistro. O Infosiga parte do sinistro, conta a morte no local do sinistro e acompanha as vítimas por 30 dias. Por isso a comparação é feita para a capital e para os demais municípios somados, e não município a município. Entram no SIM as mortes com causa básica de acidente de transporte terrestre (CID-10 V01 a V89). Quando a declaração não diz como a lesão aconteceu, a morte vai para "intenção indeterminada" (Y10 a Y34) e deixa de aparecer como acidente de transporte. Os dados do SIM do último ano são preliminares.</p>
+      </details>
+      <details>
         <summary>De onde vêm os nomes e o comprimento das vias?</summary>
         <p>Os nomes foram padronizados (abreviações, acentos, preposições) e, quando a via existe no OpenStreetMap, aparece o nome de lá. O comprimento de cada via no município também vem do OpenStreetMap; vias longas acumulam mais sinistros só por serem longas, e a medida por km corrige isso.</p>
       </details>
@@ -227,7 +281,7 @@
         <p>As imagens de satélite (Esri World Imagery) aparecem junto dos pontos críticos e dos trechos de rodovia, centradas no local, com o mesmo círculo do mapa: cerca de 100 m de diâmetro nos pontos e 500 m de raio em torno do km nas rodovias. No mapa de cada município, o botão Street View mostra o panorama do Google mais próximo da coordenada. Pontos com local aproximado ficam sem imagem. A data das fotos varia e pode não mostrar a via como está hoje.</p>
       </details>
     </div>
-    <p class="creditos-finais">Dados: <a href="https://infosiga.detran.sp.gov.br/">Infosiga SP</a>, <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="https://www.ibge.gov.br/">IBGE</a> e <a href="https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-2025">Senatran</a>. Imagens de satélite: Esri, Maxar, Earthstar Geographics. Imagens de rua: Google Street View. Análise: Rafael Izbicki.</p>
+    <p class="creditos-finais">Dados: <a href="https://infosiga.detran.sp.gov.br/">Infosiga SP</a>, <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="https://www.ibge.gov.br/">IBGE</a>, <a href="https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-2025">Senatran</a> e <a href="https://datasus.saude.gov.br/mortalidade-desde-1996-pela-cid-10">DATASUS (SIM)</a>. Imagens de satélite: Esri, Maxar, Earthstar Geographics. Imagens de rua: Google Street View. Análise: Rafael Izbicki.</p>
   </div>
 </footer>
 
