@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Onde acontecem os sinistros de trânsito em São Paulo</title>
+<meta name="description" content="Cruzamentos, vias e trechos de rodovia com mais sinistros e mortes em cada município do Estado de São Paulo. Dados do Infosiga SP.">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315181d'/%3E%3Cpath d='M16 6 L26 24 H6 Z' fill='none' stroke='%23ef6a33' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="topo">
+  <div class="topo-in">
+    <a class="marca" href="#inicio" aria-label="Início">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#15181d"/><path d="M16 7 L25.5 23.5 H6.5 Z" fill="none" stroke="#ef6a33" stroke-width="3" stroke-linejoin="round"/></svg>
+      <span>Sinistros de trânsito <b>SP</b></span>
+    </a>
+    <nav class="topo-nav" aria-label="Seções">
+      <a href="#municipios">Municípios</a>
+      <a href="#locais">Locais<span class="so-largo"> críticos</span></a>
+      <a href="#vitimas">Vítimas</a>
+      <a href="#sobre">Sobre<span class="so-largo"> os dados</span></a>
+    </nav>
+    <div class="busca" data-busca>
+      <svg class="lupa" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input type="search" placeholder="Buscar município" autocomplete="off" spellcheck="false" aria-label="Buscar município">
+      <ul class="sugestoes" role="listbox" hidden></ul>
+    </div>
+  </div>
+</header>
+
+<main id="conteudo">
+
+<!-- ======================================================== estado -->
+<div id="vista-estado">
+
+  <section class="hero" id="inicio">
+    <div class="hero-texto">
+      <p class="sobretitulo">Estado de São Paulo · janeiro de <span class="ano-ini">2019</span> a <span class="atualizacao">—</span></p>
+      <h1>Onde acontecem os sinistros de trânsito em São Paulo</h1>
+      <p class="lede">Os cruzamentos, as vias e os trechos de rodovia com mais sinistros com vítimas e mais mortes em cada
+        um dos 645 municípios do estado, a partir dos dados abertos do Infosiga SP.</p>
+      <div class="busca grande" data-busca>
+        <svg class="lupa" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="search" placeholder="Digite o nome do seu município" autocomplete="off" spellcheck="false" aria-label="Buscar município">
+        <ul class="sugestoes" role="listbox" hidden></ul>
+      </div>
+      <p class="atalhos" id="atalhos"><span>Mais populosos:</span></p>
+    </div>
+    <aside class="hero-numero" id="hero-numero" aria-label="Mortes no trânsito do estado"></aside>
+  </section>
+
+  <section class="secao" id="municipios">
+    <div class="secao-cab">
+      <h2>Compare os municípios</h2>
+      <p>Clique num município, no mapa ou na lista, para ver onde se concentram os sinistros e quem morre.</p>
+    </div>
+    <div class="controles">
+      <div class="segmentado" id="seg-indicador" role="group" aria-label="Indicador do mapa">
+        <button type="button" data-v="tx_mortes_hab" class="ativo">Mortes por habitante</button>
+        <button type="button" data-v="tx_sin_hab">Sinistros por habitante</button>
+        <button type="button" data-v="tx_mortes_veic">Mortes por veículo</button>
+        <button type="button" data-v="pct_mortes_moto">Motociclistas entre os mortos</button>
+      </div>
+    </div>
+    <div class="grade-estado">
+      <div class="cartao cartao-mapa">
+        <div class="cartao-cab">
+          <div><h3 id="titulo-indicador">—</h3><p class="nota" id="nota-indicador"></p></div>
+          <div class="ref-estado" id="ref-estado"></div>
+        </div>
+        <div id="mapa-estado" class="mapa" role="img" aria-label="Mapa dos municípios de São Paulo coloridos pelo indicador escolhido"></div>
+        <div class="legenda" id="legenda-estado"></div>
+      </div>
+      <div class="cartao ranking">
+        <div class="cartao-cab"><div><h3>Maiores valores</h3><p class="nota">Entre os <span id="n-grandes">—</span> municípios com mais de 50 mil habitantes</p></div></div>
+        <ol id="ranking-estado"></ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao" id="locais">
+    <div class="secao-cab">
+      <h2>Os locais com mais sinistros do estado</h2>
+      <p id="nota-locais"></p>
+    </div>
+    <div class="controles">
+      <div class="segmentado" id="seg-locais-tipo" role="group" aria-label="Tipo de local">
+        <button type="button" data-v="pontos" class="ativo">Cruzamentos e pontos urbanos</button>
+        <button type="button" data-v="trechos">Trechos de rodovia</button>
+      </div>
+      <div class="segmentado" id="seg-locais-ordem" role="group" aria-label="Ordenar por">
+        <button type="button" data-v="n" class="ativo">Mais sinistros</button>
+        <button type="button" data-v="mortes">Mais mortes</button>
+      </div>
+    </div>
+    <div class="cartao sem-pad">
+      <div class="tabela-rolagem"><table class="tabela" id="tabela-locais"></table></div>
+      <div class="rodape-tabela"><button type="button" class="botao" id="mais-locais">Mostrar mais</button></div>
+    </div>
+  </section>
+
+  <section class="secao" id="vitimas">
+    <div class="secao-cab">
+      <h2>Quem morre no trânsito paulista</h2>
+      <p>Mortes em sinistros de trânsito em todo o estado, desde 2015.</p>
+    </div>
+    <div class="historias" id="historias"></div>
+  </section>
+</div>
+
+<!-- ======================================================== município -->
+<div id="vista-municipio" hidden>
+  <section class="mun-cab">
+    <a class="voltar" href="#" id="voltar"><span aria-hidden="true">←</span> Estado de São Paulo</a>
+    <h1 id="nome-municipio">—</h1>
+    <p class="mun-meta" id="mun-meta"></p>
+  </section>
+
+  <div class="kpis" id="kpis"></div>
+
+  <section class="cartao resumo" id="resumo">
+    <h2 class="titulo-pequeno">Em resumo</h2>
+    <ul id="destaques"></ul>
+  </section>
+
+  <section class="secao" id="onde">
+    <div class="secao-cab">
+      <h2>Onde se concentram</h2>
+      <p>Sinistros com vítimas desde <span class="ano-ini">2019</span>. Clique num local da lista ou num número do mapa para ver a imagem do lugar.</p>
+    </div>
+    <div class="painel-mapa cartao sem-pad">
+      <div class="mapa-col">
+        <div class="mapa-barra">
+          <div class="segmentado pequeno" id="seg-mapa" role="group" aria-label="O que mostrar no mapa">
+            <button type="button" data-v="n" class="ativo">Sinistros com vítimas</button>
+            <button type="button" data-v="f">Sinistros fatais</button>
+          </div>
+          <div class="legenda" id="legenda-municipio"></div>
+        </div>
+        <div id="mapa-municipio" class="mapa" role="img" aria-label="Mapa de hexágonos com o número de sinistros e os pontos críticos numerados"></div>
+        <p class="nota mapa-nota" id="nota-mapa"></p>
+      </div>
+      <div class="lista-col">
+        <div class="abas" role="tablist" aria-label="Listas de locais">
+          <button type="button" role="tab" data-aba="pontos" class="ativo">Pontos críticos <span class="contagem"></span></button>
+          <button type="button" role="tab" data-aba="vias">Vias <span class="contagem"></span></button>
+          <button type="button" role="tab" data-aba="trechos">Rodovias <span class="contagem"></span></button>
+        </div>
+        <p class="nota nota-aba" id="nota-aba"></p>
+        <div id="lista-aba" class="lista" role="tabpanel"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao" id="perfil">
+    <div class="secao-cab">
+      <h2>Quem morre e quando</h2>
+    </div>
+    <div class="grade-graficos">
+      <figure class="cartao">
+        <figcaption><h3>Quem morre</h3><p>% das mortes desde <span class="ano-ini">2019</span>, por modo de deslocamento da vítima</p></figcaption>
+        <div id="graf-quem" class="grafico"></div>
+      </figure>
+      <figure class="cartao">
+        <figcaption class="com-controle">
+          <div><h3>Dia da semana e hora</h3><p id="sub-hora">sinistros com vítimas desde 2019</p></div>
+          <div class="segmentado pequeno" id="seg-hora" role="group" aria-label="Medida">
+            <button type="button" data-v="n" class="ativo">Sinistros</button>
+            <button type="button" data-v="m">Mortes</button>
+          </div>
+        </figcaption>
+        <div id="hora-dia" class="grafico"></div>
+      </figure>
+      <figure class="cartao">
+        <figcaption><h3>Ano a ano</h3><p id="sub-ano">sinistros com vítimas e mortes</p></figcaption>
+        <div id="serie-sinistros" class="grafico"></div>
+        <div id="serie-mortes" class="grafico"></div>
+      </figure>
+    </div>
+  </section>
+</div>
+</main>
+
+<!-- ======================================================== sobre -->
+<footer class="sobre" id="sobre">
+  <div class="sobre-in">
+    <div class="secao-cab">
+      <h2>Sobre os dados</h2>
+      <p>Como os números foram calculados e o que eles não mostram.</p>
+    </div>
+    <div class="perguntas">
+      <details>
+        <summary>O que conta como sinistro com vítimas?</summary>
+        <p>Os registros do Infosiga classificados como sinistro fatal (pelo menos um óbito em até 30 dias) ou não fatal (pelo menos um ferido). Ficam de fora as notificações sem boletim de ocorrência. Os sinistros não fatais só constam a partir de 2019; as mortes, a partir de 2015.</p>
+      </details>
+      <details>
+        <summary>Como os pontos críticos são encontrados?</summary>
+        <p>São os locais, com cerca de 100 m de diâmetro, que reúnem mais sinistros com vítimas nas vias urbanas. O nome é o do cruzamento do OpenStreetMap mais próximo (até 45 m) que contém a via onde ocorreu a maioria dos sinistros. Quando não há cruzamento, aparece a via com o número mais comum, ou o cruzamento mais próximo em até 150 m. O registro do Infosiga traz uma só via, por isso um sinistro num cruzamento pode estar registrado em qualquer uma das duas.</p>
+      </details>
+      <details>
+        <summary>E os trechos de rodovia?</summary>
+        <p>Agrupam os sinistros por rodovia e km (o número do logradouro é o km). Kms incompatíveis com o trecho da rodovia que passa pelo município foram descartados. As marginais (SP-015) não entram, porque não têm km.</p>
+      </details>
+      <details>
+        <summary>Todo sinistro aparece no mapa?</summary>
+        <p><span id="nota-qualidade"></span> Esses sinistros entram nos totais e nas listas de vias e rodovias, mas não no mapa nem nos pontos críticos. Quando a maioria dos sinistros de um ponto está numa única coordenada, ele é marcado como local aproximado.</p>
+      </details>
+      <details>
+        <summary>Como as taxas são calculadas?</summary>
+        <p>São médias anuais de <span class="anos-taxa"></span>, divididas pela população do Censo 2022 (IBGE) e pela frota de dezembro de 2025 (Senatran). Em municípios pequenos, poucos casos mudam muito a taxa. As mortes contam o local do sinistro, não a residência da vítima: municípios cortados por rodovias movimentadas têm taxas altas sem que o risco seja dos moradores.</p>
+      </details>
+      <details>
+        <summary>Dá para comparar municípios?</summary>
+        <p>Com cuidado. Os sinistros não fatais dependem do registro policial, que varia entre municípios. As mortes são a comparação mais confiável.</p>
+      </details>
+      <details>
+        <summary>De onde vêm os nomes e o comprimento das vias?</summary>
+        <p>Os nomes foram padronizados (abreviações, acentos, preposições) e, quando a via existe no OpenStreetMap, aparece o nome de lá. O comprimento de cada via no município também vem do OpenStreetMap; vias longas acumulam mais sinistros só por serem longas, e a medida por km corrige isso.</p>
+      </details>
+      <details>
+        <summary>E as imagens dos locais?</summary>
+        <p>As imagens de satélite (Esri World Imagery) aparecem junto dos pontos críticos e dos trechos de rodovia, centradas no local, com o mesmo círculo do mapa: cerca de 100 m de diâmetro nos pontos e 500 m de raio em torno do km nas rodovias. No mapa de cada município, o botão Street View mostra o panorama do Google mais próximo da coordenada. Pontos com local aproximado ficam sem imagem. A data das fotos varia e pode não mostrar a via como está hoje.</p>
+      </details>
+    </div>
+    <p class="creditos-finais">Dados: <a href="https://infosiga.detran.sp.gov.br/">Infosiga SP</a>, <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="https://www.ibge.gov.br/">IBGE</a> e <a href="https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-2025">Senatran</a>. Imagens de satélite: Esri, Maxar, Earthstar Geographics. Imagens de rua: Google Street View. Análise: Rafael Izbicki.</p>
+  </div>
+</footer>
+
+<div id="dica" class="dica" role="tooltip" hidden></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="https://unpkg.com/h3-js@4.1.0/dist/h3-js.umd.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
