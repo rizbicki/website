@@ -19,13 +19,21 @@
       <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#15181d"/><path d="M16 7 L25.5 23.5 H6.5 Z" fill="none" stroke="#ef6a33" stroke-width="3" stroke-linejoin="round"/></svg>
       <span>Sinistros de trânsito <b>SP</b></span>
     </a>
-    <nav class="topo-nav" aria-label="Seções">
+    <nav class="topo-nav" id="nav-estado" aria-label="Seções">
       <a href="#municipios">Municípios</a>
       <a href="#locais">Locais<span class="so-largo"> críticos</span></a>
       <a href="#vitimas">Vítimas</a>
       <a href="#letalidade">Letalidade</a>
       <a href="#contagens">Contagens</a>
       <a href="#sobre">Sobre<span class="so-largo"> os dados</span></a>
+    </nav>
+    <!-- no município, os links rolam a página sem mudar o endereço (que guarda o município e o período) -->
+    <nav class="topo-nav" id="nav-municipio" aria-label="Seções do município" hidden>
+      <a href="#" data-secao="topo-mun">Resumo</a>
+      <a href="#" data-secao="onde">Mapa<span class="so-largo"> e locais</span></a>
+      <a href="#" data-secao="perfil">Quem morre</a>
+      <a href="#" data-secao="frota">Frota</a>
+      <a href="#" data-secao="sobre">Sobre<span class="so-largo"> os dados</span></a>
     </nav>
     <div class="busca" data-busca>
       <svg class="lupa" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -133,7 +141,7 @@
 
 <!-- ======================================================== município -->
 <div id="vista-municipio" hidden>
-  <section class="mun-cab">
+  <section class="mun-cab" id="topo-mun">
     <a class="voltar" href="#" id="voltar"><span aria-hidden="true">←</span> Estado de São Paulo</a>
     <h1 id="nome-municipio">—</h1>
     <p class="mun-meta" id="mun-meta"></p>
@@ -145,7 +153,7 @@
     <span>a</span>
     <label class="so-leitor" for="ano-ate">Último ano</label><select id="ano-ate"></select>
     <button type="button" class="periodo-todo" id="periodo-todo" hidden>Todos<span class="so-largo"> os anos</span></button>
-    <span class="nota">Para comparar antes e depois de uma intervenção. Muda os números, o mapa, as listas e os gráficos; as taxas e a frota ficam como estão.</span>
+    <span class="nota">Para comparar antes e depois de uma intervenção. Muda os números, o mapa, as listas e os gráficos (não as taxas do topo nem a frota). O endereço da página guarda o período, para compartilhar.</span>
   </div>
 
   <div class="kpis" id="kpis"></div>
@@ -202,6 +210,18 @@
       </figure>
       <figure class="cartao">
         <figcaption class="com-controle">
+          <div><h3>Taxa de mortalidade por idade</h3><p id="sub-idade">mortes por ano para cada 100 mil habitantes da faixa etária</p></div>
+          <div class="segmentado pequeno" id="seg-idade" role="group" aria-label="Vítimas">
+            <button type="button" data-v="todas" class="ativo">Todas</button>
+            <button type="button" data-v="Motocicleta">Motos</button>
+            <button type="button" data-v="Pedestre">Pedestres</button>
+            <button type="button" data-v="Automóvel">Automóveis</button>
+          </div>
+        </figcaption>
+        <div id="graf-idade-mun" class="grafico"></div>
+      </figure>
+      <figure class="cartao">
+        <figcaption class="com-controle">
           <div><h3>Dia da semana e hora</h3><p id="sub-hora">sinistros com vítimas desde 2019</p></div>
           <div class="segmentado pequeno" id="seg-hora" role="group" aria-label="Medida">
             <button type="button" data-v="n" class="ativo">Sinistros</button>
@@ -255,6 +275,10 @@
       <details>
         <summary>Como as taxas são calculadas?</summary>
         <p>São médias anuais de <span class="anos-taxa"></span>, divididas pela população do Censo 2022 (IBGE) e pela frota de dezembro de 2025 (Senatran). Em municípios pequenos, poucos casos mudam muito a taxa. As mortes contam o local do sinistro, não a residência da vítima: municípios cortados por rodovias movimentadas têm taxas altas sem que o risco seja dos moradores.</p>
+      </details>
+      <details>
+        <summary>Como são calculadas as taxas por idade?</summary>
+        <p>As mortes de cada faixa etária, por ano, são divididas pela população da mesma faixa no Censo 2022 (IBGE). A idade não foi registrada em <span id="sem-idade">—</span> das mortes de <span class="anos-taxa"></span>; essas mortes foram distribuídas entre as faixas na mesma proporção das demais, o que supõe que a falta de registro não depende da idade. A distribuição por idade (% das mortes) usa só as mortes com idade registrada. Num município, a taxa compara mortes ocorridas ali (de moradores ou não) com a população que mora ali; com poucas mortes, ela varia muito de um período para outro.</p>
       </details>
       <details>
         <summary>Dá para comparar municípios?</summary>

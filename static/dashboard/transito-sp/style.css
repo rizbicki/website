@@ -38,6 +38,7 @@
 
 * { box-sizing: border-box; }
 html { scroll-padding-top: calc(var(--topo) + 16px); -webkit-text-size-adjust: 100%; }
+html.em-municipio { scroll-padding-top: calc(var(--topo) + 76px); }  /* + barra do período, presa abaixo do topo */
 body { margin: 0; font-family: var(--fonte); color: var(--tinta); background: var(--fundo);
   font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
 h1, h2, h3 { line-height: 1.15; letter-spacing: -0.015em; margin: 0; }
@@ -198,7 +199,7 @@ main { display: block; }
 .tabela td.principal { width: 190px; }
 .celula-barra { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
 .celula-barra .barra { flex: 1; max-width: 110px; height: 6px; background: var(--grade); border-radius: 3px; overflow: hidden; }
-.celula-barra .barra i { display: block; height: 100%; border-radius: 3px; margin-left: auto; }
+.celula-barra .barra i { display: block; height: 100%; border-radius: 3px; }  /* ancorada à esquerda, como as demais barras */
 .celula-barra b { min-width: 36px; text-align: right; font-weight: 650; }
 .rodape-tabela { display: flex; justify-content: center; padding: 14px; border-top: 1px solid var(--grade); background: var(--superficie-2); }
 .selo { display: inline-block; font-size: 11.5px; font-weight: 600; color: var(--aviso-texto); background: var(--aviso-fundo);
@@ -217,7 +218,7 @@ main { display: block; }
 .historia figcaption { margin-bottom: 10px; }
 figcaption h3 { font-size: 16px; font-weight: 650; }
 figcaption p { font-size: 13.5px; color: var(--mudo); margin-top: 2px; }
-figcaption.com-controle { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+figcaption.com-controle { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 8px 12px; }
 
 .legenda-serie { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--tinta-2); margin: 0 0 8px; }
 .legenda-serie span { display: inline-flex; align-items: center; gap: 7px; }
@@ -229,6 +230,7 @@ figcaption.com-controle { display: flex; justify-content: space-between; align-i
 .multiplos h4 { margin: 0 0 4px; font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 7px; }
 .multiplos h4 i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
 .multiplos.dois { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+.multiplos.quatro { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 28px; }
 .multiplos.dois h4 { font-weight: 600; color: var(--tinta-2); margin-bottom: 8px; }
 .historia .nota-graf { margin-top: 10px; }
 
@@ -321,7 +323,8 @@ figcaption.com-controle { display: flex; justify-content: space-between; align-i
 .item.com-foto .barra, .item.com-foto .det { grid-column: 3 / -1; }
 .lista .vazia-lista { padding: 24px 12px; color: var(--mudo); font-size: 14px; text-align: center; }
 
-.grade-graficos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+/* 2 × 2: quem morre e idade em cima, dia × hora e ano a ano embaixo */
+.grade-graficos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .grade-graficos figure { margin: 0; display: flex; flex-direction: column; }
 .grade-graficos figcaption { margin-bottom: 14px; }
 
@@ -366,6 +369,12 @@ figcaption.com-controle { display: flex; justify-content: space-between; align-i
 .marcador { background: var(--tinta); color: #fff; border: 2px solid #fff; border-radius: 50%; width: 24px !important; height: 24px !important;
   display: flex !important; align-items: center; justify-content: center; font: 700 11px var(--fonte); box-shadow: 0 1px 4px rgba(0, 0, 0, .4); }
 .marcador.ativo { background: var(--sin); transform-origin: center; }
+.marcador.escondido { display: none !important; }  /* dentro de uma pílula (abaixo) */
+/* números sobrepostos com o mapa afastado: uma pílula com todos ("3·5·6"); clicar aproxima o mapa */
+.marcador-grupo { background: var(--tinta); color: #fff; border: 2px solid #fff; border-radius: 12px; display: flex !important;
+  align-items: center; justify-content: center; font: 700 11px var(--fonte); letter-spacing: .02em; white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .4); cursor: zoom-in; }
+.marcador-grupo.ativo { background: var(--sin); }
 
 /* ==========================================================================
    Sobre (rodapé)
@@ -401,8 +410,6 @@ figcaption.com-controle { display: flex; justify-content: space-between; align-i
    ========================================================================== */
 @media (max-width: 1100px) {
   .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .grade-graficos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .grade-graficos figure:last-child { grid-column: 1 / -1; }
   .painel-mapa { grid-template-columns: minmax(0, 1fr) 340px; }
   .hero { grid-template-columns: minmax(0, 1fr) 320px; gap: 36px; }
 }
@@ -411,7 +418,8 @@ figcaption.com-controle { display: flex; justify-content: space-between; align-i
   .periodo .nota { display: none; }
   .topo-in { flex-wrap: wrap; height: auto; padding: 10px 16px 0; gap: 8px 16px; }
   .topo .busca { width: auto; flex: 1; min-width: 160px; }
-  .topo-nav { order: 3; width: 100%; overflow-x: auto; margin: 0 -6px; padding-bottom: 6px; scrollbar-width: none; }
+  .topo-nav { order: 3; width: 100%; overflow-x: auto; margin: 0 -6px; padding-bottom: 6px; scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, #000 88%, transparent); mask-image: linear-gradient(to right, #000 88%, transparent); }
   .so-largo { display: none; }
   .topo-nav::-webkit-scrollbar { display: none; }
   #vista-estado, #vista-municipio { padding: 0 16px 16px; }
@@ -443,7 +451,7 @@ figcaption.com-controle { display: flex; justify-content: space-between; align-i
   .tabela td, .tabela th { padding: 9px 8px; }
   .tabela td.principal { width: auto; }
   .celula-barra .barra { display: none; }
-  .multiplos, .multiplos.dois { grid-template-columns: 1fr; gap: 10px; }
+  .multiplos, .multiplos.dois, .multiplos.quatro { grid-template-columns: 1fr; gap: 10px; }
   .historia-texto .grande { font-size: 42px; }
   .lede { font-size: 17px; }
   .hero-numero .valor { font-size: 54px; }

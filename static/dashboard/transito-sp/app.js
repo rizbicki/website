@@ -28,7 +28,7 @@ const INDICADORES = {
   pct_mortes_moto: { titulo: "Motociclistas entre os mortos", casas: 0, sufixo: "%", unidade: "das mortes", cores: AZUL, min: 10 },
 };
 
-const st = { estado: null, porCod: {}, mun: null, vista: null, indicador: "tx_mortes_hab", modoMapa: "n", aba: "pontos", hora: "n",
+const st = { estado: null, porCod: {}, mun: null, vista: null, indicador: "tx_mortes_hab", modoMapa: "n", aba: "pontos", hora: "n", idadeGrupo: "todas",
   locaisTipo: "pontos", locaisOrdem: "n", nLocais: 10, camadaHex: null, camadaDestaque: null, marcadores: null, ativo: null,
   vistaLocal: "sat", rolagemEstado: 0, estadoDesenhado: false,
   periodo: null,  // [primeiro, último ano] escolhidos no município; null = todos os anos
@@ -335,37 +335,61 @@ function rotulosFim(svg, fins, Y, xf, limite) {
   });
 }
 
-// pequenos múltiplos: idade das vítimas fatais, um painel por modo, mesma escala
-function grafIdade(box, faixas, grupos) {
+// pequenos múltiplos: idade das vítimas fatais, um painel por grupo, mesma escala (4 painéis ficam em 2 × 2).
+// Opções: casas e sufixo do valor, unidade (texto da dica) e detalhe(g, j) (linha extra da dica).
+function grafIdade(box, faixas, grupos, o = {}) {
+  const { casas = 0, sufixo = "", unidade = "", detalhe = null, rotulo = "Idade das vítimas fatais" } = o;
   box.innerHTML = "";
-  const grade = el("div", { className: "multiplos" });
+  const grade = el("div", { className: "multiplos" + (grupos.length === 4 ? " quatro" : "") });
   box.appendChild(grade);
-  const { passo, topo } = escalaBonita(Math.max(...grupos.flatMap(g => g.valores)), 5);
-  const empilhado = getComputedStyle(grade).gridTemplateColumns.trim().split(/\s+/).length === 1;
+  const { passo, topo } = escalaBonita(Math.max(...grupos.flatMap(g => g.valores.filter(v => v != null))), 5);
+  const cp = casasDoPasso(passo);
+  const nCol = getComputedStyle(grade).gridTemplateColumns.trim().split(/\s+/).length, empilhado = nCol === 1;
   grupos.forEach((g, k) => {
     const cel = el("div", {}, `<h4><i style="background:${g.cor}"></i>${esc(g.nome)}</h4>`);
     grade.appendChild(cel);
-    const W = Math.max(220, cel.clientWidth), comEixo = k === 0 || empilhado;
-    const H = empilhado ? 160 : 190, esq = comEixo ? 32 : 4, dir = 2, cima = 18, base = 22;
-    const svg = novoSvg(W, H, `Idade das vítimas fatais: ${g.nome}`);
+    const W = Math.max(220, cel.clientWidth), comEixo = k % nCol === 0;
+    const H = empilhado ? 160 : nCol === 2 ? 170 : 190, esq = comEixo ? 12 + larguraTexto(fmt(topo, cp) + sufixo, 10.5) : 4;
+    const dir = 2, cima = 18, base = 22;
+    const svg = novoSvg(W, H, `${rotulo}: ${g.nome}`);
     const Y = v => cima + (H - cima - base) * (1 - v / topo);
     for (let v = 0; v <= topo + 1e-9; v += passo) {
       svg.appendChild(svgEl("line", { x1: esq, x2: W - dir, y1: Y(v), y2: Y(v), stroke: v === 0 ? COR.eixo : COR.grade }));
-      if (comEixo) svg.appendChild(txt({ x: esq - 6, y: Y(v) + 4, "text-anchor": "end", "font-size": 10.5, fill: COR.mudo }, v + "%"));
+      if (comEixo) svg.appendChild(txt({ x: esq - 6, y: Y(v) + 4, "text-anchor": "end", "font-size": 10.5, fill: COR.mudo }, fmt(v, cp) + sufixo));
     }
     const bw = (W - esq - dir) / faixas.length, w = Math.min(24, bw * 0.7);
-    const iMax = g.valores.indexOf(Math.max(...g.valores));
+    const iMax = g.valores.indexOf(Math.max(...g.valores.filter(v => v != null)));
     faixas.forEach((f, j) => {
       const v = g.valores[j], x = esq + j * bw + (bw - w) / 2;
-      svg.appendChild(svgEl("path", { d: barraV(x, Y(v), w, Y(0) - Y(v), 4), fill: g.cor }));
-      if (j === iMax) svg.appendChild(txt({ x: x + w / 2, y: Y(v) - 5, "text-anchor": "middle", "font-size": 11.5, "font-weight": 650, fill: COR.tinta }, fmt(v) + "%"));
+      if (v != null) svg.appendChild(svgEl("path", { d: barraV(x, Y(v), w, Y(0) - Y(v), 4), fill: g.cor }));
+      if (j === iMax) svg.appendChild(txt({ x: x + w / 2, y: Y(v) - 5, "text-anchor": "middle", "font-size": 11.5, "font-weight": 650, fill: COR.tinta }, fmt(v, casas) + sufixo));
       svg.appendChild(txt({ x: esq + j * bw + bw / 2, y: H - 6, "text-anchor": "middle", "font-size": 10, fill: COR.mudo }, f));
       const alvo = svgEl("rect", { x: esq + j * bw, y: cima, width: bw, height: H - cima - base, fill: "transparent" });
-      comDica(alvo, `<div class="t">${esc(g.nome)}, ${f} anos</div>${linhaDica(g.cor, fmt(v, 1) + "%", "das mortes do grupo", true)}`);
+      comDica(alvo, `<div class="t">${esc(g.nome)}, ${textoFaixa(f)}</div>${linhaDica(g.cor, fmt(v, 1) + sufixo, unidade, true)}` +
+        (detalhe ? `<div class="sub">${detalhe(g, j)}</div>` : ""));
       svg.appendChild(alvo);
     });
     cel.appendChild(svg);
   });
+}
+
+// ------------------------------------------------------------------ idade das vítimas
+
+// "18–29" → "18 a 29 anos"; "70+" → "70 anos ou mais"
+const textoFaixa = f => f.endsWith("+") ? `${f.slice(0, -1)} anos ou mais` : f.replace("–", " a ") + " anos";
+// mortes por faixa etária dos modos ks, somadas nos índices de ano [i0, i1]; a última posição são as mortes sem idade
+const contaIdade = (idade, ks, idx) => idade[ks[0]].map((_, f) => ks.reduce((a, k) => a + somaP(idade[k][f], idx), 0));
+const somaV = v => v.reduce((a, b) => a + b, 0);
+// distribuição: % das mortes com idade registrada em cada faixa
+function pctIdade(c) {
+  const t = somaV(c.slice(0, -1));
+  return c.slice(0, -1).map(v => t ? 100 * v / t : null);
+}
+// taxa: mortes por ano para cada 100 mil habitantes da faixa. As mortes sem idade registrada são distribuídas
+// entre as faixas na mesma proporção das demais (sem isso, a taxa dos pedestres, com mais idades em branco, cairia).
+function taxaIdade(c, pop, nAnos) {
+  const t = somaV(c.slice(0, -1)), fator = t ? (t + c.at(-1)) / t : 0;
+  return c.slice(0, -1).map((v, f) => pop && pop[f] ? 1e5 * v * fator / nAnos / pop[f] : null);
 }
 
 // pontos pareados por linha (ex.: letalidade nas rodovias e nas vias urbanas, por tipo de sinistro), com os valores
@@ -470,29 +494,75 @@ function sparkline(box, anos, valores, iMin) {
   box.appendChild(svg);
 }
 
-// barras horizontais do município com a marca do estado
-function grafQuem(box, itens) {
-  box.innerHTML = "";
-  if (!itens.length) { box.appendChild(el("p", { className: "nota", textContent: `Sem mortes registradas ${periodo().texto}.` })); return; }
-  box.appendChild(el("div", { className: "legenda-serie" }, `<span><i class="bloco" style="background:${COR.mudo}"></i>município</span><span><i class="marca" style="background:${COR.tinta}"></i>estado</span>`));
-  const W = Math.max(260, box.clientWidth), linha = 44;
-  const esq = 12 + Math.max(...itens.map(i => larguraTexto(NOME_MODO[i.nome], 13))), dir = 46, H = itens.length * linha;
-  const svg = novoSvg(W, H, "Mortes por modo de deslocamento: município e estado");
-  const max = Math.max(...itens.flatMap(i => [i.mun, i.est])) * 1.02 || 1;
+// barras horizontais do município com a marca do estado. itens: [{ nome, mun, est, cor, dica }]; valores null
+// aparecem como "—". Os valores ficam numa coluna à direita (município e, se couber, estado), para o número não
+// parecer da marca do estado. corLegenda: cor do bloco "município" na legenda (cinza quando cada barra tem uma cor).
+function grafComEstado(box, itens, o = {}) {
+  const { casas = 0, sufixo = "", rotulo = "", linha = 44, corLegenda = COR.mudo } = o;
+  box.appendChild(el("div", { className: "legenda-serie" }, `<span><i class="bloco" style="background:${corLegenda}"></i>município</span><span><i class="marca" style="background:${COR.tinta}"></i>estado</span>`));
+  const W = Math.max(260, box.clientWidth), alt = Math.min(16, linha - 18), cimaB = (linha - alt) / 2, cima = 18;
+  const rot = v => v == null ? "—" : fmt(v, casas) + sufixo;
+  const esq = 12 + Math.max(...itens.map(i => larguraTexto(i.nome, 13))), H = cima + itens.length * linha;
+  const larg = (k, cab) => 14 + Math.max(larguraTexto(cab, 11, 600), ...itens.map(i => larguraTexto(rot(i[k]), 12.5, 650)));
+  const cols = [{ k: "mun", cab: "Município", w: larg("mun", "Município"), peso: 650, cor: COR.tinta },
+    { k: "est", cab: "Estado", w: larg("est", "Estado"), peso: 400, cor: COR.tinta2 }];
+  if (W - esq - cols[0].w - cols[1].w < 150) cols.pop();  // em telas estreitas, o estado fica na marca e na dica
+  const dir = cols.reduce((a, c) => a + c.w, 0) + 8;
+  const svg = novoSvg(W, H, rotulo);
+  const max = Math.max(...itens.flatMap(i => [i.mun ?? 0, i.est ?? 0])) * 1.02 || 1;
   const X = v => esq + (W - esq - dir) * v / max;
-  svg.appendChild(svgEl("line", { x1: esq, x2: esq, y1: 4, y2: H - 4, stroke: COR.eixo }));
+  const xCol = j => W - cols.slice(j + 1).reduce((a, c) => a + c.w, 0);  // borda direita da coluna j
+  cols.forEach((c, j) => svg.appendChild(txt({ x: xCol(j), y: 11, "text-anchor": "end", "font-size": 11, "font-weight": 600, fill: COR.tinta2 }, c.cab)));
+  svg.appendChild(svgEl("line", { x1: esq, x2: esq, y1: cima + 4, y2: H - 4, stroke: COR.eixo }));
   itens.forEach((it, i) => {
-    const y = i * linha, yb = y + 14;
-    svg.appendChild(txt({ x: esq - 10, y: yb + 12, "text-anchor": "end", "font-size": 13, fill: COR.tinta }, NOME_MODO[it.nome]));
-    svg.appendChild(svgEl("path", { d: barraH(esq, yb, X(it.mun) - esq, 16, 4), fill: COR_MODO[it.nome] }));
-    svg.appendChild(svgEl("line", { x1: X(it.est), x2: X(it.est), y1: yb - 5, y2: yb + 21, stroke: COR.tinta, "stroke-width": 2, "stroke-linecap": "round" }));
-    svg.appendChild(txt({ x: Math.max(X(it.mun), X(it.est)) + 7, y: yb + 12.5, "font-size": 12.5, fill: COR.tinta, "font-weight": 650 }, fmt(it.mun) + "%"));
+    const y = cima + i * linha, yb = y + cimaB, yt = yb + alt / 2 + 4.5;
+    svg.appendChild(txt({ x: esq - 10, y: yt, "text-anchor": "end", "font-size": 13, fill: COR.tinta }, it.nome));
+    if (it.mun != null) svg.appendChild(svgEl("path", { d: barraH(esq, yb, X(it.mun) - esq, alt, 4), fill: it.cor }));
+    if (it.est != null) svg.appendChild(svgEl("line", { x1: X(it.est), x2: X(it.est), y1: yb - 5, y2: yb + alt + 5, stroke: COR.tinta, "stroke-width": 2, "stroke-linecap": "round" }));
+    cols.forEach((c, j) => svg.appendChild(txt({ x: xCol(j), y: yt, "text-anchor": "end", "font-size": 12.5, "font-weight": c.peso,
+      fill: it[c.k] == null ? COR.mudo : c.cor }, rot(it[c.k]))));
     const alvo = svgEl("rect", { x: 0, y, width: W, height: linha, fill: "transparent" });
-    comDica(alvo, `<div class="t">${NOME_MODO[it.nome]}</div>${linhaDica(COR_MODO[it.nome], fmt(it.mun) + "%", `das mortes no município (${plural(it.n, "morte", "mortes")})`, true)}` +
-      `<div class="l"><i style="background:${COR.tinta};width:2px;height:12px"></i><b>${fmt(it.est)}%</b><span class="s">no estado</span></div>`);
+    comDica(alvo, it.dica);
     svg.appendChild(alvo);
   });
   box.appendChild(svg);
+}
+const marcaEstado = (v, texto) => `<div class="l"><i style="background:${COR.tinta};width:2px;height:12px"></i><b>${v}</b><span class="s">${texto}</span></div>`;
+
+function grafQuem(box, itens) {
+  box.innerHTML = "";
+  if (!itens.length) { box.appendChild(el("p", { className: "nota", textContent: `Sem mortes registradas ${periodo().texto}.` })); return; }
+  grafComEstado(box, itens.map(it => ({ nome: NOME_MODO[it.nome], mun: it.mun, est: it.est, cor: COR_MODO[it.nome],
+    dica: `<div class="t">${NOME_MODO[it.nome]}</div>${linhaDica(COR_MODO[it.nome], fmt(it.mun) + "%", `das mortes no município (${plural(it.n, "morte", "mortes")})`, true)}` +
+      marcaEstado(fmt(it.est) + "%", "no estado") })),
+  // em duas colunas, linhas mais altas: o cartão fica com a altura do gráfico de idade ao lado
+  { sufixo: "%", linha: innerWidth > 900 ? 56 : 44, rotulo: "Mortes por modo de deslocamento: município e estado" });
+}
+
+// taxa de mortalidade por idade no município, com a do estado no mesmo período
+const GRUPOS_IDADE = { todas: { nome: "Todas as vítimas", cor: COR.mortes }, Motocicleta: { nome: "Motociclistas", cor: COR_MODO["Motocicleta"] },
+  Pedestre: { nome: "Pedestres", cor: COR_MODO["Pedestre"] }, "Automóvel": { nome: "Ocupantes de automóvel", cor: COR_MODO["Automóvel"] } };
+function idadeMun(m) {
+  const box = $("graf-idade-mun"), p = st.estado.panorama, P = periodo(), g = GRUPOS_IDADE[st.idadeGrupo];
+  const ks = st.idadeGrupo === "todas" ? Object.keys(m.por_ano.idade) : [st.idadeGrupo];
+  const c = contaIdade(m.por_ano.idade, ks, P.idx);
+  const d0 = st.estado.ano_ini - p.anos_mortes[0];  // os vetores do estado começam em 2015
+  const tM = taxaIdade(c, m.pop_idade, P.nAnos), tE = taxaIdade(contaIdade(p.idade_ano, ks, [P.idx[0] + d0, P.idx[1] + d0]), p.pop_idade, P.nAnos);
+  const tot = somaV(c), semIdade = c.at(-1);
+  $("sub-idade").textContent = `mortes por ano para cada 100 mil habitantes da faixa etária, ${P.texto}`;
+  box.innerHTML = "";
+  if (!tot || !m.pop_idade) { box.appendChild(el("p", { className: "nota", textContent: tot ? "Sem população por idade para este município." : `Sem mortes registradas ${P.texto}.` })); return; }
+  grafComEstado(box, p.faixas_idade.map((f, j) => ({
+    nome: f.endsWith("+") ? f.slice(0, -1) + " ou mais" : f.replace("–", " a "), mun: tM[j], est: tE[j], cor: g.cor,
+    dica: `<div class="t">${esc(g.nome)}, ${textoFaixa(f)}</div>${linhaDica(g.cor, fmt(tM[j], 1), "por 100 mil hab. por ano no município", true)}` +
+      `<div class="sub">${plural(c[j], "morte", "mortes")} ${P.texto}; ${fmt(m.pop_idade[j])} habitantes nessa faixa</div>` +
+      marcaEstado(fmt(tE[j], 1), "no estado") })),
+  { casas: 1, linha: 32, corLegenda: g.cor, rotulo: `Mortes por 100 mil habitantes de cada faixa etária: ${g.nome}, município e estado` });
+  const notas = [];
+  if (tot < 50) notas.push(`Apenas ${plural(tot, "morte", "mortes")} ${P.texto}: uma morte a mais ou a menos muda muito as taxas.`);
+  if (semIdade) notas.push(`${plural(semIdade, "morte", "mortes")} sem idade registrada ${semIdade === 1 ? "foi distribuída" : "foram distribuídas"} entre as faixas na proporção das demais.`);
+  notas.push("As mortes contam o local do sinistro, não a residência da vítima; população do Censo 2022.");
+  box.appendChild(el("p", { className: "nota nota-graf", textContent: notas.join(" ") }));
 }
 
 function horaDia(m) {
@@ -602,6 +672,13 @@ function derivados() {
   const mf = p.motos_frota, u = mf.anos.length - 1;
   const lv = p.letalidade_velocidade;
   const letV = k => lv.classes.map((_, i) => lv[k].n[i] >= lv.min_n ? 100 * lv[k].m[i] / lv[k].n[i] : null);
+  // idade das vítimas nos anos das taxas: distribuição e taxa por 100 mil habitantes de cada faixa
+  const e = st.estado, iT = [e.anos_taxa[0] - p.anos_mortes[0], e.anos_taxa[1] - p.anos_mortes[0]];
+  const nT = e.anos_taxa[1] - e.anos_taxa[0] + 1, modos = Object.keys(p.idade_ano);
+  const cIdade = ks => contaIdade(p.idade_ano, ks, iT);
+  const pctI = k => pctIdade(cIdade([k])), taxaI = ks => taxaIdade(cIdade(ks), p.pop_idade, nT);
+  const semIdade = ks => { const c = cIdade(ks); return 100 * c.at(-1) / somaV(c); };
+  const i60 = p.faixas_idade.findIndex(f => parseInt(f) >= 60);
   const sim = p.sim;
   const razao = k => sim.anos.map((_, i) => 100 * sim[k].sim[i] / sim[k].infosiga[i]);
   const razCap = razao("capital"), razDem = razao("demais");
@@ -611,6 +688,7 @@ function derivados() {
   const ultimosFinais = sim.anos.filter(a => !sim.preliminar.includes(a)).at(-1);
   const iF = sim.anos.indexOf(ultimosFinais);
   return {
+    nT, modos, cIdade, pctI, taxaI, semIdade, i60,
     mf, u, taxaMoto: i => 1e4 * mf.mortes_moto[i] / mf.frota_motos[i],
     velU: letV("urbana"), velR: letV("rodovia"), lv,
     razCap, razDem, baixos,
@@ -649,6 +727,13 @@ function historias() {
   const rIdx = d.velR.map((v, i) => v == null ? null : i).filter(i => i != null);
   const rIni = rIdx[0], rFim = rIdx.at(-1);
 
+  // idade: distribuição e taxa por 100 mil habitantes da faixa
+  const i18 = p.faixas_idade.indexOf("18–29"), pMoto = d.pctI("Motocicleta"), pPed = d.pctI("Pedestre");
+  const tTodas = d.taxaI(d.modos), tMoto = d.taxaI(["Motocicleta"]), tPed = d.taxaI(["Pedestre"]);
+  const iMaxT = tTodas.indexOf(Math.max(...tTodas));
+  const pedCresce = tPed.slice(i18).every((v, i, a) => !i || v >= a[i - 1]);  // dos 18 anos em diante
+  const pedGeral = 1e5 * somaV(d.cIdade(["Pedestre"])) / d.nT / somaV(p.pop_idade);
+
   const itens = [
     { box: "historias", id: "graf-modo", grande: `${fmt(pctModo("Motocicleta", t.iU))}%`,
       texto: `<b>das mortes em ${t.anos[t.iU]} foram de motociclistas.</b> Em ${t.anos[0]} eram ${fmt(pctModo("Motocicleta", 0))}%. ` +
@@ -659,10 +744,19 @@ function historias() {
         `${cMortes >= 0 ? "subiram" : "caíram"} ${fmt(Math.abs(cMortes))}%. Por moto, o risco ${risco}: ${fmt(d.taxaMoto(0), 1)} mortes por 10 mil motos ` +
         `em ${a0} e ${fmt(d.taxaMoto(d.u), 1)} em ${aU}. As demais mortes ${cOutras >= 0 ? "subiram" : "caíram"} ${fmt(Math.abs(cOutras))}%.`,
       titulo: "Frota de motos e mortes no trânsito", sub: `índice, ${a0} = 100; frota registrada em dezembro de cada ano (Senatran)` },
-    { box: "historias", id: "graf-idade", grande: `${fmt(p.moto_jovem.pct_18_29)}%`,
-      texto: `<b>dos motociclistas mortos tinham de 18 a 29 anos</b>, e ${fmt(p.moto_jovem.pct_homem)}% eram homens. ` +
-        `Entre os pedestres mortos, ${fmt(p.ped_idoso)}% tinham 60 anos ou mais.`,
-      titulo: "Idade das vítimas fatais", sub: `% das mortes de cada grupo, ${e.anos_taxa[0]} a ${fimTaxa}` },
+    { box: "historias", id: "graf-idade", grande: `${fmt(pMoto[i18])}%`,
+      texto: `<b>dos motociclistas mortos tinham de 18 a 29 anos</b>, e ${fmt(p.moto_homens)}% eram homens. ` +
+        `Entre os pedestres mortos, ${fmt(somaV(pPed.slice(d.i60)))}% tinham 60 anos ou mais.`,
+      titulo: "Distribuição das mortes por idade", sub: `% das mortes de cada grupo, por faixa etária, ${e.anos_taxa[0]} a ${fimTaxa}`,
+      nota: `Só as mortes com idade registrada (${fmt(d.semIdade(d.modos), 0)}% não têm idade; entre os pedestres, ${fmt(d.semIdade(["Pedestre"]), 0)}%).` },
+    { box: "historias", id: "graf-idade-taxa", grande: fmt(tTodas[iMaxT], 1),
+      texto: `<b>mortes por ano para cada 100 mil habitantes de ${textoFaixa(p.faixas_idade[iMaxT])}, a maior taxa entre as faixas etárias</b>` +
+        (iMaxT === i18 ? `; ${fmt(100 * tMoto[i18] / tTodas[i18])}% delas são de motociclistas` : "") + `. ` +
+        `Entre os pedestres, a taxa ${pedCresce ? "cresce com a idade e chega a" : "é de"} ${fmt(tPed.at(-1), 1)} por 100 mil aos ${textoFaixa(p.faixas_idade.at(-1))}, ` +
+        `${fmt(tPed.at(-1) / pedGeral, 1)} vezes a de toda a população (${fmt(pedGeral, 1)}). A taxa leva em conta quantas pessoas há em cada faixa etária.`,
+      titulo: "Taxa de mortalidade por idade",
+      sub: `mortes por ano para cada 100 mil habitantes da faixa etária, ${e.anos_taxa[0]} a ${fimTaxa}`,
+      nota: `População do Censo 2022 (IBGE). As mortes sem idade registrada foram distribuídas entre as faixas na mesma proporção das demais.` },
     { box: "historias", id: "graf-atropela", grande: `${fmt(on.por_100mil / au.por_100mil)}<small>vezes</small>`,
       texto: `<b>mais pedestres são mortos por ônibus que por automóveis, para o tamanho de cada frota</b>: ${fmt(on.por_100mil, 1)} por ano ` +
         `para cada 100 mil ônibus, contra ${fmt(au.por_100mil, 1)} para cada 100 mil automóveis. Parte da diferença vem de os ônibus rodarem muito mais, ` +
@@ -720,8 +814,17 @@ function desenhaGraficosEstado() {
   grafLinhas($("graf-frota"), mf.anos, frota, { ref: 100, detalhe: (s, i) => s.det[i],
     rotulo: `Frota de motos e mortes, índice ${mf.anos[0]} = 100` });
 
+  const anosT = `de ${st.estado.anos_taxa[0]} a ${st.estado.anos_taxa[1]}`;
   grafIdade($("graf-idade"), p.faixas_idade, ["Motocicleta", "Pedestre", "Automóvel"].map(k => ({
-    nome: NOME_MODO[k], cor: COR_MODO[k], valores: p.idade_modo[k] })));
+    nome: NOME_MODO[k], cor: COR_MODO[k], valores: d.pctI(k), n: d.cIdade([k]) })),
+  { sufixo: "%", unidade: "das mortes do grupo com idade registrada", rotulo: "Distribuição das mortes por idade",
+    detalhe: (g, j) => `${plural(g.n[j], "morte", "mortes")} ${anosT}` });
+  // taxa: todas as vítimas (cor das mortes) e os três modos da distribuição, na mesma escala
+  grafIdade($("graf-idade-taxa"), p.faixas_idade, [["Todas as vítimas", COR.mortes, d.modos],
+    ...["Motocicleta", "Pedestre", "Automóvel"].map(k => [NOME_MODO[k], COR_MODO[k], [k]])].map(([nome, cor, ks]) => ({
+    nome, cor, valores: d.taxaI(ks), n: d.cIdade(ks) })),
+  { casas: 1, unidade: "mortes por 100 mil hab. por ano", rotulo: "Taxa de mortalidade por idade",
+    detalhe: (g, j) => `${plural(g.n[j], "morte", "mortes")} com idade registrada ${anosT}; ${fmtGrande(p.pop_idade[j], "habitantes")} na faixa` });
 
   const at = p.atropeladores, n = st.estado.anos_taxa[1] - st.estado.ano_ini + 1;
   const dicaAt = x => `<div class="t">${esc(x.tipo)}</div>${linhaDica(COR_MODO["Pedestre"], fmt(x.mortes), "pedestres mortos", true)}` +
@@ -792,6 +895,8 @@ function iniciaEstado() {
   st.grandes = e.municipios.filter(m => m.pop > POP_GRANDE);
   iniciaPeriodo();
   $("cobertura-vmax").textContent = `${fmt(e.panorama.letalidade_velocidade.cobertura_todos)}%`;
+  const der = derivados();
+  $("sem-idade").textContent = `${fmt(der.semIdade(der.modos))}% (${fmt(der.semIdade(["Pedestre"]))}% entre os pedestres)`;
   $("n-grandes").textContent = st.grandes.length;
 }
 
@@ -887,7 +992,7 @@ function tabelaLocais() {
 
 function abreLocal(cod, foco) {
   st.focoPendente = foco;
-  if (location.hash === "#" + cod) rota();
+  if (leEndereco().cod === cod) rota();
   else location.hash = cod;
 }
 
@@ -955,6 +1060,7 @@ async function abreMunicipio(cod) {
       const z = mapaMun.getZoom();
       if (resolucao(z) !== st.resAtual) { desenhaHex(); redesenhaDestaque(false); }
       else if (opacidade(z) !== st.opac) { st.opac = opacidade(z); st.camadaHex.setStyle({ fillOpacity: st.opac }); }
+      agrupaMarcadores();
     });
     // depois que a pessoa move o mapa, oferece listar só os locais da área visível
     mapaMun.on("moveend", () => {
@@ -1000,6 +1106,7 @@ function aplicaPeriodo() {
 function desenhaGraficosMun(m) {
   const P = periodo(), destaque = P.todo ? null : [P.a, P.b];
   quemMorre(m);
+  idadeMun(m);
   horaDia(m);
   serie($("serie-sinistros"), "Sinistros com vítimas", m.serie.anos, m.serie.sinistros, COR.sin, destaque);
   serie($("serie-mortes"), "Mortes", m.serie.anos_mortes, m.serie.mortes, COR.mortes, destaque);
@@ -1028,18 +1135,30 @@ function periodo() {
     nAnos: b - a + (incompleto ? mesFim / 12 : 1) };
 }
 
+// período [a, b] (null = todos os anos), ajustado aos anos com dados; devolve se mudou
+function definePeriodo(per) {
+  const { anos } = anosDados(), ini = anos[0], fim = anos.at(-1);
+  let [a, b] = per ? per.map(x => Math.min(fim, Math.max(ini, x))) : [ini, fim];
+  if (a > b) [a, b] = [b, a];
+  const novo = a === ini && b === fim ? null : [a, b], mudou = String(novo) !== String(st.periodo);
+  st.periodo = novo;
+  $("ano-de").value = a; $("ano-ate").value = b;
+  $("periodo-todo").hidden = !novo;
+  return mudou;
+}
+
 function iniciaPeriodo() {
   const { anos, mesFim, parcial } = anosDados();
   const de = $("ano-de"), ate = $("ano-ate"), todo = $("periodo-todo");
   de.innerHTML = ate.innerHTML = anos.map(a =>
     `<option value="${a}">${a}${a === anos.at(-1) && parcial ? ` (até ${MESES[mesFim - 1].slice(0, 3)}.)` : ""}</option>`).join("");
-  de.value = anos[0]; ate.value = anos.at(-1);
+  definePeriodo(null);
   const muda = origem => {
     let a = +de.value, b = +ate.value;
-    if (a > b) { if (origem === de) b = a; else a = b; de.value = a; ate.value = b; }
-    st.periodo = a === anos[0] && b === anos.at(-1) ? null : [a, b];
-    todo.hidden = !st.periodo;
+    if (a > b) { if (origem === de) b = a; else a = b; }
+    definePeriodo([a, b]);
     if (st.mun) aplicaPeriodo();
+    if (st.vista === "municipio" && st.carregando) gravaEndereco(st.carregando);
   };
   de.addEventListener("change", () => muda(de));
   ate.addEventListener("change", () => muda(ate));
@@ -1122,7 +1241,7 @@ function limpaArea(redesenha = true) {
 // frota do município (Senatran, dezembro de cada ano) comparada com a do estado
 function frotaMun(m) {
   const f = m.frota, box = $("historia-frota");
-  $("frota").hidden = !f;
+  $("frota").hidden = document.querySelector('[data-secao="frota"]').hidden = !f;
   if (!f) return;
   const e = st.estado, mf = e.panorama.motos_frota, [t0, t1] = e.anos_taxa;
   const pop = e.municipios.reduce((a, x) => a + (x.pop || 0), 0);
@@ -1201,7 +1320,7 @@ function kpis(m) {
       comp: `${taxas} · estado: ${fmt(est.tx_mortes_hab, 1)}` + (poucas ? "<br>poucas mortes: a taxa varia muito" : pos ? `<br>${pos}` : "") },
     { rot: "Mortes por 10 mil veículos, por ano", val: fmt(r.tx_mortes_veic, 2), delta: delta(r.tx_mortes_veic, est.tx_mortes_veic),
       comp: `${taxas} · estado: ${fmt(est.tx_mortes_veic, 2)}` },
-    { rot: "Das mortes ocorreram em rodovias", val: mortes ? fmt(100 * rod / mortes) + "%" : "—", comp: P.texto },
+    { rot: "Mortes em rodovias", val: mortes ? fmt(100 * rod / mortes) + "%" : "—", comp: `das mortes ${P.texto}` },
   ];
   const box = $("kpis");
   box.innerHTML = "";
@@ -1225,8 +1344,11 @@ function destaques(m) {
   if (totM >= 10) {
     t.push(`Motociclistas são ${fmt(100 * modo["Motocicleta"] / totM)}% das mortes ${P.texto} (estado: ${fmt(est["Motocicleta"])}%).`);
     const ped = modo["Pedestre"];
-    if (ped >= 5) t.push(`Pedestres são ${fmt(100 * ped / totM)}% das mortes (estado: ${fmt(est["Pedestre"])}%); ` +
-      `${fmt(100 * s("ped_idosos") / ped)}% dos pedestres mortos tinham 60 anos ou mais.`);
+    // idosos entre os pedestres mortos com idade registrada (como no gráfico de idade do estado)
+    const cp = contaIdade(pa.idade, ["Pedestre"], P.idx), comIdade = somaV(cp.slice(0, -1));
+    const i60 = st.estado.panorama.faixas_idade.findIndex(f => parseInt(f) >= 60);
+    if (ped >= 5) t.push(`Pedestres são ${fmt(100 * ped / totM)}% das mortes (estado: ${fmt(est["Pedestre"])}%)` +
+      (comIdade >= 5 ? `; ${fmt(100 * somaV(cp.slice(i60, -1)) / comIdade)}% dos pedestres mortos tinham 60 anos ou mais.` : "."));
   }
   const nUrb = s("urbanos"), pts = m.pontos.filter(x => x.n >= MIN_PONTO).sort(ordemLocais);
   if (pts.length && nUrb >= 100) {
@@ -1312,7 +1434,8 @@ function desenhaHex() {
   const semLocal = somaP(m.por_ano.sem_local, P.idx), total = somaP(m.por_ano.sinistros, P.idx);
   $("nota-mapa").textContent = (semLocal ?
     `${fmt(semLocal)} sinistros (${fmt(100 * semLocal / Math.max(1, total))}%) sem local preciso ficam fora do mapa. ` : "") +
-    "Os hexágonos ficam menores quando você aproxima o mapa; os números marcam os 10 pontos críticos da lista.";
+    "Os hexágonos ficam menores quando você aproxima o mapa; os números marcam os 10 pontos críticos da lista " +
+    "(números muito próximos aparecem juntos, como 3·5; clique para aproximar).";
 }
 
 function desenhaMarcadores() {
@@ -1320,7 +1443,10 @@ function desenhaMarcadores() {
   const g = L.layerGroup();
   st.listaMarcadores = [];
   st.listas.pontos.slice(0, N_MARCADOS).forEach((p, i) => {
-    const mk = L.marker([p.lat, p.lon], { icon: L.divIcon({ className: "marcador", html: String(i + 1), iconSize: [24, 24] }), zIndexOffset: 1000, title: p.nome });
+    // quando os números se sobrepõem (mapa afastado), o de melhor posição fica por cima
+    const mk = L.marker([p.lat, p.lon], { icon: L.divIcon({ className: "marcador", html: String(i + 1), iconSize: [24, 24] }),
+      zIndexOffset: 1000 + (N_MARCADOS - i) * 10000, title: p.nome });
+    mk.zBase = mk.options.zIndexOffset;
     mk.on("click", () => {
       trocaAba("pontos");
       const div = document.querySelectorAll("#lista-aba .item")[i];
@@ -1332,6 +1458,39 @@ function desenhaMarcadores() {
   });
   g.addTo(mapaMun);
   st.marcadores = g;
+  agrupaMarcadores();
+}
+
+// Com o mapa afastado, números que se sobreporiam viram uma pílula só ("3·5·6"); clicar nela aproxima o mapa até eles
+// se separarem. Os marcadores individuais continuam no mapa (escondidos), para manter o destaque do local ativo.
+const DIST_MARCADOR = 26;  // px entre centros abaixo da qual dois números se sobrepõem
+function agrupaMarcadores() {
+  if (st.grupos) { st.grupos.remove(); st.grupos = null; }
+  if (!mapaMun) return;
+  const mks = (st.listaMarcadores || []).filter(mk => mk.getElement());
+  if (!mks.length) return;
+  const grupos = [];  // na ordem da lista: cada grupo é ancorado no seu ponto de melhor posição
+  mks.forEach(mk => {
+    const px = mapaMun.latLngToLayerPoint(mk.getLatLng());
+    const g = grupos.find(g => g.px.distanceTo(px) < DIST_MARCADOR);
+    if (g) g.mks.push(mk); else grupos.push({ px, mks: [mk] });
+  });
+  const camada = L.layerGroup();
+  grupos.forEach(g => {
+    g.mks.forEach(mk => mk.getElement().classList.toggle("escondido", g.mks.length > 1));
+    if (g.mks.length === 1) return;
+    const nums = g.mks.map(mk => st.listaMarcadores.indexOf(mk) + 1).sort((a, b) => a - b);
+    const rotulo = nums.join("·"), w = Math.ceil(larguraTexto(rotulo, 11, 700)) + 18;
+    const b = L.latLngBounds(g.mks.map(mk => mk.getLatLng()));
+    const ativo = g.mks.some(mk => mk.getElement().classList.contains("ativo"));
+    const grupo = L.marker(b.getCenter(), {
+      icon: L.divIcon({ className: "marcador-grupo" + (ativo ? " ativo" : ""), html: rotulo, iconSize: [w, 24] }),
+      zIndexOffset: 1000 + (N_MARCADOS - nums[0] + 1) * 10000,
+      title: `Pontos ${nums.slice(0, -1).join(", ")} e ${nums.at(-1)}: clique para aproximar o mapa` });
+    grupo.on("click", () => { moveProg(); mapaMun.fitBounds(b, { padding: [70, 70], maxZoom: 17 }); });
+    camada.addLayer(grupo);
+  });
+  st.grupos = camada.addTo(mapaMun);
 }
 
 function trocaAba(aba) {
@@ -1384,7 +1543,8 @@ function trocaAba(aba) {
 
 function limpaDestaque() {
   document.querySelectorAll(".item.ativa").forEach(x => x.classList.remove("ativa"));
-  (st.listaMarcadores || []).forEach(mk => { const e = mk.getElement(); if (e) e.classList.remove("ativo"); });
+  (st.listaMarcadores || []).forEach(mk => { const e = mk.getElement(); if (e) e.classList.remove("ativo"); mk.setZIndexOffset(mk.zBase); });
+  if (st.grupos) agrupaMarcadores();  // a pílula que continha o ponto ativo deixa de estar em destaque
   if (st.camadaDestaque) { st.camadaDestaque.remove(); st.camadaDestaque = null; }
   if (mapaMun) mapaMun.closePopup();
   st.ativo = null;
@@ -1398,7 +1558,7 @@ function focaItem(tipo, x, div) {
   if (div) div.classList.add("ativa");
   if (tipo === "ponto") {
     const mk = st.listaMarcadores[st.listas.pontos.indexOf(x)];
-    if (mk && mk.getElement()) mk.getElement().classList.add("ativo");
+    if (mk && mk.getElement()) { mk.getElement().classList.add("ativo"); mk.setZIndexOffset(1e6); agrupaMarcadores(); }
   }
   if (tipo === "via") {
     if (!x.hex.length) return;
@@ -1513,8 +1673,9 @@ function mostraVista(v) {
   if (st.vista === v) return;
   if (st.vista === "estado") st.rolagemEstado = scrollY;
   st.vista = v;
-  $("vista-estado").hidden = v !== "estado";
-  $("vista-municipio").hidden = v !== "municipio";
+  $("vista-estado").hidden = $("nav-estado").hidden = v !== "estado";
+  $("vista-municipio").hidden = $("nav-municipio").hidden = v !== "municipio";
+  document.documentElement.classList.toggle("em-municipio", v === "municipio");  // a barra do período também cobre o topo
   escondeDica();
   if (v === "estado") {
     document.title = "Onde acontecem os sinistros de trânsito em São Paulo";
@@ -1523,15 +1684,27 @@ function mostraVista(v) {
   } else if (mapaMun) { moveProg(); mapaMun.invalidateSize(); }
 }
 
-function rota() {
+// endereço do município: #<código IBGE> ou, com um período escolhido, #<código IBGE>/<primeiro ano>-<último ano>
+function leEndereco() {
   const h = decodeURIComponent(location.hash.slice(1));
-  if (/^\d{7}$/.test(h)) {
-    const jaAberto = st.mun && st.mun.cod === h;
+  const r = h.match(/^(\d{7})(?:\/(\d{4})(?:-(\d{4}))?)?$/);
+  return r ? { h, cod: r[1], periodo: r[2] ? [+r[2], +(r[3] || r[2])] : null } : { h };
+}
+// sem disparar hashchange; um endereço sem período mantém o período escolhido antes (para comparar municípios)
+const gravaEndereco = cod => history.replaceState(null, "", "#" + cod + (st.periodo ? `/${st.periodo[0]}-${st.periodo[1]}` : ""));
+
+function rota() {
+  const { h, cod, periodo: per } = leEndereco();
+  if (cod) {
+    const mudou = per ? definePeriodo(per) : false;
+    const jaAberto = st.mun && st.mun.cod === cod;
     const vinhaDoEstado = st.vista !== "municipio";
     mostraVista("municipio");
-    if (!jaAberto) abreMunicipio(h);
-    else if (st.focoPendente) aplicaFoco();
-    else if (vinhaDoEstado) { cabecalhoMunicipio(h); scrollTo(0, 0); }
+    gravaEndereco(cod);
+    if (!jaAberto) { abreMunicipio(cod); return; }
+    if (mudou) aplicaPeriodo();
+    if (st.focoPendente) aplicaFoco();
+    else if (vinhaDoEstado) { cabecalhoMunicipio(cod); scrollTo(0, 0); }
     return;
   }
   if (h === "sobre") {  // o rodapé vale para as duas vistas
@@ -1556,6 +1729,7 @@ document.querySelectorAll(".abas button").forEach(b => b.addEventListener("click
 segmentado("seg-indicador", v => { st.indicador = v; desenhaEstado(); });
 segmentado("seg-mapa", v => { st.modoMapa = v; if (st.mun) desenhaHex(); });
 segmentado("seg-hora", v => { st.hora = v; if (st.mun) horaDia(st.mun); });
+segmentado("seg-idade", v => { st.idadeGrupo = v; if (st.mun) idadeMun(st.mun); });
 segmentado("seg-locais-tipo", v => { st.locaisTipo = v; st.nLocais = 10; tabelaLocais(); });
 segmentado("seg-locais-ordem", v => { st.locaisOrdem = v; st.nLocais = 10; tabelaLocais(); });
 $("mais-locais").addEventListener("click", () => { st.nLocais = Math.min(50, st.nLocais + 15); tabelaLocais(); });
@@ -1564,6 +1738,13 @@ $("filtra-area").addEventListener("click", () => {
   if (b.contains(contornoMun.getBounds())) limpaArea(); else defineArea(b);
 });
 $("limpa-area").addEventListener("click", () => limpaArea());
+// menu do município: rola até a seção sem mudar o endereço
+document.querySelectorAll("[data-secao]").forEach(a => a.addEventListener("click", ev => {
+  ev.preventDefault();
+  const behavior = matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+  if (a.dataset.secao === "topo-mun") scrollTo({ top: 0, behavior });
+  else $(a.dataset.secao).scrollIntoView({ behavior });
+}));
 addEventListener("keydown", ev => {
   if (ev.key === "/" && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) {
     ev.preventDefault(); document.querySelector(".topo .busca input").focus();
