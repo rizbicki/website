@@ -29,7 +29,7 @@ const INDICADORES = {
 };
 
 const st = { estado: null, porCod: {}, mun: null, vista: null, indicador: "tx_mortes_hab", modoMapa: "n", aba: "pontos", hora: "n", idadeGrupo: "todas",
-  locaisTipo: "pontos", locaisOrdem: "n", nLocais: 10, camadaHex: null, camadaDestaque: null, marcadores: null, ativo: null,
+  locaisTipo: "pontos", locaisOrdem: "n", nLocais: 10, nMud: 10, mudPorCod: {}, camadaHex: null, camadaDestaque: null, marcadores: null, ativo: null,
   vistaLocal: "sat", rolagemEstado: 0, estadoDesenhado: false,
   periodo: null,  // [primeiro, último ano] escolhidos no município; null = todos os anos
   area: null,     // retângulo do mapa que filtra os pontos críticos e as rodovias; null = município todo
@@ -880,7 +880,9 @@ function iniciaEstado() {
   $("nota-qualidade").textContent =
     `Não. ${fmt(100 * fora / q.total)}% dos sinistros com vítimas não têm local preciso: ${fmt(q.sem_coordenada)} sem coordenada, ` +
     `${fmt(q.fora_do_municipio)} com coordenada fora do município registrado e ${fmt(q.ponto_generico)} em pontos genéricos ` +
-    `(a mesma coordenada para sinistros de muitas vias diferentes ou para números distantes da mesma via, ou endereços como "SP, Brasil").`;
+    `(a mesma coordenada para sinistros de muitas vias diferentes ou para números distantes da mesma via, ou endereços como "SP, Brasil"). ` +
+    `Entre os pontos genéricos estão ${fmt(q.ima)} sinistros de números distantes da mesma via que caem a poucos metros uns dos outros, onde o ` +
+    `geocodificador põe os endereços que não acha, e ${fmt(q.numero_padrao)} com número padrão (0, 1, 10, 100 ou 1000) empilhados numa só coordenada.`;
 
   e.municipios.forEach(m => { st.porCod[m.cod] = m; });
   st.busca = e.municipios.map(m => ({ cod: m.cod, nome: m.nome, pop: m.pop || 0, chave: norm(m.nome) }));
@@ -1002,8 +1004,8 @@ function aplicaFoco() {
   if (!f || !st.mun) return;
   $("onde").scrollIntoView({ block: "start" });
   if (st.area) limpaArea();
-  trocaAba(f.tipo === "ponto" ? "pontos" : "trechos");
   const mesmo = x => x.lat != null && Math.abs(x.lat - f.lat) < 1e-4 && Math.abs(x.lon - f.lon) < 1e-4;
+  trocaAba(f.tipo === "ponto" ? "pontos" : "trechos");
   const lista = st.listas[f.tipo === "ponto" ? "pontos" : "trechos"], i = lista.findIndex(mesmo);
   const div = document.querySelectorAll("#lista-aba .item")[i];
   if (i >= 0 && div) { focaItem(f.tipo, lista[i], div); div.scrollIntoView({ block: "nearest" }); return; }
@@ -1011,6 +1013,372 @@ function aplicaFoco() {
   const x = (f.tipo === "ponto" ? st.mun.pontos : st.mun.trechos).find(mesmo);
   if (x) focaItem(f.tipo, x, null);
   else if (f.lat != null) { moveProg(); mapaMun.setView([f.lat, f.lon], f.tipo === "ponto" ? 17 : 14); }
+}
+
+// ------------------------------------------------------------------ mudanças persistentes nos sinistros fatais dos municípios
+
+// variação ajustada pela tendência do estado: "−38%", "+45%" ou "2,4×"
+const mudVar = it => it.rr < 1 ? `−${fmt(100 * (1 - it.rr))}%` : it.rr < 2 ? `+${fmt(100 * (it.rr - 1))}%` : `${fmt(it.rr, 1)}×`;
+const mudClasse = it => it.rr < 1 ? "queda" : "alta";
+const mudPorAno = v => fmt(v, v < 10 ? 1 : 0);
+const anoMes = s => { const [a, m] = s.split("-"); return m ? `${MESES[+m - 1]} de ${a}` : a; };
+
+function noticiasHtml(it) {
+  if (!it.noticias || !it.noticias.length) return "";
+  return `<div class="noticias"><b>Na imprensa</b>` + it.noticias.map(n =>
+    `<a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.titulo)}</a><span>${esc(n.veiculo)}, ${anoMes(n.data)}` +
+    (n.resumo ? `. ${esc(n.resumo)}` : "") + `</span>`).join("") + `</div>`;
+}
+
+// sinistros fatais por ano (barras) e os esperados se o município tivesse seguido a tendência do estado com a taxa de
+// antes do corte (linha tracejada); a linha vertical marca o ano a partir do qual a mudança vale
+function graficoMudanca(it, w, H = 58) {
+  const anos = st.estado.mudancas.anos, { parcial } = anosDados(), n = it.n, esp = it.esperado;
+  const max = Math.max(1, ...n, ...esp), cima = 13, base = 13, bw = w / n.length, lb = Math.min(12, bw * 0.62);
+  const Y = v => H - base - (H - cima - base) * v / max, cx = i => i * bw + bw / 2;
+  const xc = anos.indexOf(it.corte) * bw;
+  let s = "";
+  n.forEach((v, i) => {
+    const incompleto = parcial && i === n.length - 1;
+    s += `<path d="${barraV(cx(i) - lb / 2, Y(v), lb, H - base - Y(v), 2.5)}" fill="${COR.mortes}" fill-opacity="${incompleto ? 0.55 : 1}"/>`;
+  });
+  s += `<path d="${esp.map((v, i) => `${i ? "L" : "M"}${cx(i).toFixed(1)},${Y(v).toFixed(1)}`).join("")}" fill="none" stroke="${COR.tinta}" stroke-width="1.5" stroke-dasharray="3 2.5" stroke-linejoin="round"/>`;
+  s += `<line x1="${xc}" x2="${xc}" y1="2" y2="${H - base + 2}" stroke="${COR.tinta2}" stroke-width="1"/>` +
+    `<text x="${xc + 3}" y="9" font-size="9.5" fill="${COR.tinta2}">desde ${it.corte}</text>`;
+  [0, n.length - 1].forEach(i => { s += `<text x="${cx(i)}" y="${H - 2}" text-anchor="middle" font-size="9.5" fill="${COR.mudo}">${anos[i]}${parcial && i === n.length - 1 ? "*" : ""}</text>`; });
+  n.forEach((v, i) => { s += `<rect data-i="${i}" x="${i * bw}" y="0" width="${bw}" height="${H}" fill="transparent"/>`; });  // alvos da dica
+  const rotulo = `Sinistros fatais por ano: ${anos.map((a, i) => `${a}, ${n[i]}`).join("; ")}. Mudança a partir de ${it.corte}.`;
+  return `<svg class="graf-mud" width="${w}" height="${H}" viewBox="0 0 ${w} ${H}" role="img" aria-label="${esc(rotulo)}">${s}</svg>`;
+}
+
+function dicasMudanca(box, it) {
+  const anos = st.estado.mudancas.anos, { parcial, mesFim } = anosDados();
+  box.querySelectorAll(".graf-mud rect[data-i]").forEach(r => {
+    const i = +r.dataset.i, incompleto = parcial && i === anos.length - 1;
+    comDica(r, `<div class="t">${anos[i]}${incompleto ? ` (até ${MESES[mesFim - 1]})` : ""}</div>` +
+      linhaDica(COR.mortes, fmt(it.n[i]), `sinistros fatais (${plural(it.mortes[i], "morte", "mortes")})`, true) +
+      linhaDica(COR.tinta, fmt(it.esperado[i], it.esperado[i] < 10 ? 1 : 0), anos[i] < it.corte ? "ajuste antes da mudança" : "esperados sem a mudança"));
+  });
+}
+
+const textoMudanca = it => `Os sinistros fatais (com pelo menos uma morte) ${it.rr < 1 ? "caíram" : "subiram"} ` +
+  `${it.rr < 1 ? fmt(100 * (1 - it.rr)) + "%" : it.rr < 2 ? fmt(100 * (it.rr - 1)) + "%" : fmt(it.rr, 1) + " vezes"} a partir de ${it.corte}, ` +
+  `descontada a tendência do estado: de ${mudPorAno(it.antes)} para ${mudPorAno(it.depois)} por ano, quando a tendência do resto do estado ` +
+  `indicaria ${mudPorAno(it.esperado_depois)}.`;
+
+function iniciaMudancas() {
+  const md = st.estado.mudancas, r = md.resumo, a = md.anos;
+  st.mudPorCod = Object.fromEntries(md.itens.map(it => [it.cod, it]));
+  const n = md.itens.length, desc = n ? (n === 1 ? "teve" : "tiveram") : "";
+  $("nota-mudancas").textContent = `Municípios em que os sinistros fatais (com pelo menos uma morte) caíram ou subiram de forma persistente ` +
+    `a partir de um ano, além do que a tendência do estado e o acaso explicariam. Dos ${fmt(r.testados)} municípios com pelo menos ` +
+    `${r.min_n} sinistros fatais de ${a[0]} a ${a.at(-1)}, ` + (n ? (n <= 3 ?
+      `só ${n === 1 ? "um teve" : `${n} tiveram`} mudança: ${md.itens.map(it => `${it.nome} (${it.rr < 1 ? "queda" : "alta"} a partir de ${it.corte})`).join(", ")}` :
+      `${plural(n, "município", "municípios")} ${desc} mudança (${[r.quedas ? plural(r.quedas, "queda", "quedas") : "", r.altas ? plural(r.altas, "alta", "altas") : ""].filter(Boolean).join(" e ")})`) +
+    `. Nos demais, os sinistros fatais variaram de um ano para outro dentro do que o acaso e a tendência do estado explicam.` :
+      "nenhum teve mudança além do que o acaso e a tendência do estado explicam.");
+  $("nota-fdr").textContent = `O menor valor q entre os municípios é ${fmt(r.q_min, 3)}.`;
+  const reg = r.registro;
+  $("nota-mud-sobre").textContent = reg.antigo != null && reg.entre != null ? `Nos ${fmt(reg.n_pontos)} pontos críticos com 40 ou mais sinistros, ` +
+    `a variação de cada ponto além do acaso, descontada a tendência do município, tem desvio padrão de ${fmt(reg.antigo, 2)} (em log) de 2019–2020 ` +
+    `para 2021–2022 e de ${fmt(reg.entre, 2)} de 2019–2022 para 2024 em diante: depois da troca, um ponto "muda" tipicamente ` +
+    `${fmt(100 * (Math.exp(reg.entre) - 1))}% para mais ou ${fmt(100 * (1 - Math.exp(-reg.entre)))}% para menos sem que nada tenha mudado na rua.` : "";
+}
+
+function tabelaMudancas() {
+  const lista = st.estado.mudancas.itens;
+  $("cartao-mudancas").hidden = !lista.length;
+  const t = $("tabela-mudancas");
+  t.innerHTML = `<thead><tr><th class="pos">#</th><th>Município</th><th class="col-opc">Sinistros fatais por ano</th>` +
+    `<th class="num">Antes → depois</th><th class="num">Mudança</th></tr></thead>`;
+  const tb = el("tbody");
+  lista.slice(0, st.nMud).forEach((it, i) => {
+    const tr = el("tr", { tabIndex: 0 }, `<td class="pos">${i + 1}</td>` +
+      `<td class="local"><b>${esc(it.nome)}</b><span class="mun">${esc(regiao(it.regiao))}</span>${noticiasHtml(it)}</td>` +
+      `<td class="col-opc grafico-celula">${graficoMudanca(it, 220)}</td>` +
+      `<td class="num">${mudPorAno(it.antes)} → <b>${mudPorAno(it.depois)}</b><span class="sub">pela tendência: ${mudPorAno(it.esperado_depois)}</span></td>` +
+      `<td class="num"><span class="var-mud ${mudClasse(it)}">${mudVar(it)}</span><span class="sub">desde ${it.corte}</span></td>`);
+    dicasMudanca(tr, it);
+    tr.querySelectorAll(".noticias a").forEach(a => a.addEventListener("click", ev => ev.stopPropagation()));
+    const abre = () => { location.hash = it.cod; };
+    tr.addEventListener("click", abre);
+    tr.addEventListener("keydown", ev => { if (ev.key === "Enter" && ev.target === tr) abre(); });
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+  const botao = $("mais-mudancas");
+  botao.hidden = botao.parentElement.hidden = st.nMud >= lista.length;
+  botao.textContent = `Mostrar mais ${Math.min(15, lista.length - st.nMud)}`;
+}
+
+// cartão do município com mudança persistente (abaixo do resumo)
+function mudancaMun(m) {
+  const it = st.mudPorCod[m.cod], box = $("mudanca-mun");
+  box.hidden = !it;
+  if (!it) return;
+  box.innerHTML = `<div class="mud-mun-texto"><h2 class="titulo-pequeno">Mudança nos sinistros fatais</h2>` +
+    `<p><span class="var-mud ${mudClasse(it)}">${mudVar(it)}</span> ${esc(textoMudanca(it))}</p>` +
+    `<p class="nota">Não muda com o período escolhido. Uma mudança não diz o que a causou; veja como ela é identificada em Sobre os dados.</p>` +
+    noticiasHtml(it) + `</div><div class="mud-mun-graf">${graficoMudanca(it, Math.min(360, box.clientWidth - 40 || 320), 92)}` +
+    `<div class="legenda-serie"><span><i class="bloco" style="background:${COR.mortes}"></i>sinistros fatais</span>` +
+    `<span><i style="background:none;border-top:2px dashed ${COR.tinta};height:0"></i>esperados sem a mudança</span></div></div>`;
+  dicasMudanca(box, it);
+}
+
+// ------------------------------------------------------------------ estado: Faixa Azul
+
+// razão observado/esperado como diferença em %: 1,137 -> "+14%"
+const difPct = (r, casas = 0) => {
+  const v = 100 * (r - 1), a = fmt(Math.abs(v), casas);
+  return (a === fmt(0, casas) ? "" : v > 0 ? "+" : "−") + a + "%";
+};
+const mesCurto = s => { const [a, m] = s.split("-"); return `${MESES[+m - 1].slice(0, 3)}/${a}`; };
+const icPct = ic => `${difPct(ic[0])} a ${difPct(ic[1])}`;
+const claro = ic => ic[0] > 1 || ic[1] < 1;  // o intervalo de 95% não inclui o zero
+const verbo = (d, sobe, cai, nada) => d.ic[0] > 1 ? sobe : d.ic[1] < 1 ? cai : nada;
+const textoTrim = q => q === 0 ? "Trimestre da implantação (só o 3º mês; os dois primeiros ficam de fora)" :
+  q > 0 ? `${q}º trimestre depois da implantação` : `${-q}º trimestre antes da implantação`;
+const rotuloTrim = (q, curto) => q === 0 ? "início" : q % 4 ? "" :
+  `${q > 0 ? "+" : "−"}${Math.abs(q / 4)} ${Math.abs(q) === 4 ? "ano" : "anos"}`;
+
+function iniciaFaixaAzul() {
+  const fa = st.interv.faixa_azul, D = Object.fromEntries(fa.desfechos.map(d => [d.id, d]));
+  st.fa = fa; st.faD = D; st.faDesfecho = "moto";
+  const m = D.moto, gm = D.grave_moto, mm = D.morte_moto, sm = D.sem_moto, en = D.entorno_moto;
+  $("fa-intro").textContent = `A Faixa Azul, uma faixa de rolamento dedicada às motos, foi pintada em ${fa.n_vias} vias da capital de ${anoMes(fa.implantacao[0])} a ${anoMes(fa.implantacao[1])}. ` +
+    `Comparamos os sinistros com vítimas nessas vias, mês a mês de ${anoMes(fa.periodo[0])} a ${anoMes(fa.periodo[1])}, ` +
+    `com os de ${fmt(fa.n_comparacao)} avenidas da cidade que não a receberam.`;
+  const juntas = !claro(m.ic_pre);
+  const rob = fa.robustez.filter(r => r.efeito), um = fa.robustez.find(r => r.efeito_min);
+  const box = $("historias-fa");
+  box.innerHTML = "";
+  box.appendChild(el("article", { className: "historia cartao" },
+    `<div class="historia-texto"><div class="grande">${difPct(m.efeito)}</div>
+     <p><b>de sinistros com motos nas vias com Faixa Azul, em relação ao que elas teriam sem a faixa</b>: ${fmt(m.obs)} sinistros com motos
+     depois da implantação, onde o andamento das avenidas sem faixa indicaria ${fmt(m.esp)} (intervalo de 95%: ${icPct(m.ic)}).
+     ${juntas ? `Antes da faixa, as vias que a receberam andavam junto com as demais: nos 12 meses anteriores, a diferença foi de ${difPct(m.pre)}.`
+       : `Mas as vias que a receberam já se afastavam das demais antes da faixa (${difPct(m.pre)} nos 12 meses anteriores).`}</p></div>
+     <figure><figcaption><h3>Sinistros nas vias com Faixa Azul, acima ou abaixo do esperado</h3>
+       <p>% em relação ao esperado sem a faixa, por trimestre antes e depois da implantação; sombra: intervalo de 95%</p></figcaption>
+       <div class="controles controles-graf"><div class="segmentado" id="seg-fa" role="group" aria-label="Sinistros">
+         <button type="button" data-v="moto" class="ativo">Com motos</button><button type="button" data-v="sem_moto">Sem motos</button></div></div>
+       <div class="grafico" id="graf-fa-evento"></div><p class="nota nota-graf" id="nota-fa-evento"></p></figure>`));
+  box.appendChild(el("article", { className: "historia cartao" },
+    `<div class="historia-texto"><div class="grande">${difPct(mm.ic[0])} <small>a</small> ${difPct(mm.ic[1])}</div>
+     <p><b>é o intervalo de 95% do efeito nos sinistros em que um motociclista morreu</b> (estimativa: ${difPct(mm.efeito)}). Com cerca de
+     ${fmt(mm.por_ano_antes)} desses sinistros por ano nessas vias, os dados ${claro(mm.ic) ? "indicam uma mudança" : "não distinguem uma queda de uma alta"}. Nos sinistros com motos e ferido grave ou morto,
+     ${difPct(gm.efeito)} (${icPct(gm.ic)}). Nas outras ruas a até ~400 m das vias, os sinistros com motos
+     ${verbo(en, "subiram", "caíram", "não mudaram de forma clara")} (${difPct(en.efeito)}; ${icPct(en.ic)}).</p></div>
+     <figure><figcaption><h3>Efeito da Faixa Azul em cada medida</h3>
+       <p>diferença em relação ao esperado sem a faixa, com intervalo de 95%; à direita, a diferença nos 12 meses antes da implantação</p></figcaption>
+       <div class="grafico" id="graf-fa-medidas"></div>
+       <p class="nota nota-graf">Se a diferença antes da implantação já se afasta do zero (⚠), a medida já mudava antes da faixa e a diferença depois não pode ser atribuída a ela.</p></figure>`));
+  segmentado("seg-fa", v => { st.faDesfecho = v; graficoEventoFA(); });
+
+  $("fa-outros").innerHTML = `<h3>O que dizem a prefeitura e outro estudo</h3>
+    <p><b>Prefeitura e CET</b> (abril de 2026): a gravidade dos sinistros com motos caiu 26,6% nas vias com Faixa Azul, comparando antes e
+    depois da implantação nas mesmas vias, sem vias de comparação. Gravidade menor não quer dizer menos mortes: ela também cai quando os
+    sinistros leves aumentam e as mortes não, que é o que estes dados mostram.</p>
+    <p><b>Vital Strategies, USP, UFC e Instituto Cordial</b> (janeiro de 2026): também com o Infosiga e com vias de comparação, mas separando
+    cruzamentos e meio de quadra. Encontraram de 100% a 120% mais sinistros fatais com motociclistas nos cruzamentos (com intervalo de 85%,
+    menos exigente que o de 95% usado aqui), nenhuma redução estatisticamente significativa no geral e motociclistas 24% mais rápidos
+    longe dos semáforos. Aqui a conta é da via inteira, e a estimativa para as mortes é incerta demais para confirmar ou descartar a deles.</p>`;
+  $("fa-limites").innerHTML = `<h3>O que estes números não dizem</h3>
+    <p><b>Se cada moto corre mais risco.</b> A faixa atrai motos para a via, e mais sinistros podem vir de mais motos passando por ali; o
+    Infosiga não tem o fluxo de veículos. Nas outras ruas a até ~400 m, os sinistros com motos ${verbo(en, "subiram", "caíram", "não caíram")}
+    (${difPct(en.efeito)}): o aumento na via não foi compensado por uma queda no entorno.</p>
+    <p><b>O efeito no trecho com a faixa.</b> A conta é da via inteira, pelo nome no registro, porque a coordenada e o número do endereço
+    mudaram de padrão em 2023. Em várias vias a faixa cobre só um trecho, e o efeito ali deve ser maior que o medido.</p>
+    <p><b>O que aconteceu com os sinistros sem motos.</b> ${verbo(sm, "Subiram", "Caíram", "Mudaram")} ${difPct(sm.efeito)} depois da faixa,
+    ${claro(sm.ic_pre) ? `mas já ${sm.pre > 1 ? "subiam" : "caíam"} antes (${difPct(sm.pre)} nos 12 meses anteriores), então essa mudança não pode ser atribuída a ela`
+      : "e não mudavam antes"}.</p>`;
+  $("nota-fa-evento").textContent = `Antes da implantação, o esperado é calculado sem os dois anos anteriores, para que a comparação seja um teste: ` +
+    `se as vias já se afastassem das demais, a linha sairia do zero antes da faixa. O resultado se mantém ${rob.map(r =>
+      `${r.nome[0].toLowerCase()}${r.nome.slice(1).replace(/ \([^)]*\)$/, "")} (${difPct(r.efeito)})`).join(", ")} e ` +
+    `tirando qualquer uma das ${fa.n_vias} vias (de ${difPct(um.efeito_min)} a ${difPct(um.efeito_max)}). Sorteando datas de implantação ` +
+    `entre as avenidas sem faixa, ${fmt(100 * fa.placebo, 1)}% dos sorteios dão uma diferença desse tamanho.`;
+  $("fa-vias-nota").textContent = `Sinistros com motos depois da implantação, acima ou abaixo do esperado sem a faixa, com intervalo de 95%. ` +
+    `Faixa vertical: o conjunto das ${fa.n_vias} vias (${difPct(m.efeito)}; ${icPct(m.ic)}). Escala logarítmica: dobrar (+100%) fica à mesma ` +
+    `distância do zero que cair pela metade (−50%).`;
+  $("fa-vias-rodape").textContent = `Uma via sozinha tem poucos sinistros e muito acaso. O intervalo de cada uma é o do acaso de Poisson ` +
+    `multiplicado por ${fmt(Math.sqrt(fa.fator_via), 1)}: é quanto a diferença de uma avenida sem faixa, com uma data de implantação sorteada, ` +
+    `varia além do Poisson. Vias com intervalo largo dizem pouco sozinhas; o resultado que vale é o do conjunto. O Complexo Viário Maria Maluf ` +
+    `triplica, mas o nome “Complexo Viário” passou a aparecer bem mais no registro de toda a capital (de 5 a 26 sinistros por ano até 2023 ` +
+    `para 41 em 2024 e 71 em 2025). Tirando qualquer uma das vias, o efeito do conjunto fica entre ${difPct(um.efeito_min)} e ${difPct(um.efeito_max)}.`;
+  const t = $("tabela-fa");
+  t.innerHTML = `<thead><tr><th>Via</th><th class="num">Faixa desde</th><th class="num col-opc">Por ano, 2019–21</th>` +
+    `<th class="num">Depois</th><th class="num">Esperados</th><th class="num">Diferença</th><th class="num col-opc">Intervalo de 95%</th></tr></thead>`;
+  const tb = el("tbody");
+  fa.vias.forEach(v => tb.appendChild(el("tr", {},
+    `<td class="local"><b>${esc(v.nome)}</b>${v.km ? `<span class="mun">${fmt(v.km, v.km < 10 ? 1 : 0)} km de faixa</span>` : ""}</td>` +
+    `<td class="num">${mesCurto(v.inicio)}</td>` +
+    `<td class="num col-opc">${fmt(v.por_ano_antes, v.por_ano_antes < 10 ? 1 : 0)}</td><td class="num">${fmt(v.obs)}</td>` +
+    `<td class="num">${fmt(v.esp)}</td><td class="num">${v.esp ? difPct(v.obs / v.esp) : "—"}</td>` +
+    `<td class="num col-opc">${icPct(v.ic)}</td>`)));
+  t.appendChild(tb);
+  $("fa-fontes").innerHTML = `Datas de implantação: <a href="${fa.fontes[0].url}">CET</a>. Estudos citados: ` +
+    fa.fontes.slice(1).map(f => `<a href="${f.url}">${esc(f.titulo)}</a>`).join("; ") +
+    `. Como o efeito é medido: <a href="#perguntas">Sobre os dados</a>.`;
+  document.querySelectorAll(".fa-n-vias").forEach(s => { s.textContent = fa.n_vias; });
+  document.querySelectorAll(".fa-n-comp").forEach(s => { s.textContent = fmt(fa.n_comparacao); });
+  document.querySelectorAll(".fa-placebo").forEach(s => { s.textContent = `${fmt(100 * fa.placebo, 1)}%`; });
+}
+
+function desenhaFaixaAzul() {
+  graficoEventoFA();
+  grafMedidas($("graf-fa-medidas"), st.fa.desfechos);
+  grafVias($("graf-fa-vias"), st.fa.vias, st.faD.moto);
+}
+
+// uma linha por via, da maior diferença para a menor, em escala log; faixa vertical: o efeito do conjunto
+function grafVias(box, vias, conj) {
+  box.innerHTML = "";
+  const W = Math.max(280, box.clientWidth), estreito = W < 600;
+  const linha = estreito ? 40 : 27, cima = 26, base = 24;
+  const itens = vias.filter(v => v.esp > 0).map(v => ({ ...v, r: Math.max(v.obs, 0.5) / v.esp }))
+    .sort((a, b) => b.r - a.r);
+  const H = cima + itens.length * linha + base;
+  const colNome = estreito ? 0 : Math.min(300, Math.round(W * 0.34)), colVal = estreito ? 0 : 58;
+  const MIN = 1 / 3, MAX = 4;  // −67% a +300%; intervalos além disso terminam numa seta
+  const lo = Math.max(MIN, Math.min(...itens.map(v => v.ic[0]), conj.ic[0]) * 0.95);
+  const hi = Math.min(MAX, Math.max(...itens.map(v => v.ic[1]), conj.ic[1]) * 1.05);
+  const esq = colNome + 10, dir = colVal + 12, larg = W - esq - dir;
+  const X = r => esq + larg * (Math.log(Math.min(Math.max(r, lo), hi)) - Math.log(lo)) / (Math.log(hi) - Math.log(lo));
+  const svg = novoSvg(W, H, "Diferença em relação ao esperado sem a Faixa Azul em cada via, com intervalo de 95%");
+  [0.5, 0.75, 1, 1.5, 2, 3, 4].filter(t => t >= lo && t <= hi).forEach(t => {
+    const um = t === 1;
+    svg.appendChild(svgEl("line", { x1: X(t), x2: X(t), y1: cima - 4, y2: H - base, stroke: um ? COR.tinta2 : COR.grade }));
+    svg.appendChild(txt({ x: X(t), y: H - 7, "text-anchor": "middle", "font-size": 11, fill: COR.mudo }, difPct(t)));
+  });
+  const azul = COR_MODO["Motocicleta"];
+  svg.appendChild(svgEl("rect", { x: X(conj.ic[0]), width: X(conj.ic[1]) - X(conj.ic[0]), y: cima - 4, height: H - base - cima + 4,
+    fill: azul, "fill-opacity": 0.1 }));
+  svg.appendChild(svgEl("line", { x1: X(conj.efeito), x2: X(conj.efeito), y1: cima - 4, y2: H - base, stroke: azul, "stroke-dasharray": "4 3" }));
+  svg.appendChild(txt({ x: X(conj.efeito), y: 12, "text-anchor": "middle", "font-size": 11.5, fill: COR.tinta2 }, `conjunto: ${difPct(conj.efeito)}`));
+  const seta = (x, y, dir) => svgEl("path", { d: `M${x},${y - 4}L${x + 5 * dir},${y}L${x},${y + 4}Z`, fill: azul });
+  itens.forEach((v, k) => {
+    const y0 = cima + k * linha, yc = y0 + (estreito ? 28 : linha / 2);
+    if (estreito) svg.appendChild(txt({ x: 0, y: y0 + 12, "font-size": 12.5, fill: COR.tinta, "font-weight": 600, stroke: "#fff",
+      "stroke-width": 4, "paint-order": "stroke", "stroke-linejoin": "round" }, v.nome));
+    else svg.appendChild(txt({ x: colNome, y: yc + 4, "text-anchor": "end", "font-size": 12.5, fill: COR.tinta }, v.nome));
+    const a = X(v.ic[0]), b = X(v.ic[1]);
+    svg.appendChild(svgEl("line", { x1: a, x2: b, y1: yc, y2: yc, stroke: azul, "stroke-width": 2, "stroke-linecap": "round" }));
+    if (v.ic[0] < lo) svg.appendChild(seta(a, yc, -1));
+    if (v.ic[1] > hi) svg.appendChild(seta(b, yc, 1));
+    svg.appendChild(svgEl("circle", { cx: X(v.r), cy: yc, r: 4.5, fill: azul, stroke: "#fff", "stroke-width": 2 }));
+    svg.appendChild(txt(estreito ? { x: W, y: y0 + 12, "text-anchor": "end", "font-size": 12, fill: COR.tinta2 }
+      : { x: W, y: yc + 4, "text-anchor": "end", "font-size": 12, fill: COR.tinta2 }, difPct(v.r)));
+    const alvo = svgEl("rect", { x: 0, y: y0, width: W, height: linha, fill: "transparent" });
+    comDica(alvo, `<div class="t">${esc(v.nome)}</div><div class="sub">Faixa Azul desde ${anoMes(v.inicio)}` +
+      (v.km ? `; ${fmt(v.km, v.km < 10 ? 1 : 0)} km` : "") + `</div>` +
+      linhaDica(azul, difPct(v.r), "em relação ao esperado sem a faixa") +
+      `<div class="sub">intervalo de 95%: ${icPct(v.ic)}</div>` +
+      `<div class="sub">${plural(v.obs, "sinistro", "sinistros")} com motos depois da implantação; esperados: ${fmt(v.esp)}</div>` +
+      `<div class="sub">${fmt(v.por_ano_antes, v.por_ano_antes < 10 ? 1 : 0)} por ano em 2019–2021</div>`);
+    svg.appendChild(alvo);
+  });
+  box.appendChild(svg);
+}
+
+function graficoEventoFA() {
+  const k = st.faDesfecho, d = st.faD[k];
+  grafEvento($("graf-fa-evento"), st.fa.evento[k], { cor: k === "moto" ? COR_MODO["Motocicleta"] : COR.tinta2, nome: d.nome.toLowerCase(),
+    rotulo: `${d.nome}: diferença em relação ao esperado sem a Faixa Azul, por trimestre` });
+}
+
+// diferença observado/esperado por trimestre; antes e depois da implantação são linhas separadas (vêm de ajustes diferentes)
+function grafEvento(box, ev, o) {
+  box.innerHTML = "";
+  const W = Math.max(280, box.clientWidth), H = 250, cima = 22, base = 26;
+  const pts = ev.map(e => ({ q: e.trim, v: 100 * (e.razao - 1), lo: 100 * (e.ic[0] - 1), hi: 100 * (e.ic[1] - 1), obs: e.obs, esp: e.esp }));
+  const ext = Math.max(...pts.map(p => Math.max(Math.abs(p.hi), Math.abs(p.lo))));
+  const { passo } = escalaBonita(ext, 3);
+  const yTop = passo * Math.ceil(Math.max(...pts.map(p => p.hi)) / passo), yBot = passo * Math.floor(Math.min(...pts.map(p => p.lo), 0) / passo);
+  const rotY = v => (v > 0 ? "+" : v < 0 ? "−" : "") + fmt(Math.abs(v)) + "%";
+  const esq = 10 + Math.max(larguraTexto(rotY(yTop), 11), larguraTexto(rotY(yBot), 11)), dir = 8;
+  const svg = novoSvg(W, H, o.rotulo);
+  const larg = W - esq - dir, alt = H - cima - base, n = pts.length, passoX = larg / n;
+  const X = i => esq + (i + 0.5) * passoX, Y = v => cima + alt * (yTop - v) / (yTop - yBot);
+  for (let v = yBot; v <= yTop + 1e-9; v += passo) {
+    const zero = Math.abs(v) < 1e-9;
+    svg.appendChild(svgEl("line", { x1: esq, x2: W - dir, y1: Y(v), y2: Y(v), stroke: zero ? COR.tinta2 : COR.grade, "stroke-width": zero ? 1 : 1 }));
+    svg.appendChild(txt({ x: esq - 7, y: Y(v) + 4, "text-anchor": "end", "font-size": 11, fill: COR.mudo }, rotY(v)));
+  }
+  const i0 = pts.findIndex(p => p.q === 0), xi = esq + i0 * passoX;
+  svg.appendChild(svgEl("line", { x1: xi, x2: xi, y1: 6, y2: H - base, stroke: COR.mudo, "stroke-dasharray": "3 3" }));
+  svg.appendChild(txt({ x: xi + 6, y: 15, "font-size": 11.5, fill: COR.tinta2 }, "Faixa Azul →"));
+  svg.appendChild(txt({ x: xi - 6, y: 15, "font-size": 11.5, fill: COR.mudo, "text-anchor": "end" }, "← antes"));
+  pts.forEach((p, i) => {
+    const r = rotuloTrim(p.q, W < 480);
+    if (r) svg.appendChild(txt({ x: X(i), y: H - 7, "text-anchor": "middle", "font-size": 11, fill: COR.mudo }, r));
+  });
+  [pts.map((p, i) => [p, i]).filter(([p]) => p.q < 0), pts.map((p, i) => [p, i]).filter(([p]) => p.q >= 0)].forEach(trecho => {
+    const banda = trecho.map(([p, i], k) => `${k ? "L" : "M"}${X(i).toFixed(1)},${Y(p.hi).toFixed(1)}`).join("") +
+      [...trecho].reverse().map(([p, i]) => `L${X(i).toFixed(1)},${Y(p.lo).toFixed(1)}`).join("") + "Z";
+    svg.appendChild(svgEl("path", { d: banda, fill: o.cor, "fill-opacity": 0.14, stroke: "none" }));
+    svg.appendChild(svgEl("path", { d: trecho.map(([p, i], k) => `${k ? "L" : "M"}${X(i).toFixed(1)},${Y(p.v).toFixed(1)}`).join(""),
+      fill: "none", stroke: o.cor, "stroke-width": 2, "stroke-linejoin": "round" }));
+    trecho.forEach(([p, i]) => svg.appendChild(svgEl("circle", { cx: X(i), cy: Y(p.v), r: 4, fill: o.cor, stroke: "#fff", "stroke-width": 2 })));
+  });
+  const realce = svgEl("rect", { y: cima, height: alt, width: passoX, fill: COR.tinta, "fill-opacity": 0.05, visibility: "hidden" });
+  svg.insertBefore(realce, svg.firstChild);
+  pts.forEach((p, i) => {
+    const alvo = svgEl("rect", { x: esq + i * passoX, y: 0, width: passoX, height: H - base + 6, fill: "transparent" });
+    alvo.addEventListener("pointermove", ev2 => {
+      realce.setAttribute("x", esq + i * passoX); realce.setAttribute("visibility", "visible");
+      mostraDica(ev2, `<div class="t">${textoTrim(p.q)}</div>` + linhaDica(o.cor, rotY(Math.round(p.v)), p.v >= 0 ? "acima do esperado" : "abaixo do esperado") +
+        `<div class="sub">intervalo de 95%: ${rotY(Math.round(p.lo))} a ${rotY(Math.round(p.hi))}</div>` +
+        `<div class="sub">${plural(p.obs, "sinistro", "sinistros")} ${o.nome.replace(/^sinistros /, "")}; esperados: ${fmt(p.esp)}</div>`);
+    });
+    alvo.addEventListener("pointerleave", () => { realce.setAttribute("visibility", "hidden"); escondeDica(); });
+    svg.appendChild(alvo);
+  });
+  box.appendChild(svg);
+}
+
+// uma linha por medida: ponto (diferença) e intervalo de 95%; à direita, a diferença nos 12 meses antes
+function grafMedidas(box, ds) {
+  box.innerHTML = "";
+  const W = Math.max(280, box.clientWidth), estreito = W < 560;
+  const linha = estreito ? 62 : 44, cima = 6, base = 24, H = cima + ds.length * linha + base;
+  const colNome = estreito ? 0 : Math.min(250, Math.round(W * 0.36)), colPre = estreito ? 0 : 104;
+  const vals = ds.flatMap(d => [d.ic[0], d.ic[1]]).map(r => 100 * (r - 1));
+  const { passo } = escalaBonita(Math.max(...vals.map(Math.abs)), 3);
+  const lo = passo * Math.floor(Math.min(...vals, 0) / passo), hi = passo * Math.ceil(Math.max(...vals, 0) / passo);
+  const esq = colNome + 8, dir = colPre + 34, larg = W - esq - dir;
+  const X = v => esq + larg * (v - lo) / (hi - lo);
+  const rot = v => (v > 0 ? "+" : v < 0 ? "−" : "") + fmt(Math.abs(v)) + "%";
+  const svg = novoSvg(W, H, "Efeito da Faixa Azul em cada medida, com intervalo de 95%");
+  for (let v = lo; v <= hi + 1e-9; v += passo) {
+    const zero = Math.abs(v) < 1e-9;
+    svg.appendChild(svgEl("line", { x1: X(v), x2: X(v), y1: cima, y2: H - base, stroke: zero ? COR.tinta2 : COR.grade }));
+    svg.appendChild(txt({ x: X(v), y: H - 7, "text-anchor": "middle", "font-size": 11, fill: COR.mudo }, rot(v)));
+  }
+  if (!estreito) svg.appendChild(txt({ x: W - colPre / 2 - 4, y: H - 7, "text-anchor": "middle", "font-size": 11, fill: COR.mudo }, "antes"));
+  ds.forEach((d, k) => {
+    const y0 = cima + k * linha, yc = y0 + (estreito ? 40 : linha / 2);
+    const cor = d.id === "sem_moto" ? COR.tinta2 : COR_MODO["Motocicleta"];
+    const e = 100 * (d.efeito - 1), a = 100 * (d.ic[0] - 1), b = 100 * (d.ic[1] - 1), aviso = claro(d.ic_pre);
+    if (k) svg.appendChild(svgEl("line", { x1: 0, x2: W, y1: y0, y2: y0, stroke: COR.grade }));
+    const nome = txt({ x: 0, y: estreito ? y0 + 18 : yc - 2, "font-size": 13, fill: COR.tinta, "font-weight": 600,
+      stroke: "#fff", "stroke-width": 4, "paint-order": "stroke", "stroke-linejoin": "round" }, d.nome);  // o contorno separa o nome da grade
+    svg.appendChild(nome);
+    if (!estreito) svg.appendChild(txt({ x: 0, y: yc + 14, "font-size": 11.5, fill: COR.mudo }, d.id === "entorno_moto" ? "outras ruas a até ~400 m" : ""));
+    svg.appendChild(svgEl("line", { x1: X(a), x2: X(b), y1: yc, y2: yc, stroke: cor, "stroke-width": 2, "stroke-linecap": "round" }));
+    svg.appendChild(svgEl("circle", { cx: X(e), cy: yc, r: 5, fill: cor, stroke: "#fff", "stroke-width": 2 }));
+    svg.appendChild(txt({ x: X(b) + 7, y: yc + 4, "font-size": 12, fill: COR.tinta, "font-weight": 650 }, difPct(d.efeito)));
+    const pre = `${aviso ? "⚠ " : ""}${difPct(d.pre)}`;
+    svg.appendChild(txt(estreito ? { x: W, y: y0 + 18, "text-anchor": "end", "font-size": 12, fill: aviso ? "#7a4a00" : COR.mudo }
+      : { x: W - colPre / 2 - 4, y: yc + 4, "text-anchor": "middle", "font-size": 12, fill: aviso ? "#7a4a00" : COR.mudo, "font-weight": aviso ? 650 : 400 },
+      estreito ? `antes: ${pre}` : pre));
+    const alvo = svgEl("rect", { x: 0, y: y0, width: W, height: linha, fill: "transparent" });
+    comDica(alvo, `<div class="t">${esc(d.nome)}</div><div class="sub">${esc(d.desc)}</div>` +
+      linhaDica(cor, difPct(d.efeito, 1), "em relação ao esperado sem a faixa") +
+      `<div class="sub">intervalo de 95%: ${icPct(d.ic)}</div><div class="sub">${fmt(d.obs)} observados; ${fmt(d.esp)} esperados</div>` +
+      `<div class="sub">12 meses antes: ${difPct(d.pre)} (${icPct(d.ic_pre)})${aviso ? " — já mudava antes da faixa" : ""}</div>`);
+    svg.appendChild(alvo);
+  });
+  box.appendChild(svg);
 }
 
 // ------------------------------------------------------------------ município
@@ -1105,6 +1473,7 @@ function aplicaPeriodo() {
 
 function desenhaGraficosMun(m) {
   const P = periodo(), destaque = P.todo ? null : [P.a, P.b];
+  mudancaMun(m);
   quemMorre(m);
   idadeMun(m);
   horaDia(m);
@@ -1677,11 +2046,35 @@ function mostraVista(v) {
   $("vista-municipio").hidden = $("nav-municipio").hidden = v !== "municipio";
   document.documentElement.classList.toggle("em-municipio", v === "municipio");  // a barra do período também cobre o topo
   escondeDica();
-  if (v === "estado") {
-    document.title = "Onde acontecem os sinistros de trânsito em São Paulo";
-    if (!st.estadoDesenhado) { st.estadoDesenhado = true; desenhaGraficosEstado(); }
-    garanteMapaEstado();
-  } else if (mapaMun) { moveProg(); mapaMun.invalidateSize(); }
+  if (v === "estado") document.title = "Onde acontecem os sinistros de trânsito em São Paulo";
+  else if (mapaMun) { moveProg(); mapaMun.invalidateSize(); }
+}
+
+// telas do estado. O endereço de cada seção leva à tela dela (os endereços antigos, como #mudancas, continuam valendo)
+const TELA_DE = { "": "explorar", inicio: "explorar", municipios: "explorar", locais: "explorar",
+  analises: "analises", vitimas: "analises", letalidade: "analises",
+  mudou: "mudou", "faixa-azul": "mudou", mudancas: "mudou",
+  sobre: "sobre", contagens: "sobre", perguntas: "sobre" };
+const TOPO_DA_TELA = new Set(["", "inicio", "analises", "mudou", "sobre"]);
+const TITULO_TELA = { analises: "Análises", mudou: "O que mudou", sobre: "Sobre os dados" };
+
+function mostraTela(t, forca = false) {
+  const mudou = st.tela !== t;
+  st.tela = t;
+  document.querySelectorAll("#vista-estado > .tela").forEach(d => { d.hidden = d.dataset.tela !== t; });
+  document.querySelectorAll("#nav-estado a").forEach(a => {
+    if (a.dataset.tela === t) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  });
+  document.title = (TITULO_TELA[t] ? TITULO_TELA[t] + " · " : "") + "Onde acontecem os sinistros de trânsito em São Paulo";
+  if (mudou || forca) desenhaTela();
+}
+
+// os gráficos usam a largura da caixa: cada tela é (re)desenhada quando aparece
+function desenhaTela() {
+  escondeDica();
+  if (st.tela === "explorar") garanteMapaEstado();
+  desenhaGraficosEstado();
+  if (st.tela === "mudou" && st.interv) desenhaFaixaAzul();
 }
 
 // endereço do município: #<código IBGE> ou, com um período escolhido, #<código IBGE>/<primeiro ano>-<último ano>
@@ -1707,17 +2100,14 @@ function rota() {
     else if (vinhaDoEstado) { cabecalhoMunicipio(cod); scrollTo(0, 0); }
     return;
   }
-  if (h === "sobre") {  // o rodapé vale para as duas vistas
-    if (!st.vista) mostraVista("estado");
-    $("sobre").scrollIntoView();
-    return;
-  }
-  const voltando = st.vista === "municipio";
+  const alvo = h && !TOPO_DA_TELA.has(h) ? $(h) : null;
+  const tela = TELA_DE[h] || (alvo && alvo.closest(".tela") ? alvo.closest(".tela").dataset.tela : "explorar");
+  const voltando = st.vista === "municipio", mesmaTela = st.tela === tela;
   mostraVista("estado");
-  const alvo = h && h !== "inicio" ? $(h) : null;
+  mostraTela(tela, voltando);
   if (alvo && alvo.closest("#vista-estado")) alvo.scrollIntoView();
-  else if (h === "inicio" || !voltando) scrollTo(0, 0);
-  else scrollTo(0, st.rolagemEstado || 0);
+  else if (voltando && mesmaTela && h === "") scrollTo(0, st.rolagemEstado || 0);  // "← Estado": volta onde estava
+  else scrollTo(0, 0);
 }
 
 // ------------------------------------------------------------------ início
@@ -1733,6 +2123,7 @@ segmentado("seg-idade", v => { st.idadeGrupo = v; if (st.mun) idadeMun(st.mun); 
 segmentado("seg-locais-tipo", v => { st.locaisTipo = v; st.nLocais = 10; tabelaLocais(); });
 segmentado("seg-locais-ordem", v => { st.locaisOrdem = v; st.nLocais = 10; tabelaLocais(); });
 $("mais-locais").addEventListener("click", () => { st.nLocais = Math.min(50, st.nLocais + 15); tabelaLocais(); });
+$("mais-mudancas").addEventListener("click", () => { st.nMud += 15; tabelaMudancas(); });
 $("filtra-area").addEventListener("click", () => {
   const b = mapaMun.getBounds();
   if (b.contains(contornoMun.getBounds())) limpaArea(); else defineArea(b);
@@ -1754,16 +2145,27 @@ let larguraAnterior = innerWidth;
 addEventListener("resize", debounce(() => {
   if (innerWidth === larguraAnterior) return;
   larguraAnterior = innerWidth;
-  if (st.vista === "estado") desenhaGraficosEstado();
+  if (st.vista === "estado") desenhaTela();
   else if (st.mun) desenhaGraficosMun(st.mun);
 }, 150));
 
+
+// as intervenções vêm num arquivo à parte (a tela "O que mudou" desenha quando ele chega)
+const intervencoes = fetch("data/intervencoes.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null).catch(() => null);
 fetch("data/estado.json", { cache: "no-cache" }).then(r => r.json()).then(e => {
   st.estado = e;
   iniciaEstado();
   capa();
   historias();
   tabelaLocais();
+  iniciaMudancas();
+  tabelaMudancas();
+  intervencoes.then(iv => {
+    if (!iv) { $("faixa-azul").hidden = true; return; }
+    st.interv = iv;
+    iniciaFaixaAzul();
+    if (st.vista === "estado" && st.tela === "mudou") desenhaFaixaAzul();
+  });
   addEventListener("hashchange", rota);
   rota();
 });

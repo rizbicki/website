@@ -19,13 +19,12 @@
       <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#15181d"/><path d="M16 7 L25.5 23.5 H6.5 Z" fill="none" stroke="#ef6a33" stroke-width="3" stroke-linejoin="round"/></svg>
       <span>Sinistros de trânsito <b>SP</b></span>
     </a>
-    <nav class="topo-nav" id="nav-estado" aria-label="Seções">
-      <a href="#municipios">Municípios</a>
-      <a href="#locais">Locais<span class="so-largo"> críticos</span></a>
-      <a href="#vitimas">Vítimas</a>
-      <a href="#letalidade">Letalidade</a>
-      <a href="#contagens">Contagens</a>
-      <a href="#sobre">Sobre<span class="so-largo"> os dados</span></a>
+    <!-- telas do estado: cada uma tem a sua natureza (ferramenta, análises, avaliações, método) -->
+    <nav class="topo-nav telas" id="nav-estado" aria-label="Telas">
+      <a href="#inicio" data-tela="explorar">Explorar</a>
+      <a href="#analises" data-tela="analises">Análises</a>
+      <a href="#mudou" data-tela="mudou">O que mudou</a>
+      <a href="#sobre" data-tela="sobre">Sobre<span class="so-largo"> os dados</span></a>
     </nav>
     <!-- no município, os links rolam a página sem mudar o endereço (que guarda o município e o período) -->
     <nav class="topo-nav" id="nav-municipio" aria-label="Seções do município" hidden>
@@ -33,7 +32,7 @@
       <a href="#" data-secao="onde">Mapa<span class="so-largo"> e locais</span></a>
       <a href="#" data-secao="perfil">Quem morre</a>
       <a href="#" data-secao="frota">Frota</a>
-      <a href="#" data-secao="sobre">Sobre<span class="so-largo"> os dados</span></a>
+      <a href="#sobre">Sobre<span class="so-largo"> os dados</span></a>
     </nav>
     <div class="busca" data-busca>
       <svg class="lupa" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -47,6 +46,7 @@
 
 <!-- ======================================================== estado -->
 <div id="vista-estado">
+<div class="tela" data-tela="explorar">
 
   <section class="hero" id="inicio">
     <div class="hero-texto">
@@ -113,6 +113,15 @@
       <div class="rodape-tabela"><button type="button" class="botao" id="mais-locais">Mostrar mais</button></div>
     </div>
   </section>
+</div>  <!-- explorar -->
+
+<!-- ======================================================== análises -->
+<div class="tela" data-tela="analises" hidden>
+  <header class="tela-cab" id="analises">
+    <p class="sobretitulo">Estado de São Paulo · análises</p>
+    <h1>Quem morre no trânsito e o que torna um sinistro mais letal</h1>
+    <p class="lede">Os grupos com mais mortes, a frota de motos, a idade das vítimas e as condições em que um sinistro mata mais.</p>
+  </header>
 
   <section class="secao" id="vitimas">
     <div class="secao-cab">
@@ -129,6 +138,58 @@
     </div>
     <div class="historias" id="historias-letalidade"></div>
   </section>
+</div>
+
+<!-- ======================================================== o que mudou -->
+<div class="tela" data-tela="mudou" hidden>
+  <header class="tela-cab" id="mudou">
+    <p class="sobretitulo">Estado de São Paulo · avaliações</p>
+    <h1>O que mudou depois de intervenções no trânsito</h1>
+    <p class="lede">Medidas com data conhecida, comparadas com lugares parecidos que não as receberam, e os municípios em que as mortes mudaram de patamar.</p>
+  </header>
+
+  <section class="secao" id="faixa-azul">
+    <div class="secao-cab">
+      <h2>Faixa Azul nas avenidas da capital</h2>
+      <p id="fa-intro"></p>
+    </div>
+    <div class="historias" id="historias-fa"></div>
+    <div class="grade-fa">
+      <article class="cartao fa-texto" id="fa-outros"></article>
+      <article class="cartao fa-texto" id="fa-limites"></article>
+    </div>
+    <article class="cartao fa-vias">
+      <div class="cartao-cab"><div><h3>Via a via</h3><p class="nota" id="fa-vias-nota"></p></div></div>
+      <div class="grafico" id="graf-fa-vias"></div>
+      <p class="nota nota-graf" id="fa-vias-rodape"></p>
+      <details class="ver-tabela">
+        <summary>Ver em tabela</summary>
+        <div class="tabela-rolagem"><table class="tabela" id="tabela-fa"></table></div>
+      </details>
+    </article>
+    <p class="nota fa-fontes" id="fa-fontes"></p>
+  </section>
+
+  <section class="secao" id="mudancas">
+    <div class="secao-cab">
+      <h2>Onde as mortes mudaram</h2>
+      <p id="nota-mudancas"></p>
+    </div>
+    <div class="cartao sem-pad" id="cartao-mudancas">
+      <div class="tabela-rolagem"><table class="tabela tabela-mud" id="tabela-mudancas"></table></div>
+      <div class="rodape-tabela"><button type="button" class="botao" id="mais-mudancas">Mostrar mais</button></div>
+    </div>
+    <p class="nota nota-mud">Barras: sinistros fatais por ano (o último ano está incompleto). Tracejado: os esperados se o município tivesse acompanhado a tendência do resto do estado com a taxa de antes da mudança. A mudança é a razão entre os sinistros fatais e esse esperado, a partir do ano marcado. Ela não diz o que a causou; as notícias mostram o que foi feito no município na época, quando encontramos. Por que não há mudanças por cruzamento ou trecho de rodovia: veja Sobre os dados.</p>
+  </section>
+</div>
+
+<!-- ======================================================== sobre -->
+<div class="tela" data-tela="sobre" hidden>
+  <header class="tela-cab" id="sobre">
+    <p class="sobretitulo">Método</p>
+    <h1>Sobre os dados</h1>
+    <p class="lede">Como os números foram calculados, o que eles não mostram e como as duas fontes de mortes se comparam.</p>
+  </header>
 
   <section class="secao" id="contagens">
     <div class="secao-cab">
@@ -137,7 +198,77 @@
     </div>
     <div class="historias" id="historias-contagens"></div>
   </section>
-</div>
+
+  <section class="secao" id="perguntas">
+    <div class="secao-cab"><h2>Perguntas e respostas</h2></div>
+    <div class="perguntas">
+      <details>
+        <summary>O que conta como sinistro com vítimas?</summary>
+        <p>Os registros do Infosiga classificados como sinistro fatal (pelo menos um óbito em até 30 dias) ou não fatal (pelo menos um ferido). Ficam de fora as notificações sem boletim de ocorrência. Os sinistros não fatais só constam a partir de 2019; as mortes, a partir de 2015.</p>
+      </details>
+      <details>
+        <summary>Como os pontos críticos são encontrados?</summary>
+        <p>São os locais, com cerca de 100 m de diâmetro, que reúnem mais sinistros com vítimas nas vias urbanas. O nome é o do cruzamento do OpenStreetMap mais próximo (até 45 m) que contém a via onde ocorreu a maioria dos sinistros. Quando não há cruzamento, aparece a via com o número mais comum, ou o cruzamento mais próximo em até 150 m. O registro do Infosiga traz uma só via, por isso um sinistro num cruzamento pode estar registrado em qualquer uma das duas.</p>
+      </details>
+      <details>
+        <summary>Como são encontrados os municípios onde as mortes mudaram?</summary>
+        <p>Contamos os sinistros fatais (com pelo menos uma morte), e não as mortes, porque as mortes de um mesmo sinistro não são independentes: o sinistro de Taguaí em novembro de 2020, com 41 mortos, pareceria uma queda das mortes a partir de 2021. Para cada município com pelo menos 20 sinistros fatais desde 2017, procuramos o ano a partir do qual eles passaram a ser mais ou menos frequentes do que a tendência do resto do estado indicaria. Comparar com o resto do estado tira o que mudou em toda parte, como a queda de 2020 ou o ano incompleto. Cada ano de 2019 a 2025 é testado como início da mudança, com pelo menos dois anos antes e um e meio depois. A série começa em 2017 porque, em 2015 e 2016, parte dos sinistros fatais foi registrada no endereço do hospital onde a vítima morreu (como a Avenida Doutor Enéas de Carvalho Aguiar, 255, o Hospital das Clínicas de São Paulo), e 4% a 6% deles têm coordenada fora do município registrado, contra menos de 1% depois.</p>
+        <p>Para não confundir mudança com acaso, os sinistros fatais de cada ano seguem um modelo binomial negativo, que admite mais variação de um ano para outro do que o puro acaso (essa variação extra é estimada com todos os municípios, e é pequena). Como cada município é testado em vários anos, o valor-p vem de 20 mil simulações do município sem mudança, com o mesmo procedimento de escolher o ano mais extremo. Como são centenas de municípios, os valores-p passam pelo controle da taxa de falsas descobertas (Benjamini-Hochberg, 5%), e só ficam as mudanças de pelo menos 20% para menos ou 25% para mais. Ficam de fora os sinistros fatais sem endereço (5% a 8% por ano), porque o município deles é menos confiável: com eles, outros sete municípios teriam mudança, todas dependentes desses registros (em Guaratinguetá e Campinas, por exemplo, eram três por ano e somem a partir de 2020 e de 2025). <span id="nota-fdr"></span> Uma mudança não diz o que a causou: pode ser uma política de trânsito, uma obra, mas também uma mudança no movimento das vias ou na população. As notícias junto de alguns municípios foram buscadas à mão e mostram o que foi feito ali na época.</p>
+      </details>
+      <details>
+        <summary>Como o efeito da Faixa Azul é medido?</summary>
+        <p>Contamos os sinistros com vítimas de cada via da capital, mês a mês desde janeiro de 2019, pelo nome da via no registro. As grafias da mesma via são juntadas (“Jacu Pêssego” e “Jacupêssego”, “Governador Carvalho Pinto” e “Carvalho Pinto”), e os acessos e retornos contam na via, porque a partir de 2024 o registro quase deixou de usar “Acesso” e “Retorno” no nome (eram 500 a 800 sinistros por ano na capital até 2023). As vias com Faixa Azul são as <span class="fa-n-vias">—</span> da lista da CET implantadas de janeiro de 2022 a outubro de 2024, cada uma com a sua data. Ficam de fora a Avenida das Nações Unidas (registrada como Marginal Pinheiros, sem separar pista local e expressa), o Túnel Ayrton Senna (confunde-se com a rodovia) e trechos de menos de 1 km em vias longas. A comparação são as <span class="fa-n-comp">—</span> avenidas da capital com pelo menos 2 km (OpenStreetMap) e 10 sinistros com vítimas por ano antes de 2022 que não receberam a faixa, sem as marginais e as rodovias.</p>
+        <p>Cada via tem um nível próprio de sinistros, e cada mês um fator comum a todas as vias (modelo de Poisson com efeito de via e de mês). Os dois são estimados só com o que a faixa não afetou: as avenidas de comparação e os meses de cada via antes da implantação. O esperado sem a faixa, em cada via e mês depois da implantação, é o nível da via vezes o fator do mês, e o efeito é a soma dos sinistros observados dividida pela soma dos esperados (estimador de imputação de Borusyak, Jaravel e Spiess). Assim, como as datas variam de via para via, nenhuma via que já tinha a faixa serve de comparação para outra. O mês da implantação e o seguinte ficam de fora. Os intervalos de 95% vêm de 1.000 reamostragens das vias (bootstrap), que levam em conta a variação de cada via além do acaso.</p>
+        <p>Três verificações. Tendência antes: os 12 meses anteriores à implantação são retirados do ajuste e comparados com o esperado; se as vias com faixa já estivessem se afastando das demais, a diferença apareceria ali. Placebo: sorteando datas de implantação entre as avenidas de comparação, <span class="fa-placebo">—</span> dos sorteios dão uma diferença tão grande quanto a observada nos sinistros com motos. Robustez: o resultado se mantém sem 2020, sem as duas primeiras vias, só com avenidas de comparação do porte das tratadas, só até 2025 e tirando uma via de cada vez. O entorno são os sinistros em outras ruas a até cerca de 400 m (um anel de hexágonos H3 de resolução 9) dos trechos onde a via tinha sinistros antes de 2023.</p>
+      </details>
+      <details>
+        <summary>Por que não há mudanças por cruzamento ou trecho de rodovia?</summary>
+        <p>Porque o Infosiga mudou a forma de registrar o local dos sinistros a partir de 2023: a geocodificação (aparecem nos endereços códigos do Google Maps), a grafia e o número dos endereços (“Avenida Vinte e Três de Maio” virou “Avenida 23 de Maio”) e, em 2025, a classificação das rodovias (parte dos sinistros na Raposo Tavares passou a vir como via urbana, sem o código SP-270). Isso tira sinistros de um local e os põe em outro sem que nada tenha mudado na rua. <span id="nota-mud-sobre"></span> Com essa variação, as maiores “mudanças” por local são quase todas efeito do registro (locais que zeram em 2025 ou surgem do nada), e por isso o site não as mostra. O município do sinistro não depende dessas mudanças.</p>
+      </details>
+      <details>
+        <summary>E os trechos de rodovia?</summary>
+        <p>Agrupam os sinistros por rodovia e km (o número do logradouro é o km). Kms incompatíveis com o trecho da rodovia que passa pelo município foram descartados. As marginais (SP-015) não entram, porque não têm km.</p>
+      </details>
+      <details>
+        <summary>Todo sinistro aparece no mapa?</summary>
+        <p><span id="nota-qualidade"></span> Esses sinistros entram nos totais e nas listas de vias e rodovias, mas não no mapa nem nos pontos críticos. Quando a maioria dos sinistros de um ponto está numa única coordenada, ele é marcado como local aproximado.</p>
+      </details>
+      <details>
+        <summary>Como as taxas são calculadas?</summary>
+        <p>São médias anuais de <span class="anos-taxa"></span>, divididas pela população do Censo 2022 (IBGE) e pela frota de dezembro de 2025 (Senatran). Em municípios pequenos, poucos casos mudam muito a taxa. As mortes contam o local do sinistro, não a residência da vítima: municípios cortados por rodovias movimentadas têm taxas altas sem que o risco seja dos moradores.</p>
+      </details>
+      <details>
+        <summary>Como são calculadas as taxas por idade?</summary>
+        <p>As mortes de cada faixa etária, por ano, são divididas pela população da mesma faixa no Censo 2022 (IBGE). A idade não foi registrada em <span id="sem-idade">—</span> das mortes de <span class="anos-taxa"></span>; essas mortes foram distribuídas entre as faixas na mesma proporção das demais, o que supõe que a falta de registro não depende da idade. A distribuição por idade (% das mortes) usa só as mortes com idade registrada. Num município, a taxa compara mortes ocorridas ali (de moradores ou não) com a população que mora ali; com poucas mortes, ela varia muito de um período para outro.</p>
+      </details>
+      <details>
+        <summary>Dá para comparar municípios?</summary>
+        <p>Com cuidado. Os sinistros não fatais dependem do registro policial, que varia entre municípios. As mortes são a comparação mais confiável.</p>
+      </details>
+      <details>
+        <summary>De onde vem o limite de velocidade?</summary>
+        <p>Do OpenStreetMap (etiqueta <i>maxspeed</i>). Cada sinistro com local preciso recebe o limite do trecho mais próximo da mesma via, a até 40 m (100 m nas rodovias, onde a coordenada costuma ser a do km). O limite está registrado em quase todas as rodovias, em parte das avenidas e em poucas ruas locais, por isso só <span id="cobertura-vmax">—</span> dos sinistros com local preciso têm limite conhecido. O limite é o da via hoje, não necessariamente o da data do sinistro.</p>
+      </details>
+      <details>
+        <summary>Como a frota entra nas contas?</summary>
+        <p>A frota é a registrada pela Senatran em dezembro de cada ano, por município e tipo de veículo. Ela inclui veículos que já não circulam e não diz quanto cada um roda, por isso as taxas por veículo comparam frotas, não exposição ao risco. Os automóveis do Infosiga incluem picapes, SUVs e utilitários, e foram comparados com essas categorias somadas na frota. A frota de 2015 só é publicada num formato que o projeto não lê, por isso as séries por frota começam em 2016.</p>
+      </details>
+      <details>
+        <summary>Por que o Ministério da Saúde registra menos mortes?</summary>
+        <p>O SIM parte da declaração de óbito e conta a morte no município onde ela ocorreu (muitas vezes o do hospital), sem limite de tempo depois do sinistro. O Infosiga parte do sinistro, conta a morte no local do sinistro e acompanha as vítimas por 30 dias. Por isso a comparação é feita para a capital e para os demais municípios somados, e não município a município. Entram no SIM as mortes com causa básica de acidente de transporte terrestre (CID-10 V01 a V89). Quando a declaração não diz como a lesão aconteceu, a morte vai para "intenção indeterminada" (Y10 a Y34) e deixa de aparecer como acidente de transporte. Os dados do SIM do último ano são preliminares.</p>
+      </details>
+      <details>
+        <summary>De onde vêm os nomes e o comprimento das vias?</summary>
+        <p>Os nomes foram padronizados (abreviações, acentos, preposições) e, quando a via existe no OpenStreetMap, aparece o nome de lá. O comprimento de cada via no município também vem do OpenStreetMap; vias longas acumulam mais sinistros só por serem longas, e a medida por km corrige isso.</p>
+      </details>
+      <details>
+        <summary>E as imagens dos locais?</summary>
+        <p>As imagens de satélite (Esri World Imagery) aparecem junto dos pontos críticos e dos trechos de rodovia, centradas no local, com o mesmo círculo do mapa: cerca de 100 m de diâmetro nos pontos e 500 m de raio em torno do km nas rodovias. No mapa de cada município, o botão Street View mostra o panorama do Google mais próximo da coordenada. Pontos com local aproximado ficam sem imagem. A data das fotos varia e pode não mostrar a via como está hoje.</p>
+      </details>
+    </div>
+  </section>
+</div>  <!-- sobre -->
+</div>  <!-- vista-estado -->
 
 <!-- ======================================================== município -->
 <div id="vista-municipio" hidden>
@@ -162,6 +293,8 @@
     <h2 class="titulo-pequeno">Em resumo</h2>
     <ul id="destaques"></ul>
   </section>
+
+  <section class="cartao mudanca-mun" id="mudanca-mun" hidden></section>
 
   <section class="secao" id="onde">
     <div class="secao-cab">
@@ -248,63 +381,9 @@
 </div>
 </main>
 
-<!-- ======================================================== sobre -->
-<footer class="sobre" id="sobre">
-  <div class="sobre-in">
-    <div class="secao-cab">
-      <h2>Sobre os dados</h2>
-      <p>Como os números foram calculados e o que eles não mostram.</p>
-    </div>
-    <div class="perguntas">
-      <details>
-        <summary>O que conta como sinistro com vítimas?</summary>
-        <p>Os registros do Infosiga classificados como sinistro fatal (pelo menos um óbito em até 30 dias) ou não fatal (pelo menos um ferido). Ficam de fora as notificações sem boletim de ocorrência. Os sinistros não fatais só constam a partir de 2019; as mortes, a partir de 2015.</p>
-      </details>
-      <details>
-        <summary>Como os pontos críticos são encontrados?</summary>
-        <p>São os locais, com cerca de 100 m de diâmetro, que reúnem mais sinistros com vítimas nas vias urbanas. O nome é o do cruzamento do OpenStreetMap mais próximo (até 45 m) que contém a via onde ocorreu a maioria dos sinistros. Quando não há cruzamento, aparece a via com o número mais comum, ou o cruzamento mais próximo em até 150 m. O registro do Infosiga traz uma só via, por isso um sinistro num cruzamento pode estar registrado em qualquer uma das duas.</p>
-      </details>
-      <details>
-        <summary>E os trechos de rodovia?</summary>
-        <p>Agrupam os sinistros por rodovia e km (o número do logradouro é o km). Kms incompatíveis com o trecho da rodovia que passa pelo município foram descartados. As marginais (SP-015) não entram, porque não têm km.</p>
-      </details>
-      <details>
-        <summary>Todo sinistro aparece no mapa?</summary>
-        <p><span id="nota-qualidade"></span> Esses sinistros entram nos totais e nas listas de vias e rodovias, mas não no mapa nem nos pontos críticos. Quando a maioria dos sinistros de um ponto está numa única coordenada, ele é marcado como local aproximado.</p>
-      </details>
-      <details>
-        <summary>Como as taxas são calculadas?</summary>
-        <p>São médias anuais de <span class="anos-taxa"></span>, divididas pela população do Censo 2022 (IBGE) e pela frota de dezembro de 2025 (Senatran). Em municípios pequenos, poucos casos mudam muito a taxa. As mortes contam o local do sinistro, não a residência da vítima: municípios cortados por rodovias movimentadas têm taxas altas sem que o risco seja dos moradores.</p>
-      </details>
-      <details>
-        <summary>Como são calculadas as taxas por idade?</summary>
-        <p>As mortes de cada faixa etária, por ano, são divididas pela população da mesma faixa no Censo 2022 (IBGE). A idade não foi registrada em <span id="sem-idade">—</span> das mortes de <span class="anos-taxa"></span>; essas mortes foram distribuídas entre as faixas na mesma proporção das demais, o que supõe que a falta de registro não depende da idade. A distribuição por idade (% das mortes) usa só as mortes com idade registrada. Num município, a taxa compara mortes ocorridas ali (de moradores ou não) com a população que mora ali; com poucas mortes, ela varia muito de um período para outro.</p>
-      </details>
-      <details>
-        <summary>Dá para comparar municípios?</summary>
-        <p>Com cuidado. Os sinistros não fatais dependem do registro policial, que varia entre municípios. As mortes são a comparação mais confiável.</p>
-      </details>
-      <details>
-        <summary>De onde vem o limite de velocidade?</summary>
-        <p>Do OpenStreetMap (etiqueta <i>maxspeed</i>). Cada sinistro com local preciso recebe o limite do trecho mais próximo da mesma via, a até 40 m (100 m nas rodovias, onde a coordenada costuma ser a do km). O limite está registrado em quase todas as rodovias, em parte das avenidas e em poucas ruas locais, por isso só <span id="cobertura-vmax">—</span> dos sinistros com local preciso têm limite conhecido. O limite é o da via hoje, não necessariamente o da data do sinistro.</p>
-      </details>
-      <details>
-        <summary>Como a frota entra nas contas?</summary>
-        <p>A frota é a registrada pela Senatran em dezembro de cada ano, por município e tipo de veículo. Ela inclui veículos que já não circulam e não diz quanto cada um roda, por isso as taxas por veículo comparam frotas, não exposição ao risco. Os automóveis do Infosiga incluem picapes, SUVs e utilitários, e foram comparados com essas categorias somadas na frota. A frota de 2015 só é publicada num formato que o projeto não lê, por isso as séries por frota começam em 2016.</p>
-      </details>
-      <details>
-        <summary>Por que o Ministério da Saúde registra menos mortes?</summary>
-        <p>O SIM parte da declaração de óbito e conta a morte no município onde ela ocorreu (muitas vezes o do hospital), sem limite de tempo depois do sinistro. O Infosiga parte do sinistro, conta a morte no local do sinistro e acompanha as vítimas por 30 dias. Por isso a comparação é feita para a capital e para os demais municípios somados, e não município a município. Entram no SIM as mortes com causa básica de acidente de transporte terrestre (CID-10 V01 a V89). Quando a declaração não diz como a lesão aconteceu, a morte vai para "intenção indeterminada" (Y10 a Y34) e deixa de aparecer como acidente de transporte. Os dados do SIM do último ano são preliminares.</p>
-      </details>
-      <details>
-        <summary>De onde vêm os nomes e o comprimento das vias?</summary>
-        <p>Os nomes foram padronizados (abreviações, acentos, preposições) e, quando a via existe no OpenStreetMap, aparece o nome de lá. O comprimento de cada via no município também vem do OpenStreetMap; vias longas acumulam mais sinistros só por serem longas, e a medida por km corrige isso.</p>
-      </details>
-      <details>
-        <summary>E as imagens dos locais?</summary>
-        <p>As imagens de satélite (Esri World Imagery) aparecem junto dos pontos críticos e dos trechos de rodovia, centradas no local, com o mesmo círculo do mapa: cerca de 100 m de diâmetro nos pontos e 500 m de raio em torno do km nas rodovias. No mapa de cada município, o botão Street View mostra o panorama do Google mais próximo da coordenada. Pontos com local aproximado ficam sem imagem. A data das fotos varia e pode não mostrar a via como está hoje.</p>
-      </details>
-    </div>
+<!-- ======================================================== rodapé -->
+<footer class="rodape">
+  <div class="rodape-in">
     <p class="creditos-finais">Dados: <a href="https://infosiga.detran.sp.gov.br/">Infosiga SP</a>, <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="https://www.ibge.gov.br/">IBGE</a>, <a href="https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-2025">Senatran</a> e <a href="https://datasus.saude.gov.br/mortalidade-desde-1996-pela-cid-10">DATASUS (SIM)</a>. Imagens de satélite: Esri, Maxar, Earthstar Geographics. Imagens de rua: Google Street View. Análise: Rafael Izbicki.</p>
   </div>
 </footer>

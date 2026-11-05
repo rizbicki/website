@@ -67,6 +67,7 @@ button { font: inherit; color: inherit; }
 .topo-nav { display: flex; gap: 4px; }
 .topo-nav a { text-decoration: none; color: var(--tinta-2); font-size: 14.5px; padding: 6px 10px; border-radius: 8px; white-space: nowrap; }
 .topo-nav a:hover { color: var(--tinta); background: var(--realce); }
+.topo-nav.telas a[aria-current] { color: var(--tinta); font-weight: 650; background: var(--realce); box-shadow: inset 0 -2px 0 var(--sin); }
 .topo .busca { margin-left: auto; width: 280px; }
 
 /* ==========================================================================
@@ -321,6 +322,25 @@ figcaption.com-controle { display: flex; flex-wrap: wrap; justify-content: space
 .item.com-foto { grid-template-columns: 26px 72px 1fr auto; }
 .item.com-foto .miniatura { grid-row: 1 / span 3; grid-column: 2; }
 .item.com-foto .barra, .item.com-foto .det { grid-column: 3 / -1; }
+/* mudanças persistentes nas mortes: tabela do estado e cartão do município */
+.var-mud.queda { color: var(--bom); }
+.var-mud.alta { color: var(--ruim); }
+.graf-mud { display: block; overflow: visible; font-family: var(--fonte); }
+.noticias { margin-top: 6px; font-size: 12.5px; line-height: 1.4; }
+.noticias b { display: block; color: var(--mudo); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.noticias a { display: block; color: var(--tinta-2); font-weight: 550; margin-top: 3px; }
+.noticias span { display: block; color: var(--mudo); }
+.tabela .sub { display: block; font-size: 12px; color: var(--mudo); font-weight: 400; margin-top: 2px; }
+.tabela .var-mud { font-weight: 750; font-size: 16px; }
+.tabela td.vazia { color: var(--mudo); text-align: center; padding: 24px; cursor: default; }
+.tabela-mud .grafico-celula { width: 248px; }
+.mudanca-mun { margin-top: 16px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: 12px 32px; align-items: center; }
+.mudanca-mun p { margin-top: 8px; font-size: 15.5px; line-height: 1.5; color: var(--tinta-2); }
+.mudanca-mun p .var-mud { font-weight: 750; font-size: 22px; margin-right: 4px; }
+.mudanca-mun p.nota { font-size: 13px; color: var(--mudo); }
+.mudanca-mun .legenda-serie { margin: 8px 0 0; font-size: 12.5px; }
+.tabela-mud .local .noticias { max-width: 420px; }
+.nota-mud { margin-top: 10px; max-width: 900px; }
 .lista .vazia-lista { padding: 24px 12px; color: var(--mudo); font-size: 14px; text-align: center; }
 
 /* 2 × 2: quem morre e idade em cima, dia × hora e ano a ano embaixo */
@@ -377,10 +397,34 @@ figcaption.com-controle { display: flex; flex-wrap: wrap; justify-content: space
 .marcador-grupo.ativo { background: var(--sin); }
 
 /* ==========================================================================
-   Sobre (rodapé)
+   Telas do estado (Explorar, Análises, O que mudou, Sobre os dados)
    ========================================================================== */
-.sobre { margin-top: 88px; background: var(--superficie); border-top: 1px solid var(--linha); }
-.sobre-in { max-width: var(--largura); margin: 0 auto; padding: 56px 24px 48px; }
+.tela-cab { padding-top: 56px; max-width: 860px; }
+.tela-cab h1 { font-size: clamp(30px, 3.8vw, 44px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.06; text-wrap: balance; }
+.tela-cab .lede { margin-bottom: 0; }
+.tela-cab + .secao { margin-top: 48px; }
+
+/* Faixa Azul */
+.controles-graf { margin: 0 0 10px; }
+.grade-fa { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 20px; }
+.fa-texto h3 { font-size: 17px; font-weight: 650; margin-bottom: 10px; }
+.fa-texto p { color: var(--tinta-2); font-size: 15px; }
+.fa-texto p + p { margin-top: 10px; }
+.fa-texto b { color: var(--tinta); }
+.fa-vias { margin-top: 20px; }
+.ver-tabela { margin-top: 14px; border-top: 1px solid var(--linha); }
+.ver-tabela summary { cursor: pointer; padding: 12px 0 4px; font-size: 14px; font-weight: 600; color: var(--tinta-2); }
+.ver-tabela summary:hover { color: var(--tinta); }
+.ver-tabela .tabela-rolagem { margin-top: 8px; }
+.fa-fontes { margin-top: 14px; max-width: 860px; }
+.fa-fontes a { color: var(--tinta-2); }
+
+/* ==========================================================================
+   Perguntas e rodapé
+   ========================================================================== */
+.rodape { margin-top: 88px; background: var(--superficie); border-top: 1px solid var(--linha); }
+.rodape-in { max-width: var(--largura); margin: 0 auto; padding: 24px 24px 32px; }
+.rodape .creditos-finais { margin-top: 0; padding-top: 0; border-top: 0; }
 .perguntas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 40px; margin-top: 8px; }
 .perguntas details { border-top: 1px solid var(--linha); }
 .perguntas summary { list-style: none; cursor: pointer; padding: 15px 30px 15px 0; font-weight: 600; font-size: 15.5px; position: relative; }
@@ -423,9 +467,10 @@ figcaption.com-controle { display: flex; flex-wrap: wrap; justify-content: space
   .so-largo { display: none; }
   .topo-nav::-webkit-scrollbar { display: none; }
   #vista-estado, #vista-municipio { padding: 0 16px 16px; }
-  .sobre-in { padding: 44px 16px 36px; }
+  .rodape-in { padding: 20px 16px 28px; }
+  .tela-cab { padding-top: 32px; }
   .hero { grid-template-columns: 1fr; padding-top: 32px; gap: 28px; }
-  .grade-estado, .painel-mapa, .historia, .perguntas { grid-template-columns: 1fr; }
+  .grade-estado, .painel-mapa, .historia, .perguntas, .grade-fa { grid-template-columns: 1fr; }
   .historia { gap: 14px; }
   .ranking ol { flex: none; height: auto; max-height: 420px; }
   .mapa-col { border-right: 0; border-bottom: 1px solid var(--linha); }
@@ -434,6 +479,7 @@ figcaption.com-controle { display: flex; flex-wrap: wrap; justify-content: space
   .resumo ul { grid-template-columns: 1fr; }
   .secao { margin-top: 56px; }
   .grade-graficos { grid-template-columns: 1fr; }
+  .mudanca-mun { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
   .periodo-rot { display: none; }
