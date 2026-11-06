@@ -230,10 +230,16 @@ figcaption.com-controle { display: flex; flex-wrap: wrap; justify-content: space
 .multiplos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
 .multiplos h4 { margin: 0 0 4px; font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 7px; }
 .multiplos h4 i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
-.multiplos.dois { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
 .multiplos.quatro { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 28px; }
-.multiplos.dois h4 { font-weight: 600; color: var(--tinta-2); margin-bottom: 8px; }
 .historia .nota-graf { margin-top: 10px; }
+/* par: o mesmo número sem e com normalização, lado a lado, com o texto em cima */
+.historia.par { grid-template-columns: minmax(0, 1fr); gap: 22px; align-items: start; }
+.historia.par .historia-texto { display: flex; gap: 28px; align-items: flex-start; }
+.historia.par .historia-texto .grande { flex: none; min-width: 120px; }
+.historia.par .historia-texto p { margin-top: 0; max-width: 82ch; }
+.par-graficos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto auto; gap: 0 36px; }
+.par-graficos figure { display: grid; grid-template-rows: subgrid; grid-row: span 2; }
+.historia.par .nota-graf { margin-top: -8px; }
 
 .grafico svg { display: block; overflow: visible; }
 .grafico svg text { font-family: var(--fonte); }
@@ -251,7 +257,7 @@ figcaption.com-controle { display: flex; flex-wrap: wrap; justify-content: space
 .mun-meta span + span::before { content: "·"; margin: 0 8px; color: var(--linha-2); }
 
 /* período escolhido: fica preso abaixo do topo enquanto se rola a página do município */
-.periodo { position: sticky; top: var(--topo); z-index: 20; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
+.periodo { position: sticky; top: var(--topo); z-index: 20; display: flex; align-items: center; gap: 6px 16px;
   margin: 18px -12px 0; padding: 10px 12px; background: var(--fundo); border-radius: 0 0 12px 12px;
   box-shadow: 0 -8px 0 var(--fundo); }  /* cobre a fresta entre o topo e a barra */
 .periodo-rot { font-size: 13px; font-weight: 650; text-transform: uppercase; letter-spacing: .06em; color: var(--mudo); margin-right: 2px; }
@@ -259,7 +265,13 @@ figcaption.com-controle { display: flex; flex-wrap: wrap; justify-content: space
   border: 1px solid var(--linha-2); border-radius: 9px; padding: 6px 8px; }
 .periodo-todo { border: 0; background: none; color: var(--tinta-2); font-size: 13.5px; font-weight: 500; text-decoration: underline;
   text-underline-offset: 2px; cursor: pointer; padding: 4px; }
-.periodo .nota { margin-left: 8px; flex: 1; min-width: 260px; }
+.periodo-ctl { display: flex; align-items: center; gap: 6px 10px; flex: none; margin-left: auto; }
+.periodo-nota { margin-top: 4px; max-width: 90ch; }
+/* seções do município: rolam na horizontal quando não cabem */
+.sub-nav { display: flex; gap: 2px; min-width: 0; overflow-x: auto; scrollbar-width: none; margin-left: -10px; }
+.sub-nav::-webkit-scrollbar { display: none; }
+.sub-nav a { text-decoration: none; color: var(--tinta-2); font-size: 14.5px; font-weight: 550; padding: 6px 10px; border-radius: 8px; white-space: nowrap; }
+.sub-nav a:hover { color: var(--tinta); background: var(--realce); }
 
 .kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
 .kpi { background: var(--superficie); border: 1px solid var(--linha); border-radius: var(--raio); padding: 16px 18px; box-shadow: var(--sombra); }
@@ -322,25 +334,8 @@ figcaption.com-controle { display: flex; flex-wrap: wrap; justify-content: space
 .item.com-foto { grid-template-columns: 26px 72px 1fr auto; }
 .item.com-foto .miniatura { grid-row: 1 / span 3; grid-column: 2; }
 .item.com-foto .barra, .item.com-foto .det { grid-column: 3 / -1; }
-/* mudanças persistentes nas mortes: tabela do estado e cartão do município */
-.var-mud.queda { color: var(--bom); }
-.var-mud.alta { color: var(--ruim); }
-.graf-mud { display: block; overflow: visible; font-family: var(--fonte); }
-.noticias { margin-top: 6px; font-size: 12.5px; line-height: 1.4; }
-.noticias b { display: block; color: var(--mudo); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
-.noticias a { display: block; color: var(--tinta-2); font-weight: 550; margin-top: 3px; }
-.noticias span { display: block; color: var(--mudo); }
 .tabela .sub { display: block; font-size: 12px; color: var(--mudo); font-weight: 400; margin-top: 2px; }
-.tabela .var-mud { font-weight: 750; font-size: 16px; }
 .tabela td.vazia { color: var(--mudo); text-align: center; padding: 24px; cursor: default; }
-.tabela-mud .grafico-celula { width: 248px; }
-.mudanca-mun { margin-top: 16px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: 12px 32px; align-items: center; }
-.mudanca-mun p { margin-top: 8px; font-size: 15.5px; line-height: 1.5; color: var(--tinta-2); }
-.mudanca-mun p .var-mud { font-weight: 750; font-size: 22px; margin-right: 4px; }
-.mudanca-mun p.nota { font-size: 13px; color: var(--mudo); }
-.mudanca-mun .legenda-serie { margin: 8px 0 0; font-size: 12.5px; }
-.tabela-mud .local .noticias { max-width: 420px; }
-.nota-mud { margin-top: 10px; max-width: 900px; }
 .lista .vazia-lista { padding: 24px 12px; color: var(--mudo); font-size: 14px; text-align: center; }
 
 /* 2 × 2: quem morre e idade em cima, dia × hora e ano a ano embaixo */
@@ -397,7 +392,7 @@ figcaption.com-controle { display: flex; flex-wrap: wrap; justify-content: space
 .marcador-grupo.ativo { background: var(--sin); }
 
 /* ==========================================================================
-   Telas do estado (Explorar, Análises, O que mudou, Sobre os dados)
+   Telas do estado (Explorar, Análises, Intervenções, Sobre os dados)
    ========================================================================== */
 .tela-cab { padding-top: 56px; max-width: 860px; }
 .tela-cab h1 { font-size: clamp(30px, 3.8vw, 44px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.06; text-wrap: balance; }
@@ -412,6 +407,10 @@ figcaption.com-controle { display: flex; flex-wrap: wrap; justify-content: space
 .fa-texto p + p { margin-top: 10px; }
 .fa-texto b { color: var(--tinta); }
 .fa-vias { margin-top: 20px; }
+.fa-largo { margin-top: 20px; }
+.fa-largo p { max-width: 75ch; }
+.tabela td.nowrap { white-space: nowrap; }
+.grade-fa > * { min-width: 0; }
 .ver-tabela { margin-top: 14px; border-top: 1px solid var(--linha); }
 .ver-tabela summary { cursor: pointer; padding: 12px 0 4px; font-size: 14px; font-weight: 600; color: var(--tinta-2); }
 .ver-tabela summary:hover { color: var(--tinta); }
@@ -459,7 +458,7 @@ figcaption.com-controle { display: flex; flex-wrap: wrap; justify-content: space
 }
 @media (max-width: 900px) {
   :root { --topo: 104px; }
-  .periodo .nota { display: none; }
+  .periodo-nota { display: none; }
   .topo-in { flex-wrap: wrap; height: auto; padding: 10px 16px 0; gap: 8px 16px; }
   .topo .busca { width: auto; flex: 1; min-width: 160px; }
   .topo-nav { order: 3; width: 100%; overflow-x: auto; margin: 0 -6px; padding-bottom: 6px; scrollbar-width: none;
@@ -472,6 +471,10 @@ figcaption.com-controle { display: flex; flex-wrap: wrap; justify-content: space
   .hero { grid-template-columns: 1fr; padding-top: 32px; gap: 28px; }
   .grade-estado, .painel-mapa, .historia, .perguntas, .grade-fa { grid-template-columns: 1fr; }
   .historia { gap: 14px; }
+  .par-graficos { grid-template-columns: 1fr; gap: 24px; }
+  .par-graficos figure { grid-row: auto; display: block; }
+  .historia.par .historia-texto { display: block; }
+  .historia.par .historia-texto p { margin-top: 12px; }
   .ranking ol { flex: none; height: auto; max-height: 420px; }
   .mapa-col { border-right: 0; border-bottom: 1px solid var(--linha); }
   #mapa-municipio { height: 460px; }
@@ -479,10 +482,13 @@ figcaption.com-controle { display: flex; flex-wrap: wrap; justify-content: space
   .resumo ul { grid-template-columns: 1fr; }
   .secao { margin-top: 56px; }
   .grade-graficos { grid-template-columns: 1fr; }
-  .mudanca-mun { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
   .periodo-rot { display: none; }
+  .periodo { flex-wrap: wrap; padding-top: 6px; }
+  .sub-nav { flex: 1 0 100%; }
+  .periodo-ctl { margin-left: 0; }
+  html.em-municipio { scroll-padding-top: calc(var(--topo) + 112px); }
   .periodo select { font-size: 14px; padding: 5px 4px; }
   .marca span { display: none; }
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
@@ -497,7 +503,7 @@ figcaption.com-controle { display: flex; flex-wrap: wrap; justify-content: space
   .tabela td, .tabela th { padding: 9px 8px; }
   .tabela td.principal { width: auto; }
   .celula-barra .barra { display: none; }
-  .multiplos, .multiplos.dois, .multiplos.quatro { grid-template-columns: 1fr; gap: 10px; }
+  .multiplos, .multiplos.quatro { grid-template-columns: 1fr; gap: 10px; }
   .historia-texto .grande { font-size: 42px; }
   .lede { font-size: 17px; }
   .hero-numero .valor { font-size: 54px; }

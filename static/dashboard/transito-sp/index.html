@@ -19,20 +19,13 @@
       <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#15181d"/><path d="M16 7 L25.5 23.5 H6.5 Z" fill="none" stroke="#ef6a33" stroke-width="3" stroke-linejoin="round"/></svg>
       <span>Sinistros de trânsito <b>SP</b></span>
     </a>
-    <!-- telas do estado: cada uma tem a sua natureza (ferramenta, análises, avaliações, método) -->
+    <!-- telas do estado: cada uma tem a sua natureza (ferramenta, análises, avaliações, método). Fica também no município,
+         onde as seções dele vão na barra do período -->
     <nav class="topo-nav telas" id="nav-estado" aria-label="Telas">
       <a href="#inicio" data-tela="explorar">Explorar</a>
       <a href="#analises" data-tela="analises">Análises</a>
-      <a href="#mudou" data-tela="mudou">O que mudou</a>
+      <a href="#mudou" data-tela="mudou">Intervenções</a>
       <a href="#sobre" data-tela="sobre">Sobre<span class="so-largo"> os dados</span></a>
-    </nav>
-    <!-- no município, os links rolam a página sem mudar o endereço (que guarda o município e o período) -->
-    <nav class="topo-nav" id="nav-municipio" aria-label="Seções do município" hidden>
-      <a href="#" data-secao="topo-mun">Resumo</a>
-      <a href="#" data-secao="onde">Mapa<span class="so-largo"> e locais</span></a>
-      <a href="#" data-secao="perfil">Quem morre</a>
-      <a href="#" data-secao="frota">Frota</a>
-      <a href="#sobre">Sobre<span class="so-largo"> os dados</span></a>
     </nav>
     <div class="busca" data-busca>
       <svg class="lupa" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -140,12 +133,12 @@
   </section>
 </div>
 
-<!-- ======================================================== o que mudou -->
+<!-- ======================================================== intervenções -->
 <div class="tela" data-tela="mudou" hidden>
   <header class="tela-cab" id="mudou">
     <p class="sobretitulo">Estado de São Paulo · avaliações</p>
     <h1>O que mudou depois de intervenções no trânsito</h1>
-    <p class="lede">Medidas com data conhecida, comparadas com lugares parecidos que não as receberam, e os municípios em que as mortes mudaram de patamar.</p>
+    <p class="lede">Medidas com data conhecida, comparadas com lugares parecidos que não as receberam.</p>
   </header>
 
   <section class="secao" id="faixa-azul">
@@ -170,16 +163,35 @@
     <p class="nota fa-fontes" id="fa-fontes"></p>
   </section>
 
-  <section class="secao" id="mudancas">
+  <section class="secao" id="radares">
     <div class="secao-cab">
-      <h2>Onde as mortes mudaram</h2>
-      <p id="nota-mudancas"></p>
+      <h2>Radares novos nas rodovias estaduais</h2>
+      <p id="rd-intro"></p>
     </div>
-    <div class="cartao sem-pad" id="cartao-mudancas">
-      <div class="tabela-rolagem"><table class="tabela tabela-mud" id="tabela-mudancas"></table></div>
-      <div class="rodape-tabela"><button type="button" class="botao" id="mais-mudancas">Mostrar mais</button></div>
+    <div class="historias" id="historias-rd"></div>
+    <div class="grade-fa">
+      <article class="cartao fa-texto" id="rd-limite"></article>
+      <article class="cartao fa-texto" id="rd-limites"></article>
     </div>
-    <p class="nota nota-mud">Barras: sinistros fatais por ano (o último ano está incompleto). Tracejado: os esperados se o município tivesse acompanhado a tendência do resto do estado com a taxa de antes da mudança. A mudança é a razão entre os sinistros fatais e esse esperado, a partir do ano marcado. Ela não diz o que a causou; as notícias mostram o que foi feito no município na época, quando encontramos. Por que não há mudanças por cruzamento ou trecho de rodovia: veja Sobre os dados.</p>
+    <p class="nota fa-fontes" id="rd-fontes"></p>
+  </section>
+
+  <section class="secao" id="faixa-azul-abc">
+    <div class="secao-cab">
+      <h2>Faixa Azul no ABC</h2>
+      <p id="abc-intro"></p>
+    </div>
+    <div class="historias" id="historias-abc"></div>
+    <article class="cartao fa-vias">
+      <div class="cartao-cab"><div><h3>Via a via</h3><p class="nota" id="abc-vias-nota"></p></div></div>
+      <div class="grafico" id="graf-abc-vias"></div>
+      <details class="ver-tabela">
+        <summary>Ver em tabela</summary>
+        <div class="tabela-rolagem"><table class="tabela" id="tabela-abc"></table></div>
+      </details>
+    </article>
+    <article class="cartao fa-texto fa-largo" id="abc-limites"></article>
+    <p class="nota fa-fontes" id="abc-fontes"></p>
   </section>
 </div>
 
@@ -211,19 +223,23 @@
         <p>São os locais, com cerca de 100 m de diâmetro, que reúnem mais sinistros com vítimas nas vias urbanas. O nome é o do cruzamento do OpenStreetMap mais próximo (até 45 m) que contém a via onde ocorreu a maioria dos sinistros. Quando não há cruzamento, aparece a via com o número mais comum, ou o cruzamento mais próximo em até 150 m. O registro do Infosiga traz uma só via, por isso um sinistro num cruzamento pode estar registrado em qualquer uma das duas.</p>
       </details>
       <details>
-        <summary>Como são encontrados os municípios onde as mortes mudaram?</summary>
-        <p>Contamos os sinistros fatais (com pelo menos uma morte), e não as mortes, porque as mortes de um mesmo sinistro não são independentes: o sinistro de Taguaí em novembro de 2020, com 41 mortos, pareceria uma queda das mortes a partir de 2021. Para cada município com pelo menos 20 sinistros fatais desde 2017, procuramos o ano a partir do qual eles passaram a ser mais ou menos frequentes do que a tendência do resto do estado indicaria. Comparar com o resto do estado tira o que mudou em toda parte, como a queda de 2020 ou o ano incompleto. Cada ano de 2019 a 2025 é testado como início da mudança, com pelo menos dois anos antes e um e meio depois. A série começa em 2017 porque, em 2015 e 2016, parte dos sinistros fatais foi registrada no endereço do hospital onde a vítima morreu (como a Avenida Doutor Enéas de Carvalho Aguiar, 255, o Hospital das Clínicas de São Paulo), e 4% a 6% deles têm coordenada fora do município registrado, contra menos de 1% depois.</p>
-        <p>Para não confundir mudança com acaso, os sinistros fatais de cada ano seguem um modelo binomial negativo, que admite mais variação de um ano para outro do que o puro acaso (essa variação extra é estimada com todos os municípios, e é pequena). Como cada município é testado em vários anos, o valor-p vem de 20 mil simulações do município sem mudança, com o mesmo procedimento de escolher o ano mais extremo. Como são centenas de municípios, os valores-p passam pelo controle da taxa de falsas descobertas (Benjamini-Hochberg, 5%), e só ficam as mudanças de pelo menos 20% para menos ou 25% para mais. Ficam de fora os sinistros fatais sem endereço (5% a 8% por ano), porque o município deles é menos confiável: com eles, outros sete municípios teriam mudança, todas dependentes desses registros (em Guaratinguetá e Campinas, por exemplo, eram três por ano e somem a partir de 2020 e de 2025). <span id="nota-fdr"></span> Uma mudança não diz o que a causou: pode ser uma política de trânsito, uma obra, mas também uma mudança no movimento das vias ou na população. As notícias junto de alguns municípios foram buscadas à mão e mostram o que foi feito ali na época.</p>
-      </details>
-      <details>
         <summary>Como o efeito da Faixa Azul é medido?</summary>
         <p>Contamos os sinistros com vítimas de cada via da capital, mês a mês desde janeiro de 2019, pelo nome da via no registro. As grafias da mesma via são juntadas (“Jacu Pêssego” e “Jacupêssego”, “Governador Carvalho Pinto” e “Carvalho Pinto”), e os acessos e retornos contam na via, porque a partir de 2024 o registro quase deixou de usar “Acesso” e “Retorno” no nome (eram 500 a 800 sinistros por ano na capital até 2023). As vias com Faixa Azul são as <span class="fa-n-vias">—</span> da lista da CET implantadas de janeiro de 2022 a outubro de 2024, cada uma com a sua data. Ficam de fora a Avenida das Nações Unidas (registrada como Marginal Pinheiros, sem separar pista local e expressa), o Túnel Ayrton Senna (confunde-se com a rodovia) e trechos de menos de 1 km em vias longas. A comparação são as <span class="fa-n-comp">—</span> avenidas da capital com pelo menos 2 km (OpenStreetMap) e 10 sinistros com vítimas por ano antes de 2022 que não receberam a faixa, sem as marginais e as rodovias.</p>
         <p>Cada via tem um nível próprio de sinistros, e cada mês um fator comum a todas as vias (modelo de Poisson com efeito de via e de mês). Os dois são estimados só com o que a faixa não afetou: as avenidas de comparação e os meses de cada via antes da implantação. O esperado sem a faixa, em cada via e mês depois da implantação, é o nível da via vezes o fator do mês, e o efeito é a soma dos sinistros observados dividida pela soma dos esperados (estimador de imputação de Borusyak, Jaravel e Spiess). Assim, como as datas variam de via para via, nenhuma via que já tinha a faixa serve de comparação para outra. O mês da implantação e o seguinte ficam de fora. Os intervalos de 95% vêm de 1.000 reamostragens das vias (bootstrap), que levam em conta a variação de cada via além do acaso.</p>
         <p>Três verificações. Tendência antes: os 12 meses anteriores à implantação são retirados do ajuste e comparados com o esperado; se as vias com faixa já estivessem se afastando das demais, a diferença apareceria ali. Placebo: sorteando datas de implantação entre as avenidas de comparação, <span class="fa-placebo">—</span> dos sorteios dão uma diferença tão grande quanto a observada nos sinistros com motos. Robustez: o resultado se mantém sem 2020, sem as duas primeiras vias, só com avenidas de comparação do porte das tratadas, só até 2025 e tirando uma via de cada vez. O entorno são os sinistros em outras ruas a até cerca de 400 m (um anel de hexágonos H3 de resolução 9) dos trechos onde a via tinha sinistros antes de 2023.</p>
       </details>
       <details>
-        <summary>Por que não há mudanças por cruzamento ou trecho de rodovia?</summary>
-        <p>Porque o Infosiga mudou a forma de registrar o local dos sinistros a partir de 2023: a geocodificação (aparecem nos endereços códigos do Google Maps), a grafia e o número dos endereços (“Avenida Vinte e Três de Maio” virou “Avenida 23 de Maio”) e, em 2025, a classificação das rodovias (parte dos sinistros na Raposo Tavares passou a vir como via urbana, sem o código SP-270). Isso tira sinistros de um local e os põe em outro sem que nada tenha mudado na rua. <span id="nota-mud-sobre"></span> Com essa variação, as maiores “mudanças” por local são quase todas efeito do registro (locais que zeram em 2025 ou surgem do nada), e por isso o site não as mostra. O município do sinistro não depende dessas mudanças.</p>
+        <summary>Como o efeito dos radares é medido?</summary>
+        <p>A lista dos radares vem do próprio DER, com rodovia, km, tipo, limite e data de cadastro de cada um; a data coincide com a de ativação nos comunicados do DER. Entram os controladores de velocidade e as lombadas eletrônicas ativados de agosto de 2025 em diante, nas rodovias não concedidas (o contrato de 649 radares do edital 145/2023). Radares da mesma rodovia a até 2 km um do outro formam um trecho, que vai de 1 km antes do primeiro a 1 km depois do último. Os sinistros são localizados pelo código da rodovia e pelo km do registro (sem os kms padrão, como 0, 1, 10 e 100, e os muito distantes dos demais da rodovia no município). A comparação são os <span class="rd-n-comp">—</span> trechos de 2 km de rodovias do DER com pelo menos 2 sinistros com vítimas por ano em 2019–2022 e a mais de 3 km de qualquer radar fixo cadastrado desde 2023 ou desativado.</p>
+        <p>O modelo é o mesmo da Faixa Azul (nível de cada trecho vezes o fator de cada mês, estimados só com o que os radares não afetaram), com uma diferença: os 6 meses antes da ativação também ficam de fora, porque o radar é instalado, sinalizado e testado antes de começar a multar, e os sinistros já caem nesse período. O teste de tendência usa os 12 meses anteriores a esses 6. Verificações: um fator de mês para cada região administrativa, sem tirar os 6 meses, só até junho de 2026, só trechos com controladores e os trechos vizinhos (de 1 a 3 km do radar). Em janeiro de 2025, os registros não fatais nas rodovias do DER caíram cerca de 40% de uma vez; o fator de mês absorve essa queda se ela atinge os trechos por igual, e os sinistros fatais, que não mudaram, servem de conferência.</p>
+      </details>
+      <details>
+        <summary>Como o efeito da Faixa Azul no ABC é medido?</summary>
+        <p>Como na capital, pelo nome da via, mês a mês desde 2019, agora dentro de cada município. As vias com faixa são as cinco de Santo André e São Bernardo do Campo com data nas notícias das prefeituras. A comparação são as <span class="abc-n-comp">—</span> avenidas do ABC com pelo menos 1,5 km no OpenStreetMap e 4 sinistros com vítimas por ano antes de maio de 2024, sem Diadema (que começou a pintar a faixa em data que não encontramos), sem as avenidas com projeto aprovado ou em análise (Robert Kennedy e Otávio Manente, em São Bernardo; dos Estados e Costa e Silva, em Santo André) e sem as rodovias. Com só cinco vias, o intervalo do bootstrap é pouco confiável; por isso também sorteamos datas de implantação entre as avenidas de comparação (placebo) e tiramos uma via de cada vez.</p>
+      </details>
+      <details>
+        <summary>Por que as intervenções não são medidas por cruzamento?</summary>
+        <p>Porque o Infosiga mudou a forma de registrar o local dos sinistros a partir de 2023: a geocodificação (aparecem nos endereços códigos do Google Maps), a grafia e o número dos endereços (“Avenida Vinte e Três de Maio” virou “Avenida 23 de Maio”) e, em 2025, a classificação das rodovias (parte dos sinistros na Raposo Tavares passou a vir como via urbana, sem o código SP-270). Isso tira sinistros de um local e os põe em outro sem que nada tenha mudado na rua. <span id="nota-mud-sobre"></span> Com essa variação, as maiores “mudanças” por local são quase todas efeito do registro (locais que zeram em 2025 ou surgem do nada). Por isso as intervenções são medidas pelo nome da via (e, nas rodovias, pelo código e pelo km, que mudaram pouco), e o site não mostra mudanças por local.</p>
       </details>
       <details>
         <summary>E os trechos de rodovia?</summary>
@@ -278,14 +294,23 @@
     <p class="mun-meta" id="mun-meta"></p>
   </section>
 
-  <div class="periodo" role="group" aria-labelledby="periodo-rot">
-    <span id="periodo-rot" class="periodo-rot">Período</span>
-    <label class="so-leitor" for="ano-de">Primeiro ano</label><select id="ano-de"></select>
-    <span>a</span>
-    <label class="so-leitor" for="ano-ate">Último ano</label><select id="ano-ate"></select>
-    <button type="button" class="periodo-todo" id="periodo-todo" hidden>Todos<span class="so-largo"> os anos</span></button>
-    <span class="nota">Para comparar antes e depois de uma intervenção. Muda os números, o mapa, as listas e os gráficos (não as taxas do topo nem a frota). O endereço da página guarda o período, para compartilhar.</span>
+  <!-- barra presa abaixo do topo: as seções do município (rolam a página sem mudar o endereço) e o período -->
+  <div class="periodo">
+    <nav class="sub-nav" aria-label="Seções do município">
+      <a href="#" data-secao="topo-mun">Resumo</a>
+      <a href="#" data-secao="onde">Mapa e locais</a>
+      <a href="#" data-secao="perfil">Quem morre</a>
+      <a href="#" data-secao="frota">Frota</a>
+    </nav>
+    <div class="periodo-ctl" role="group" aria-labelledby="periodo-rot" aria-describedby="periodo-nota">
+      <span id="periodo-rot" class="periodo-rot">Período</span>
+      <label class="so-leitor" for="ano-de">Primeiro ano</label><select id="ano-de"></select>
+      <span>a</span>
+      <label class="so-leitor" for="ano-ate">Último ano</label><select id="ano-ate"></select>
+      <button type="button" class="periodo-todo" id="periodo-todo" hidden>Todos<span class="so-largo"> os anos</span></button>
+    </div>
   </div>
+  <p class="nota periodo-nota" id="periodo-nota">O período serve para comparar antes e depois de uma intervenção. Muda os números, o mapa, as listas e os gráficos (não as taxas do topo nem a frota). O endereço da página guarda o período, para compartilhar.</p>
 
   <div class="kpis" id="kpis"></div>
 
@@ -293,8 +318,6 @@
     <h2 class="titulo-pequeno">Em resumo</h2>
     <ul id="destaques"></ul>
   </section>
-
-  <section class="cartao mudanca-mun" id="mudanca-mun" hidden></section>
 
   <section class="secao" id="onde">
     <div class="secao-cab">
