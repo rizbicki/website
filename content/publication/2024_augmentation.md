@@ -1,6 +1,6 @@
 ---
 title : "Is augmentation effective in improving prediction in imbalanced datasets?"
-date : 2024-02-01T00:00:00
+date : 2026-01-01T00:00:00
 draft : false
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
@@ -18,7 +18,7 @@ authors : [G. O. Assunção, admin, M. O. Prates]
 publication_types : ["2"]
 
 # Publication name and optional abbreviated version.
-publication : "Machine Learning"
+publication : "Journal of Data Science, 24, 769–784"
 #publication_short : "In *ICMEW*"
 
 # Abstract and optional shortened version.
@@ -43,7 +43,8 @@ selected : false
 tags : ["Data Augmentation","Selection Bias","Prediction","Machine Learning","Classification"]
 
 # Links (optional).
-url_pdf : "https://arxiv.org/abs/2304.10283"
+url_pdf : "https://doi.org/10.6339/24-jds1154"
+url_preprint : "https://arxiv.org/abs/2304.10283"
 #url_preprint : "https://arxiv.org/abs/2202.02253"
 #url_code : ""
 #url_dataset : "#"
