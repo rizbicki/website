@@ -19,8 +19,8 @@ main:
   - name: Talks
     url: '#talks'
     weight: 60
-  - name: SRAG Nowcast
-    url: '/srag-nowcast/'
+  - name: Dashboards
+    url: '#dashboards'
     weight: 65
   - name: Posts
     url: '#posts'

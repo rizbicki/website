@@ -26,6 +26,8 @@ subtitle: ''
 
 - "Fapesp reajusta bolsas de pesquisa em até 45% a partir de agosto" (Folha de São Paulo, 26/06/24). [Artigo](../artigos/fapesp_folha.pdf)
 
+- "A vitória de Lula explicada matematicamente" (BBC News Brasil, 03/11/26). [Reportagem](https://www.bbc.com/portuguese/articles/cxvgdjneg9g5o)
+
 **The secular nano-Hagaddah**
 
 - A very small passover Hagaddah I created for my daughters. In [English](hagaddah_english.pdf) and in [Portuguese](hagaddah_portugues.pdf)
