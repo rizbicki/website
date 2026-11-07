@@ -37,7 +37,7 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-padding-top: calc(var(--topo) + 16px); -webkit-text-size-adjust: 100%; }
+html { scroll-padding-top: calc(var(--topo) + 64px); -webkit-text-size-adjust: 100%; }  /* + submenu da tela, preso abaixo do topo */
 html.em-municipio { scroll-padding-top: calc(var(--topo) + 76px); }  /* + barra do período, presa abaixo do topo */
 body { margin: 0; font-family: var(--fonte); color: var(--tinta); background: var(--fundo);
   font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
@@ -190,6 +190,7 @@ main { display: block; }
   padding: 12px 14px; border-bottom: 1px solid var(--linha); background: var(--superficie-2); white-space: nowrap; }
 .tabela td { padding: 10px 14px; border-bottom: 1px solid var(--grade); vertical-align: middle; }
 .tabela tbody tr { cursor: pointer; transition: background .12s; }
+.tabela-estatica tbody tr { cursor: default; }
 .tabela tbody tr:hover, .tabela tbody tr:focus-visible { background: var(--superficie-2); }
 .tabela tbody tr:last-child td { border-bottom: 0; }
 .tabela .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -272,6 +273,15 @@ figcaption.com-controle { display: flex; flex-wrap: wrap; justify-content: space
 .sub-nav::-webkit-scrollbar { display: none; }
 .sub-nav a { text-decoration: none; color: var(--tinta-2); font-size: 14.5px; font-weight: 550; padding: 6px 10px; border-radius: 8px; white-space: nowrap; }
 .sub-nav a:hover { color: var(--tinta); background: var(--realce); }
+/* seções de cada tela do estado: presas abaixo do topo, com a seção visível marcada e os grupos (Faixa Azul, Radares...) */
+.secoes-tela { position: sticky; top: var(--topo); z-index: 20; align-items: center; margin: 28px -12px 0; padding: 8px 12px;
+  background: var(--fundo); border-bottom: 1px solid var(--linha); box-shadow: 0 -16px 0 var(--fundo); }
+.secoes-tela .grupo { font-size: 12px; font-weight: 650; text-transform: uppercase; letter-spacing: .06em; color: var(--mudo);
+  padding: 6px 2px 6px 14px; white-space: nowrap; }
+.secoes-tela .grupo:first-child { padding-left: 0; }
+.secoes-tela .grupo ~ .grupo { margin-left: 6px; border-left: 1px solid var(--linha-2); }
+.secoes-tela a[aria-current] { color: var(--tinta); background: var(--realce); box-shadow: inset 0 -2px 0 var(--sin); }
+.secoes-tela + .secao { margin-top: 40px; }
 
 .kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
 .kpi { background: var(--superficie); border: 1px solid var(--linha); border-radius: var(--raio); padding: 16px 18px; box-shadow: var(--sombra); }

@@ -57,7 +57,7 @@
     <aside class="hero-numero" id="hero-numero" aria-label="Mortes no trânsito do estado"></aside>
   </section>
 
-  <section class="secao" id="municipios">
+  <section class="secao" id="municipios" data-menu="Compare os municípios">
     <div class="secao-cab">
       <h2>Compare os municípios</h2>
       <p>Clique num município, no mapa ou na lista, para ver onde se concentram os sinistros e quem morre.</p>
@@ -86,7 +86,7 @@
     </div>
   </section>
 
-  <section class="secao" id="locais">
+  <section class="secao" id="locais" data-menu="Locais com mais sinistros">
     <div class="secao-cab">
       <h2>Os locais com mais sinistros do estado</h2>
       <p id="nota-locais"></p>
@@ -116,7 +116,7 @@
     <p class="lede">Os grupos com mais mortes, a frota de motos, a idade das vítimas e as condições em que um sinistro mata mais.</p>
   </header>
 
-  <section class="secao" id="vitimas">
+  <section class="secao" id="vitimas" data-menu="Quem morre">
     <div class="secao-cab">
       <h2>Quem morre no trânsito paulista</h2>
       <p>Mortes em sinistros de trânsito em todo o estado, desde 2015.</p>
@@ -124,7 +124,7 @@
     <div class="historias" id="historias"></div>
   </section>
 
-  <section class="secao" id="letalidade">
+  <section class="secao" id="letalidade" data-menu="O que torna um sinistro mais letal">
     <div class="secao-cab">
       <h2>O que torna um sinistro mais letal</h2>
       <p>Mortes a cada 100 sinistros com vítimas, conforme a hora, o tipo de sinistro e o limite de velocidade da via.</p>
@@ -141,7 +141,7 @@
     <p class="lede">Medidas com data conhecida, comparadas com lugares parecidos que não as receberam.</p>
   </header>
 
-  <section class="secao" id="faixa-azul">
+  <section class="secao" id="faixa-azul" data-grupo="Faixa Azul" data-menu="Capital">
     <div class="secao-cab">
       <h2>Faixa Azul nas avenidas da capital</h2>
       <p id="fa-intro"></p>
@@ -163,20 +163,7 @@
     <p class="nota fa-fontes" id="fa-fontes"></p>
   </section>
 
-  <section class="secao" id="radares">
-    <div class="secao-cab">
-      <h2>Radares novos nas rodovias estaduais</h2>
-      <p id="rd-intro"></p>
-    </div>
-    <div class="historias" id="historias-rd"></div>
-    <div class="grade-fa">
-      <article class="cartao fa-texto" id="rd-limite"></article>
-      <article class="cartao fa-texto" id="rd-limites"></article>
-    </div>
-    <p class="nota fa-fontes" id="rd-fontes"></p>
-  </section>
-
-  <section class="secao" id="faixa-azul-abc">
+  <section class="secao" id="faixa-azul-abc" data-grupo="Faixa Azul" data-menu="ABC">
     <div class="secao-cab">
       <h2>Faixa Azul no ABC</h2>
       <p id="abc-intro"></p>
@@ -193,6 +180,51 @@
     <article class="cartao fa-texto fa-largo" id="abc-limites"></article>
     <p class="nota fa-fontes" id="abc-fontes"></p>
   </section>
+
+  <section class="secao" id="radares" data-grupo="Radares" data-menu="2025 e 2026">
+    <div class="secao-cab">
+      <h2>Radares de 2025 e 2026 nas rodovias do DER</h2>
+      <p id="rd-intro"></p>
+    </div>
+    <div class="historias" id="historias-rd"></div>
+    <div class="grade-fa">
+      <article class="cartao fa-texto" id="rd-limite"></article>
+      <article class="cartao fa-texto" id="rd-limites"></article>
+    </div>
+    <p class="nota fa-fontes" id="rd-fontes"></p>
+  </section>
+
+  <section class="secao" id="radares-antigos" data-grupo="Radares" data-menu="2020 a 2024">
+    <div class="secao-cab">
+      <h2>Radares de 2020 a 2024: o efeito dura?</h2>
+      <p id="ra-intro"></p>
+    </div>
+    <div class="historias" id="historias-ra"></div>
+    <article class="cartao fa-vias">
+      <div class="cartao-cab"><div><h3>Por grupo de radares</h3><p class="nota" id="ra-tabela-nota"></p></div></div>
+      <div class="tabela-rolagem"><table class="tabela tabela-estatica" id="tabela-ra"></table></div>
+    </article>
+    <article class="cartao fa-texto fa-largo" id="ra-limites"></article>
+    <p class="nota fa-fontes" id="ra-fontes"></p>
+  </section>
+
+  <section class="secao" id="brt-campinas" data-grupo="BRT" data-menu="Campinas">
+    <div class="secao-cab">
+      <h2>BRT de Campinas</h2>
+      <p id="brt-intro"></p>
+    </div>
+    <div class="historias" id="historias-brt"></div>
+    <article class="cartao fa-vias">
+      <div class="cartao-cab"><div><h3>Avenida por avenida</h3><p class="nota" id="brt-vias-nota"></p></div></div>
+      <div class="grafico" id="graf-brt-vias"></div>
+      <details class="ver-tabela">
+        <summary>Ver em tabela</summary>
+        <div class="tabela-rolagem"><table class="tabela" id="tabela-brt"></table></div>
+      </details>
+    </article>
+    <article class="cartao fa-texto fa-largo" id="brt-limites"></article>
+    <p class="nota fa-fontes" id="brt-fontes"></p>
+  </section>
 </div>
 
 <!-- ======================================================== sobre -->
@@ -203,7 +235,7 @@
     <p class="lede">Como os números foram calculados, o que eles não mostram e como as duas fontes de mortes se comparam.</p>
   </header>
 
-  <section class="secao" id="contagens">
+  <section class="secao" id="contagens" data-menu="Duas contagens das mortes">
     <div class="secao-cab">
       <h2>Duas contagens das mesmas mortes</h2>
       <p>O Infosiga e o Sistema de Informações sobre Mortalidade (SIM), do Ministério da Saúde, contam as mortes no trânsito de jeitos diferentes.</p>
@@ -211,7 +243,7 @@
     <div class="historias" id="historias-contagens"></div>
   </section>
 
-  <section class="secao" id="perguntas">
+  <section class="secao" id="perguntas" data-menu="Perguntas e respostas">
     <div class="secao-cab"><h2>Perguntas e respostas</h2></div>
     <div class="perguntas">
       <details>
@@ -229,13 +261,22 @@
         <p>Três verificações. Tendência antes: os 12 meses anteriores à implantação são retirados do ajuste e comparados com o esperado; se as vias com faixa já estivessem se afastando das demais, a diferença apareceria ali. Placebo: sorteando datas de implantação entre as avenidas de comparação, <span class="fa-placebo">—</span> dos sorteios dão uma diferença tão grande quanto a observada nos sinistros com motos. Robustez: o resultado se mantém sem 2020, sem as duas primeiras vias, só com avenidas de comparação do porte das tratadas, só até 2025 e tirando uma via de cada vez. O entorno são os sinistros em outras ruas a até cerca de 400 m (um anel de hexágonos H3 de resolução 9) dos trechos onde a via tinha sinistros antes de 2023.</p>
       </details>
       <details>
+        <summary>Como o efeito da Faixa Azul no ABC é medido?</summary>
+        <p>Como na capital, pelo nome da via, mês a mês desde 2019, agora dentro de cada município. As vias com faixa são as cinco de Santo André e São Bernardo do Campo com data nas notícias das prefeituras. A comparação são as <span class="abc-n-comp">—</span> avenidas do ABC com pelo menos 1,5 km no OpenStreetMap e 4 sinistros com vítimas por ano antes de maio de 2024, sem Diadema (que começou a pintar a faixa em data que não encontramos), sem as avenidas com projeto aprovado ou em análise (Robert Kennedy e Otávio Manente, em São Bernardo; dos Estados e Costa e Silva, em Santo André) e sem as rodovias. Com só cinco vias, o intervalo do bootstrap é pouco confiável; por isso também sorteamos datas de implantação entre as avenidas de comparação (placebo) e tiramos uma via de cada vez.</p>
+      </details>
+      <details>
         <summary>Como o efeito dos radares é medido?</summary>
         <p>A lista dos radares vem do próprio DER, com rodovia, km, tipo, limite e data de cadastro de cada um; a data coincide com a de ativação nos comunicados do DER. Entram os controladores de velocidade e as lombadas eletrônicas ativados de agosto de 2025 em diante, nas rodovias não concedidas (o contrato de 649 radares do edital 145/2023). Radares da mesma rodovia a até 2 km um do outro formam um trecho, que vai de 1 km antes do primeiro a 1 km depois do último. Os sinistros são localizados pelo código da rodovia e pelo km do registro (sem os kms padrão, como 0, 1, 10 e 100, e os muito distantes dos demais da rodovia no município). A comparação são os <span class="rd-n-comp">—</span> trechos de 2 km de rodovias do DER com pelo menos 2 sinistros com vítimas por ano em 2019–2022 e a mais de 3 km de qualquer radar fixo cadastrado desde 2023 ou desativado.</p>
         <p>O modelo é o mesmo da Faixa Azul (nível de cada trecho vezes o fator de cada mês, estimados só com o que os radares não afetaram), com uma diferença: os 6 meses antes da ativação também ficam de fora, porque o radar é instalado, sinalizado e testado antes de começar a multar, e os sinistros já caem nesse período. O teste de tendência usa os 12 meses anteriores a esses 6. Verificações: um fator de mês para cada região administrativa, sem tirar os 6 meses, só até junho de 2026, só trechos com controladores e os trechos vizinhos (de 1 a 3 km do radar). Em janeiro de 2025, os registros não fatais nas rodovias do DER caíram cerca de 40% de uma vez; o fator de mês absorve essa queda se ela atinge os trechos por igual, e os sinistros fatais, que não mudaram, servem de conferência.</p>
       </details>
       <details>
-        <summary>Como o efeito da Faixa Azul no ABC é medido?</summary>
-        <p>Como na capital, pelo nome da via, mês a mês desde 2019, agora dentro de cada município. As vias com faixa são as cinco de Santo André e São Bernardo do Campo com data nas notícias das prefeituras. A comparação são as <span class="abc-n-comp">—</span> avenidas do ABC com pelo menos 1,5 km no OpenStreetMap e 4 sinistros com vítimas por ano antes de maio de 2024, sem Diadema (que começou a pintar a faixa em data que não encontramos), sem as avenidas com projeto aprovado ou em análise (Robert Kennedy e Otávio Manente, em São Bernardo; dos Estados e Costa e Silva, em Santo André) e sem as rodovias. Com só cinco vias, o intervalo do bootstrap é pouco confiável; por isso também sorteamos datas de implantação entre as avenidas de comparação (placebo) e tiramos uma via de cada vez.</p>
+        <summary>Como o efeito dos radares de 2020 a 2024 é medido?</summary>
+        <p>Como o dos radares de 2025, com a mesma lista do DER, que também traz os radares das rodovias concedidas (instalados pela concessionária e homologados pelo DER). A data de cadastro coincide com a do início das multas nos comunicados das concessionárias. Entram só os radares em local novo: um radar cadastrado a até 1 km de outro que já existia é troca de equipamento e não muda a fiscalização. A comparação são os <span class="ra-n-comp">—</span> trechos de 2 km de rodovias estaduais, do DER ou concedidas, com pelo menos 2 sinistros com vítimas por ano em 2019–2022 e sem radar novo.</p>
+        <p>Três diferenças em relação aos radares de 2025. O fator de cada mês é separado para as rodovias do DER e para as concedidas, porque em janeiro de 2025 os registros não fatais caíram cerca de 40% nas do DER e não nas concedidas. Quando outro radar chega a até 3 km de um trecho (tratado ou de comparação), o trecho sai da conta a partir de 6 meses antes disso. E o efeito é medido também por ano desde a ativação. Os radares de 2025 e 2026 nas rodovias concedidas são estimados à parte, porque há no máximo um ano e meio de dados depois deles.</p>
+      </details>
+      <details>
+        <summary>Como o efeito do BRT de Campinas é medido?</summary>
+        <p>Como na Faixa Azul do ABC: a avenida inteira, pelo nome no registro, mês a mês desde 2019. As avenidas com BRT são as seis principais dos três corredores, cada uma com a data de início da operação do seu corredor: John Boyd Dunlop (Campo Grande, novembro de 2022), Ruy Rodriguez, Amoreiras, João Jorge e Camucim (Ouro Verde, março de 2023) e Presidente Juscelino (Perimetral, janeiro de 2024). A comparação são as <span class="brt-n-comp">—</span> avenidas de Campinas com pelo menos 1,5 km no OpenStreetMap e 4 sinistros com vítimas por ano antes de novembro de 2022, sem as outras ruas dos corredores, as que ganharam viaduto do BRT por cima (Lix da Cunha e Senador Saraiva) e as rodovias. Verificações: placebo (datas sorteadas entre as avenidas de comparação), sem cada uma das avenidas, sem 2020 e só até dezembro de 2024.</p>
       </details>
       <details>
         <summary>Por que as intervenções não são medidas por cruzamento?</summary>

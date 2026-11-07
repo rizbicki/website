@@ -263,7 +263,8 @@ function grafLinhas(box, xs, series, o = {}) {
   const dirRot = noFim.length ? Math.max(...noFim.map(larguraRot)) : 10;
   const comRotulos = W - dirRot > 300;  // em telas estreitas, legenda e dica bastam
   const dir = comRotulos ? dirRot : 10;
-  const vals = series.flatMap(s => s.valores).filter(v => v != null);
+  // s.ic (opcional): intervalo de 95% de cada ponto, [inferior, superior], desenhado como faixa atrás da linha
+  const vals = series.flatMap(s => s.valores.concat(s.ic ? s.ic.map((c, i) => s.valores[i] != null && c ? c[1] : null) : [])).filter(v => v != null);
   const { passo, topo: maxY } = escalaBonita(Math.max(...vals, ref ?? -Infinity));
   const cp = casasDoPasso(passo);
   const esq = 10 + larguraTexto(fmt(maxY, cp), 11), cima = 10, base = 26;
@@ -280,6 +281,16 @@ function grafLinhas(box, xs, series, o = {}) {
   const cada = Math.max(1, Math.ceil(lx / (larg / (xs.length - 1))));
   xs.forEach((x, i) => { if (i % cada === 0)
     svg.appendChild(txt({ x: X(i), y: H - 7, "text-anchor": "middle", "font-size": 11, fill: COR.mudo }, rotuloX(x))); });
+  const temIc = (s, i) => s.ic && s.ic[i] && s.valores[i] != null;
+  series.filter(s => s.ic).forEach(s => {
+    const trechos = [];  // trechos contínuos com intervalo
+    s.valores.forEach((_, i) => { if (!temIc(s, i)) return; if (temIc(s, i - 1)) trechos.at(-1).push(i); else trechos.push([i]); });
+    trechos.forEach(t => {
+      const d = t.map((i, k) => `${k ? "L" : "M"}${X(i).toFixed(1)},${Y(s.ic[i][1]).toFixed(1)}`).join("") +
+        [...t].reverse().map(i => `L${X(i).toFixed(1)},${Y(s.ic[i][0]).toFixed(1)}`).join("") + "Z";
+      svg.appendChild(svgEl("path", { d, fill: s.cor, "fill-opacity": 0.14, stroke: "none" }));
+    });
+  });
   series.forEach(s => {
     const d = s.valores.map((v, i) => v == null ? "" : `${i && s.valores[i - 1] != null ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("");
     svg.appendChild(svgEl("path", { d, fill: "none", stroke: s.cor, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
@@ -308,6 +319,7 @@ function grafLinhas(box, xs, series, o = {}) {
     mostraDica(ev, `<div class="t">${rotuloX(xs[i], true)}</div>` + series.filter(s => s.valores[i] != null)
       .sort((a, b) => b.valores[i] - a.valores[i])
       .map(s => linhaDica(s.cor, fmt(s.valores[i], casas) + sufixo, s.nome + unidade) +
+        (temIc(s, i) ? `<div class="sub">intervalo de 95%: ${fmt(s.ic[i][0], casas)} a ${fmt(s.ic[i][1], casas)}${sufixo}</div>` : "") +
         (detalhe ? `<div class="sub">${detalhe(s, i)}</div>` : "")).join(""));
   });
   area.addEventListener("pointerleave", () => { guia.setAttribute("visibility", "hidden"); pontos.forEach(p => p.setAttribute("visibility", "hidden")); escondeDica(); });
@@ -390,6 +402,14 @@ function pctIdade(c) {
 function taxaIdade(c, pop, nAnos) {
   const t = somaV(c.slice(0, -1)), fator = t ? (t + c.at(-1)) / t : 0;
   return c.slice(0, -1).map((v, f) => pop && pop[f] ? 1e5 * v * fator / nAnos / pop[f] : null);
+}
+
+// intervalo de 95% da taxa de cada faixa: o de Poisson para as mortes da faixa (aproximação de Byar), na mesma escala
+function icTaxaIdade(c, pop, nAnos) {
+  const t = somaV(c.slice(0, -1)), fator = t ? (t + c.at(-1)) / t : 0, z = 1.96;
+  const lo = k => k ? k * (1 - 1 / (9 * k) - z / (3 * Math.sqrt(k))) ** 3 : 0;
+  const hi = k => (k + 1) * (1 - 1 / (9 * (k + 1)) + z / (3 * Math.sqrt(k + 1))) ** 3;
+  return c.slice(0, -1).map((v, f) => pop && pop[f] ? [lo(v), hi(v)].map(x => 1e5 * x * fator / nAnos / pop[f]) : null);
 }
 
 // pontos pareados por linha (ex.: letalidade nas rodovias e nas vias urbanas, por tipo de sinistro), com os valores
@@ -535,13 +555,14 @@ function idadeMun(m) {
   const c = contaIdade(m.por_ano.idade, ks, P.idx);
   const d0 = st.estado.ano_ini - p.anos_mortes[0];  // os vetores do estado começam em 2015
   const tM = taxaIdade(c, m.pop_idade, P.nAnos), tE = taxaIdade(contaIdade(p.idade_ano, ks, [P.idx[0] + d0, P.idx[1] + d0]), p.pop_idade, P.nAnos);
-  const tot = somaV(c), semIdade = c.at(-1);
+  const tot = somaV(c), semIdade = c.at(-1), icM = icTaxaIdade(c, m.pop_idade, P.nAnos);
   $("sub-idade").textContent = `mortes por ano para cada 100 mil habitantes da faixa etária, ${P.texto}`;
   box.innerHTML = "";
   if (!tot || !m.pop_idade) { box.appendChild(el("p", { className: "nota", textContent: tot ? "Sem população por idade para este município." : `Sem mortes registradas ${P.texto}.` })); return; }
   grafComEstado(box, p.faixas_idade.map((f, j) => ({
     nome: f.endsWith("+") ? f.slice(0, -1) + " ou mais" : f.replace("–", " a "), mun: tM[j], est: tE[j], cor: g.cor,
     dica: `<div class="t">${esc(g.nome)}, ${textoFaixa(f)}</div>${linhaDica(g.cor, fmt(tM[j], 1), "por 100 mil hab. por ano no município", true)}` +
+      (icM[j] ? `<div class="sub">intervalo de 95%: ${fmt(icM[j][0], 1)} a ${fmt(icM[j][1], 1)}</div>` : "") +
       `<div class="sub">${plural(c[j], "morte", "mortes")} ${P.texto}; ${fmt(m.pop_idade[j])} habitantes nessa faixa</div>` +
       marcaEstado(fmt(tE[j], 1), "no estado") })),
   { casas: 1, linha: 32, corLegenda: g.cor, rotulo: `Mortes por 100 mil habitantes de cada faixa etária: ${g.nome}, município e estado` });
@@ -651,6 +672,7 @@ function faixasDeAnos(anos) {
 }
 // frota de motos e demais mortes ao lado das mortes de motociclistas (azul): cinzas validados contra o azul
 const COR_FROTA = "#4a515b", COR_OUTRAS = "#a9adb3";
+const NOTA_IC = "A faixa sombreada é o intervalo de 95% de cada ponto: a incerteza que vem do número de sinistros.";
 const SERIES_VIA = [{ nome: "Rodovias", cor: COR.mortes }, { nome: "Vias urbanas", curto: "Urbanas", cor: COR.urbana }];
 
 // números derivados das análises de letalidade, frota e SIM, usados nos textos e nos gráficos
@@ -765,7 +787,8 @@ function historias() {
     { box: "historias-letalidade", id: "graf-letal", grande: `${fmt(lv.rodovia / lv.urbana, 1)}<small>vezes</small>`,
       texto: `<b>mais letal é um sinistro nas rodovias que nas vias urbanas</b>: ${fmt(lv.rodovia, 1)} mortes por 100 sinistros com vítimas, contra ${fmt(lv.urbana, 1)}.` +
         (madrugada ? " Nos dois casos, a letalidade é maior de madrugada." : ""),
-      titulo: "Letalidade por hora do dia", sub: `mortes por 100 sinistros com vítimas, ${e.ano_ini} a ${fimTaxa}` },
+      titulo: "Letalidade por hora do dia", sub: `mortes por 100 sinistros com vítimas, ${e.ano_ini} a ${fimTaxa}`,
+      nota: NOTA_IC },
     { box: "historias-letalidade", id: "graf-tipo", grande: fmt(letal(porTipo("Atropelamento de pedestre").rodovia)),
       texto: `<b>mortes a cada 100 atropelamentos de pedestres nas rodovias</b>, e ${fmt(letal(porTipo("Colisão frontal").rodovia))} a cada 100 colisões frontais. ` +
         `Nas vias urbanas, os tipos mais letais são ${artigo(urbMais[0].tipo)} (${fmt(letal(urbMais[0].urbana))} mortes por 100) e ${artigo(urbMais[1].tipo)} (${fmt(letal(urbMais[1].urbana))}).`,
@@ -777,7 +800,7 @@ function historias() {
         `${fmt(u60, 1)} mortes por 100 atropelamentos com vítimas, contra ${fmt(u50, 1)}. ` : "") +
         (rIdx.length > 1 ? `Nas rodovias, a letalidade dos atropelamentos vai de ${fmt(d.velR[rIni])} (${d.lv.classes[rIni]} km/h) a ${fmt(d.velR[rFim])} (${d.lv.classes[rFim]} km/h).` : ""),
       titulo: "Atropelamentos por limite de velocidade da via", sub: `mortes por 100 atropelamentos com vítimas, ${e.ano_ini} a ${fimTaxa}; limite em km/h`,
-      nota: `Limite do OpenStreetMap, conhecido em ${fmt(d.lv.cobertura)}% dos atropelamentos com local preciso. Ficam de fora as combinações com menos de ${fmt(d.lv.min_n)} atropelamentos.` },
+      nota: `Limite do OpenStreetMap, conhecido em ${fmt(d.lv.cobertura)}% dos atropelamentos com local preciso. Ficam de fora as combinações com menos de ${fmt(d.lv.min_n)} atropelamentos. ${NOTA_IC}` },
 
     { box: "historias-contagens", id: "graf-sim", grande: fmt(d.capBaixos),
       texto: `<b>mortes por acidente de transporte na capital registra o SIM, do Ministério da Saúde, para cada 100 mortes no trânsito contadas pelo Infosiga</b>, ` +
@@ -848,12 +871,14 @@ function desenhaGraficosEstado() {
     { cor: COR_MODO["Pedestre"], casas: 1, rotulo: `Pedestres mortos por ano para cada 100 mil veículos, média de ${n} anos` });
 
   const horas = Array.from({ length: 24 }, (_, h) => h);
+  const icH = p.letalidade_hora_ic || {};
   grafLinhas($("graf-letal"), horas, [
-    { nome: "Rodovias", cor: COR.mortes, valores: p.letalidade_hora["Rodovias"] },
-    { nome: "Vias urbanas", cor: COR.urbana, valores: p.letalidade_hora["Vias urbanas"] }],
+    { nome: "Rodovias", cor: COR.mortes, valores: p.letalidade_hora["Rodovias"], ic: icH["Rodovias"] },
+    { nome: "Vias urbanas", cor: COR.urbana, valores: p.letalidade_hora["Vias urbanas"], ic: icH["Vias urbanas"] }],
     { rotuloX: (h, longo) => longo ? `${h}h–${h}h59` : h + "h", casas: 1, rotulo: "Letalidade por hora do dia" });
 
-  const linhaVia = (cor, x, nome) => x ? linhaDica(cor, fmt(letal(x), 1), `${nome}: ${plural(x.m, "morte", "mortes")} em ${fmt(x.n)} sinistros`) : "";
+  const linhaVia = (cor, x, nome) => x ? linhaDica(cor, fmt(letal(x), 1), `${nome}: ${plural(x.m, "morte", "mortes")} em ${fmt(x.n)} sinistros`) +
+    (x.ic ? `<div class="sub">intervalo de 95%: ${fmt(x.ic[0], 1)} a ${fmt(x.ic[1], 1)}</div>` : "") : "";
   grafPares($("graf-tipo"), p.letalidade_tipo.itens.map(it => ({
     nome: it.tipo, valores: [letal(it.rodovia), letal(it.urbana)],
     dica: `<div class="t">${esc(it.tipo)}</div>${linhaVia(COR.mortes, it.rodovia, "rodovias")}${linhaVia(COR.urbana, it.urbana, "vias urbanas")}` })),
@@ -861,7 +886,7 @@ function desenhaGraficosEstado() {
 
   const lv = d.lv;
   grafLinhas($("graf-vel"), lv.classes, [
-    { ...SERIES_VIA[0], valores: d.velR, k: "rodovia" }, { ...SERIES_VIA[1], valores: d.velU, k: "urbana" }],
+    { ...SERIES_VIA[0], valores: d.velR, ic: lv.rodovia.ic, k: "rodovia" }, { ...SERIES_VIA[1], valores: d.velU, ic: lv.urbana.ic, k: "urbana" }],
     { casas: 1, rotuloX: (c, longo) => longo ? `Limite de ${c} km/h` : c,
       detalhe: (s, i) => `${plural(lv[s.k].m[i], "morte", "mortes")} em ${fmt(lv[s.k].n[i])} atropelamentos`,
       rotulo: "Mortes por 100 atropelamentos com vítimas, por limite de velocidade da via" });
@@ -1158,13 +1183,13 @@ function grafVias(box, vias, conj, o = {}) {
   const hi = Math.min(MAX, Math.max(...itens.map(v => v.ic[1]), conj.ic[1]) * 1.05);
   const esq = colNome + 10, dir = colVal + 12, larg = W - esq - dir;
   const X = r => esq + larg * (Math.log(Math.min(Math.max(r, lo), hi)) - Math.log(lo)) / (Math.log(hi) - Math.log(lo));
-  const svg = novoSvg(W, H, "Diferença em relação ao esperado sem a Faixa Azul em cada via, com intervalo de 95%");
+  const svg = novoSvg(W, H, o.rotulo || "Diferença em relação ao esperado sem a Faixa Azul em cada via, com intervalo de 95%");
   [0.5, 0.75, 1, 1.5, 2, 3, 4].filter(t => t >= lo && t <= hi).forEach(t => {
     const um = t === 1;
     svg.appendChild(svgEl("line", { x1: X(t), x2: X(t), y1: cima - 4, y2: H - base, stroke: um ? COR.tinta2 : COR.grade }));
     svg.appendChild(txt({ x: X(t), y: H - 7, "text-anchor": "middle", "font-size": 11, fill: COR.mudo }, difPct(t)));
   });
-  const azul = COR_MODO["Motocicleta"];
+  const azul = o.cor || COR_MODO["Motocicleta"];
   svg.appendChild(svgEl("rect", { x: X(conj.ic[0]), width: X(conj.ic[1]) - X(conj.ic[0]), y: cima - 4, height: H - base - cima + 4,
     fill: azul, "fill-opacity": 0.1 }));
   svg.appendChild(svgEl("line", { x1: X(conj.efeito), x2: X(conj.efeito), y1: cima - 4, y2: H - base, stroke: azul, "stroke-dasharray": "4 3" }));
@@ -1183,11 +1208,11 @@ function grafVias(box, vias, conj, o = {}) {
     svg.appendChild(txt(estreito ? { x: W, y: y0 + 12, "text-anchor": "end", "font-size": 12, fill: COR.tinta2 }
       : { x: W, y: yc + 4, "text-anchor": "end", "font-size": 12, fill: COR.tinta2 }, difPct(v.r)));
     const alvo = svgEl("rect", { x: 0, y: y0, width: W, height: linha, fill: "transparent" });
-    comDica(alvo, `<div class="t">${esc(v.nome)}</div><div class="sub">${v.municipio ? esc(v.municipio) + "; " : ""}Faixa Azul desde ${anoMes(v.inicio)}` +
+    comDica(alvo, `<div class="t">${esc(v.nome)}</div><div class="sub">${v.municipio ? esc(v.municipio) + "; " : ""}${o.desde || "Faixa Azul desde"} ${anoMes(v.inicio)}` +
       (v.km ? `; ${fmt(v.km, v.km < 10 ? 1 : 0)} km` : "") + `</div>` +
-      linhaDica(azul, difPct(v.r), "em relação ao esperado sem a faixa") +
+      linhaDica(azul, difPct(v.r), `em relação ao esperado ${o.sem || "sem a faixa"}`) +
       `<div class="sub">intervalo de 95%: ${icPct(v.ic)}</div>` +
-      `<div class="sub">${plural(v.obs, "sinistro", "sinistros")} com motos depois da implantação; esperados: ${fmt(v.esp)}</div>` +
+      `<div class="sub">${plural(v.obs, "sinistro", "sinistros")} ${o.medida ?? "com motos"} depois da implantação; esperados: ${fmt(v.esp)}</div>` +
       `<div class="sub">${fmt(v.por_ano_antes, v.por_ano_antes < 10 ? 1 : 0)} por ano em ${o.antes || "2019–2021"}</div>`);
     svg.appendChild(alvo);
   });
@@ -1347,6 +1372,273 @@ function desenhaFaixaAzulABC() {
   if (!st.ab) return;
   graficoEventoABC();
   grafVias($("graf-abc-vias"), st.ab.vias, st.abD.moto, { antes: `2019–${ANTES_ANO(st.ab.implantacao[0])}` });
+}
+
+function desenhaIntervencoes() { desenhaFaixaAzul(); desenhaRadares(); desenhaRadaresAntigos(); desenhaFaixaAzulABC(); desenhaBRT(); }
+
+const eLista = a => a.length > 1 ? `${a.slice(0, -1).join(", ")} e ${a.at(-1)}` : a[0] || "";
+const robTexto = rob => rob.filter(r => r.efeito != null)
+  .map(r => `${r.nome[0].toLowerCase()}${r.nome.slice(1).replace(/ \([^)]*\)$/, "").replace(/, antes da mudança no registro$/, "")} (${difPct(r.efeito)})`);
+
+// ------------------------------------------------------------------ estado: radares de 2020 a 2024
+
+// "1º ano" -> "no 1º ano"; "4º ano em diante" -> "do 4º ano em diante"
+const noPeriodo = n => /em diante$/.test(n) ? `do ${n}` : `no ${n}`;
+const textoAnos = (ps, de = 0) => eLista(ps.slice(de).filter(p => p.n).map(p => `${difPct(p.razao)} ${noPeriodo(p.nome)}`));
+
+function iniciaRadaresAntigos() {
+  const ra = st.interv.radares_antigos;
+  if (!ra) { $("radares-antigos").hidden = true; return; }
+  const D = Object.fromEntries(ra.desfechos.map(d => [d.id, d])), L = Object.fromEntries(ra.linhas.map(l => [l.nome, l]));
+  st.ra = ra; st.raD = D; st.raL = L; st.raDesfecho = "todos";
+  const t = D.todos, f = D.fatal, mo = D.moto, fl = D.flanco;
+  const lomb = L["Trechos com lombada eletrônica"], ctrl = L["Só com controladores de velocidade"];
+  const c1 = L["2020 a 2022"], c2 = L["2023 e 2024"], der = L["Rodovias do DER"], conc = L["Rodovias concedidas"];
+  const PLURAL = { "controlador de velocidade": "controladores de velocidade", "lombada eletrônica": "lombadas eletrônicas" };
+  const tipos = Object.entries(ra.tipos).map(([k, n]) => `${fmt(n)} ${n === 1 ? k : PLURAL[k] || k}`);
+  const mesN = s => 12 * +s.slice(0, 4) + +s.slice(5, 7);
+  const anos = Math.floor((mesN(ra.periodo[1]) - mesN(ra.implantacao[0])) / 12);
+  $("ra-intro").textContent = `De ${anoMes(ra.implantacao[0])} a ${anoMes(ra.implantacao[1])}, ${fmt(ra.n_radares)} radares fixos ` +
+    `(${tipos.join(" e ")}) começaram a funcionar em ${fmt(ra.n_trechos)} trechos de rodovias estaduais que não tinham radar, ` +
+    `${fmt(ra.n_concedida)} deles em rodovias concedidas. Os mais antigos têm mais de ${anos} anos de dados depois da ativação, o que permite ` +
+    `ver se a queda se mantém. Comparamos os sinistros com vítimas a até ${fmt(ra.janela_km)} km de cada radar com os de ` +
+    `${fmt(ra.n_comparacao)} trechos de 2 km sem radar novo, das rodovias do DER e das concedidas.`;
+  const box = $("historias-ra");
+  box.innerHTML = "";
+  box.appendChild(el("article", { className: "historia cartao" },
+    `<div class="historia-texto"><div class="grande">${difPct(t.efeito)}</div>
+     <p><b>de sinistros com vítimas perto desses radares, em relação ao que os trechos teriam sem eles</b>: ${fmt(t.obs)} depois da
+     ativação, onde o andamento dos trechos sem radar novo indicaria ${fmt(t.esp)} (intervalo de 95%: ${icPct(t.ic)}).
+     ${claro(t.ic) ? "" : "No conjunto, não dá para afirmar uma queda. "}Com motos, ${difPct(mo.efeito)} (${icPct(mo.ic)}); fatais,
+     ${difPct(f.efeito)} (${icPct(f.ic)}). De 1 a 3 km do radar, ${difPct(fl.efeito)} (${icPct(fl.ic)}).</p></div>
+     <figure><figcaption><h3>Sinistros perto dos radares de 2020 a 2024, acima ou abaixo do esperado</h3>
+       <p>% em relação ao esperado sem os radares, por trimestre antes e depois da ativação; sombra: intervalo de 95%</p></figcaption>
+       <div class="controles controles-graf"><div class="segmentado" id="seg-ra" role="group" aria-label="Sinistros">
+         <button type="button" data-v="todos" class="ativo">Com vítimas</button><button type="button" data-v="fatal">Fatais</button></div></div>
+       <div class="grafico" id="graf-ra-evento"></div><p class="nota nota-graf" id="nota-ra-evento"></p></figure>`));
+  segmentado("seg-ra", v => { st.raDesfecho = v; graficoEventoRA(); });
+  const lp = lomb.periodos.filter(p => p.n), cp = ctrl.periodos.filter(p => p.n);
+  const lombDura = lp.slice(1).every(p => p.ic[1] < 1), ctrlSome = claro(cp[0].ic) && cp.slice(1).every(p => !claro(p.ic) || p.razao > 1);
+  box.appendChild(el("article", { className: "historia cartao" },
+    `<div class="historia-texto"><div class="grande">${difPct(lomb.efeito)}</div>
+     <p><b>de sinistros nos ${fmt(lomb.n)} trechos com lombada eletrônica</b> (intervalo de 95%: ${icPct(lomb.ic)})${lombDura
+       ? `, e a queda não diminui com o tempo: ${textoAnos(lomb.periodos)}` : `: ${textoAnos(lomb.periodos)}`}.
+     Nos ${fmt(ctrl.n)} trechos só com controladores de velocidade, ${ctrlSome
+       ? `a queda do primeiro ano (${difPct(cp[0].razao)}; ${icPct(cp[0].ic)}) não se mantém: ${textoAnos(ctrl.periodos, 1)}`
+       : `${textoAnos(ctrl.periodos)}`}.</p></div>
+     <figure><figcaption><h3>Efeito por ano desde a ativação</h3>
+       <p>diferença em relação ao esperado sem os radares, com intervalo de 95%</p></figcaption>
+       <div class="grafico" id="graf-ra-anos"></div>
+       <p class="nota nota-graf">Os anos mais distantes têm menos trechos: ${eLista([lomb, ctrl].map(l =>
+         `${fmt(l.periodos.at(-1).n)} ${l === lomb ? "com lombada" : "só com controladores"}`))} ${noPeriodo(lomb.periodos.at(-1).nome)}.</p></figure>`));
+  // tabela por grupo
+  const linhas = [c1, c2, conc, der, lomb, ctrl, ra.recentes].filter(Boolean);
+  const tab = $("tabela-ra");
+  tab.innerHTML = `<thead><tr><th>Radares</th><th class="num">Trechos</th><th class="num">Diferença</th><th class="num col-opc">Intervalo de 95%</th>` +
+    `<th class="num col-opc">Antes</th>` + ra.periodos.todos.map(p => `<th class="num col-opc">${p.nome.replace(" em diante", "+")}</th>`).join("") +
+    `</tr></thead>`;
+  const tb = el("tbody");
+  linhas.forEach(l => tb.appendChild(el("tr", {}, `<td class="local"><b>${esc(l.nome)}</b></td><td class="num">${fmt(l.n)}</td>` +
+    `<td class="num">${claro(l.ic) ? `<b>${difPct(l.efeito)}</b>` : difPct(l.efeito)}</td><td class="num col-opc">${icPct(l.ic)}</td>` +
+    `<td class="num col-opc">${claro(l.ic_pre) ? "⚠ " : ""}${difPct(l.pre)}</td>` +
+    l.periodos.map(p => p.n ? `<td class="num col-opc" title="intervalo de 95%: ${icPct(p.ic)}; ${plural(p.n, "trecho", "trechos")}">` +
+      `${claro(p.ic) ? `<b>${difPct(p.razao)}</b>` : difPct(p.razao)}</td>` : `<td class="num col-opc">—</td>`).join(""))));
+  tab.appendChild(tb);
+  $("ra-tabela-nota").textContent = `Diferença em relação ao esperado sem os radares, no conjunto e por ano desde a ativação; em negrito, quando o ` +
+    `intervalo de 95% não inclui o zero (passe o mouse sobre um ano para ver o intervalo). "Antes": a diferença no ano anterior à instalação ` +
+    `(⚠: o grupo já se afastava dos demais). Cada grupo é comparado com os mesmos ${fmt(ra.n_comparacao)} trechos sem radar novo. A última linha ` +
+    `são os radares de 2025 e 2026 nas rodovias concedidas, com no máximo um ano e meio de dados depois.`;
+  const c2p = c2.periodos.filter(p => p.n).slice(0, 3), perT = ra.periodos.todos.filter(p => p.n);
+  const ate = ra.robustez.find(r => r.periodos), semCorte = ra.robustez.find(r => /chegada/.test(r.nome));
+  $("ra-limites").innerHTML = `<h3>O que estes números não dizem</h3>
+    <p><b>Que o efeito some com o tempo.</b> Somando todos os radares, a diferença vai de ${difPct(perT[0].razao)} no 1º ano a
+    ${difPct(perT.at(-1).razao)} ${noPeriodo(perT.at(-1).nome)}. Mas os anos mais distantes só têm os radares de 2020 a 2022, que mudaram pouco
+    desde o início (${difPct(c1.efeito)} no conjunto; ${icPct(c1.ic)}). Nos de 2023 e 2024, a diferença fica entre
+    ${difPct(Math.max(...c2p.map(p => p.razao)))} e ${difPct(Math.min(...c2p.map(p => p.razao)))} em cada um dos três primeiros anos. Parte do que
+    parece sumir é só a troca do grupo de radares. Nos trechos só com controladores de velocidade, a queda do 1º ano não aparece depois, mas ali
+    também os anos mais distantes têm outro grupo de radares.</p>
+    <p><b>Lombadas perto de praças de pedágio.</b> ${fmt(ra.lombadas_40)} das ${fmt(ra.tipos["lombada eletrônica"])} lombadas são de 40 km/h, e muitas
+    ficam nas pistas automáticas das praças de pedágio das concessionárias (como as da Eixo SP na SP-294 e na SP-284). A queda nesses trechos é a
+    de quem passa pela praça, não a de uma travessia de pedestres.</p>
+    <p><b>Rodovias do DER.</b> Nos ${fmt(der.n)} trechos das rodovias não concedidas, a diferença é ${difPct(der.efeito)} (${icPct(der.ic)}), contra
+    ${difPct(conc.efeito)} (${icPct(conc.ic)}) nas concedidas, onde estão ${fmt(ra.lombada_concedida)} dos ${fmt(lomb.n)} trechos com lombada. Em janeiro
+    de 2025, os registros não fatais das rodovias do DER caíram cerca de 40% de uma vez; o fator de cada mês é separado para as rodovias do DER e as
+    concedidas, e só até dezembro de 2024 o resultado do conjunto é ${difPct(ate.efeito)} (${icPct(ate.ic)}).</p>
+    <p><b>Radares que chegaram depois.</b> Quando outro radar foi instalado a até 3 km (a onda do DER de 2025, por exemplo), o trecho sai da conta
+    a partir de 6 meses antes disso: ${fmt(ra.n_censurado)} dos ${fmt(ra.n_trechos)} trechos. Sem esse corte, o resultado é ${difPct(semCorte.efeito)}.
+    Como nos radares de 2025, não há o fluxo de veículos.</p>`;
+  const ev = ra.evento.todos, ult = ev.at(-1), ini = ev.find(e => e.trim === 0);
+  $("nota-ra-evento").textContent = `Antes da ativação, o esperado é calculado sem os dois anos anteriores, para que a comparação seja um teste. ` +
+    `Faixa cinza: os ${ra.antecipa} meses antes da ativação, fora da conta. Os últimos trimestres têm só os radares mais antigos ` +
+    `(${fmt(ult.n)} trechos no ${ult.trim}º trimestre, contra ${fmt(ini.n)} no início). O resultado se mantém ${eLista(robTexto(ra.robustez))}.`;
+  $("ra-fontes").innerHTML = `Radares, local e data de cadastro: <a href="${ra.fontes[0].url}">DER-SP</a>. A data coincide com a do início das multas ` +
+    `nos comunicados das concessionárias (${ra.fontes.slice(1).map(f => `<a href="${f.url}">${esc(f.titulo)}</a>`).join("; ")}). ` +
+    `Como o efeito é medido: <a href="#perguntas">Sobre os dados</a>.`;
+  document.querySelectorAll(".ra-n-comp").forEach(s => { s.textContent = fmt(ra.n_comparacao); });
+}
+
+function graficoEventoRA() {
+  const k = st.raDesfecho, d = st.raD[k];
+  grafEvento($("graf-ra-evento"), st.ra.evento[k], { cor: k === "todos" ? COR.sin : COR.mortes, nome: d.nome.toLowerCase(),
+    marco: "radares →", antecipa: Math.round(st.ra.antecipa / 3), rotuloAntecipa: "instalação",
+    rotulo: `${d.nome}: diferença em relação ao esperado sem os radares de 2020 a 2024, por trimestre` });
+}
+
+function desenhaRadaresAntigos() {
+  if (!st.ra) return;
+  graficoEventoRA();
+  const L = st.raL;
+  grafPeriodos($("graf-ra-anos"), [
+    { nome: "Com lombada eletrônica", cor: COR.mortes, periodos: L["Trechos com lombada eletrônica"].periodos },
+    { nome: "Só com controladores", cor: COR.sin, periodos: L["Só com controladores de velocidade"].periodos }],
+    { rotulo: "Efeito dos radares de 2020 a 2024 por ano desde a ativação, com intervalo de 95%", sem: "sem os radares" });
+}
+
+// efeito por período desde a implantação (uma linha por período), com uma série por grupo: ponto e intervalo de 95%
+function grafPeriodos(box, series, o = {}) {
+  box.innerHTML = "";
+  const W = Math.max(280, box.clientWidth), estreito = W < 520;
+  const nomes = series[0].periodos.map(p => p.nome);
+  // legenda: quebra a linha quando não cabe
+  const leg = [];
+  let lx = 0, ly = 11;
+  series.forEach(s => {
+    const w = 14 + larguraTexto(s.nome, 12.5);
+    if (lx && lx + w > W) { lx = 0; ly += 20; }
+    leg.push({ s, x: lx, y: ly });
+    lx += w + 18;
+  });
+  const sub = 20, topoLinha = estreito ? 22 : 8, linha = series.length * sub + topoLinha + 8, cima = ly + 19, base = 24;
+  const H = cima + nomes.length * linha + base;
+  const colNome = estreito ? 0 : Math.max(...nomes.map(n => larguraTexto(n, 13))) + 14;
+  const pts = series.flatMap(s => s.periodos.filter(p => p.n));
+  const vals = pts.flatMap(p => p.ic).map(r => 100 * (r - 1));
+  const { passo } = escalaBonita(Math.max(...vals.map(Math.abs)), 3);
+  const lo = passo * Math.floor(Math.min(...vals, 0) / passo), hi = passo * Math.ceil(Math.max(...vals, 0) / passo);
+  const esq = colNome + (estreito ? 18 : 0), dir = 48, larg = W - esq - dir;
+  const X = v => esq + larg * (v - lo) / (hi - lo);
+  const rot = v => (v > 0 ? "+" : v < 0 ? "−" : "") + fmt(Math.abs(v)) + "%";
+  const svg = novoSvg(W, H, o.rotulo || "Efeito por período, com intervalo de 95%");
+  leg.forEach(({ s, x, y }) => {
+    svg.appendChild(svgEl("circle", { cx: x + 5, cy: y, r: 5, fill: s.cor }));
+    svg.appendChild(txt({ x: x + 14, y: y + 4, "font-size": 12.5, fill: COR.tinta2 }, s.nome));
+  });
+  for (let v = lo; v <= hi + 1e-9; v += passo) {
+    const zero = Math.abs(v) < 1e-9;
+    svg.appendChild(svgEl("line", { x1: X(v), x2: X(v), y1: cima - 4, y2: H - base, stroke: zero ? COR.tinta2 : COR.grade }));
+    svg.appendChild(txt({ x: X(v), y: H - 7, "text-anchor": "middle", "font-size": 11, fill: COR.mudo }, rot(v)));
+  }
+  nomes.forEach((nome, k) => {
+    const y0 = cima + k * linha;
+    if (k) svg.appendChild(svgEl("line", { x1: 0, x2: W, y1: y0, y2: y0, stroke: COR.grade }));
+    svg.appendChild(txt({ x: 0, y: estreito ? y0 + 16 : y0 + linha / 2 + 4, "font-size": 13, fill: COR.tinta, "font-weight": 600,
+      stroke: "#fff", "stroke-width": 4, "paint-order": "stroke", "stroke-linejoin": "round" }, nome));
+    series.forEach((s, j) => {
+      const p = s.periodos[k];
+      if (!p || !p.n) return;
+      const yc = y0 + topoLinha + j * sub + sub / 2, a = X(100 * (p.ic[0] - 1)), b = X(100 * (p.ic[1] - 1));
+      svg.appendChild(svgEl("line", { x1: a, x2: b, y1: yc, y2: yc, stroke: s.cor, "stroke-width": 2, "stroke-linecap": "round" }));
+      svg.appendChild(svgEl("circle", { cx: X(100 * (p.razao - 1)), cy: yc, r: 4.5, fill: s.cor, stroke: "#fff", "stroke-width": 2 }));
+      svg.appendChild(txt({ x: b + 6, y: yc + 4, "font-size": 12, fill: COR.tinta, "font-weight": 650, stroke: "#fff", "stroke-width": 3,
+        "paint-order": "stroke", "stroke-linejoin": "round" }, difPct(p.razao)));
+    });
+    const alvo = svgEl("rect", { x: 0, y: y0, width: W, height: linha, fill: "transparent" });
+    comDica(alvo, `<div class="t">${esc(nome)} depois da ativação</div>` + series.map(s => {
+      const p = s.periodos[k];
+      return p && p.n ? linhaDica(s.cor, difPct(p.razao), `${s.nome.toLowerCase()}, em relação ao esperado ${o.sem || ""}`) +
+        `<div class="sub">intervalo de 95%: ${icPct(p.ic)}; ${plural(p.n, "trecho", "trechos")}, ${fmt(p.obs)} sinistros, ${fmt(p.esp)} esperados</div>` : "";
+    }).join(""));
+    svg.appendChild(alvo);
+  });
+  box.appendChild(svg);
+}
+
+// ------------------------------------------------------------------ estado: BRT de Campinas
+
+function iniciaBRT() {
+  const br = st.interv.brt_campinas;
+  if (!br) { $("brt-campinas").hidden = true; return; }
+  const D = Object.fromEntries(br.desfechos.map(d => [d.id, d]));
+  st.br = br; st.brD = D; st.brDesfecho = "todos";
+  const t = D.todos, g = D.grave, pe = D.pedestre, mo = D.moto, um = br.um_a_um;
+  const corr = {};
+  br.vias.forEach(v => { (corr[v.municipio] ||= { ini: v.inicio, vias: [] }).vias.push(v.nome.replace(/^Av\. (das |dos |da |do )?/, "")); });
+  $("brt-intro").textContent = `Campinas abriu três corredores de BRT, com ônibus em faixa exclusiva no canteiro central e estações de embarque ` +
+    `em nível: ${eLista(Object.entries(corr).map(([c, x]) => `${c.replace(/^corredor /, "")} (${eLista(x.vias)}, desde ${mesCurto(x.ini)})`))}. ` +
+    `Comparamos os sinistros com vítimas nessas ${br.n_vias} avenidas, mês a mês desde ${anoMes(br.periodo[0])}, com os de ` +
+    `${fmt(br.n_comparacao)} avenidas de Campinas sem BRT.`;
+  const acaso = br.placebo >= 0.05;
+  const box = $("historias-brt");
+  box.innerHTML = "";
+  box.appendChild(el("article", { className: "historia cartao" },
+    `<div class="historia-texto"><div class="grande">${difPct(t.efeito)}</div>
+     <p><b>de sinistros com vítimas nas avenidas com BRT</b>, em relação ao que o andamento das outras avenidas de Campinas indicaria:
+     ${fmt(t.obs)} depois do início da operação, contra ${fmt(t.esp)} esperados (intervalo de 95%: ${icPct(t.ic)}). Nos 12 meses antes,
+     ${difPct(t.pre)}. ${acaso ? `Mas ${fmt(100 * br.placebo)}% dos sorteios de datas entre as avenidas sem BRT chegam a uma diferença desse
+     tamanho: com seis avenidas, que variam muito de um ano para outro, não dá para separar o efeito do BRT do acaso.`
+       : `Só ${fmt(100 * br.placebo, 1)}% dos sorteios de datas entre as avenidas sem BRT chegam a uma diferença desse tamanho.`}</p></div>
+     <figure><figcaption><h3>Sinistros nas avenidas com BRT, acima ou abaixo do esperado</h3>
+       <p>% em relação ao esperado sem o BRT, por trimestre antes e depois do início da operação; sombra: intervalo de 95%</p></figcaption>
+       <div class="controles controles-graf"><div class="segmentado" id="seg-brt" role="group" aria-label="Sinistros">
+         <button type="button" data-v="todos" class="ativo">Com vítimas</button><button type="button" data-v="pedestre">Atropelamentos</button></div></div>
+       <div class="grafico" id="graf-brt-evento"></div><p class="nota nota-graf" id="nota-brt-evento"></p></figure>`));
+  segmentado("seg-brt", v => { st.brDesfecho = v; graficoEventoBRT(); });
+  box.appendChild(el("article", { className: "historia cartao" },
+    `<div class="historia-texto"><div class="grande">${difPct(mo.efeito)}</div>
+     <p><b>de sinistros com motos nessas avenidas</b> (intervalo de 95%: ${icPct(mo.ic)}). Com ferido grave ou morto, ${difPct(g.efeito)}
+     (${icPct(g.ic)}). Os atropelamentos são poucos (cerca de ${fmt(pe.por_ano_antes)} por ano nessas avenidas antes do BRT) e já estavam
+     ${pe.pre > 1 ? "acima" : "abaixo"} do esperado antes (${difPct(pe.pre)}): ${difPct(pe.efeito)} depois, sem conclusão.</p></div>
+     <figure><figcaption><h3>Efeito do BRT em cada medida</h3>
+       <p>diferença em relação ao esperado sem o BRT, com intervalo de 95%; à direita, a diferença nos 12 meses antes do início da operação</p></figcaption>
+       <div class="grafico" id="graf-brt-medidas"></div>
+       <p class="nota nota-graf">Se a diferença antes já se afasta do zero (⚠), a medida já mudava antes do BRT e a diferença depois não pode ser atribuída a ele.</p></figure>`));
+  $("brt-vias-nota").textContent = `Sinistros com vítimas depois do início da operação, acima ou abaixo do esperado sem o BRT, com intervalo de 95%. ` +
+    `Faixa vertical: o conjunto das ${br.n_vias} avenidas (${difPct(t.efeito)}; ${icPct(t.ic)}). Escala logarítmica. O intervalo de cada avenida é o ` +
+    `do acaso de Poisson multiplicado por ${fmt(Math.sqrt(br.fator_via), 1)}: é quanto uma avenida de Campinas sem BRT, com uma data sorteada, ` +
+    `varia além do Poisson.`;
+  const tab = $("tabela-brt");
+  tab.innerHTML = `<thead><tr><th>Avenida</th><th class="num">BRT desde</th><th class="num col-opc">Por ano, antes</th>` +
+    `<th class="num">Depois</th><th class="num">Esperados</th><th class="num">Diferença</th><th class="num col-opc">Intervalo de 95%</th></tr></thead>`;
+  const tb = el("tbody");
+  br.vias.forEach(v => tb.appendChild(el("tr", {},
+    `<td class="local"><b>${esc(v.nome)}</b><span class="mun">${esc(v.municipio)}</span></td>` +
+    `<td class="num">${mesCurto(v.inicio)}</td><td class="num col-opc">${fmt(v.por_ano_antes, v.por_ano_antes < 10 ? 1 : 0)}</td>` +
+    `<td class="num">${fmt(v.obs)}</td><td class="num">${fmt(v.esp)}</td><td class="num">${v.esp ? difPct(v.obs / v.esp) : "—"}</td>` +
+    `<td class="num col-opc">${icPct(v.ic)}</td>`)));
+  tab.appendChild(tb);
+  $("brt-limites").innerHTML = `<h3>O que estes números não dizem</h3>
+    <p><b>Como eram as avenidas antes do projeto.</b> As obras dos corredores começaram em 2017 e foram até 2023 nas mesmas avenidas (a Ruy
+    Rodriguez voltou a ter obra em julho de 2023, com prazo de um ano), e estações e terminais abriram até abril de 2025. A comparação é do BRT em
+    operação com as avenidas em obra. Não há como comparar com as avenidas antes das obras: os sinistros não fatais só existem a partir de 2019.</p>
+    <p><b>O acaso.</b> Uma avenida de Campinas varia, de um ano para outro, ${fmt(Math.sqrt(br.fator_via), 1)} vez o que o acaso de Poisson prevê, e
+    ${fmt(100 * br.placebo)}% dos sorteios de datas entre as avenidas sem BRT dão uma diferença tão grande quanto a observada. O resultado não depende de
+    uma avenida só (tirando qualquer uma, fica entre ${difPct(um.efeito_min)} e ${difPct(um.efeito_max)}) e fica parecido
+    ${eLista(robTexto(br.robustez))}, mas com tão poucas avenidas ele é compatível com nenhum efeito.</p>
+    <p><b>Se cada viagem ficou mais segura.</b> Não há o fluxo de veículos: o BRT tirou faixas dos carros e pode ter levado parte do trânsito para
+    outras ruas. Menos sinistros na avenida podem ser menos carros passando por ela.</p>`;
+  $("nota-brt-evento").textContent = `Antes do início da operação, o esperado é calculado sem os dois anos anteriores, para que a comparação seja um ` +
+    `teste. O trimestre 0 tem só o 3º mês (o do início e o seguinte ficam de fora). Os últimos trimestres têm só a John Boyd Dunlop e as avenidas do ` +
+    `corredor Ouro Verde.`;
+  $("brt-fontes").innerHTML = `Datas de início da operação: ` + br.fontes.map(f => `<a href="${f.url}">${esc(f.titulo)}</a>`).join("; ") +
+    `. Como o efeito é medido: <a href="#perguntas">Sobre os dados</a>.`;
+  document.querySelectorAll(".brt-n-comp").forEach(s => { s.textContent = fmt(br.n_comparacao); });
+}
+
+function graficoEventoBRT() {
+  const k = st.brDesfecho, d = st.brD[k];
+  grafEvento($("graf-brt-evento"), st.br.evento[k], { cor: k === "todos" ? COR.sin : COR_MODO["Pedestre"],
+    nome: k === "pedestre" ? "com pedestre atropelado" : d.nome.toLowerCase(), marco: "BRT →",
+    rotulo: `${d.nome}: diferença em relação ao esperado sem o BRT, por trimestre` });
+}
+
+function desenhaBRT() {
+  if (!st.br) return;
+  graficoEventoBRT();
+  const COR_BRT = { todos: COR.sin, grave: COR.mortes, pedestre: COR_MODO["Pedestre"], moto: COR_MODO["Motocicleta"] };
+  grafMedidas($("graf-brt-medidas"), st.br.desfechos, { cor: d => COR_BRT[d.id], sub: () => "", sem: "sem o BRT", antesDe: "do BRT",
+    rotulo: "Efeito do BRT de Campinas em cada medida, com intervalo de 95%" });
+  grafVias($("graf-brt-vias"), st.br.vias, st.brD.todos, { antes: `2019–${ANTES_ANO(st.br.implantacao[0])}`, cor: COR.sin, desde: "BRT desde",
+    sem: "sem o BRT", medida: "com vítimas", rotulo: "Diferença em relação ao esperado sem o BRT em cada avenida, com intervalo de 95%" });
 }
 
 // diferença observado/esperado por trimestre; antes e depois da implantação são linhas separadas (vêm de ajustes diferentes)
@@ -2124,7 +2416,8 @@ function mostraVista(v) {
 // telas do estado. O endereço de cada seção leva à tela dela (os endereços antigos, como #mudancas, continuam valendo)
 const TELA_DE = { "": "explorar", inicio: "explorar", municipios: "explorar", locais: "explorar",
   analises: "analises", vitimas: "analises", letalidade: "analises",
-  mudou: "mudou", "faixa-azul": "mudou", radares: "mudou", "faixa-azul-abc": "mudou", mudancas: "mudou",
+  mudou: "mudou", "faixa-azul": "mudou", radares: "mudou", "radares-antigos": "mudou", "faixa-azul-abc": "mudou",
+  "brt-campinas": "mudou", mudancas: "mudou",
   sobre: "sobre", contagens: "sobre", perguntas: "sobre" };
 const TOPO_DA_TELA = new Set(["", "inicio", "analises", "mudou", "sobre"]);
 const TITULO_TELA = { analises: "Análises", mudou: "Intervenções", sobre: "Sobre os dados" };
@@ -2137,11 +2430,70 @@ function marcaTela() {
   });
 }
 
+// cada tela do estado tem um submenu com as suas seções (rótulo em data-menu, agrupadas por data-grupo), preso abaixo
+// do topo, com a seção visível marcada
+function menusDasTelas() {
+  document.querySelectorAll("#vista-estado > .tela").forEach(tela => {
+    const secoes = [...tela.querySelectorAll(":scope > section.secao[id]")];
+    if (secoes.length < 2) return;
+    const nav = el("nav", { className: "sub-nav secoes-tela" });
+    nav.setAttribute("aria-label", "Seções desta tela");
+    let grupo = null;
+    secoes.forEach(s => {
+      const g = s.dataset.grupo || null;
+      if (g && g !== grupo) nav.appendChild(el("span", { className: "grupo", textContent: g }));
+      grupo = g;
+      nav.appendChild(el("a", { href: "#" + s.id, textContent: s.dataset.menu || s.querySelector("h2").textContent }));
+    });
+    // o mesmo endereço não dispara hashchange: rola até a seção assim mesmo
+    nav.addEventListener("click", ev => {
+      const a = ev.target.closest("a");
+      if (a && a.hash === location.hash) { ev.preventDefault(); $(a.hash.slice(1)).scrollIntoView(); }
+    });
+    tela.querySelector(":scope > .tela-cab, :scope > .hero").after(nav);
+  });
+}
+
+function marcaSecao() {
+  if (st.vista !== "estado") return;
+  const nav = document.querySelector(`#vista-estado > .tela[data-tela="${st.tela}"] > .secoes-tela`);
+  if (!nav) return;
+  // a seção atual é a última cujo topo já passou do terço de cima da tela; no fim da página, a última
+  const lim = Math.max(nav.getBoundingClientRect().bottom + 24, innerHeight * 0.3);
+  const noFim = innerHeight + scrollY >= document.documentElement.scrollHeight - 4;
+  let atual = null;
+  nav.querySelectorAll("a").forEach(a => {
+    const s = $(a.hash.slice(1));
+    a.hidden = !s || s.hidden;
+    if (!a.hidden && (noFim || s.getBoundingClientRect().top <= lim)) atual = a;
+  });
+  nav.querySelectorAll(".grupo").forEach(g => {  // grupo sem nenhuma seção visível some junto
+    let x = g.nextElementSibling, algum = false;
+    while (x && x.tagName === "A") { algum ||= !x.hidden; x = x.nextElementSibling; }
+    g.hidden = !algum;
+  });
+  nav.querySelectorAll("a").forEach(a => { if (a === atual) a.setAttribute("aria-current", "location"); else a.removeAttribute("aria-current"); });
+  // no celular a barra rola na horizontal: mantém a seção marcada à vista, com o nome do grupo dela se couber
+  if (atual && (atual.offsetLeft < nav.scrollLeft || atual.offsetLeft + atual.offsetWidth > nav.scrollLeft + nav.clientWidth)) {
+    let g = atual.previousElementSibling;
+    while (g && g.tagName === "A") g = g.previousElementSibling;
+    const ini = g && atual.offsetLeft + atual.offsetWidth - g.offsetLeft < nav.clientWidth - 24 ? g.offsetLeft : atual.offsetLeft;
+    nav.scrollTo({ left: Math.max(0, ini - 8) });
+  }
+}
+let marcaPendente = false;
+addEventListener("scroll", () => {
+  if (marcaPendente) return;
+  marcaPendente = true;
+  requestAnimationFrame(() => { marcaPendente = false; marcaSecao(); });
+}, { passive: true });
+
 function mostraTela(t, forca = false) {
   const mudou = st.tela !== t;
   st.tela = t;
   document.querySelectorAll("#vista-estado > .tela").forEach(d => { d.hidden = d.dataset.tela !== t; });
   marcaTela();
+  requestAnimationFrame(marcaSecao);
   document.title = (TITULO_TELA[t] ? TITULO_TELA[t] + " · " : "") + "Onde acontecem os sinistros de trânsito em São Paulo";
   if (mudou || forca) desenhaTela();
 }
@@ -2151,7 +2503,7 @@ function desenhaTela() {
   escondeDica();
   if (st.tela === "explorar") garanteMapaEstado();
   desenhaGraficosEstado();
-  if (st.tela === "mudou" && st.interv) { desenhaFaixaAzul(); desenhaRadares(); desenhaFaixaAzulABC(); }
+  if (st.tela === "mudou" && st.interv) desenhaIntervencoes();
 }
 
 // endereço do município: #<código IBGE> ou, com um período escolhido, #<código IBGE>/<primeiro ano>-<último ano>
@@ -2190,6 +2542,7 @@ function rota() {
 // ------------------------------------------------------------------ início
 
 FONTE = getComputedStyle(document.body).fontFamily;
+menusDasTelas();
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 document.querySelectorAll("[data-busca]").forEach(criaBusca);
 document.querySelectorAll(".abas button").forEach(b => b.addEventListener("click", () => trocaAba(b.dataset.aba)));
@@ -2236,12 +2589,15 @@ fetch("data/estado.json", { cache: "no-cache" }).then(r => r.json()).then(e => {
   tabelaLocais();
   notaRegistro();
   intervencoes.then(iv => {
-    if (!iv) { ["faixa-azul", "radares", "faixa-azul-abc"].forEach(id => { $(id).hidden = true; }); return; }
+    if (!iv) { ["faixa-azul", "radares", "radares-antigos", "faixa-azul-abc", "brt-campinas"].forEach(id => { $(id).hidden = true; }); marcaSecao(); return; }
     st.interv = iv;
     iniciaFaixaAzul();
     iniciaRadares();
+    iniciaRadaresAntigos();
     iniciaFaixaAzulABC();
-    if (st.vista === "estado" && st.tela === "mudou") { desenhaFaixaAzul(); desenhaRadares(); desenhaFaixaAzulABC(); }
+    iniciaBRT();
+    if (st.vista === "estado" && st.tela === "mudou") desenhaIntervencoes();
+    marcaSecao();
   });
   addEventListener("hashchange", rota);
   rota();
