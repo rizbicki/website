@@ -1,0 +1,63 @@
+name: Sync published ViDAS dashboard
+
+on:
+  schedule:
+    - cron: "43 * * * *" # Lightweight check; training happens weekly in vidas-dashboard.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vidas-website-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Select the latest validated ViDAS release
+        id: release
+        run: |
+          python automation/vidas/sync.py --update-manifest
+          if ! test -f automation/vidas/release.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git add automation/vidas/release.json
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify the package before promoting the release
+        if: steps.release.outputs.changed == 'true'
+        run: python automation/vidas/sync.py
+
+      - name: Commit the validated release manifest
+        if: steps.release.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "data: update the published ViDAS dashboard"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Trigger Netlify build hook
+        if: steps.release.outputs.changed == 'true'
+        env:
+          NETLIFY_BUILD_HOOK: ${{ secrets.NETLIFY_BUILD_HOOK }}
+        run: |
+          if test -n "$NETLIFY_BUILD_HOOK"; then
+            curl --fail --silent --show-error -X POST -d '{}' "$NETLIFY_BUILD_HOOK"
+          else
+            echo "Using the existing Netlify Git integration."
+          fi

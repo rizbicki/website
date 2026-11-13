@@ -1,16 +1,17 @@
 [build]
-command = 'hugo'
+command = 'python3 automation/vidas/sync.py && hugo'
 publish = 'public'
 [build.environment]
 HUGO_VERSION = '0.110.0'
+PYTHON_VERSION = '3.11'
 
 
 [context]
 [context.branch-deploy]
-command = 'hugo -F -b $DEPLOY_PRIME_URL'
+command = 'python3 automation/vidas/sync.py && hugo -F -b $DEPLOY_PRIME_URL'
 
 [context.deploy-preview]
-command = 'hugo -F -b $DEPLOY_PRIME_URL'
+command = 'python3 automation/vidas/sync.py && hugo -F -b $DEPLOY_PRIME_URL'
 
 [context.production]
 [context.production.environment]

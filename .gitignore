@@ -4,3 +4,5 @@
 .Ruserdata
 
 automation/srag_nowcast/.cache/
+static/dashboard/vidas/
+automation/vidas/__pycache__/
