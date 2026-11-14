@@ -9,11 +9,17 @@ O painel é servido em <https://rafaelizbicki.com/dashboard/vidas/>. O código e
 
 Não há tokens de escrita entre os dois repositórios. Os arquivos grandes do painel ficam nas releases; os dados brutos ficam no cache do ViDAS. O site versiona somente o manifesto pequeno. Um pacote inválido faz o build falhar e mantém o deploy anterior no ar.
 
+O repositório `vidas-dashboard` é privado; o painel publicado continua público. Para baixar as releases, crie um token fine-grained limitado a esse repositório, com **Contents: Read-only**, e salve-o como `VIDAS_READ_TOKEN` nos **Settings → Secrets and variables → Actions** do repositório `website` e nas **Project configuration → Environment variables** do Netlify (escopo **Builds**, contexto **Production**). Renove o token nesses dois locais antes de expirar. O script usa a API autenticada do GitHub e não repassa a credencial nos redirecionamentos para os arquivos. O token nunca deve ser versionado nem incluído nos arquivos publicados.
+
+Builds de outros contextos, como Deploy Previews, também precisam dessa variável para baixar o painel; habilite-a apenas em contextos confiáveis. Sem acesso, o build falha com uma mensagem de configuração, preservando o deploy publicado.
+
 Antes da primeira release, o endereço definitivo mostra uma página de preparação que se atualiza a cada cinco minutos. A primeira sincronização bem-sucedida substitui essa página pelo painel completo.
 
 Para sincronizar imediatamente, execute **Actions → Sync published ViDAS dashboard → Run workflow** neste repositório. Para antecipar o treino, execute **Build data and publish dashboard bundle** no repositório do ViDAS.
 
 Para reproduzir o build localmente, com Python 3.11+ e Hugo 0.110.0:
+
+Disponibilize `VIDAS_READ_TOKEN` no ambiente local antes de executar os comandos abaixo.
 
 ```sh
 python automation/vidas/sync.py

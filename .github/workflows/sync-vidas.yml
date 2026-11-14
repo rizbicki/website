@@ -23,8 +23,13 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Check private release downloads
+        run: python -m unittest discover -s automation/vidas -p test_sync.py -v
+
       - name: Select the latest validated ViDAS release
         id: release
+        env:
+          VIDAS_READ_TOKEN: ${{ secrets.VIDAS_READ_TOKEN }}
         run: |
           python automation/vidas/sync.py --update-manifest
           if ! test -f automation/vidas/release.json; then
@@ -40,6 +45,8 @@ jobs:
 
       - name: Verify the package before promoting the release
         if: steps.release.outputs.changed == 'true'
+        env:
+          VIDAS_READ_TOKEN: ${{ secrets.VIDAS_READ_TOKEN }}
         run: python automation/vidas/sync.py
 
       - name: Commit the validated release manifest

@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import shutil
 import tempfile
@@ -15,19 +16,51 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = ROOT / "automation/vidas/release.json"
 DESTINATION = ROOT / "static/dashboard/vidas"
-RELEASES_API = "https://api.github.com/repos/rizbicki/vidas-dashboard/releases/latest"
+RELEASES_API = "https://api.github.com/repos/rizbicki/vidas-dashboard/releases"
 ASSET_PREFIX = "https://github.com/rizbicki/vidas-dashboard/releases/download/"
 
 
-def request(url: str):
-    return urllib.request.urlopen(urllib.request.Request(
-        url, headers={"User-Agent": "rafaelizbicki-website-vidas"}
-    ), timeout=120)
+def request(url: str, *, binary: bool = False):
+    if not url.startswith(RELEASES_API + "/"):
+        raise ValueError("Unexpected ViDAS API URL")
+    token = os.environ.get("VIDAS_READ_TOKEN", "").strip()
+    if not token:
+        raise RuntimeError(
+            "Set VIDAS_READ_TOKEN with Contents: read access to rizbicki/vidas-dashboard "
+            "in the website Actions secrets and Netlify build environment."
+        )
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "rafaelizbicki-website-vidas",
+        "Accept": "application/octet-stream" if binary else "application/vnd.github+json",
+    })
+    # urllib excludes unredirected headers when following signed asset-download URLs.
+    req.add_unredirected_header("Authorization", f"Bearer {token}")
+    try:
+        return urllib.request.urlopen(req, timeout=120)
+    except urllib.error.HTTPError as exc:
+        if exc.code in (401, 403, 404):
+            raise RuntimeError(
+                f"ViDAS GitHub request failed (HTTP {exc.code}). Check VIDAS_READ_TOKEN, "
+                "its expiration and Contents: read permission, and that the release exists."
+            ) from None
+        raise
 
 
 def read_json(url: str) -> dict:
     with request(url) as response:
         return json.load(response)
+
+
+def release_asset(release: dict, name: str):
+    tag = release["tag_name"]
+    if not re.fullmatch(r"build-\d+-\d+", tag):
+        raise ValueError("Invalid ViDAS release tag")
+    asset = next(a for a in release["assets"] if a["name"] == name)
+    if asset["browser_download_url"] != f"{ASSET_PREFIX}{tag}/{name}":
+        raise ValueError("Unexpected ViDAS release asset URL")
+    if type(asset["id"]) is not int or asset["id"] <= 0:
+        raise ValueError("Invalid ViDAS release asset ID")
+    return request(f"{RELEASES_API}/assets/{asset['id']}", binary=True)
 
 
 def validate_manifest(record: dict):
@@ -41,18 +74,9 @@ def validate_manifest(record: dict):
 
 
 def update_manifest() -> bool:
-    try:
-        release = read_json(RELEASES_API)
-    except urllib.error.HTTPError as exc:
-        if exc.code != 404:
-            raise
-        print("The first ViDAS release is still being prepared")
-        return False
-    asset = next(a for a in release["assets"] if a["name"] == "build-info.json")
-    expected_url = f"{ASSET_PREFIX}{release['tag_name']}/build-info.json"
-    if asset["browser_download_url"] != expected_url:
-        raise ValueError("Unexpected ViDAS provenance URL")
-    record = read_json(expected_url)
+    release = read_json(f"{RELEASES_API}/latest")
+    with release_asset(release, "build-info.json") as response:
+        record = json.load(response)
     validate_manifest(record)
     if record["tag"] != release["tag_name"]:
         raise ValueError("Release tag does not match the build provenance")
@@ -81,13 +105,16 @@ def extract_bundle(archive: Path, destination: Path):
 
 def fetch_bundle(record: dict, destination: Path = DESTINATION):
     validate_manifest(record)
+    release = read_json(f"{RELEASES_API}/tags/{record['tag']}")
+    if release["tag_name"] != record["tag"]:
+        raise ValueError("Release tag does not match the pinned build provenance")
     # The published package is pinned by URL and SHA-256, so website rebuilds
     # always use the same fitted models until the sync workflow promotes a release.
     with tempfile.TemporaryDirectory(prefix="vidas-bundle-") as temporary:
         staging = Path(temporary)
         archive = staging / "dashboard.zip"
         digest = hashlib.sha256()
-        with request(record["archive_url"]) as response, archive.open("wb") as output:
+        with release_asset(release, "vidas-dashboard.zip") as response, archive.open("wb") as output:
             while chunk := response.read(1024 * 1024):
                 output.write(chunk)
                 digest.update(chunk)
