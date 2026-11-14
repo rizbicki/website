@@ -1,8 +1,12 @@
 name: Sync published ViDAS dashboard
 
 on:
+  # vidas-dashboard sends this event right after it publishes a release (build or InfoGripe refresh).
+  repository_dispatch:
+    types: [vidas-release]
+  # Fallback only: GitHub delays or drops many scheduled runs, so it cannot be the main trigger.
   schedule:
-    - cron: "43 * * * *" # Lightweight check; training happens weekly in vidas-dashboard.
+    - cron: "43 */6 * * *"
   workflow_dispatch:
 
 permissions:
