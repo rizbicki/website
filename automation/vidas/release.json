@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-11-14T11:49:30+00:00",
+  "built_at": "2026-11-14T12:49:21+00:00",
   "release_date": "2026-11-09",
   "files": [
     "INFLUD22-23-03-2026.csv",
@@ -25,9 +25,9 @@
       "iterations": 521
     }
   },
-  "source_commit": "871b87017d5fd15734cd020479b9d8240e386653",
-  "tag": "build-43589793622-1",
-  "archive_url": "https://github.com/rizbicki/vidas-dashboard/releases/download/build-43589793622-1/vidas-dashboard.zip",
-  "sha256": "ca2e8d3bd8181022d334b63aaf56590c7d7911625575610ae6202296566aa512",
-  "workflow_run": "https://github.com/rizbicki/vidas-dashboard/actions/runs/43589793622"
+  "source_commit": "54073728334179260e8703ff6d6527714a0a6e72",
+  "tag": "build-43594205591-1",
+  "archive_url": "https://github.com/rizbicki/vidas-dashboard/releases/download/build-43594205591-1/vidas-dashboard.zip",
+  "sha256": "95ad6c535f938486548ca7b6cbf39008c4b6ea728f61f5f6e9c71efbcd151ee2",
+  "workflow_run": "https://github.com/rizbicki/vidas-dashboard/actions/runs/43594205591"
 }
