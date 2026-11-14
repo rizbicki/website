@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-11-13T22:50:35+00:00",
+  "built_at": "2026-11-14T09:38:15+00:00",
   "release_date": "2026-11-09",
   "files": [
     "INFLUD22-23-03-2026.csv",
@@ -12,22 +12,22 @@
   "n_positive": 492140,
   "models": {
     "virus": {
-      "iterations": 1678,
-      "train_rows": 540168
+      "iterations": 1818,
+      "train_rows": 540097
     },
     "age_bins": {
       "iterations": 455
     },
     "positivity": {
-      "iterations": 4999
+      "iterations": 5000
     },
     "delay": {
       "iterations": 521
     }
   },
-  "source_commit": "f27319b64300efb4ae6ecb992956cd7ab234f8a0",
-  "tag": "build-43518520161-1",
-  "archive_url": "https://github.com/rizbicki/vidas-dashboard/releases/download/build-43518520161-1/vidas-dashboard.zip",
-  "sha256": "572c3a430771fbc54b791daef0450f8f903f922d589e5393953f9405e929332d",
-  "workflow_run": "https://github.com/rizbicki/vidas-dashboard/actions/runs/43518520161"
+  "source_commit": "6a422a933481afc50d1062b56eea705e0023086e",
+  "tag": "build-43579823831-1",
+  "archive_url": "https://github.com/rizbicki/vidas-dashboard/releases/download/build-43579823831-1/vidas-dashboard.zip",
+  "sha256": "e4109845fddbecbbe153233b021b5c169a6529dd058b7e46bafcd972267ab4e4",
+  "workflow_run": "https://github.com/rizbicki/vidas-dashboard/actions/runs/43579823831"
 }
