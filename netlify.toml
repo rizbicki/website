@@ -16,3 +16,19 @@ command = 'python3 automation/vidas/sync.py && hugo -F -b $DEPLOY_PRIME_URL'
 [context.production]
 [context.production.environment]
 HUGO_ENV = 'production'
+
+# The weekly SRAG nowcast dashboard was retired (Nov 2026); its addresses point to ViDAS.
+[[redirects]]
+from = "/srag-nowcast"
+to = "/dashboard/vidas/"
+status = 301
+
+[[redirects]]
+from = "/srag-nowcast/*"
+to = "/dashboard/vidas/"
+status = 301
+
+[[redirects]]
+from = "/dashboard/srag/*"
+to = "/dashboard/vidas/"
+status = 301

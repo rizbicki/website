@@ -14,6 +14,4 @@ weight = 63
 
 - [ViDAS — vírus respiratórios na SRAG](/dashboard/vidas/): distribuição de vírus e hospitalizações por município, região e idade, com correção do atraso de notificação e atualização semanal.
 
-- [Nowcast semanal de SRAG no Brasil](/srag-nowcast/): estimativas semanais de SRAG para o Brasil e as 27 UFs, atualizadas automaticamente.
-
 - [Onde acontecem os sinistros de trânsito em São Paulo](/dashboard/transito-sp/): mapa interativo com dados do Infosiga.
